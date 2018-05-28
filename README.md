@@ -22,7 +22,7 @@ Bits of descrption garnered from the above video:
 
 ## TODO
 
-* [ ] Create basic project structure
+* [x] Create basic project structure
 * [ ] Add simple ellipse
 * [ ] Add basic animation of the ellipse
 * [ ] Add simple "clock-hand"
