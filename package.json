@@ -12,6 +12,7 @@
     "eslint": "^4.18.1",
     "html-webpack-plugin": "^2.30.1",
     "three": "^0.90.0",
+    "three.meshline": "^1.1.0",
     "webpack": "^3.11.0",
     "webpack-dev-server": "^2.11.1"
   },
