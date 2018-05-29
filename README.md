@@ -24,7 +24,7 @@ Bits of descrption garnered from the above video:
 
 * [x] Create basic project structure
 * [x] Add simple ellipse
-* [ ] Add basic animation of the ellipse
+* [x] Add basic animation of the ellipse
 * [ ] Add simple "clock-hand"
 * [ ] Add basic animation of the "clock-hand"
 * [ ] Try to re-create the exact movement of the form
