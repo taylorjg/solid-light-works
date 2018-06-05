@@ -1,5 +1,9 @@
 import * as THREE from "three";
 import OrbitControls from 'three-orbitcontrols';
+import LineInitFn from "three-line-2d";
+import BasicShaderInitFn from "three-line-2d/shaders/basic";
+const Line = LineInitFn(THREE);
+const BasicShader = BasicShaderInitFn(THREE);
 
 const container = document.getElementById("container");
 const w = container.offsetWidth;
@@ -11,7 +15,7 @@ container.appendChild(renderer.domElement);
 
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(40, w / h, 0.1, 1000);
-camera.position.set(20, 20, 20);
+camera.position.set(-20, -10, 50);
 camera.lookAt(0, 0, 0);
 scene.add(camera);
 
@@ -29,6 +33,7 @@ const textureMaterial = new THREE.MeshBasicMaterial({
   map: texture,
   color: 0x00dddd,
   transparent: true,
+  opacity: 0.6,
   clippingPlanes: [new THREE.Plane(new THREE.Vector3(0, 0, 1))]
 });
 
@@ -43,6 +48,18 @@ const formRight = new THREE.Mesh(formRightGeometry, textureMaterial);
 formRight.rotateX(-75 * Math.PI / 180);
 formRight.position.set(4, 1.3, 9);
 scene.add(formRight);
+
+const ellipseCurve = new THREE.EllipseCurve(4, 4, 2.4, 2, 1.5 * Math.PI, 3.5 * Math.PI, true);
+const points = ellipseCurve.getPoints(500).map(({x, y}) => [x, y]);
+const geo = Line(points);
+const mat = new THREE.ShaderMaterial(
+  BasicShader({
+    side: THREE.DoubleSide,
+    diffuse: 0x5cd7ff,
+    thickness: 0.1
+  }));
+const mesh = new THREE.Mesh(geo, mat);
+scene.add(mesh);
 
 // const updateEllipse1 = () => {
 //   ellipseCurve1.aEndAngle -= (Math.PI / (180 * 60));
