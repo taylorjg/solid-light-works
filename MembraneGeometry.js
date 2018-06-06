@@ -2,7 +2,11 @@ import { BufferGeometry } from "three";
 import { Float32BufferAttribute } from "three";
 
 // TODO: make this a class
-export function MembraneBufferGeometry(radiusTop, radiusBottom, height, radialSegments, heightSegments, thetaStart, thetaLength) {
+// ps: array of Vector3 representing the small shape
+// - e.g. obtained from ElipseCurve.getPoints()
+// qs: array of Vector3 representing the large shape
+// - e.g. obtained from ElipseCurve.getPoints()
+export function MembraneBufferGeometry(ps, qs, numSegments) {
 
 	BufferGeometry.call(this);
 
@@ -10,15 +14,7 @@ export function MembraneBufferGeometry(radiusTop, radiusBottom, height, radialSe
 
 	const scope = this;
 
-	radiusTop = radiusTop !== undefined ? radiusTop : 1;
-	radiusBottom = radiusBottom !== undefined ? radiusBottom : 1;
-	height = height || 1;
-
-	radialSegments = Math.floor(radialSegments) || 8;
-	heightSegments = Math.floor(heightSegments) || 1;
-
-	thetaStart = thetaStart !== undefined ? thetaStart : 0.0;
-	thetaLength = thetaLength !== undefined ? thetaLength : Math.PI * 2;
+	numSegments = Math.floor(numSegments) || 1;
 
 	// buffers
 	const indices = [];
@@ -27,9 +23,9 @@ export function MembraneBufferGeometry(radiusTop, radiusBottom, height, radialSe
 	const uvs = [];
 
 	// helper variables
-	let index = 0;
 	const indexArray = [];
-	const halfHeight = height / 2;
+	const numPoints = ps.length;
+	let index = 0;
 	let groupStart = 0;
 
 	// generate geometry
@@ -46,24 +42,17 @@ export function MembraneBufferGeometry(radiusTop, radiusBottom, height, radialSe
 		let groupCount = 0;
 
 		// generate vertices, normals and uvs
-		for (let y = 0; y <= heightSegments; y++) {
+		for (let y = 0; y <= numSegments; y++) {
+			const v = y / numSegments;
 			const indexRow = [];
-			const v = y / heightSegments;
 
-			// calculate the radius of the current row
-			const radius = v * (radiusBottom - radiusTop) + radiusTop;
-
-			for (let x = 0; x <= radialSegments; x++) {
-				const u = x / radialSegments;
-				const theta = u * thetaLength + thetaStart;
-				const sinTheta = Math.sin(theta);
-				const cosTheta = Math.cos(theta);
+			for (let x = 0; x < numPoints; x++) {
+				const u = x / numPoints;
 
 				// vertex
-				const vertexX = radius * sinTheta;
-				const vertexY = - v * height + halfHeight;
-				const vertexZ = radius * cosTheta;
-				vertices.push(vertexX, vertexY, vertexZ);
+				const clone = ps[x].clone();
+				clone.lerp(qs[x], v);
+				vertices.push(clone.x, clone.y, clone.z);
 
 				// normal
 				normals.push(0, 0, 0);
@@ -80,9 +69,9 @@ export function MembraneBufferGeometry(radiusTop, radiusBottom, height, radialSe
 		}
 
 		// generate indices
-		for (let x = 0; x < radialSegments; x++) {
+		for (let x = 0; x < numPoints; x++) {
 
-			for (let y = 0; y < heightSegments; y++) {
+			for (let y = 0; y < numSegments; y++) {
 
 				// we use the index array to access the correct indices
 				const a = indexArray[y][x];

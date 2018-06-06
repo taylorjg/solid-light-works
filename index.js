@@ -11,7 +11,6 @@ const w = container.offsetWidth;
 const h = container.offsetHeight;
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(w, h);
-renderer.localClippingEnabled = true;
 container.appendChild(renderer.domElement);
 
 const scene = new THREE.Scene();
@@ -35,31 +34,57 @@ const textureMaterial = new THREE.MeshBasicMaterial({
   color: 0x00dddd,
   transparent: true,
   opacity: 0.4,
-  clippingPlanes: [new THREE.Plane(new THREE.Vector3(0, 0, 1))]
 });
 
-const ellipseCurve = new THREE.EllipseCurve(4, 4, 2.4, 2, 1.5 * Math.PI, 3.5 * Math.PI, true);
-const ellipsePoints = ellipseCurve.getPoints(500).map(vec2 => vec2.toArray());
-const ellipseGemoetry = Line(ellipsePoints);
-const ellipseMaterial = new THREE.ShaderMaterial(
+
+const ellipseCurveRP = new THREE.EllipseCurve(4, 1, 2.4 / 20, 2 / 20, 1.5 * Math.PI, 2 * Math.PI, true);
+const ellipsePointsRPVec2 = ellipseCurveRP.getPoints(500);
+
+const ellipseCurveRQ = new THREE.EllipseCurve(4, 2.6, 2.4, 2, 1.5 * Math.PI, 2 * Math.PI, true);
+const ellipsePointsRQVec2 = ellipseCurveRQ.getPoints(500);
+
+const ellipsePointsRQArr = ellipsePointsRQVec2.map(vec2 => vec2.toArray());
+const ellipseGemoetryRQ = Line(ellipsePointsRQArr);
+const ellipseMaterialRQ = new THREE.ShaderMaterial(
   BasicShader({
     side: THREE.DoubleSide,
     diffuse: 0x5cd7ff,
     thickness: 0.1
   }));
-const ellipseMesh = new THREE.Mesh(ellipseGemoetry, ellipseMaterial);
-scene.add(ellipseMesh);
+const ellipseMeshRQ = new THREE.Mesh(ellipseGemoetryRQ, ellipseMaterialRQ);
+scene.add(ellipseMeshRQ);
 
-const leftMembraneGeometry = new MembraneBufferGeometry(2.4, 0.1, 20, 50, 50, 0 * Math.PI, 2 * Math.PI);
+const rps = ellipsePointsRPVec2.map(vec2 => new THREE.Vector3(vec2.x, vec2.y, 15));
+const rqs = ellipsePointsRQVec2.map(vec2 => new THREE.Vector3(vec2.x, vec2.y, 0));
+
+
+const ellipseCurveLP = new THREE.EllipseCurve(-4, 1, 2.4 / 20, 2 / 20, 1.5 * Math.PI, 3.5 * Math.PI, true);
+const ellipsePointsLPVec2 = ellipseCurveLP.getPoints(500);
+
+const ellipseCurveLQ = new THREE.EllipseCurve(-4, 2.6, 2.4, 2, 1.5 * Math.PI, 3.5 * Math.PI, true);
+const ellipsePointsLQVec2 = ellipseCurveLQ.getPoints(500);
+
+const ellipsePointsLQArr = ellipsePointsLQVec2.map(vec2 => vec2.toArray());
+const ellipseGemoetryLQ = Line(ellipsePointsLQArr);
+const ellipseMaterialLQ = new THREE.ShaderMaterial(
+  BasicShader({
+    side: THREE.DoubleSide,
+    diffuse: 0x5cd7ff,
+    thickness: 0.1
+  }));
+const ellipseMeshLQ = new THREE.Mesh(ellipseGemoetryLQ, ellipseMaterialLQ);
+scene.add(ellipseMeshLQ);
+
+
+const lps = ellipsePointsLPVec2.map(vec2 => new THREE.Vector3(vec2.x, vec2.y, 15));
+const lqs = ellipsePointsLQVec2.map(vec2 => new THREE.Vector3(vec2.x, vec2.y, 0));
+
+const leftMembraneGeometry = new MembraneBufferGeometry(lps, lqs, 50);
 const leftMembraneMesh = new THREE.Mesh(leftMembraneGeometry, textureMaterial);
-leftMembraneMesh.rotateX(-75 * Math.PI / 180);
-leftMembraneMesh.position.set(-4, 1.3, 9);
 scene.add(leftMembraneMesh);
 
-const rightMembraneGeometry = new MembraneBufferGeometry(2.4, 0.1, 20, 50, 50, 0 * Math.PI, 2 * Math.PI);
+const rightMembraneGeometry = new MembraneBufferGeometry(rps, rqs, 50);
 const rightMembraneMesh = new THREE.Mesh(rightMembraneGeometry, textureMaterial);
-rightMembraneMesh.rotateX(-75 * Math.PI / 180);
-rightMembraneMesh.position.set(4, 1.3, 9);
 scene.add(rightMembraneMesh);
 
 // const updateEllipse1 = () => {
