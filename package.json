@@ -4,6 +4,7 @@
   "description": "Trying to re-create \"Leaving (With Two-Minute Silence)\"",
   "main": "index.js",
   "author": "Jonathan Taylor",
+  "license": "MIT",
   "dependencies": {
     "babel-loader": "^7.1.2",
     "babel-preset-env": "^1.6.1",
