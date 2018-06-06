@@ -112,11 +112,13 @@ function MembraneBufferGeometry(radiusTop, radiusBottom, height, radialSegments,
 				vertices.push(vertex.x, vertex.y, vertex.z);
 
 				// normal
-				normal.set(sinTheta, slope, cosTheta).normalize();
-				normals.push(normal.x, normal.y, normal.z);
+				// normal.set(sinTheta, slope, cosTheta).normalize();
+				// normals.push(normal.x, normal.y, normal.z);
+				normals.push(0, 0, 0);
 
 				// uv
-				uvs.push(u, 1 - v);
+				// uvs.push(u, 1 - v);
+				uvs.push(u, u);
 
 				// save index of vertex in respective row
 				indexRow.push(index++);
