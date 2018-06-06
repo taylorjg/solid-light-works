@@ -1,46 +1,12 @@
-import { Geometry } from 'three';
-import { BufferGeometry } from 'three';
-import { Float32BufferAttribute } from 'three';
-import { Vector3 } from 'three';
+import { BufferGeometry } from "three";
+import { Float32BufferAttribute } from "three";
 
-function MembraneGeometry(radiusTop, radiusBottom, height, radialSegments, heightSegments, thetaStart, thetaLength) {
-
-	Geometry.call(this);
-
-	this.type = 'MembraneGeometry';
-
-	this.parameters = {
-		radiusTop,
-		radiusBottom,
-		height,
-		radialSegments,
-		heightSegments,
-		thetaStart,
-		thetaLength
-	};
-
-	this.fromBufferGeometry(new MembraneBufferGeometry(radiusTop, radiusBottom, height, radialSegments, heightSegments, thetaStart, thetaLength));
-	this.mergeVertices();
-}
-
-MembraneGeometry.prototype = Object.create(Geometry.prototype);
-MembraneGeometry.prototype.constructor = MembraneGeometry;
-
-function MembraneBufferGeometry(radiusTop, radiusBottom, height, radialSegments, heightSegments, thetaStart, thetaLength) {
+// TODO: make this a class
+export function MembraneBufferGeometry(radiusTop, radiusBottom, height, radialSegments, heightSegments, thetaStart, thetaLength) {
 
 	BufferGeometry.call(this);
 
-	this.type = 'MembraneBufferGeometry';
-
-	this.parameters = {
-		radiusTop,
-		radiusBottom,
-		height,
-		radialSegments,
-		heightSegments,
-		thetaStart,
-		thetaLength
-	};
+	this.type = "MembraneBufferGeometry";
 
 	const scope = this;
 
@@ -71,53 +37,38 @@ function MembraneBufferGeometry(radiusTop, radiusBottom, height, radialSegments,
 
 	// build geometry
 	this.setIndex(indices);
-	this.addAttribute('position', new Float32BufferAttribute(vertices, 3));
-	this.addAttribute('normal', new Float32BufferAttribute(normals, 3));
-	this.addAttribute('uv', new Float32BufferAttribute(uvs, 2));
+	this.addAttribute("position", new Float32BufferAttribute(vertices, 3));
+	this.addAttribute("normal", new Float32BufferAttribute(normals, 3));
+	this.addAttribute("uv", new Float32BufferAttribute(uvs, 2));
 
 	function generateTorso() {
 
-		let x, y;
-		const normal = new Vector3();
-		const vertex = new Vector3();
-
 		let groupCount = 0;
 
-		// this will be used to calculate the normal
-		const slope = (radiusBottom - radiusTop) / height;
-
 		// generate vertices, normals and uvs
-		for (y = 0; y <= heightSegments; y++) {
-
+		for (let y = 0; y <= heightSegments; y++) {
 			const indexRow = [];
-
 			const v = y / heightSegments;
 
 			// calculate the radius of the current row
 			const radius = v * (radiusBottom - radiusTop) + radiusTop;
 
-			for (x = 0; x <= radialSegments; x++) {
-
+			for (let x = 0; x <= radialSegments; x++) {
 				const u = x / radialSegments;
-
 				const theta = u * thetaLength + thetaStart;
-
 				const sinTheta = Math.sin(theta);
 				const cosTheta = Math.cos(theta);
 
 				// vertex
-				vertex.x = radius * sinTheta;
-				vertex.y = - v * height + halfHeight;
-				vertex.z = radius * cosTheta;
-				vertices.push(vertex.x, vertex.y, vertex.z);
+				const vertexX = radius * sinTheta;
+				const vertexY = - v * height + halfHeight;
+				const vertexZ = radius * cosTheta;
+				vertices.push(vertexX, vertexY, vertexZ);
 
 				// normal
-				// normal.set(sinTheta, slope, cosTheta).normalize();
-				// normals.push(normal.x, normal.y, normal.z);
 				normals.push(0, 0, 0);
 
 				// uv
-				// uvs.push(u, 1 - v);
 				uvs.push(u, u);
 
 				// save index of vertex in respective row
@@ -129,9 +80,9 @@ function MembraneBufferGeometry(radiusTop, radiusBottom, height, radialSegments,
 		}
 
 		// generate indices
-		for (x = 0; x < radialSegments; x++) {
+		for (let x = 0; x < radialSegments; x++) {
 
-			for (y = 0; y < heightSegments; y++) {
+			for (let y = 0; y < heightSegments; y++) {
 
 				// we use the index array to access the correct indices
 				const a = indexArray[y][x];
@@ -158,5 +109,3 @@ function MembraneBufferGeometry(radiusTop, radiusBottom, height, radialSegments,
 
 MembraneBufferGeometry.prototype = Object.create(BufferGeometry.prototype);
 MembraneBufferGeometry.prototype.constructor = MembraneBufferGeometry;
-
-export { MembraneGeometry, MembraneBufferGeometry };
