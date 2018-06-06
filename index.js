@@ -38,31 +38,29 @@ const textureMaterial = new THREE.MeshBasicMaterial({
   clippingPlanes: [new THREE.Plane(new THREE.Vector3(0, 0, 1))]
 });
 
-// const formLeftGeometry = new THREE.CylinderBufferGeometry(2.4, 0.1, 20, 50, 50, true, 0 * Math.PI, 2 * Math.PI);
-const formLeftGeometry = new MembraneBufferGeometry(2.4, 0.1, 20, 50, 50, 0 * Math.PI, 2 * Math.PI);
-const formLeft = new THREE.Mesh(formLeftGeometry, textureMaterial);
-formLeft.rotateX(-75 * Math.PI / 180);
-formLeft.position.set(-4, 1.3, 9);
-scene.add(formLeft);
-
-// const formRightGeometry = new THREE.CylinderBufferGeometry(2.4, 0.1, 20, 50, 50, true, 0 * Math.PI, 2 * Math.PI);
-const formRightGeometry = new MembraneBufferGeometry(2.4, 0.1, 20, 50, 50, 0 * Math.PI, 2 * Math.PI);
-const formRight = new THREE.Mesh(formRightGeometry, textureMaterial);
-formRight.rotateX(-75 * Math.PI / 180);
-formRight.position.set(4, 1.3, 9);
-scene.add(formRight);
-
 const ellipseCurve = new THREE.EllipseCurve(4, 4, 2.4, 2, 1.5 * Math.PI, 3.5 * Math.PI, true);
-const points = ellipseCurve.getPoints(500).map(({x, y}) => [x, y]);
-const geo = Line(points);
-const mat = new THREE.ShaderMaterial(
+const ellipsePoints = ellipseCurve.getPoints(500).map(vec2 => vec2.toArray());
+const ellipseGemoetry = Line(ellipsePoints);
+const ellipseMaterial = new THREE.ShaderMaterial(
   BasicShader({
     side: THREE.DoubleSide,
     diffuse: 0x5cd7ff,
     thickness: 0.1
   }));
-const mesh = new THREE.Mesh(geo, mat);
-scene.add(mesh);
+const ellipseMesh = new THREE.Mesh(ellipseGemoetry, ellipseMaterial);
+scene.add(ellipseMesh);
+
+const leftMembraneGeometry = new MembraneBufferGeometry(2.4, 0.1, 20, 50, 50, 0 * Math.PI, 2 * Math.PI);
+const leftMembraneMesh = new THREE.Mesh(leftMembraneGeometry, textureMaterial);
+leftMembraneMesh.rotateX(-75 * Math.PI / 180);
+leftMembraneMesh.position.set(-4, 1.3, 9);
+scene.add(leftMembraneMesh);
+
+const rightMembraneGeometry = new MembraneBufferGeometry(2.4, 0.1, 20, 50, 50, 0 * Math.PI, 2 * Math.PI);
+const rightMembraneMesh = new THREE.Mesh(rightMembraneGeometry, textureMaterial);
+rightMembraneMesh.rotateX(-75 * Math.PI / 180);
+rightMembraneMesh.position.set(4, 1.3, 9);
+scene.add(rightMembraneMesh);
 
 // const updateEllipse1 = () => {
 //   ellipseCurve1.aEndAngle -= (Math.PI / (180 * 60));
