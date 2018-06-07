@@ -15,11 +15,15 @@ container.appendChild(renderer.domElement);
 
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(40, w / h, 0.1, 1000);
-camera.position.set(-20, -10, 50);
-camera.lookAt(0, 0, 0);
+// camera.position.set(-15, 2, 15);
+camera.position.set(5, 3, -14);
 scene.add(camera);
 
+// const axesHelper = new THREE.AxesHelper(5);
+// scene.add(axesHelper);
+
 const controls = new OrbitControls(camera, renderer.domElement);
+controls.target = new THREE.Vector3(0, 2, 0);
 controls.minDistance = 0;
 controls.maxDistance = 50;
 controls.enableDamping = true;
@@ -36,67 +40,118 @@ const textureMaterial = new THREE.MeshBasicMaterial({
   opacity: 0.6,
 });
 
+// -------------------
+// Sizes and positions
+// -------------------
+
+const FUDGE_FACTOR = Math.PI / 180;
+const LEFT_START_ANGLE = 1.5 * Math.PI + FUDGE_FACTOR;
+const LEFT_END_ANGLE = 3.5 * Math.PI;
+const LEFT_CENTRE_X = -4;
+const LEFT_CENTRE_P_Y = 1;
+const LEFT_CENTRE_Q_Y = 2.6;
+
+const RIGHT_START_ANGLE = 1.5 * Math.PI;
+const RIGHT_END_ANGLE = 3.5 * Math.PI;
+const RIGHT_CENTRE_X = -LEFT_CENTRE_X;
+const RIGHT_CENTRE_P_Y = LEFT_CENTRE_P_Y;
+const RIGHT_CENTRE_Q_Y = LEFT_CENTRE_Q_Y;
+
+const ELLIPSE_RADIUS_Q_X = 2.8;
+const ELLIPSE_RADIUS_Q_Y = 2;
+const ELLIPSE_RADIUS_P = ELLIPSE_RADIUS_Q_Y / 20;
+const ELLIPSE_THICKNESS = 0.04;
+const ELLIPSE_CLOCKWISE = true;
+const ELLIPSE_POINT_COUNT = 500;
+const ELLIPSE_ROTATION_DELTA = Math.PI / (180 * 20);
+
+const MEMBRANE_LENGTH = 10;
+const MEMBRANE_SEGMENT_COUNT = 50;
+
 // ------------
 // Left ellipse
 // ------------
 
-const fudgeFactor = Math.PI / 180;
-const leftStartAngle = 1.5 * Math.PI + fudgeFactor;
-const leftEndAngle = 3.5 * Math.PI;
+const ellipseCurveLP = new THREE.EllipseCurve(
+  LEFT_CENTRE_X,
+  LEFT_CENTRE_P_Y,
+  ELLIPSE_RADIUS_P,
+  ELLIPSE_RADIUS_P,
+  LEFT_START_ANGLE,
+  LEFT_END_ANGLE,
+  ELLIPSE_CLOCKWISE);
+const ellipsePointsLPVec2 = ellipseCurveLP.getPoints(ELLIPSE_POINT_COUNT);
 
-const ellipseCurveLP = new THREE.EllipseCurve(-4, 1, 2.4 / 20, 2 / 20, leftStartAngle, leftEndAngle, true);
-const ellipsePointsLPVec2 = ellipseCurveLP.getPoints(500);
-
-const ellipseCurveLQ = new THREE.EllipseCurve(-4, 2.6, 2.4, 2, leftStartAngle, leftEndAngle, true);
-const ellipsePointsLQVec2 = ellipseCurveLQ.getPoints(500);
+const ellipseCurveLQ = new THREE.EllipseCurve(
+  LEFT_CENTRE_X,
+  LEFT_CENTRE_Q_Y,
+  ELLIPSE_RADIUS_Q_X,
+  ELLIPSE_RADIUS_Q_Y,
+  LEFT_START_ANGLE,
+  LEFT_END_ANGLE,
+  ELLIPSE_CLOCKWISE);
+const ellipsePointsLQVec2 = ellipseCurveLQ.getPoints(ELLIPSE_POINT_COUNT);
 const ellipsePointsLQArr = ellipsePointsLQVec2.map(vec2 => vec2.toArray());
 
 const ellipseGemoetryL = Line(ellipsePointsLQArr);
 const ellipseMaterialL = new THREE.ShaderMaterial(
   BasicShader({
     side: THREE.DoubleSide,
-    diffuse: 0x5cd7ff,
-    thickness: 0.1
+    // diffuse: 0x5cd7ff,
+    diffuse: 0xffffff,
+    thickness: ELLIPSE_THICKNESS
   }));
 const ellipseMeshL = new THREE.Mesh(ellipseGemoetryL, ellipseMaterialL);
 scene.add(ellipseMeshL);
 
-const lps = ellipsePointsLPVec2.map(vec2 => new THREE.Vector3(vec2.x, vec2.y, 15));
+const lps = ellipsePointsLPVec2.map(vec2 => new THREE.Vector3(vec2.x, vec2.y, MEMBRANE_LENGTH));
 const lqs = ellipsePointsLQVec2.map(vec2 => new THREE.Vector3(vec2.x, vec2.y, 0));
 
 // -------------
 // Right ellipse
 // -------------
 
-const rightStartAngle = 1.5 * Math.PI;
-const rightEndAngle = 3.5 * Math.PI;
+const ellipseCurveRP = new THREE.EllipseCurve(
+  RIGHT_CENTRE_X,
+  RIGHT_CENTRE_P_Y,
+  ELLIPSE_RADIUS_P,
+  ELLIPSE_RADIUS_P,
+  RIGHT_START_ANGLE,
+  RIGHT_END_ANGLE,
+  ELLIPSE_CLOCKWISE);
+const ellipsePointsRPVec2 = ellipseCurveRP.getPoints(ELLIPSE_POINT_COUNT);
 
-const ellipseCurveRP = new THREE.EllipseCurve(4, 1, 2.4 / 20, 2 / 20, rightStartAngle, rightEndAngle, true);
-const ellipsePointsRPVec2 = ellipseCurveRP.getPoints(500);
-
-const ellipseCurveRQ = new THREE.EllipseCurve(4, 2.6, 2.4, 2, rightStartAngle, rightEndAngle, true);
-const ellipsePointsRQVec2 = ellipseCurveRQ.getPoints(500);
+const ellipseCurveRQ = new THREE.EllipseCurve(
+  RIGHT_CENTRE_X,
+  RIGHT_CENTRE_Q_Y,
+  ELLIPSE_RADIUS_Q_X,
+  ELLIPSE_RADIUS_Q_Y,
+  RIGHT_START_ANGLE,
+  RIGHT_END_ANGLE,
+  ELLIPSE_CLOCKWISE);
+const ellipsePointsRQVec2 = ellipseCurveRQ.getPoints(ELLIPSE_POINT_COUNT);
 const ellipsePointsRQArr = ellipsePointsRQVec2.map(vec2 => vec2.toArray());
 
 const ellipseGemoetryR = Line(ellipsePointsRQArr);
 const ellipseMaterialR = new THREE.ShaderMaterial(
   BasicShader({
     side: THREE.DoubleSide,
-    diffuse: 0x5cd7ff,
-    thickness: 0.1
+    // diffuse: 0x5cd7ff,
+    diffuse: 0xffffff,
+    thickness: ELLIPSE_THICKNESS
   }));
 
 const ellipseMeshR = new THREE.Mesh(ellipseGemoetryR, ellipseMaterialR);
 scene.add(ellipseMeshR);
 
-const rps = ellipsePointsRPVec2.map(vec2 => new THREE.Vector3(vec2.x, vec2.y, 15));
+const rps = ellipsePointsRPVec2.map(vec2 => new THREE.Vector3(vec2.x, vec2.y, MEMBRANE_LENGTH));
 const rqs = ellipsePointsRQVec2.map(vec2 => new THREE.Vector3(vec2.x, vec2.y, 0));
 
 // -------------
 // Left membrane
 // -------------
 
-const leftMembraneGeometry = new MembraneBufferGeometry(lps, lqs, 50);
+const leftMembraneGeometry = new MembraneBufferGeometry(lps, lqs, MEMBRANE_SEGMENT_COUNT);
 const leftMembraneMesh = new THREE.Mesh(leftMembraneGeometry, textureMaterial);
 scene.add(leftMembraneMesh);
 
@@ -104,7 +159,7 @@ scene.add(leftMembraneMesh);
 // Right membrane
 // -------------=
 
-const rightMembraneGeometry = new MembraneBufferGeometry(rps, rqs, 50);
+const rightMembraneGeometry = new MembraneBufferGeometry(rps, rqs, MEMBRANE_SEGMENT_COUNT);
 const rightMembraneMesh = new THREE.Mesh(rightMembraneGeometry, textureMaterial);
 scene.add(rightMembraneMesh);
 
@@ -114,35 +169,35 @@ scene.add(rightMembraneMesh);
 
 const updateLeftForm = () => {
 
-  ellipseCurveLP.aEndAngle -= Math.PI / (180 * 60);
-  ellipseCurveLQ.aEndAngle -= Math.PI / (180 * 60);
+  ellipseCurveLP.aEndAngle -= ELLIPSE_ROTATION_DELTA;
+  ellipseCurveLQ.aEndAngle -= ELLIPSE_ROTATION_DELTA;
 
-  const ellipsePointsLPVec2 = ellipseCurveLP.getPoints(500);
-  const ellipsePointsLQVec2 = ellipseCurveLQ.getPoints(500);
+  const ellipsePointsLPVec2 = ellipseCurveLP.getPoints(ELLIPSE_POINT_COUNT);
+  const ellipsePointsLQVec2 = ellipseCurveLQ.getPoints(ELLIPSE_POINT_COUNT);
 
   const ellipsePointsLQArr = ellipsePointsLQVec2.map(vec2 => vec2.toArray());
   ellipseGemoetryL.update(ellipsePointsLQArr);
 
-  const lps = ellipsePointsLPVec2.map(vec2 => new THREE.Vector3(vec2.x, vec2.y, 15));
+  const lps = ellipsePointsLPVec2.map(vec2 => new THREE.Vector3(vec2.x, vec2.y, MEMBRANE_LENGTH));
   const lqs = ellipsePointsLQVec2.map(vec2 => new THREE.Vector3(vec2.x, vec2.y, 0));
-  const leftMembraneGeometry = new MembraneBufferGeometry(lps, lqs, 50);
+  const leftMembraneGeometry = new MembraneBufferGeometry(lps, lqs, MEMBRANE_SEGMENT_COUNT);
   leftMembraneMesh.geometry.copy(leftMembraneGeometry);
 };
 
 const updateRightForm = () => {
 
-  ellipseCurveRP.aStartAngle -= Math.PI / (180 * 60);
-  ellipseCurveRQ.aStartAngle -= Math.PI / (180 * 60);
+  ellipseCurveRP.aStartAngle -= ELLIPSE_ROTATION_DELTA;
+  ellipseCurveRQ.aStartAngle -= ELLIPSE_ROTATION_DELTA;
 
-  const ellipsePointsRPVec2 = ellipseCurveRP.getPoints(500);
-  const ellipsePointsRQVec2 = ellipseCurveRQ.getPoints(500);
+  const ellipsePointsRPVec2 = ellipseCurveRP.getPoints(ELLIPSE_POINT_COUNT);
+  const ellipsePointsRQVec2 = ellipseCurveRQ.getPoints(ELLIPSE_POINT_COUNT);
 
   const ellipsePointsRQArr = ellipsePointsRQVec2.map(vec2 => vec2.toArray());
   ellipseGemoetryR.update(ellipsePointsRQArr);
 
-  const rps = ellipsePointsRPVec2.map(vec2 => new THREE.Vector3(vec2.x, vec2.y, 15));
+  const rps = ellipsePointsRPVec2.map(vec2 => new THREE.Vector3(vec2.x, vec2.y, MEMBRANE_LENGTH));
   const rqs = ellipsePointsRQVec2.map(vec2 => new THREE.Vector3(vec2.x, vec2.y, 0));
-  const rightMembraneGeometry = new MembraneBufferGeometry(rps, rqs, 50);
+  const rightMembraneGeometry = new MembraneBufferGeometry(rps, rqs, MEMBRANE_SEGMENT_COUNT);
   rightMembraneMesh.geometry.copy(rightMembraneGeometry);
 };
 
