@@ -1,10 +1,10 @@
 import * as THREE from "three";
-import { MembraneBufferGeometry } from "./MembraneGeometry";
 import OrbitControls from 'three-orbitcontrols';
 import LineInitFn from "three-line-2d";
 import BasicShaderInitFn from "three-line-2d/shaders/basic";
 const Line = LineInitFn(THREE);
 const BasicShader = BasicShaderInitFn(THREE);
+import { MembraneBufferGeometry } from "./MembraneGeometry";
 
 const container = document.getElementById("container");
 const w = container.offsetWidth;
@@ -33,75 +33,98 @@ const textureMaterial = new THREE.MeshBasicMaterial({
   map: texture,
   color: 0x00dddd,
   transparent: true,
-  opacity: 0.4,
+  opacity: 0.6,
 });
 
+// ------------
+// Left ellipse
+// ------------
 
-const ellipseCurveRP = new THREE.EllipseCurve(4, 1, 2.4 / 20, 2 / 20, 1.5 * Math.PI, 2 * Math.PI, true);
-const ellipsePointsRPVec2 = ellipseCurveRP.getPoints(500);
+const fudgeFactor = Math.PI / 180;
+const leftStartAngle = 1.5 * Math.PI + fudgeFactor;
+const leftEndAngle = 3.5 * Math.PI;
 
-const ellipseCurveRQ = new THREE.EllipseCurve(4, 2.6, 2.4, 2, 1.5 * Math.PI, 2 * Math.PI, true);
-const ellipsePointsRQVec2 = ellipseCurveRQ.getPoints(500);
+const ellipseCurveLP = new THREE.EllipseCurve(-4, 1, 2.4 / 20, 2 / 20, leftStartAngle, leftEndAngle, true);
+const ellipsePointsLPVec2 = ellipseCurveLP.getPoints(500);
 
-const ellipsePointsRQArr = ellipsePointsRQVec2.map(vec2 => vec2.toArray());
-const ellipseGemoetryRQ = Line(ellipsePointsRQArr);
-const ellipseMaterialRQ = new THREE.ShaderMaterial(
+const ellipseCurveLQ = new THREE.EllipseCurve(-4, 2.6, 2.4, 2, leftStartAngle, leftEndAngle, true);
+const ellipsePointsLQVec2 = ellipseCurveLQ.getPoints(500);
+const ellipsePointsLQArr = ellipsePointsLQVec2.map(vec2 => vec2.toArray());
+
+const ellipseGemoetryL = Line(ellipsePointsLQArr);
+const ellipseMaterialL = new THREE.ShaderMaterial(
   BasicShader({
     side: THREE.DoubleSide,
     diffuse: 0x5cd7ff,
     thickness: 0.1
   }));
-const ellipseMeshRQ = new THREE.Mesh(ellipseGemoetryRQ, ellipseMaterialRQ);
-scene.add(ellipseMeshRQ);
+const ellipseMeshL = new THREE.Mesh(ellipseGemoetryL, ellipseMaterialL);
+scene.add(ellipseMeshL);
+
+const lps = ellipsePointsLPVec2.map(vec2 => new THREE.Vector3(vec2.x, vec2.y, 15));
+const lqs = ellipsePointsLQVec2.map(vec2 => new THREE.Vector3(vec2.x, vec2.y, 0));
+
+// -------------
+// Right ellipse
+// -------------
+
+const rightStartAngle = 1.5 * Math.PI;
+const rightEndAngle = 3.5 * Math.PI;
+
+const ellipseCurveRP = new THREE.EllipseCurve(4, 1, 2.4 / 20, 2 / 20, rightStartAngle, rightEndAngle, true);
+const ellipsePointsRPVec2 = ellipseCurveRP.getPoints(500);
+
+const ellipseCurveRQ = new THREE.EllipseCurve(4, 2.6, 2.4, 2, rightStartAngle, rightEndAngle, true);
+const ellipsePointsRQVec2 = ellipseCurveRQ.getPoints(500);
+const ellipsePointsRQArr = ellipsePointsRQVec2.map(vec2 => vec2.toArray());
+
+const ellipseGemoetryR = Line(ellipsePointsRQArr);
+const ellipseMaterialR = new THREE.ShaderMaterial(
+  BasicShader({
+    side: THREE.DoubleSide,
+    diffuse: 0x5cd7ff,
+    thickness: 0.1
+  }));
+
+const ellipseMeshR = new THREE.Mesh(ellipseGemoetryR, ellipseMaterialR);
+scene.add(ellipseMeshR);
 
 const rps = ellipsePointsRPVec2.map(vec2 => new THREE.Vector3(vec2.x, vec2.y, 15));
 const rqs = ellipsePointsRQVec2.map(vec2 => new THREE.Vector3(vec2.x, vec2.y, 0));
 
-
-const ellipseCurveLP = new THREE.EllipseCurve(-4, 1, 2.4 / 20, 2 / 20, 1.5 * Math.PI, 3.5 * Math.PI, true);
-const ellipsePointsLPVec2 = ellipseCurveLP.getPoints(500);
-
-const ellipseCurveLQ = new THREE.EllipseCurve(-4, 2.6, 2.4, 2, 1.5 * Math.PI, 3.5 * Math.PI, true);
-const ellipsePointsLQVec2 = ellipseCurveLQ.getPoints(500);
-
-const ellipsePointsLQArr = ellipsePointsLQVec2.map(vec2 => vec2.toArray());
-const ellipseGemoetryLQ = Line(ellipsePointsLQArr);
-const ellipseMaterialLQ = new THREE.ShaderMaterial(
-  BasicShader({
-    side: THREE.DoubleSide,
-    diffuse: 0x5cd7ff,
-    thickness: 0.1
-  }));
-const ellipseMeshLQ = new THREE.Mesh(ellipseGemoetryLQ, ellipseMaterialLQ);
-scene.add(ellipseMeshLQ);
-
-
-const lps = ellipsePointsLPVec2.map(vec2 => new THREE.Vector3(vec2.x, vec2.y, 15));
-const lqs = ellipsePointsLQVec2.map(vec2 => new THREE.Vector3(vec2.x, vec2.y, 0));
+// -------------
+// Left membrane
+// -------------
 
 const leftMembraneGeometry = new MembraneBufferGeometry(lps, lqs, 50);
 const leftMembraneMesh = new THREE.Mesh(leftMembraneGeometry, textureMaterial);
 scene.add(leftMembraneMesh);
 
+// --------------
+// Right membrane
+// -------------=
+
 const rightMembraneGeometry = new MembraneBufferGeometry(rps, rqs, 50);
 const rightMembraneMesh = new THREE.Mesh(rightMembraneGeometry, textureMaterial);
 scene.add(rightMembraneMesh);
 
-// const updateEllipse1 = () => {
-//   ellipseCurve1.aEndAngle -= (Math.PI / (180 * 60));
-//   const points = ellipseCurve1.getPoints(500);
-//   geometry1.setFromPoints(points);
-//   geometry1.verticesNeedUpdate = true;
-//   meshLine1.setGeometry(geometry1);
-// };
+// ---------
+// Animation
+// ---------
 
-// const updateEllipse2 = () => {
-//   ellipseCurve2.aStartAngle -= (Math.PI / (180 * 60));
-//   const points = ellipseCurve2.getPoints(500);
-//   geometry2.setFromPoints(points);
-//   geometry2.verticesNeedUpdate = true;
-//   meshLine2.setGeometry(geometry2);
-// };
+const updateLeftForm = () => {
+  ellipseCurveLQ.aEndAngle -= Math.PI / (180 * 60);
+  const ellipsePointsLQVec2 = ellipseCurveLQ.getPoints(500);
+  const ellipsePointsLQArr = ellipsePointsLQVec2.map(vec2 => vec2.toArray());
+  ellipseGemoetryL.update(ellipsePointsLQArr);
+};
+
+const updateRightForm = () => {
+  ellipseCurveRQ.aStartAngle -= Math.PI / (180 * 60);
+  const ellipsePointsRQVec2 = ellipseCurveRQ.getPoints(500);
+  const ellipsePointsRQArr = ellipsePointsRQVec2.map(vec2 => vec2.toArray());
+  ellipseGemoetryR.update(ellipsePointsRQArr);
+};
 
 window.addEventListener("resize", () => {
   renderer.setSize(container.offsetWidth, container.offsetHeight);
@@ -109,15 +132,10 @@ window.addEventListener("resize", () => {
   camera.updateProjectionMatrix();
 });
 
-const clock = new THREE.Clock();
-const mixer = new THREE.AnimationMixer();
-
 const animate = () => {
   window.requestAnimationFrame(animate);
-  const delta = clock.getDelta() * mixer.timeScale;
-  mixer.update(delta);
-  // updateEllipse1();
-  // updateEllipse2();
+  updateLeftForm();
+  updateRightForm();
   controls.update();
   renderer.render(scene, camera);
 };
