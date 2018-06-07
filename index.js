@@ -27,7 +27,7 @@ controls.dampingFactor = 0.9;
 controls.autoRotate = false;
 
 const textureLoader = new THREE.TextureLoader();
-const texture = textureLoader.load("blue-colored-smoke-texture-1.jpg");
+const texture = textureLoader.load("smoke-texture.jpg");
 
 const textureMaterial = new THREE.MeshBasicMaterial({
   map: texture,
