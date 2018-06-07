@@ -47020,11 +47020,15 @@ container.appendChild(renderer.domElement);
 
 var scene = new THREE.Scene();
 var camera = new THREE.PerspectiveCamera(40, w / h, 0.1, 1000);
-camera.position.set(-20, -10, 50);
-camera.lookAt(0, 0, 0);
+// camera.position.set(-15, 2, 15);
+camera.position.set(5, 3, -14);
 scene.add(camera);
 
+// const axesHelper = new THREE.AxesHelper(5);
+// scene.add(axesHelper);
+
 var controls = new _threeOrbitcontrols2.default(camera, renderer.domElement);
+controls.target = new THREE.Vector3(0, 2, 0);
 controls.minDistance = 0;
 controls.maxDistance = 50;
 controls.enableDamping = true;
@@ -47041,19 +47045,43 @@ var textureMaterial = new THREE.MeshBasicMaterial({
   opacity: 0.6
 });
 
+// -------------------
+// Sizes and positions
+// -------------------
+
+var FUDGE_FACTOR = Math.PI / 180;
+var LEFT_START_ANGLE = 1.5 * Math.PI + FUDGE_FACTOR;
+var LEFT_END_ANGLE = 3.5 * Math.PI;
+var LEFT_CENTRE_X = -4;
+var LEFT_CENTRE_P_Y = 1;
+var LEFT_CENTRE_Q_Y = 2.6;
+
+var RIGHT_START_ANGLE = 1.5 * Math.PI;
+var RIGHT_END_ANGLE = 3.5 * Math.PI;
+var RIGHT_CENTRE_X = -LEFT_CENTRE_X;
+var RIGHT_CENTRE_P_Y = LEFT_CENTRE_P_Y;
+var RIGHT_CENTRE_Q_Y = LEFT_CENTRE_Q_Y;
+
+var ELLIPSE_RADIUS_Q_X = 2.8;
+var ELLIPSE_RADIUS_Q_Y = 2;
+var ELLIPSE_RADIUS_P = ELLIPSE_RADIUS_Q_Y / 20;
+var ELLIPSE_THICKNESS = 0.04;
+var ELLIPSE_CLOCKWISE = true;
+var ELLIPSE_POINT_COUNT = 500;
+var ELLIPSE_ROTATION_DELTA = Math.PI / (180 * 20);
+
+var MEMBRANE_LENGTH = 10;
+var MEMBRANE_SEGMENT_COUNT = 50;
+
 // ------------
 // Left ellipse
 // ------------
 
-var fudgeFactor = Math.PI / 180;
-var leftStartAngle = 1.5 * Math.PI + fudgeFactor;
-var leftEndAngle = 3.5 * Math.PI;
+var ellipseCurveLP = new THREE.EllipseCurve(LEFT_CENTRE_X, LEFT_CENTRE_P_Y, ELLIPSE_RADIUS_P, ELLIPSE_RADIUS_P, LEFT_START_ANGLE, LEFT_END_ANGLE, ELLIPSE_CLOCKWISE);
+var ellipsePointsLPVec2 = ellipseCurveLP.getPoints(ELLIPSE_POINT_COUNT);
 
-var ellipseCurveLP = new THREE.EllipseCurve(-4, 1, 2.4 / 20, 2 / 20, leftStartAngle, leftEndAngle, true);
-var ellipsePointsLPVec2 = ellipseCurveLP.getPoints(500);
-
-var ellipseCurveLQ = new THREE.EllipseCurve(-4, 2.6, 2.4, 2, leftStartAngle, leftEndAngle, true);
-var ellipsePointsLQVec2 = ellipseCurveLQ.getPoints(500);
+var ellipseCurveLQ = new THREE.EllipseCurve(LEFT_CENTRE_X, LEFT_CENTRE_Q_Y, ELLIPSE_RADIUS_Q_X, ELLIPSE_RADIUS_Q_Y, LEFT_START_ANGLE, LEFT_END_ANGLE, ELLIPSE_CLOCKWISE);
+var ellipsePointsLQVec2 = ellipseCurveLQ.getPoints(ELLIPSE_POINT_COUNT);
 var ellipsePointsLQArr = ellipsePointsLQVec2.map(function (vec2) {
   return vec2.toArray();
 });
@@ -47061,14 +47089,15 @@ var ellipsePointsLQArr = ellipsePointsLQVec2.map(function (vec2) {
 var ellipseGemoetryL = Line(ellipsePointsLQArr);
 var ellipseMaterialL = new THREE.ShaderMaterial(BasicShader({
   side: THREE.DoubleSide,
-  diffuse: 0x5cd7ff,
-  thickness: 0.1
+  // diffuse: 0x5cd7ff,
+  diffuse: 0xffffff,
+  thickness: ELLIPSE_THICKNESS
 }));
 var ellipseMeshL = new THREE.Mesh(ellipseGemoetryL, ellipseMaterialL);
 scene.add(ellipseMeshL);
 
 var lps = ellipsePointsLPVec2.map(function (vec2) {
-  return new THREE.Vector3(vec2.x, vec2.y, 15);
+  return new THREE.Vector3(vec2.x, vec2.y, MEMBRANE_LENGTH);
 });
 var lqs = ellipsePointsLQVec2.map(function (vec2) {
   return new THREE.Vector3(vec2.x, vec2.y, 0);
@@ -47078,14 +47107,11 @@ var lqs = ellipsePointsLQVec2.map(function (vec2) {
 // Right ellipse
 // -------------
 
-var rightStartAngle = 1.5 * Math.PI;
-var rightEndAngle = 3.5 * Math.PI;
+var ellipseCurveRP = new THREE.EllipseCurve(RIGHT_CENTRE_X, RIGHT_CENTRE_P_Y, ELLIPSE_RADIUS_P, ELLIPSE_RADIUS_P, RIGHT_START_ANGLE, RIGHT_END_ANGLE, ELLIPSE_CLOCKWISE);
+var ellipsePointsRPVec2 = ellipseCurveRP.getPoints(ELLIPSE_POINT_COUNT);
 
-var ellipseCurveRP = new THREE.EllipseCurve(4, 1, 2.4 / 20, 2 / 20, rightStartAngle, rightEndAngle, true);
-var ellipsePointsRPVec2 = ellipseCurveRP.getPoints(500);
-
-var ellipseCurveRQ = new THREE.EllipseCurve(4, 2.6, 2.4, 2, rightStartAngle, rightEndAngle, true);
-var ellipsePointsRQVec2 = ellipseCurveRQ.getPoints(500);
+var ellipseCurveRQ = new THREE.EllipseCurve(RIGHT_CENTRE_X, RIGHT_CENTRE_Q_Y, ELLIPSE_RADIUS_Q_X, ELLIPSE_RADIUS_Q_Y, RIGHT_START_ANGLE, RIGHT_END_ANGLE, ELLIPSE_CLOCKWISE);
+var ellipsePointsRQVec2 = ellipseCurveRQ.getPoints(ELLIPSE_POINT_COUNT);
 var ellipsePointsRQArr = ellipsePointsRQVec2.map(function (vec2) {
   return vec2.toArray();
 });
@@ -47093,15 +47119,16 @@ var ellipsePointsRQArr = ellipsePointsRQVec2.map(function (vec2) {
 var ellipseGemoetryR = Line(ellipsePointsRQArr);
 var ellipseMaterialR = new THREE.ShaderMaterial(BasicShader({
   side: THREE.DoubleSide,
-  diffuse: 0x5cd7ff,
-  thickness: 0.1
+  // diffuse: 0x5cd7ff,
+  diffuse: 0xffffff,
+  thickness: ELLIPSE_THICKNESS
 }));
 
 var ellipseMeshR = new THREE.Mesh(ellipseGemoetryR, ellipseMaterialR);
 scene.add(ellipseMeshR);
 
 var rps = ellipsePointsRPVec2.map(function (vec2) {
-  return new THREE.Vector3(vec2.x, vec2.y, 15);
+  return new THREE.Vector3(vec2.x, vec2.y, MEMBRANE_LENGTH);
 });
 var rqs = ellipsePointsRQVec2.map(function (vec2) {
   return new THREE.Vector3(vec2.x, vec2.y, 0);
@@ -47111,7 +47138,7 @@ var rqs = ellipsePointsRQVec2.map(function (vec2) {
 // Left membrane
 // -------------
 
-var leftMembraneGeometry = new _MembraneGeometry.MembraneBufferGeometry(lps, lqs, 50);
+var leftMembraneGeometry = new _MembraneGeometry.MembraneBufferGeometry(lps, lqs, MEMBRANE_SEGMENT_COUNT);
 var leftMembraneMesh = new THREE.Mesh(leftMembraneGeometry, textureMaterial);
 scene.add(leftMembraneMesh);
 
@@ -47119,7 +47146,7 @@ scene.add(leftMembraneMesh);
 // Right membrane
 // -------------=
 
-var rightMembraneGeometry = new _MembraneGeometry.MembraneBufferGeometry(rps, rqs, 50);
+var rightMembraneGeometry = new _MembraneGeometry.MembraneBufferGeometry(rps, rqs, MEMBRANE_SEGMENT_COUNT);
 var rightMembraneMesh = new THREE.Mesh(rightMembraneGeometry, textureMaterial);
 scene.add(rightMembraneMesh);
 
@@ -47129,11 +47156,11 @@ scene.add(rightMembraneMesh);
 
 var updateLeftForm = function updateLeftForm() {
 
-  ellipseCurveLP.aEndAngle -= Math.PI / (180 * 60);
-  ellipseCurveLQ.aEndAngle -= Math.PI / (180 * 60);
+  ellipseCurveLP.aEndAngle -= ELLIPSE_ROTATION_DELTA;
+  ellipseCurveLQ.aEndAngle -= ELLIPSE_ROTATION_DELTA;
 
-  var ellipsePointsLPVec2 = ellipseCurveLP.getPoints(500);
-  var ellipsePointsLQVec2 = ellipseCurveLQ.getPoints(500);
+  var ellipsePointsLPVec2 = ellipseCurveLP.getPoints(ELLIPSE_POINT_COUNT);
+  var ellipsePointsLQVec2 = ellipseCurveLQ.getPoints(ELLIPSE_POINT_COUNT);
 
   var ellipsePointsLQArr = ellipsePointsLQVec2.map(function (vec2) {
     return vec2.toArray();
@@ -47141,22 +47168,22 @@ var updateLeftForm = function updateLeftForm() {
   ellipseGemoetryL.update(ellipsePointsLQArr);
 
   var lps = ellipsePointsLPVec2.map(function (vec2) {
-    return new THREE.Vector3(vec2.x, vec2.y, 15);
+    return new THREE.Vector3(vec2.x, vec2.y, MEMBRANE_LENGTH);
   });
   var lqs = ellipsePointsLQVec2.map(function (vec2) {
     return new THREE.Vector3(vec2.x, vec2.y, 0);
   });
-  var leftMembraneGeometry = new _MembraneGeometry.MembraneBufferGeometry(lps, lqs, 50);
+  var leftMembraneGeometry = new _MembraneGeometry.MembraneBufferGeometry(lps, lqs, MEMBRANE_SEGMENT_COUNT);
   leftMembraneMesh.geometry.copy(leftMembraneGeometry);
 };
 
 var updateRightForm = function updateRightForm() {
 
-  ellipseCurveRP.aStartAngle -= Math.PI / (180 * 60);
-  ellipseCurveRQ.aStartAngle -= Math.PI / (180 * 60);
+  ellipseCurveRP.aStartAngle -= ELLIPSE_ROTATION_DELTA;
+  ellipseCurveRQ.aStartAngle -= ELLIPSE_ROTATION_DELTA;
 
-  var ellipsePointsRPVec2 = ellipseCurveRP.getPoints(500);
-  var ellipsePointsRQVec2 = ellipseCurveRQ.getPoints(500);
+  var ellipsePointsRPVec2 = ellipseCurveRP.getPoints(ELLIPSE_POINT_COUNT);
+  var ellipsePointsRQVec2 = ellipseCurveRQ.getPoints(ELLIPSE_POINT_COUNT);
 
   var ellipsePointsRQArr = ellipsePointsRQVec2.map(function (vec2) {
     return vec2.toArray();
@@ -47164,12 +47191,12 @@ var updateRightForm = function updateRightForm() {
   ellipseGemoetryR.update(ellipsePointsRQArr);
 
   var rps = ellipsePointsRPVec2.map(function (vec2) {
-    return new THREE.Vector3(vec2.x, vec2.y, 15);
+    return new THREE.Vector3(vec2.x, vec2.y, MEMBRANE_LENGTH);
   });
   var rqs = ellipsePointsRQVec2.map(function (vec2) {
     return new THREE.Vector3(vec2.x, vec2.y, 0);
   });
-  var rightMembraneGeometry = new _MembraneGeometry.MembraneBufferGeometry(rps, rqs, 50);
+  var rightMembraneGeometry = new _MembraneGeometry.MembraneBufferGeometry(rps, rqs, MEMBRANE_SEGMENT_COUNT);
   rightMembraneMesh.geometry.copy(rightMembraneGeometry);
 };
 
