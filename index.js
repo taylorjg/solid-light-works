@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import OrbitControls from 'three-orbitcontrols';
+import OrbitControls from "three-orbitcontrols";
 import LineInitFn from "three-line-2d";
 import BasicShaderInitFn from "three-line-2d/shaders/basic";
 const Line = LineInitFn(THREE);
@@ -27,7 +27,7 @@ controls.dampingFactor = 0.9;
 controls.autoRotate = false;
 
 const textureLoader = new THREE.TextureLoader();
-const texture = textureLoader.load('blue-colored-smoke-texture-1.jpg');
+const texture = textureLoader.load("blue-colored-smoke-texture-1.jpg");
 
 const textureMaterial = new THREE.MeshBasicMaterial({
   map: texture,
@@ -113,17 +113,37 @@ scene.add(rightMembraneMesh);
 // ---------
 
 const updateLeftForm = () => {
+
+  ellipseCurveLP.aEndAngle -= Math.PI / (180 * 60);
   ellipseCurveLQ.aEndAngle -= Math.PI / (180 * 60);
+
+  const ellipsePointsLPVec2 = ellipseCurveLP.getPoints(500);
   const ellipsePointsLQVec2 = ellipseCurveLQ.getPoints(500);
+
   const ellipsePointsLQArr = ellipsePointsLQVec2.map(vec2 => vec2.toArray());
   ellipseGemoetryL.update(ellipsePointsLQArr);
+
+  const lps = ellipsePointsLPVec2.map(vec2 => new THREE.Vector3(vec2.x, vec2.y, 15));
+  const lqs = ellipsePointsLQVec2.map(vec2 => new THREE.Vector3(vec2.x, vec2.y, 0));
+  const leftMembraneGeometry = new MembraneBufferGeometry(lps, lqs, 50);
+  leftMembraneMesh.geometry.copy(leftMembraneGeometry);
 };
 
 const updateRightForm = () => {
+
+  ellipseCurveRP.aStartAngle -= Math.PI / (180 * 60);
   ellipseCurveRQ.aStartAngle -= Math.PI / (180 * 60);
+
+  const ellipsePointsRPVec2 = ellipseCurveRP.getPoints(500);
   const ellipsePointsRQVec2 = ellipseCurveRQ.getPoints(500);
+
   const ellipsePointsRQArr = ellipsePointsRQVec2.map(vec2 => vec2.toArray());
   ellipseGemoetryR.update(ellipsePointsRQArr);
+
+  const rps = ellipsePointsRPVec2.map(vec2 => new THREE.Vector3(vec2.x, vec2.y, 15));
+  const rqs = ellipsePointsRQVec2.map(vec2 => new THREE.Vector3(vec2.x, vec2.y, 0));
+  const rightMembraneGeometry = new MembraneBufferGeometry(rps, rqs, 50);
+  rightMembraneMesh.geometry.copy(rightMembraneGeometry);
 };
 
 window.addEventListener("resize", () => {
