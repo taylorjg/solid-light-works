@@ -47032,7 +47032,7 @@ controls.dampingFactor = 0.9;
 controls.autoRotate = false;
 
 var textureLoader = new THREE.TextureLoader();
-var texture = textureLoader.load("blue-colored-smoke-texture-1.jpg");
+var texture = textureLoader.load("smoke-texture.jpg");
 
 var textureMaterial = new THREE.MeshBasicMaterial({
   map: texture,
