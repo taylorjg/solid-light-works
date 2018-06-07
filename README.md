@@ -1,7 +1,7 @@
 ## Description
 
-I went to the [The Hepworth Wakefield](https://hepworthwakefield.org/) recently and saw 
-_Leaving (With Two-Minute Silence)_ as part of the "Anthony McCall: Solid Light Works" exhibition (16 Feb - 3 June 2018). I thought it would be interesting to try to re-create the effect using JavaScript and THREE.js.
+I visited the [The Hepworth Wakefield](https://hepworthwakefield.org/) recently and was captivated
+by a work called _Leaving (With Two-Minute Silence)_ which was part of the "Anthony McCall: Solid Light Works" exhibition (16 Feb - 3 June 2018). I thought it would be interesting to try to re-create the effect using JavaScript and three.js.
 
 ## Hints
 
@@ -20,28 +20,45 @@ Bits of descrption garnered from the above video:
 * two cones of light - they move in opposite directions
 * left is going from everything to nothing while the right hand one is going from nothing to everything and they are both going through this twisting motion
 
-## Images
+## Photos of the work (from the internet)
 
-![](Images/54147-3.jpg)
+<p align="center">
+  <img src="Images/54147-3.jpg">
+</p>
 
-![](Images/20161016063645-Anthony-McCall-Leaving-With-Two-Minute-Silence-2009-double-installation-with-sound-32-min-edition-of-3-Courtesy-Galerie-Martine-Aboucaya-Photo-Fran_ois-Doury9-1024x576.jpg)
+<p align="center">
+  <img src="Images/20161016063645-Anthony-McCall-Leaving-With-Two-Minute-Silence-2009-double-installation-with-sound-32-min-edition-of-3-Courtesy-Galerie-Martine-Aboucaya-Photo-Fran_ois-Doury9-1024x576.jpg">
+</p>
 
-![](Images/Anthony-McCall-Leaving-With-Two-Minute-Silence-2009-double-installation-with-sound-32-min-edition-of-3-Courtesy-Galerie-Martine-Aboucaya-Photo-François-Doury6-e1474556507991-1024x439.jpg)
+<p align="center">
+  <img src="Images/Anthony-McCall-Leaving-With-Two-Minute-Silence-2009-double-installation-with-sound-32-min-edition-of-3-Courtesy-Galerie-Martine-Aboucaya-Photo-François-Doury6-e1474556507991-1024x439.jpg">
+</p>
 
-![](Images/Anthony-McCall-Leaving-With-Two-Minute-Silence-2009-double-installation-with-sound-32-min-edition-of-3-Courtesy-Galerie-Martine-Aboucaya-Photo-François-Doury8-1024x683.jpg)
+<p align="center">
+  <img src="Images/Anthony-McCall-Leaving-With-Two-Minute-Silence-2009-double-installation-with-sound-32-min-edition-of-3-Courtesy-Galerie-Martine-Aboucaya-Photo-François-Doury8-1024x683.jpg">
+</p>
 
-![](Images/Web-Anthony-McCall-Leaving-With-Two-Minute-Silence-2009-Photo-François-Doury2.jpg)
+<p align="center">
+  <img src="Images/Web-Anthony-McCall-Leaving-With-Two-Minute-Silence-2009-Photo-François-Doury2.jpg">
+</p>
 
-![](Images/Web-Anthony-McCall-Leaving-With-Two-Minute-Silence-2009-Photo-François-Doury3.jpg)
+<p align="center">
+  <img src="Images/Web-Anthony-McCall-Leaving-With-Two-Minute-Silence-2009-Photo-François-Doury3.jpg">
+</p>
 
-### Drawings
+### Photos of working drawings by the artist (from the internet)
 
-![](Images/1435064694_F_McCall.jpg)
+<p align="center">
+  <img src="Images/1435064694_F_McCall.jpg">
+</p>
 
-![](Images/download.jpeg)
+<p align="center">
+  <img src="Images/download.jpeg">
+</p>
 
-![](Images/Anthony-McCall-Leaving-With-Two-Minute-Silence-2006-8-Working-drawings-360-degree-turn-set-of-24-unique-works-Courtesy-Galerie-Martine-Aboucaya-Photo-François-Doury2-1024x683.jpg
-)
+<p align="center">
+  <img src="Images/Anthony-McCall-Leaving-With-Two-Minute-Silence-2006-8-Working-drawings-360-degree-turn-set-of-24-unique-works-Courtesy-Galerie-Martine-Aboucaya-Photo-François-Doury2-1024x683.jpg">
+</p>
 
 ## TODO
 

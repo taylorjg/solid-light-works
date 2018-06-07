@@ -1,7 +1,7 @@
 {
   "name": "leaving",
   "version": "0.0.0",
-  "description": "Trying to re-create \"Leaving (With Two-Minute Silence)\"",
+  "description": "three.js rendering of Anthony McCall's \"Leaving (With Two-Minute Silence)\"",
   "main": "index.js",
   "author": "Jonathan Taylor",
   "license": "MIT",
