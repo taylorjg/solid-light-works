@@ -47020,26 +47020,36 @@ container.appendChild(renderer.domElement);
 
 var scene = new THREE.Scene();
 var camera = new THREE.PerspectiveCamera(40, w / h, 0.1, 1000);
-// camera.position.set(-15, 2, 15);
-camera.position.set(5, 3, -14);
+camera.position.set(-11.30, 5.74, 14.44);
 scene.add(camera);
 
 // const axesHelper = new THREE.AxesHelper(5);
 // scene.add(axesHelper);
 
 var controls = new _threeOrbitcontrols2.default(camera, renderer.domElement);
-controls.target = new THREE.Vector3(0, 2, 0);
+controls.target = new THREE.Vector3(-0.14, 2.00, 2.85);
 controls.minDistance = 0;
 controls.maxDistance = 50;
 controls.enableDamping = true;
 controls.dampingFactor = 0.9;
 controls.autoRotate = false;
 
-var textureLoader = new THREE.TextureLoader();
-var texture = textureLoader.load("smoke-texture.jpg");
+var screenGeometry = new THREE.PlaneGeometry(16, 6);
+screenGeometry.translate(0, 3, 0);
+var screenMaterial = new THREE.MeshBasicMaterial({
+  color: 0xA0A0A0,
+  side: THREE.DoubleSide,
+  transparent: true,
+  opacity: 0.2
+});
+var screen = new THREE.Mesh(screenGeometry, screenMaterial);
+scene.add(screen);
 
-var textureMaterial = new THREE.MeshBasicMaterial({
-  map: texture,
+var textureLoader = new THREE.TextureLoader();
+var hazeTexture = textureLoader.load("haze.jpg");
+
+var hazeTextureMaterial = new THREE.MeshBasicMaterial({
+  map: hazeTexture,
   color: 0x00dddd,
   transparent: true,
   opacity: 0.6
@@ -47065,7 +47075,7 @@ var RIGHT_CENTRE_Q_Y = LEFT_CENTRE_Q_Y;
 var ELLIPSE_RADIUS_Q_X = 2.8;
 var ELLIPSE_RADIUS_Q_Y = 2;
 var ELLIPSE_RADIUS_P = ELLIPSE_RADIUS_Q_Y / 20;
-var ELLIPSE_THICKNESS = 0.04;
+var ELLIPSE_THICKNESS = 0.08;
 var ELLIPSE_CLOCKWISE = true;
 var ELLIPSE_POINT_COUNT = 500;
 var ELLIPSE_ROTATION_DELTA = Math.PI / (180 * 20);
@@ -47089,7 +47099,6 @@ var ellipsePointsLQArr = ellipsePointsLQVec2.map(function (vec2) {
 var ellipseGemoetryL = Line(ellipsePointsLQArr);
 var ellipseMaterialL = new THREE.ShaderMaterial(BasicShader({
   side: THREE.DoubleSide,
-  // diffuse: 0x5cd7ff,
   diffuse: 0xffffff,
   thickness: ELLIPSE_THICKNESS
 }));
@@ -47119,7 +47128,6 @@ var ellipsePointsRQArr = ellipsePointsRQVec2.map(function (vec2) {
 var ellipseGemoetryR = Line(ellipsePointsRQArr);
 var ellipseMaterialR = new THREE.ShaderMaterial(BasicShader({
   side: THREE.DoubleSide,
-  // diffuse: 0x5cd7ff,
   diffuse: 0xffffff,
   thickness: ELLIPSE_THICKNESS
 }));
@@ -47139,7 +47147,7 @@ var rqs = ellipsePointsRQVec2.map(function (vec2) {
 // -------------
 
 var leftMembraneGeometry = new _MembraneGeometry.MembraneBufferGeometry(lps, lqs, MEMBRANE_SEGMENT_COUNT);
-var leftMembraneMesh = new THREE.Mesh(leftMembraneGeometry, textureMaterial);
+var leftMembraneMesh = new THREE.Mesh(leftMembraneGeometry, hazeTextureMaterial);
 scene.add(leftMembraneMesh);
 
 // --------------
@@ -47147,7 +47155,7 @@ scene.add(leftMembraneMesh);
 // -------------=
 
 var rightMembraneGeometry = new _MembraneGeometry.MembraneBufferGeometry(rps, rqs, MEMBRANE_SEGMENT_COUNT);
-var rightMembraneMesh = new THREE.Mesh(rightMembraneGeometry, textureMaterial);
+var rightMembraneMesh = new THREE.Mesh(rightMembraneGeometry, hazeTextureMaterial);
 scene.add(rightMembraneMesh);
 
 // ---------
@@ -47205,6 +47213,15 @@ window.addEventListener("resize", function () {
   camera.aspect = container.offsetWidth / container.offsetHeight;
   camera.updateProjectionMatrix();
 });
+
+var onDocumentKeyDownHandler = function onDocumentKeyDownHandler(ev) {
+  if (ev.key === 'c') {
+    console.log("camera.position: " + JSON.stringify(camera.position));
+    console.log("controls.target: " + JSON.stringify(controls.target));
+  }
+};
+
+document.addEventListener('keydown', onDocumentKeyDownHandler);
 
 var animate = function animate() {
   window.requestAnimationFrame(animate);
