@@ -15,7 +15,8 @@ container.appendChild(renderer.domElement);
 
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(40, w / h, 0.1, 1000);
-camera.position.set(-11.30, 5.74, 14.44);
+camera.position.set(0.75, 6.46, 18.73);
+// camera.position.set(-11.30, 5.74, 14.44);
 scene.add(camera);
 
 // const axesHelper = new THREE.AxesHelper(5);
@@ -188,8 +189,9 @@ const updateLeftForm = () => {
 
   const lps = ellipsePointsLPVec2.map(vec2 => new THREE.Vector3(vec2.x, vec2.y, MEMBRANE_LENGTH));
   const lqs = ellipsePointsLQVec2.map(vec2 => new THREE.Vector3(vec2.x, vec2.y, 0));
-  const leftMembraneGeometry = new MembraneBufferGeometry(lps, lqs, MEMBRANE_SEGMENT_COUNT);
-  leftMembraneMesh.geometry.copy(leftMembraneGeometry);
+  const tempGeometry = new MembraneBufferGeometry(lps, lqs, MEMBRANE_SEGMENT_COUNT);
+  leftMembraneMesh.geometry.copy(tempGeometry);
+  tempGeometry.dispose();
 };
 
 const updateRightForm = () => {
@@ -205,8 +207,9 @@ const updateRightForm = () => {
 
   const rps = ellipsePointsRPVec2.map(vec2 => new THREE.Vector3(vec2.x, vec2.y, MEMBRANE_LENGTH));
   const rqs = ellipsePointsRQVec2.map(vec2 => new THREE.Vector3(vec2.x, vec2.y, 0));
-  const rightMembraneGeometry = new MembraneBufferGeometry(rps, rqs, MEMBRANE_SEGMENT_COUNT);
-  rightMembraneMesh.geometry.copy(rightMembraneGeometry);
+  const tempGeometry = new MembraneBufferGeometry(rps, rqs, MEMBRANE_SEGMENT_COUNT);
+  rightMembraneMesh.geometry.copy(tempGeometry);
+  tempGeometry.dispose();
 };
 
 window.addEventListener("resize", () => {
