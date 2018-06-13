@@ -6,7 +6,7 @@ import { Float32BufferAttribute } from "three";
 // - e.g. obtained from ElipseCurve.getPoints()
 // qs: array of Vector3 representing the large shape
 // - e.g. obtained from ElipseCurve.getPoints()
-export function MembraneBufferGeometry(ps, qs, numSegments) {
+export function MembraneBufferGeometry(ps = [], qs = [], numSegments = 1) {
 
 	BufferGeometry.call(this);
 
@@ -24,7 +24,6 @@ export function MembraneBufferGeometry(ps, qs, numSegments) {
 
 	// helper variables
 	const indexArray = [];
-	const numPoints = ps.length;
 	let index = 0;
 	let groupStart = 0;
 
@@ -39,6 +38,14 @@ export function MembraneBufferGeometry(ps, qs, numSegments) {
 
 	function generateTorso() {
 
+		const pslen = ps.length;
+		const qslen = qs.length;
+
+		if (pslen === 0 || qslen === 0 || pslen !== qslen) {
+			return;
+		}
+
+		const numPoints = ps.length;
 		let groupCount = 0;
 
 		// generate vertices, normals and uvs
