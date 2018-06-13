@@ -158,8 +158,10 @@ scene.add(spotLightR);
 
 let leftMembraneMesh;
 let rightMembraneMesh;
+let rightMembraneMesh2;
 let leftVertexNormalsHelper;
 let rightVertexNormalsHelper;
+let rightVertexNormalsHelper2;
 
 const onTextureLoaded = hazeTexture => {
 
@@ -168,7 +170,16 @@ const onTextureLoaded = hazeTexture => {
 
   const hazeTextureMaterial = new THREE.MeshLambertMaterial({
     map: hazeTexture,
-    // side: THREE.DoubleSide,
+    side: THREE.BackSide,
+    // color: 0x00dddd,
+    color: 0xffffff,
+    transparent: true,
+    opacity: 0.8
+  });
+
+  const hazeTextureMaterial2 = new THREE.MeshLambertMaterial({
+    map: hazeTexture,
+    side: THREE.FrontSide,
     // color: 0x00dddd,
     color: 0xffffff,
     transparent: true,
@@ -191,6 +202,10 @@ const onTextureLoaded = hazeTexture => {
   rightMembraneMesh = new THREE.Mesh(rightMembraneGeometry, hazeTextureMaterial);
   scene.add(rightMembraneMesh);
 
+  const rightMembraneGeometry2 = new MembraneBufferGeometry();
+  rightMembraneMesh2 = new THREE.Mesh(rightMembraneGeometry2, hazeTextureMaterial2);
+  scene.add(rightMembraneMesh2);
+
   animate();
 };
 
@@ -203,16 +218,24 @@ textureLoader.load("haze.jpg", onTextureLoaded);
 
 let doOnceDone = false;
 
-const getPointsFromLineGeometry = (lineGeometry, z) => {
-  const positionAttribute = lineGeometry.getAttribute("position");
-  const array = positionAttribute.array;
-  const points = [];
-  for (let i = 0; i < array.length; i += positionAttribute.itemSize) {
-    const x = array[i];
-    const y = array[i + 1];
-    points.push(new THREE.Vector3(x, y, z));
+// const getPointsFromLineGeometry = (lineGeometry, z) => {
+//   const positionAttribute = lineGeometry.getAttribute("position");
+//   const array = positionAttribute.array;
+//   const points = [];
+//   for (let i = 0; i < array.length; i += positionAttribute.itemSize) {
+//     const x = array[i];
+//     const y = array[i + 1];
+//     points.push(new THREE.Vector3(x, y, z));
+//   }
+//   return points;
+// };
+
+const reverseNormals = bufferGeometry => {
+  const normalAttribute = bufferGeometry.getAttribute("normal");
+  const array = normalAttribute.array;
+  for (let i = 0; i < array.length; i++) {
+    array[i] *= -1;
   }
-  return points;
 };
 
 const updateLeftForm = () => {
@@ -257,10 +280,17 @@ const updateRightForm = () => {
   const qs = ellipsePointsRQVec2.map(vec2 => new THREE.Vector3(vec2.x, vec2.y, 0));
   // const ps = getPointsFromLineGeometry(ellipseLineGeometryRP, MEMBRANE_LENGTH);
   // const qs = getPointsFromLineGeometry(ellipseLineGeometryRQ, 0);
+
   const tempGeometry = new MembraneBufferGeometry(ps, qs, MEMBRANE_SEGMENT_COUNT);
   tempGeometry.computeVertexNormals();
+  reverseNormals(tempGeometry);
   rightMembraneMesh.geometry.copy(tempGeometry);
   tempGeometry.dispose();
+
+  const tempGeometry2 = new MembraneBufferGeometry(ps, qs, MEMBRANE_SEGMENT_COUNT);
+  tempGeometry2.computeVertexNormals();
+  rightMembraneMesh2.geometry.copy(tempGeometry2);
+  tempGeometry2.dispose();
 };
 
 window.addEventListener("resize", () => {
@@ -287,14 +317,19 @@ const animate = () => {
     doOnceDone = true;
     leftVertexNormalsHelper = new THREE.VertexNormalsHelper(leftMembraneMesh, 0.1, 0x00ff00);
     rightVertexNormalsHelper = new THREE.VertexNormalsHelper(rightMembraneMesh, 0.1, 0x00ff00);
+    rightVertexNormalsHelper2 = new THREE.VertexNormalsHelper(rightMembraneMesh2, 0.1, 0x00ff00);
     scene.add(leftVertexNormalsHelper);
     scene.add(rightVertexNormalsHelper);
+    scene.add(rightVertexNormalsHelper2);
   }
   if (leftVertexNormalsHelper) {
     leftVertexNormalsHelper.update();
   }
   if (rightVertexNormalsHelper) {
     rightVertexNormalsHelper.update();
+  }
+  if (rightVertexNormalsHelper2) {
+    rightVertexNormalsHelper2.update();
   }
   renderer.render(scene, camera);
 };
