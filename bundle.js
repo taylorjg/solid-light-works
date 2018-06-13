@@ -47019,42 +47019,27 @@ renderer.setSize(w, h);
 container.appendChild(renderer.domElement);
 
 var scene = new THREE.Scene();
-var camera = new THREE.PerspectiveCamera(40, w / h, 0.1, 1000);
-camera.position.set(0.75, 6.46, 18.73);
-// camera.position.set(-11.30, 5.74, 14.44);
+var camera = new THREE.PerspectiveCamera(45, w / h, 0.1, 50);
+camera.position.set(-21.88, 9.81, 14.97);
 scene.add(camera);
 
-// const axesHelper = new THREE.AxesHelper(5);
-// scene.add(axesHelper);
-
 var controls = new _threeOrbitcontrols2.default(camera, renderer.domElement);
-controls.target = new THREE.Vector3(-0.14, 2.00, 2.85);
+controls.target = new THREE.Vector3(1.85, 2.00, 9.08);
 controls.minDistance = 0;
 controls.maxDistance = 50;
 controls.enableDamping = true;
 controls.dampingFactor = 0.9;
 controls.autoRotate = false;
 
-var screenGeometry = new THREE.PlaneGeometry(16, 6);
-screenGeometry.translate(0, 3, 0);
-var screenMaterial = new THREE.MeshBasicMaterial({
+var projectionScreenGeometry = new THREE.PlaneGeometry(16, 6, 100, 100);
+projectionScreenGeometry.translate(0, 3, 0);
+var projectionScreenMaterial = new THREE.MeshBasicMaterial({
   color: 0xA0A0A0,
-  side: THREE.DoubleSide,
   transparent: true,
   opacity: 0.2
 });
-var screen = new THREE.Mesh(screenGeometry, screenMaterial);
+var screen = new THREE.Mesh(projectionScreenGeometry, projectionScreenMaterial);
 scene.add(screen);
-
-var textureLoader = new THREE.TextureLoader();
-var hazeTexture = textureLoader.load("haze.jpg");
-
-var hazeTextureMaterial = new THREE.MeshBasicMaterial({
-  map: hazeTexture,
-  color: 0x00dddd,
-  transparent: true,
-  opacity: 0.6
-});
 
 // -------------------
 // Sizes and positions
@@ -47078,90 +47063,129 @@ var ELLIPSE_RADIUS_Q_Y = 2;
 var ELLIPSE_RADIUS_P = ELLIPSE_RADIUS_Q_Y / 20;
 var ELLIPSE_THICKNESS = 0.08;
 var ELLIPSE_CLOCKWISE = true;
-var ELLIPSE_POINT_COUNT = 500;
-var ELLIPSE_ROTATION_DELTA = Math.PI / (180 * 20);
+var ELLIPSE_POINT_COUNT = 100; // 500;
+var ELLIPSE_ROTATION_DELTA = Math.PI / (180 * 10);
 
-var MEMBRANE_LENGTH = 10;
-var MEMBRANE_SEGMENT_COUNT = 50;
+var MEMBRANE_LENGTH = 20;
+var MEMBRANE_SEGMENT_COUNT = 10; // 50;
+
+var ellipseMaterial = new THREE.ShaderMaterial(BasicShader({
+  side: THREE.DoubleSide,
+  diffuse: 0xffffff,
+  thickness: ELLIPSE_THICKNESS
+}));
 
 // ------------
 // Left ellipse
 // ------------
 
 var ellipseCurveLP = new THREE.EllipseCurve(LEFT_CENTRE_X, LEFT_CENTRE_P_Y, ELLIPSE_RADIUS_P, ELLIPSE_RADIUS_P, LEFT_START_ANGLE, LEFT_END_ANGLE, ELLIPSE_CLOCKWISE);
-var ellipsePointsLPVec2 = ellipseCurveLP.getPoints(ELLIPSE_POINT_COUNT);
 
 var ellipseCurveLQ = new THREE.EllipseCurve(LEFT_CENTRE_X, LEFT_CENTRE_Q_Y, ELLIPSE_RADIUS_Q_X, ELLIPSE_RADIUS_Q_Y, LEFT_START_ANGLE, LEFT_END_ANGLE, ELLIPSE_CLOCKWISE);
-var ellipsePointsLQVec2 = ellipseCurveLQ.getPoints(ELLIPSE_POINT_COUNT);
-var ellipsePointsLQArr = ellipsePointsLQVec2.map(function (vec2) {
-  return vec2.toArray();
-});
 
-var ellipseGemoetryL = Line(ellipsePointsLQArr);
-var ellipseMaterialL = new THREE.ShaderMaterial(BasicShader({
-  side: THREE.DoubleSide,
-  diffuse: 0xffffff,
-  thickness: ELLIPSE_THICKNESS
-}));
-var ellipseMeshL = new THREE.Mesh(ellipseGemoetryL, ellipseMaterialL);
-scene.add(ellipseMeshL);
-
-var lps = ellipsePointsLPVec2.map(function (vec2) {
-  return new THREE.Vector3(vec2.x, vec2.y, MEMBRANE_LENGTH);
-});
-var lqs = ellipsePointsLQVec2.map(function (vec2) {
-  return new THREE.Vector3(vec2.x, vec2.y, 0);
-});
+var ellipseLineGeometryLP = Line();
+var ellipseLineGeometryLQ = Line();
+var ellipseMeshL = new THREE.Mesh(ellipseLineGeometryLQ, ellipseMaterial);
 
 // -------------
 // Right ellipse
 // -------------
 
 var ellipseCurveRP = new THREE.EllipseCurve(RIGHT_CENTRE_X, RIGHT_CENTRE_P_Y, ELLIPSE_RADIUS_P, ELLIPSE_RADIUS_P, RIGHT_START_ANGLE, RIGHT_END_ANGLE, ELLIPSE_CLOCKWISE);
-var ellipsePointsRPVec2 = ellipseCurveRP.getPoints(ELLIPSE_POINT_COUNT);
 
 var ellipseCurveRQ = new THREE.EllipseCurve(RIGHT_CENTRE_X, RIGHT_CENTRE_Q_Y, ELLIPSE_RADIUS_Q_X, ELLIPSE_RADIUS_Q_Y, RIGHT_START_ANGLE, RIGHT_END_ANGLE, ELLIPSE_CLOCKWISE);
-var ellipsePointsRQVec2 = ellipseCurveRQ.getPoints(ELLIPSE_POINT_COUNT);
-var ellipsePointsRQArr = ellipsePointsRQVec2.map(function (vec2) {
-  return vec2.toArray();
-});
 
-var ellipseGemoetryR = Line(ellipsePointsRQArr);
-var ellipseMaterialR = new THREE.ShaderMaterial(BasicShader({
-  side: THREE.DoubleSide,
-  diffuse: 0xffffff,
-  thickness: ELLIPSE_THICKNESS
-}));
+var ellipseLineGeometryRP = Line();
+var ellipseLineGeometryRQ = Line();
+var ellipseMeshR = new THREE.Mesh(ellipseLineGeometryRQ, ellipseMaterial);
 
-var ellipseMeshR = new THREE.Mesh(ellipseGemoetryR, ellipseMaterialR);
-scene.add(ellipseMeshR);
+// --------------------------------
+// Membrane spotlights (projectors)
+// --------------------------------
 
-var rps = ellipsePointsRPVec2.map(function (vec2) {
-  return new THREE.Vector3(vec2.x, vec2.y, MEMBRANE_LENGTH);
-});
-var rqs = ellipsePointsRQVec2.map(function (vec2) {
-  return new THREE.Vector3(vec2.x, vec2.y, 0);
-});
+var spotLightTargetL = new THREE.Object3D();
+spotLightTargetL.position.set(LEFT_CENTRE_X, LEFT_CENTRE_Q_Y, 0);
+scene.add(spotLightTargetL);
+var spotLightL = new THREE.SpotLight(0xffffff, 200, MEMBRANE_LENGTH * 3, 22 * Math.PI / 180, 0);
+spotLightL.position.set(LEFT_CENTRE_X, LEFT_CENTRE_P_Y, MEMBRANE_LENGTH);
+spotLightL.target = spotLightTargetL;
+scene.add(spotLightL);
 
-// -------------
-// Left membrane
-// -------------
+var spotLightTargetR = new THREE.Object3D();
+spotLightTargetR.position.set(RIGHT_CENTRE_X, RIGHT_CENTRE_Q_Y, 0);
+scene.add(spotLightTargetR);
+var spotLightR = new THREE.SpotLight(0xffffff, 200, MEMBRANE_LENGTH * 3, 22 * Math.PI / 180, 0);
+spotLightR.position.set(RIGHT_CENTRE_X, RIGHT_CENTRE_P_Y, MEMBRANE_LENGTH);
+spotLightR.target = spotLightTargetR;
+scene.add(spotLightR);
 
-var leftMembraneGeometry = new _MembraneGeometry.MembraneBufferGeometry(lps, lqs, MEMBRANE_SEGMENT_COUNT);
-var leftMembraneMesh = new THREE.Mesh(leftMembraneGeometry, hazeTextureMaterial);
-scene.add(leftMembraneMesh);
+var leftMembraneOuterMesh = void 0;
+var leftMembraneInnerMesh = void 0;
+var rightMembraneOuterMesh = void 0;
+var rightMembraneInnerMesh = void 0;
 
-// --------------
-// Right membrane
-// -------------=
+var onTextureLoaded = function onTextureLoaded(hazeTexture) {
 
-var rightMembraneGeometry = new _MembraneGeometry.MembraneBufferGeometry(rps, rqs, MEMBRANE_SEGMENT_COUNT);
-var rightMembraneMesh = new THREE.Mesh(rightMembraneGeometry, hazeTextureMaterial);
-scene.add(rightMembraneMesh);
+  scene.add(ellipseMeshL);
+  scene.add(ellipseMeshR);
+
+  var membraneOuterTextureMaterial = new THREE.MeshLambertMaterial({
+    map: hazeTexture,
+    side: THREE.BackSide,
+    color: 0xffffff,
+    transparent: true,
+    opacity: 0.8
+  });
+
+  var membraneInnerTextureMaterial = new THREE.MeshLambertMaterial({
+    map: hazeTexture,
+    side: THREE.FrontSide,
+    color: 0xffffff,
+    transparent: true,
+    opacity: 0.8
+  });
+
+  // -------------
+  // Left membrane
+  // -------------
+
+  var leftMembraneOuterGeometry = new _MembraneGeometry.MembraneBufferGeometry();
+  leftMembraneOuterMesh = new THREE.Mesh(leftMembraneOuterGeometry, membraneOuterTextureMaterial);
+  scene.add(leftMembraneOuterMesh);
+
+  var leftMembraneInnerGeometry = new _MembraneGeometry.MembraneBufferGeometry();
+  leftMembraneInnerMesh = new THREE.Mesh(leftMembraneInnerGeometry, membraneInnerTextureMaterial);
+  scene.add(leftMembraneInnerMesh);
+
+  // --------------
+  // Right membrane
+  // --------------
+
+  var rightMembraneOuterGeometry = new _MembraneGeometry.MembraneBufferGeometry();
+  rightMembraneOuterMesh = new THREE.Mesh(rightMembraneOuterGeometry, membraneOuterTextureMaterial);
+  scene.add(rightMembraneOuterMesh);
+
+  var rightMembraneInnerGeometry = new _MembraneGeometry.MembraneBufferGeometry();
+  rightMembraneInnerMesh = new THREE.Mesh(rightMembraneInnerGeometry, membraneInnerTextureMaterial);
+  scene.add(rightMembraneInnerMesh);
+
+  animate();
+};
+
+var textureLoader = new THREE.TextureLoader();
+textureLoader.load("haze.jpg", onTextureLoaded);
 
 // ---------
 // Animation
 // ---------
+
+var reverseNormals = function reverseNormals(bufferGeometry) {
+  var normalAttribute = bufferGeometry.getAttribute("normal");
+  var array = normalAttribute.array;
+  for (var i = 0; i < array.length; i++) {
+    array[i] *= -1;
+  }
+};
 
 var updateLeftForm = function updateLeftForm() {
 
@@ -47171,19 +47195,28 @@ var updateLeftForm = function updateLeftForm() {
   var ellipsePointsLPVec2 = ellipseCurveLP.getPoints(ELLIPSE_POINT_COUNT);
   var ellipsePointsLQVec2 = ellipseCurveLQ.getPoints(ELLIPSE_POINT_COUNT);
 
+  var ellipsePointsLPArr = ellipsePointsLPVec2.map(function (vec2) {
+    return vec2.toArray();
+  });
   var ellipsePointsLQArr = ellipsePointsLQVec2.map(function (vec2) {
     return vec2.toArray();
   });
-  ellipseGemoetryL.update(ellipsePointsLQArr);
 
-  var lps = ellipsePointsLPVec2.map(function (vec2) {
+  ellipseLineGeometryLP.update(ellipsePointsLPArr);
+  ellipseLineGeometryLQ.update(ellipsePointsLQArr);
+
+  var ps = ellipsePointsLPVec2.map(function (vec2) {
     return new THREE.Vector3(vec2.x, vec2.y, MEMBRANE_LENGTH);
   });
-  var lqs = ellipsePointsLQVec2.map(function (vec2) {
+  var qs = ellipsePointsLQVec2.map(function (vec2) {
     return new THREE.Vector3(vec2.x, vec2.y, 0);
   });
-  var tempGeometry = new _MembraneGeometry.MembraneBufferGeometry(lps, lqs, MEMBRANE_SEGMENT_COUNT);
-  leftMembraneMesh.geometry.copy(tempGeometry);
+
+  var tempGeometry = new _MembraneGeometry.MembraneBufferGeometry(ps, qs, MEMBRANE_SEGMENT_COUNT);
+  tempGeometry.computeVertexNormals();
+  leftMembraneInnerMesh.geometry.copy(tempGeometry);
+  reverseNormals(tempGeometry);
+  leftMembraneOuterMesh.geometry.copy(tempGeometry);
   tempGeometry.dispose();
 };
 
@@ -47195,19 +47228,28 @@ var updateRightForm = function updateRightForm() {
   var ellipsePointsRPVec2 = ellipseCurveRP.getPoints(ELLIPSE_POINT_COUNT);
   var ellipsePointsRQVec2 = ellipseCurveRQ.getPoints(ELLIPSE_POINT_COUNT);
 
+  var ellipsePointsRPArr = ellipsePointsRPVec2.map(function (vec2) {
+    return vec2.toArray();
+  });
   var ellipsePointsRQArr = ellipsePointsRQVec2.map(function (vec2) {
     return vec2.toArray();
   });
-  ellipseGemoetryR.update(ellipsePointsRQArr);
 
-  var rps = ellipsePointsRPVec2.map(function (vec2) {
+  ellipseLineGeometryRP.update(ellipsePointsRPArr);
+  ellipseLineGeometryRQ.update(ellipsePointsRQArr);
+
+  var ps = ellipsePointsRPVec2.map(function (vec2) {
     return new THREE.Vector3(vec2.x, vec2.y, MEMBRANE_LENGTH);
   });
-  var rqs = ellipsePointsRQVec2.map(function (vec2) {
+  var qs = ellipsePointsRQVec2.map(function (vec2) {
     return new THREE.Vector3(vec2.x, vec2.y, 0);
   });
-  var tempGeometry = new _MembraneGeometry.MembraneBufferGeometry(rps, rqs, MEMBRANE_SEGMENT_COUNT);
-  rightMembraneMesh.geometry.copy(tempGeometry);
+
+  var tempGeometry = new _MembraneGeometry.MembraneBufferGeometry(ps, qs, MEMBRANE_SEGMENT_COUNT);
+  tempGeometry.computeVertexNormals();
+  rightMembraneInnerMesh.geometry.copy(tempGeometry);
+  reverseNormals(tempGeometry);
+  rightMembraneOuterMesh.geometry.copy(tempGeometry);
   tempGeometry.dispose();
 };
 
@@ -47233,8 +47275,6 @@ var animate = function animate() {
   controls.update();
   renderer.render(scene, camera);
 };
-
-animate();
 
 /***/ }),
 /* 3 */
@@ -48841,7 +48881,11 @@ var _three = __webpack_require__(0);
 // - e.g. obtained from ElipseCurve.getPoints()
 // qs: array of Vector3 representing the large shape
 // - e.g. obtained from ElipseCurve.getPoints()
-function MembraneBufferGeometry(ps, qs, numSegments) {
+function MembraneBufferGeometry() {
+	var ps = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
+	var qs = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
+	var numSegments = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 1;
+
 
 	_three.BufferGeometry.call(this);
 
@@ -48859,7 +48903,6 @@ function MembraneBufferGeometry(ps, qs, numSegments) {
 
 	// helper variables
 	var indexArray = [];
-	var numPoints = ps.length;
 	var index = 0;
 	var groupStart = 0;
 
@@ -48874,6 +48917,14 @@ function MembraneBufferGeometry(ps, qs, numSegments) {
 
 	function generateTorso() {
 
+		var pslen = ps.length;
+		var qslen = qs.length;
+
+		if (pslen === 0 || qslen === 0 || pslen !== qslen) {
+			return;
+		}
+
+		var numPoints = ps.length;
 		var groupCount = 0;
 
 		// generate vertices, normals and uvs
@@ -48904,15 +48955,15 @@ function MembraneBufferGeometry(ps, qs, numSegments) {
 		}
 
 		// generate indices
-		for (var _x = 0; _x < numPoints; _x++) {
+		for (var _x4 = 0; _x4 < numPoints; _x4++) {
 
 			for (var _y = 0; _y < numSegments; _y++) {
 
 				// we use the index array to access the correct indices
-				var a = indexArray[_y][_x];
-				var b = indexArray[_y + 1][_x];
-				var c = indexArray[_y + 1][_x + 1];
-				var d = indexArray[_y][_x + 1];
+				var a = indexArray[_y][_x4];
+				var b = indexArray[_y + 1][_x4];
+				var c = indexArray[_y + 1][_x4 + 1];
+				var d = indexArray[_y][_x4 + 1];
 
 				// faces
 				indices.push(a, b, d);
