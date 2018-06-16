@@ -99,6 +99,12 @@ const forms = [
   }
 ];
 
+let axesHelper = undefined;
+let membraneMeshLInnerVNH = undefined;
+let membraneMeshLOuterVNH = undefined;
+let membraneMeshRInnerVNH = undefined;
+let membraneMeshROuterVNH = undefined;
+
 // ------------------------------------
 // Left ellipse (nothing => everything)
 // ------------------------------------
@@ -286,9 +292,48 @@ window.addEventListener("resize", () => {
 });
 
 const onDocumentKeyDownHandler = ev => {
+
   if (ev.key === 'c') {
     console.log(`camera.position: ${JSON.stringify(camera.position)}`);
     console.log(`controls.target: ${JSON.stringify(controls.target)}`);
+  }
+
+  if (ev.key === 'a') {
+    if (axesHelper) {
+      scene.remove(axesHelper);
+      axesHelper = undefined;
+    } else {
+      axesHelper = new THREE.AxesHelper(5);
+      scene.add(axesHelper);
+    }
+  }
+
+  // let membraneMeshLInnerVNH = undefined;
+  // let membraneMeshLOuterVNH = undefined;
+  // let membraneMeshRInnerVNH = undefined;
+  // let membraneMeshROuterVNH = undefined;
+
+  if (ev.key === 'v') {
+    if (membraneMeshLInnerVNH) {
+      scene.remove(membraneMeshLInnerVNH);
+      scene.remove(membraneMeshLOuterVNH);
+      scene.remove(membraneMeshRInnerVNH);
+      scene.remove(membraneMeshROuterVNH);
+      membraneMeshLInnerVNH = undefined;
+      membraneMeshLOuterVNH = undefined;
+      membraneMeshRInnerVNH = undefined;
+      membraneMeshROuterVNH = undefined;
+    }
+    else {
+      membraneMeshLInnerVNH = new THREE.VertexNormalsHelper(forms[0].membraneMeshInner, 0.1, 0x00ff00);
+      membraneMeshLOuterVNH = new THREE.VertexNormalsHelper(forms[0].membraneMeshOuter, 0.1, 0x0000ff);
+      membraneMeshRInnerVNH = new THREE.VertexNormalsHelper(forms[1].membraneMeshInner, 0.1, 0x00ff00);
+      membraneMeshROuterVNH = new THREE.VertexNormalsHelper(forms[1].membraneMeshOuter, 0.1, 0x0000ff);
+      scene.add(membraneMeshLInnerVNH);
+      scene.add(membraneMeshLOuterVNH);
+      scene.add(membraneMeshRInnerVNH);
+      scene.add(membraneMeshROuterVNH);
+    }
   }
 };
 
@@ -306,12 +351,16 @@ const animate = () => {
   renderer.render(scene, camera);
   renderLoopCount++;
   if (renderLoopCount === swapAtCount) {
-
     renderLoopCount = 0;
-
     forms[0].ellipseCurveP.aX = forms[0].ellipseCurveP.aX === RIGHT_CENTRE_X ? LEFT_CENTRE_X : RIGHT_CENTRE_X;
     forms[0].ellipseCurveQ.aX = forms[0].ellipseCurveQ.aX === RIGHT_CENTRE_X ? LEFT_CENTRE_X : RIGHT_CENTRE_X;
     forms[1].ellipseCurveP.aX = forms[1].ellipseCurveP.aX === RIGHT_CENTRE_X ? LEFT_CENTRE_X : RIGHT_CENTRE_X;
     forms[1].ellipseCurveQ.aX = forms[1].ellipseCurveQ.aX === RIGHT_CENTRE_X ? LEFT_CENTRE_X : RIGHT_CENTRE_X;
+  }
+  if (membraneMeshLInnerVNH) {
+    membraneMeshLInnerVNH.update();
+    membraneMeshLOuterVNH.update();
+    membraneMeshRInnerVNH.update();
+    membraneMeshROuterVNH.update();
   }
 };
