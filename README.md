@@ -60,6 +60,25 @@ Bits of descrption garnered from the above video:
   <img src="Images/Anthony-McCall-Leaving-With-Two-Minute-Silence-2006-8-Working-drawings-360-degree-turn-set-of-24-unique-works-Courtesy-Galerie-Martine-Aboucaya-Photo-François-Doury2-1024x683.jpg">
 </p>
 
+## Keyboard controls
+
+* a
+   * toggle axes helper
+   * <font color="red">x-axis</font>, <font color="green">y-axis</font>, <font color="blue">z-axis</font>
+* p
+    * cycle through favourite camera positions
+* r
+    * toggle autorotate    
+* v
+  * toggle vertex normals helper for the membranes
+  * outward normals: blue
+  * inward normals: green
+
+See also:
+
+* [OrbitControls.keys](https://threejs.org/docs/index.html#examples/controls/OrbitControls.keys)
+* [OrbitControls.mouseButtons](https://threejs.org/docs/index.html#examples/controls/OrbitControls.mouseButtons)
+
 ## TODO
 
 * [x] Create basic project structure
@@ -68,9 +87,9 @@ Bits of descrption garnered from the above video:
 * [ ] Add simple "clock-hand"
 * [ ] Add basic animation of the "clock-hand"
 * [ ] Try to re-create the exact movement of the form
-* [ ] Add the opposite form
-* [ ] Try to re-create the haze/cone/membrane effect
-* [ ] Deploy to gh-pages branch
+* [x] Add the opposite form
+* [x] Try to re-create the haze/cone/membrane effect
+* [x] Deploy to gh-pages branch
 
 ## Links
 

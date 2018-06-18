@@ -13,13 +13,29 @@ const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(w, h);
 container.appendChild(renderer.domElement);
 
+const FAVOURITE_POSITIONS = [
+  {
+    cameraPosition: new THREE.Vector3(-21.88, 9.81, 14.97),
+    controlsTarget: new THREE.Vector3(1.85, 2.00, 9.08)
+  },
+  {
+    cameraPosition: new THREE.Vector3(5.90, 3.09, -7.70),
+    controlsTarget: new THREE.Vector3(-2.58, 2.00, 8.05)
+  },
+  {
+    cameraPosition: new THREE.Vector3(0.94, 3.05, 27.52),
+    controlsTarget: new THREE.Vector3(0.95, 2.00, 9.63)
+  }
+];
+let currentFavouritePositionIndex = 0;
+
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(45, w / h, 0.1, 50);
-camera.position.set(-21.88, 9.81, 14.97);
+camera.position.copy(FAVOURITE_POSITIONS[currentFavouritePositionIndex].cameraPosition);
 scene.add(camera);
 
 const controls = new OrbitControls(camera, renderer.domElement);
-controls.target = new THREE.Vector3(1.85, 2.00, 9.08);
+controls.target.copy(FAVOURITE_POSITIONS[currentFavouritePositionIndex].controlsTarget);
 controls.minDistance = 0;
 controls.maxDistance = 50;
 controls.enableDamping = true;
@@ -104,6 +120,9 @@ let membraneMeshLInnerVNH = undefined;
 let membraneMeshLOuterVNH = undefined;
 let membraneMeshRInnerVNH = undefined;
 let membraneMeshROuterVNH = undefined;
+// let spotLightLHelper = undefined;
+// let spotLightRHelper = undefined;
+// let spotLightRH1Helper = undefined;
 
 // ------------------------------------
 // Left ellipse (nothing => everything)
@@ -164,7 +183,7 @@ scene.add(forms[1].ellipseLineMeshQ);
 const spotLightTargetL = new THREE.Object3D();
 spotLightTargetL.position.set(LEFT_CENTRE_X, LEFT_CENTRE_Q_Y, 0);
 scene.add(spotLightTargetL);
-const spotLightL = new THREE.SpotLight(0xffffff, 200, MEMBRANE_LENGTH * 4, 19 * Math.PI / 180, 0);
+const spotLightL = new THREE.SpotLight(0xffffff, 200, MEMBRANE_LENGTH * 2, 19 * Math.PI / 180, 0);
 spotLightL.position.set(LEFT_CENTRE_X, LEFT_CENTRE_P_Y, MEMBRANE_LENGTH);
 spotLightL.target = spotLightTargetL;
 scene.add(spotLightL);
@@ -172,10 +191,18 @@ scene.add(spotLightL);
 const spotLightTargetR = new THREE.Object3D();
 spotLightTargetR.position.set(RIGHT_CENTRE_X, RIGHT_CENTRE_Q_Y, 0);
 scene.add(spotLightTargetR);
-const spotLightR = new THREE.SpotLight(0xffffff, 200, MEMBRANE_LENGTH * 4, 19 * Math.PI / 180, 0);
+const spotLightR = new THREE.SpotLight(0xffffff, 200, MEMBRANE_LENGTH * 1.02, 19 * Math.PI / 180, 0);
 spotLightR.position.set(RIGHT_CENTRE_X, RIGHT_CENTRE_P_Y, MEMBRANE_LENGTH);
 spotLightR.target = spotLightTargetR;
 scene.add(spotLightR);
+
+// const spotLightTargetRH1 = new THREE.Object3D();
+// spotLightTargetRH1.position.set(RIGHT_CENTRE_X, RIGHT_CENTRE_Q_Y + ELLIPSE_RADIUS_Q_Y, 0);
+// scene.add(spotLightTargetRH1);
+// const spotLightRH1 = new THREE.SpotLight(0xffffff, 1000, MEMBRANE_LENGTH * 2, 0.5 * Math.PI / 180);
+// spotLightRH1.position.set(RIGHT_CENTRE_X, RIGHT_CENTRE_P_Y, MEMBRANE_LENGTH);
+// spotLightRH1.target = spotLightTargetRH1;
+// scene.add(spotLightRH1);
 
 const onTextureLoaded = hazeTexture => {
 
@@ -183,7 +210,7 @@ const onTextureLoaded = hazeTexture => {
     map: hazeTexture,
     side: THREE.BackSide,
     color: 0xffffff,
-    transparent: true,
+    transparent: false,
     opacity: 0.8
   });
 
@@ -191,7 +218,7 @@ const onTextureLoaded = hazeTexture => {
     map: hazeTexture,
     side: THREE.FrontSide,
     color: 0xffffff,
-    transparent: true,
+    transparent: false,
     opacity: 0.8
   });
 
@@ -283,6 +310,9 @@ const updateShrinkingForm = formIndex => {
   reverseNormals(tempGeometry);
   form.membraneGeometryOuter.copy(tempGeometry);
   tempGeometry.dispose();
+
+  // spotLightTargetRH1.position.set(qs[0].x, qs[0].y, 0);
+  // spotLightTargetRH1.updateMatrixWorld();
 };
 
 window.addEventListener("resize", () => {
@@ -308,10 +338,35 @@ const onDocumentKeyDownHandler = ev => {
     }
   }
 
-  // let membraneMeshLInnerVNH = undefined;
-  // let membraneMeshLOuterVNH = undefined;
-  // let membraneMeshRInnerVNH = undefined;
-  // let membraneMeshROuterVNH = undefined;
+  // if (ev.key === 's') {
+  //   if (spotLightRH1Helper) {
+  //     scene.remove(spotLightLHelper);
+  //     scene.remove(spotLightRHelper);
+  //     scene.remove(spotLightRH1Helper);
+  //     spotLightLHelper = undefined;
+  //     spotLightRHelper = undefined;
+  //     spotLightRH1Helper = undefined;
+  //   }
+  //   else {
+  //     spotLightLHelper = new THREE.SpotLightHelper(spotLightL);
+  //     spotLightRHelper = new THREE.SpotLightHelper(spotLightR);
+  //     spotLightRH1Helper = new THREE.SpotLightHelper(spotLightRH1);
+  //     scene.add(spotLightLHelper);
+  //     scene.add(spotLightRHelper);
+  //     scene.add(spotLightRH1Helper);
+  //   }
+  // }
+
+  if (ev.key === 'r') {
+    controls.autoRotate = !controls.autoRotate;
+  }
+
+  if (ev.key === 'p') {
+    currentFavouritePositionIndex++;
+    currentFavouritePositionIndex %= FAVOURITE_POSITIONS.length;
+    camera.position.copy(FAVOURITE_POSITIONS[currentFavouritePositionIndex].cameraPosition);
+    controls.target.copy(FAVOURITE_POSITIONS[currentFavouritePositionIndex].controlsTarget);
+  }
 
   if (ev.key === 'v') {
     if (membraneMeshLInnerVNH) {
@@ -340,8 +395,7 @@ const onDocumentKeyDownHandler = ev => {
 document.addEventListener('keydown', onDocumentKeyDownHandler);
 
 let renderLoopCount = 0;
-let swapAtCount = Math.floor(Math.PI * 2 / ELLIPSE_ROTATION_DELTA);
-console.log(`swapAtCount: ${swapAtCount}`);
+let swapAtCount = Math.floor(2 * Math.PI / ELLIPSE_ROTATION_DELTA);
 
 const animate = () => {
   window.requestAnimationFrame(animate);
