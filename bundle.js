@@ -47018,13 +47018,25 @@ var renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(w, h);
 container.appendChild(renderer.domElement);
 
+var FAVOURITE_POSITIONS = [{
+  cameraPosition: new THREE.Vector3(-21.88, 9.81, 14.97),
+  controlsTarget: new THREE.Vector3(1.85, 2.00, 9.08)
+}, {
+  cameraPosition: new THREE.Vector3(5.90, 3.09, -7.70),
+  controlsTarget: new THREE.Vector3(-2.58, 2.00, 8.05)
+}, {
+  cameraPosition: new THREE.Vector3(0.94, 3.05, 27.52),
+  controlsTarget: new THREE.Vector3(0.95, 2.00, 9.63)
+}];
+var currentFavouritePositionIndex = 0;
+
 var scene = new THREE.Scene();
 var camera = new THREE.PerspectiveCamera(45, w / h, 0.1, 50);
-camera.position.set(-21.88, 9.81, 14.97);
+camera.position.copy(FAVOURITE_POSITIONS[currentFavouritePositionIndex].cameraPosition);
 scene.add(camera);
 
 var controls = new _threeOrbitcontrols2.default(camera, renderer.domElement);
-controls.target = new THREE.Vector3(1.85, 2.00, 9.08);
+controls.target.copy(FAVOURITE_POSITIONS[currentFavouritePositionIndex].controlsTarget);
 controls.minDistance = 0;
 controls.maxDistance = 50;
 controls.enableDamping = true;
@@ -47107,6 +47119,9 @@ var membraneMeshLInnerVNH = undefined;
 var membraneMeshLOuterVNH = undefined;
 var membraneMeshRInnerVNH = undefined;
 var membraneMeshROuterVNH = undefined;
+// let spotLightLHelper = undefined;
+// let spotLightRHelper = undefined;
+// let spotLightRH1Helper = undefined;
 
 // ------------------------------------
 // Left ellipse (nothing => everything)
@@ -47139,7 +47154,7 @@ scene.add(forms[1].ellipseLineMeshQ);
 var spotLightTargetL = new THREE.Object3D();
 spotLightTargetL.position.set(LEFT_CENTRE_X, LEFT_CENTRE_Q_Y, 0);
 scene.add(spotLightTargetL);
-var spotLightL = new THREE.SpotLight(0xffffff, 200, MEMBRANE_LENGTH * 4, 19 * Math.PI / 180, 0);
+var spotLightL = new THREE.SpotLight(0xffffff, 200, MEMBRANE_LENGTH * 2, 19 * Math.PI / 180, 0);
 spotLightL.position.set(LEFT_CENTRE_X, LEFT_CENTRE_P_Y, MEMBRANE_LENGTH);
 spotLightL.target = spotLightTargetL;
 scene.add(spotLightL);
@@ -47147,10 +47162,18 @@ scene.add(spotLightL);
 var spotLightTargetR = new THREE.Object3D();
 spotLightTargetR.position.set(RIGHT_CENTRE_X, RIGHT_CENTRE_Q_Y, 0);
 scene.add(spotLightTargetR);
-var spotLightR = new THREE.SpotLight(0xffffff, 200, MEMBRANE_LENGTH * 4, 19 * Math.PI / 180, 0);
+var spotLightR = new THREE.SpotLight(0xffffff, 200, MEMBRANE_LENGTH * 1.02, 19 * Math.PI / 180, 0);
 spotLightR.position.set(RIGHT_CENTRE_X, RIGHT_CENTRE_P_Y, MEMBRANE_LENGTH);
 spotLightR.target = spotLightTargetR;
 scene.add(spotLightR);
+
+// const spotLightTargetRH1 = new THREE.Object3D();
+// spotLightTargetRH1.position.set(RIGHT_CENTRE_X, RIGHT_CENTRE_Q_Y + ELLIPSE_RADIUS_Q_Y, 0);
+// scene.add(spotLightTargetRH1);
+// const spotLightRH1 = new THREE.SpotLight(0xffffff, 1000, MEMBRANE_LENGTH * 2, 0.5 * Math.PI / 180);
+// spotLightRH1.position.set(RIGHT_CENTRE_X, RIGHT_CENTRE_P_Y, MEMBRANE_LENGTH);
+// spotLightRH1.target = spotLightTargetRH1;
+// scene.add(spotLightRH1);
 
 var onTextureLoaded = function onTextureLoaded(hazeTexture) {
 
@@ -47158,7 +47181,7 @@ var onTextureLoaded = function onTextureLoaded(hazeTexture) {
     map: hazeTexture,
     side: THREE.BackSide,
     color: 0xffffff,
-    transparent: true,
+    transparent: false,
     opacity: 0.8
   });
 
@@ -47166,7 +47189,7 @@ var onTextureLoaded = function onTextureLoaded(hazeTexture) {
     map: hazeTexture,
     side: THREE.FrontSide,
     color: 0xffffff,
-    transparent: true,
+    transparent: false,
     opacity: 0.8
   });
 
@@ -47270,6 +47293,9 @@ var updateShrinkingForm = function updateShrinkingForm(formIndex) {
   reverseNormals(tempGeometry);
   form.membraneGeometryOuter.copy(tempGeometry);
   tempGeometry.dispose();
+
+  // spotLightTargetRH1.position.set(qs[0].x, qs[0].y, 0);
+  // spotLightTargetRH1.updateMatrixWorld();
 };
 
 window.addEventListener("resize", function () {
@@ -47295,10 +47321,35 @@ var onDocumentKeyDownHandler = function onDocumentKeyDownHandler(ev) {
     }
   }
 
-  // let membraneMeshLInnerVNH = undefined;
-  // let membraneMeshLOuterVNH = undefined;
-  // let membraneMeshRInnerVNH = undefined;
-  // let membraneMeshROuterVNH = undefined;
+  // if (ev.key === 's') {
+  //   if (spotLightRH1Helper) {
+  //     scene.remove(spotLightLHelper);
+  //     scene.remove(spotLightRHelper);
+  //     scene.remove(spotLightRH1Helper);
+  //     spotLightLHelper = undefined;
+  //     spotLightRHelper = undefined;
+  //     spotLightRH1Helper = undefined;
+  //   }
+  //   else {
+  //     spotLightLHelper = new THREE.SpotLightHelper(spotLightL);
+  //     spotLightRHelper = new THREE.SpotLightHelper(spotLightR);
+  //     spotLightRH1Helper = new THREE.SpotLightHelper(spotLightRH1);
+  //     scene.add(spotLightLHelper);
+  //     scene.add(spotLightRHelper);
+  //     scene.add(spotLightRH1Helper);
+  //   }
+  // }
+
+  if (ev.key === 'r') {
+    controls.autoRotate = !controls.autoRotate;
+  }
+
+  if (ev.key === 'p') {
+    currentFavouritePositionIndex++;
+    currentFavouritePositionIndex %= FAVOURITE_POSITIONS.length;
+    camera.position.copy(FAVOURITE_POSITIONS[currentFavouritePositionIndex].cameraPosition);
+    controls.target.copy(FAVOURITE_POSITIONS[currentFavouritePositionIndex].controlsTarget);
+  }
 
   if (ev.key === 'v') {
     if (membraneMeshLInnerVNH) {
@@ -47326,8 +47377,7 @@ var onDocumentKeyDownHandler = function onDocumentKeyDownHandler(ev) {
 document.addEventListener('keydown', onDocumentKeyDownHandler);
 
 var renderLoopCount = 0;
-var swapAtCount = Math.floor(Math.PI * 2 / ELLIPSE_ROTATION_DELTA);
-console.log("swapAtCount: " + swapAtCount);
+var swapAtCount = Math.floor(2 * Math.PI / ELLIPSE_ROTATION_DELTA);
 
 var animate = function animate() {
   window.requestAnimationFrame(animate);
