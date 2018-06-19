@@ -47392,6 +47392,10 @@ var animate = function animate() {
     forms[0].ellipseCurveQ.aX = forms[0].ellipseCurveQ.aX === RIGHT_CENTRE_X ? LEFT_CENTRE_X : RIGHT_CENTRE_X;
     forms[1].ellipseCurveP.aX = forms[1].ellipseCurveP.aX === RIGHT_CENTRE_X ? LEFT_CENTRE_X : RIGHT_CENTRE_X;
     forms[1].ellipseCurveQ.aX = forms[1].ellipseCurveQ.aX === RIGHT_CENTRE_X ? LEFT_CENTRE_X : RIGHT_CENTRE_X;
+    forms[0].ellipseCurveP.aEndAngle = LEFT_END_ANGLE;
+    forms[0].ellipseCurveQ.aEndAngle = LEFT_END_ANGLE;
+    forms[1].ellipseCurveP.aStartAngle = RIGHT_START_ANGLE;
+    forms[1].ellipseCurveQ.aStartAngle = RIGHT_START_ANGLE;
   }
   if (membraneMeshLInnerVNH) {
     membraneMeshLInnerVNH.update();
