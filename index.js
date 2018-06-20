@@ -288,6 +288,9 @@ const reverseNormals = bufferGeometry => {
   }
 };
 
+const DELTA_ANGLE = 15 * Math.PI / 180;
+const ANGLE_OFFSET_THRESHOLD = 45 * Math.PI / 180;
+
 const updateGrowingForm = form => {
 
   form.ellipseCurveP.aEndAngle -= ELLIPSE_ROTATION_DELTA;
@@ -299,16 +302,15 @@ const updateGrowingForm = form => {
   const ellipsePointsLQArr = ellipsePointsLQVec2.map(vec2 => vec2.toArray());
   form.ellipseLineGeometryQ.update(ellipsePointsLQArr);
 
-  const DELTA_ANGLE = 15 * Math.PI / 180;
   const e = form.ellipseCurveQ;
   const angle1 = e.aEndAngle + DELTA_ANGLE;
   const angle2 = e.aEndAngle - DELTA_ANGLE;
   const startingPoint = new THREE.Vector2(e.aX + e.xRadius * Math.cos(e.aEndAngle), e.aY + e.yRadius * Math.sin(e.aEndAngle));
   const centrePoint = new THREE.Vector2(e.aX, e.aY);
   const angleOffset = Math.abs(e.aEndAngle - LEFT_END_ANGLE);
-  console.log(`growing angleOffset: ${angleOffset}`);
-  // TODO: adjust lerp interpolation factor according to angleOffset
-  const alpha = 1.0;
+  const angleOffset2 = angleOffset < Math.PI ? angleOffset : 2 * Math.PI - angleOffset;
+  const normalisingFactor = 1 / ANGLE_OFFSET_THRESHOLD;
+  const alpha = angleOffset2 > ANGLE_OFFSET_THRESHOLD ? 1.0 : (angleOffset2 * normalisingFactor);
   const endingPoint = startingPoint.clone().lerp(centrePoint, alpha);
   const pt1 = new THREE.Vector2(e.aX + e.xRadius * Math.cos(angle1), e.aY + e.yRadius * Math.sin(angle1));
   const pt2 = new THREE.Vector2(e.aX + e.xRadius * Math.cos(angle2), e.aY + e.yRadius * Math.sin(angle2));
@@ -344,16 +346,15 @@ const updateShrinkingForm = form => {
   const ellipsePointsQArr = ellipsePointsQVec2.map(vec2 => vec2.toArray());
   form.ellipseLineGeometryQ.update(ellipsePointsQArr);
 
-  const DELTA_ANGLE = 15 * Math.PI / 180;
   const e = form.ellipseCurveQ;
   const angle1 = e.aStartAngle + DELTA_ANGLE;
   const angle2 = e.aStartAngle - DELTA_ANGLE;
   const startingPoint = new THREE.Vector2(e.aX + e.xRadius * Math.cos(e.aStartAngle), e.aY + e.yRadius * Math.sin(e.aStartAngle));
   const centrePoint = new THREE.Vector2(e.aX, e.aY);
   const angleOffset = Math.abs(e.aStartAngle - RIGHT_START_ANGLE);
-  console.log(`shrinking angleOffset: ${angleOffset}`);
-  // TODO: adjust lerp interpolation factor according to angleOffset
-  const alpha = 1.0;
+  const angleOffset2 = angleOffset < Math.PI ? angleOffset : 2 * Math.PI - angleOffset;
+  const normalisingFactor = 1 / ANGLE_OFFSET_THRESHOLD;
+  const alpha = angleOffset2 > ANGLE_OFFSET_THRESHOLD ? 1.0 : (angleOffset2 * normalisingFactor);
   const endingPoint = startingPoint.clone().lerp(centrePoint, alpha);
   const pt1 = new THREE.Vector2(e.aX + e.xRadius * Math.cos(angle1), e.aY + e.yRadius * Math.sin(angle1));
   const pt2 = new THREE.Vector2(e.aX + e.xRadius * Math.cos(angle2), e.aY + e.yRadius * Math.sin(angle2));
