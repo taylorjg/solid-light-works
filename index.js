@@ -15,12 +15,12 @@ container.appendChild(renderer.domElement);
 
 const FAVOURITE_POSITIONS = [
   {
-    cameraPosition: new THREE.Vector3(-21.88, 9.81, 14.97),
-    controlsTarget: new THREE.Vector3(1.85, 2.00, 9.08)
+    cameraPosition: new THREE.Vector3(2.15, 4.05, -8.75),
+    controlsTarget: new THREE.Vector3(-0.93, 2.00, 8.79)
   },
   {
-    cameraPosition: new THREE.Vector3(5.90, 3.09, -7.70),
-    controlsTarget: new THREE.Vector3(-2.58, 2.00, 8.05)
+    cameraPosition: new THREE.Vector3(-21.88, 9.81, 14.97),
+    controlsTarget: new THREE.Vector3(1.85, 2.00, 9.08)
   },
   {
     cameraPosition: new THREE.Vector3(0.94, 3.05, 27.52),
