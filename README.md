@@ -86,9 +86,12 @@ See also:
 * [x] Add basic animation of the ellipse
 * [ ] Add simple "clock-hand"
 * [ ] Add basic animation of the "clock-hand"
-* [ ] Try to re-create the exact movement of the form
+* [ ] Combine the ellipse and the "clock-hand" into a single line
+* [ ] Try to re-create the exact movement of the ellipse
+* [ ] Try to re-create the exact movement of the "clock-hand"
 * [x] Add the opposite form
-* [x] Try to re-create the haze/cone/membrane effect
+* [x] Try to re-create the membrane effect
+* [ ] Improve the membrane effect (highlights)
 * [x] Deploy to gh-pages branch
 
 ## Links
