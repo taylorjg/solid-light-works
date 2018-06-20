@@ -47078,38 +47078,48 @@ var ELLIPSE_RADIUS_Q_Y = 2;
 var ELLIPSE_RADIUS_P = ELLIPSE_RADIUS_Q_Y / 20;
 var ELLIPSE_THICKNESS = 0.08;
 var ELLIPSE_CLOCKWISE = true;
-var ELLIPSE_POINT_COUNT = 100; // 500;
+var ELLIPSE_POINT_COUNT = 100;
 var ELLIPSE_ROTATION_DELTA = Math.PI / (180 * 10);
 
-var MEMBRANE_LENGTH = 20;
-var MEMBRANE_SEGMENT_COUNT = 10; // 50;
+var WIPE_POINT_COUNT = 50;
 
-var ellipseMaterial = new THREE.ShaderMaterial(BasicShader({
+var MEMBRANE_LENGTH = 20;
+var MEMBRANE_SEGMENT_COUNT = 10;
+
+var lineMaterial = new THREE.ShaderMaterial(BasicShader({
   side: THREE.DoubleSide,
   diffuse: 0xffffff,
   thickness: ELLIPSE_THICKNESS
 }));
 
 var forms = [
-// initially left & growing
+// nothing => everything then reset and swap sides
 {
   ellipseCurveP: undefined,
   ellipseCurveQ: undefined,
   ellipseLineGeometryQ: undefined,
+  ellipseLineMeshQ: undefined,
+  wipeCurveP: undefined,
+  wipeCurveQ: undefined,
+  wipeLineGeometryQ: undefined,
+  wipeLineMeshQ: undefined,
   membraneGeometryInner: undefined,
   membraneGeometryOuter: undefined,
-  ellipseLineMeshQ: undefined,
   membraneMeshInner: undefined,
   membraneMeshOuter: undefined
 },
-// initially right & shrinking
+// everything => nothing then reset and swap sides
 {
   ellipseCurveP: undefined,
   ellipseCurveQ: undefined,
   ellipseLineGeometryQ: undefined,
+  ellipseLineMeshQ: undefined,
+  wipeCurveP: undefined,
+  wipeCurveQ: undefined,
+  wipeLineGeometryQ: undefined,
+  wipeLineMeshQ: undefined,
   membraneGeometryInner: undefined,
   membraneGeometryOuter: undefined,
-  ellipseLineMeshQ: undefined,
   membraneMeshInner: undefined,
   membraneMeshOuter: undefined
 }];
@@ -47132,8 +47142,15 @@ forms[0].ellipseCurveP = new THREE.EllipseCurve(LEFT_CENTRE_X, LEFT_CENTRE_P_Y, 
 forms[0].ellipseCurveQ = new THREE.EllipseCurve(LEFT_CENTRE_X, LEFT_CENTRE_Q_Y, ELLIPSE_RADIUS_Q_X, ELLIPSE_RADIUS_Q_Y, LEFT_START_ANGLE, LEFT_END_ANGLE, ELLIPSE_CLOCKWISE);
 
 forms[0].ellipseLineGeometryQ = Line();
-forms[0].ellipseLineMeshQ = new THREE.Mesh(forms[0].ellipseLineGeometryQ, ellipseMaterial);
+forms[0].ellipseLineMeshQ = new THREE.Mesh(forms[0].ellipseLineGeometryQ, lineMaterial);
 scene.add(forms[0].ellipseLineMeshQ);
+
+forms[0].wipeCurveP = new THREE.CubicBezierCurve();
+forms[0].wipeCurveQ = new THREE.CubicBezierCurve();
+
+forms[0].wipeLineGeometryQ = Line();
+forms[0].wipeLineMeshQ = new THREE.Mesh(forms[0].wipeLineGeometryQ, lineMaterial);
+scene.add(forms[0].wipeLineMeshQ);
 
 // -------------------------------------
 // Right ellipse (everything => nothing)
@@ -47144,8 +47161,15 @@ forms[1].ellipseCurveP = new THREE.EllipseCurve(RIGHT_CENTRE_X, RIGHT_CENTRE_P_Y
 forms[1].ellipseCurveQ = new THREE.EllipseCurve(RIGHT_CENTRE_X, RIGHT_CENTRE_Q_Y, ELLIPSE_RADIUS_Q_X, ELLIPSE_RADIUS_Q_Y, RIGHT_START_ANGLE, RIGHT_END_ANGLE, ELLIPSE_CLOCKWISE);
 
 forms[1].ellipseLineGeometryQ = Line();
-forms[1].ellipseLineMeshQ = new THREE.Mesh(forms[1].ellipseLineGeometryQ, ellipseMaterial);
+forms[1].ellipseLineMeshQ = new THREE.Mesh(forms[1].ellipseLineGeometryQ, lineMaterial);
 scene.add(forms[1].ellipseLineMeshQ);
+
+forms[1].wipeCurveP = new THREE.CubicBezierCurve();
+forms[1].wipeCurveQ = new THREE.CubicBezierCurve();
+
+forms[1].wipeLineGeometryQ = Line();
+forms[1].wipeLineMeshQ = new THREE.Mesh(forms[1].wipeLineGeometryQ, lineMaterial);
+scene.add(forms[1].wipeLineMeshQ);
 
 // --------------------------------
 // Membrane spotlights (projectors)
@@ -47181,16 +47205,16 @@ var onTextureLoaded = function onTextureLoaded(hazeTexture) {
     map: hazeTexture,
     side: THREE.BackSide,
     color: 0xffffff,
-    transparent: false,
-    opacity: 0.8
+    transparent: true,
+    opacity: 0.4
   });
 
   var membraneTextureMaterialInner = new THREE.MeshLambertMaterial({
     map: hazeTexture,
     side: THREE.FrontSide,
     color: 0xffffff,
-    transparent: false,
-    opacity: 0.8
+    transparent: true,
+    opacity: 0.4
   });
 
   // -------------
@@ -47235,9 +47259,7 @@ var reverseNormals = function reverseNormals(bufferGeometry) {
   }
 };
 
-var updateGrowingForm = function updateGrowingForm(formIndex) {
-
-  var form = forms[formIndex];
+var updateGrowingForm = function updateGrowingForm(form) {
 
   form.ellipseCurveP.aEndAngle -= ELLIPSE_ROTATION_DELTA;
   form.ellipseCurveQ.aEndAngle -= ELLIPSE_ROTATION_DELTA;
@@ -47249,6 +47271,31 @@ var updateGrowingForm = function updateGrowingForm(formIndex) {
     return vec2.toArray();
   });
   form.ellipseLineGeometryQ.update(ellipsePointsLQArr);
+
+  var DELTA_ANGLE = 15 * Math.PI / 180;
+  var e = form.ellipseCurveQ;
+  var angle1 = e.aEndAngle + DELTA_ANGLE;
+  var angle2 = e.aEndAngle - DELTA_ANGLE;
+  var startingPoint = new THREE.Vector2(e.aX + e.xRadius * Math.cos(e.aEndAngle), e.aY + e.yRadius * Math.sin(e.aEndAngle));
+  var centrePoint = new THREE.Vector2(e.aX, e.aY);
+  var angleOffset = Math.abs(e.aEndAngle - LEFT_END_ANGLE);
+  console.log("growing angleOffset: " + angleOffset);
+  // TODO: adjust lerp interpolation factor according to angleOffset
+  var alpha = 1.0;
+  var endingPoint = startingPoint.clone().lerp(centrePoint, alpha);
+  var pt1 = new THREE.Vector2(e.aX + e.xRadius * Math.cos(angle1), e.aY + e.yRadius * Math.sin(angle1));
+  var pt2 = new THREE.Vector2(e.aX + e.xRadius * Math.cos(angle2), e.aY + e.yRadius * Math.sin(angle2));
+  var controlPoint1 = pt1.lerp(endingPoint, 0.25);
+  var controlPoint2 = pt2.lerp(endingPoint, 0.75);
+  form.wipeCurveQ.v0.copy(startingPoint);
+  form.wipeCurveQ.v1.copy(controlPoint1);
+  form.wipeCurveQ.v2.copy(controlPoint2);
+  form.wipeCurveQ.v3.copy(endingPoint);
+  var wipePointsQVec2 = form.wipeCurveQ.getPoints(WIPE_POINT_COUNT);
+  var wipePointsQArr = wipePointsQVec2.map(function (vec2) {
+    return vec2.toArray();
+  });
+  form.wipeLineGeometryQ.update(wipePointsQArr);
 
   var ps = ellipsePointsLPVec2.map(function (vec2) {
     return new THREE.Vector3(vec2.x, vec2.y, MEMBRANE_LENGTH);
@@ -47265,9 +47312,7 @@ var updateGrowingForm = function updateGrowingForm(formIndex) {
   tempGeometry.dispose();
 };
 
-var updateShrinkingForm = function updateShrinkingForm(formIndex) {
-
-  var form = forms[formIndex];
+var updateShrinkingForm = function updateShrinkingForm(form) {
 
   form.ellipseCurveP.aStartAngle -= ELLIPSE_ROTATION_DELTA;
   form.ellipseCurveQ.aStartAngle -= ELLIPSE_ROTATION_DELTA;
@@ -47279,6 +47324,31 @@ var updateShrinkingForm = function updateShrinkingForm(formIndex) {
     return vec2.toArray();
   });
   form.ellipseLineGeometryQ.update(ellipsePointsQArr);
+
+  var DELTA_ANGLE = 15 * Math.PI / 180;
+  var e = form.ellipseCurveQ;
+  var angle1 = e.aStartAngle + DELTA_ANGLE;
+  var angle2 = e.aStartAngle - DELTA_ANGLE;
+  var startingPoint = new THREE.Vector2(e.aX + e.xRadius * Math.cos(e.aStartAngle), e.aY + e.yRadius * Math.sin(e.aStartAngle));
+  var centrePoint = new THREE.Vector2(e.aX, e.aY);
+  var angleOffset = Math.abs(e.aStartAngle - RIGHT_START_ANGLE);
+  console.log("shrinking angleOffset: " + angleOffset);
+  // TODO: adjust lerp interpolation factor according to angleOffset
+  var alpha = 1.0;
+  var endingPoint = startingPoint.clone().lerp(centrePoint, alpha);
+  var pt1 = new THREE.Vector2(e.aX + e.xRadius * Math.cos(angle1), e.aY + e.yRadius * Math.sin(angle1));
+  var pt2 = new THREE.Vector2(e.aX + e.xRadius * Math.cos(angle2), e.aY + e.yRadius * Math.sin(angle2));
+  var controlPoint1 = pt1.lerp(endingPoint, 0.25);
+  var controlPoint2 = pt2.lerp(endingPoint, 0.75);
+  form.wipeCurveQ.v0.copy(startingPoint);
+  form.wipeCurveQ.v1.copy(controlPoint1);
+  form.wipeCurveQ.v2.copy(controlPoint2);
+  form.wipeCurveQ.v3.copy(endingPoint);
+  var wipePointsQVec2 = form.wipeCurveQ.getPoints(WIPE_POINT_COUNT);
+  var wipePointsQArr = wipePointsQVec2.map(function (vec2) {
+    return vec2.toArray();
+  });
+  form.wipeLineGeometryQ.update(wipePointsQArr);
 
   var ps = ellipsePointsPVec2.map(function (vec2) {
     return new THREE.Vector3(vec2.x, vec2.y, MEMBRANE_LENGTH);
@@ -47381,8 +47451,8 @@ var swapAtCount = Math.floor(2 * Math.PI / ELLIPSE_ROTATION_DELTA);
 
 var animate = function animate() {
   window.requestAnimationFrame(animate);
-  updateGrowingForm(0);
-  updateShrinkingForm(1);
+  updateGrowingForm(forms[0]);
+  updateShrinkingForm(forms[1]);
   controls.update();
   renderer.render(scene, camera);
   renderLoopCount++;
