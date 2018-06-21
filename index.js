@@ -60,14 +60,13 @@ scene.add(screen);
 // Sizes and positions
 // -------------------
 
-const LEFT_START_ANGLE = 1.5 * Math.PI;
-const LEFT_END_ANGLE = 3.5 * Math.PI;
+const START_ANGLE = 1.5 * Math.PI;
+const END_ANGLE = 3.5 * Math.PI;
+
 const LEFT_CENTRE_X = -3.5;
 const LEFT_CENTRE_P_Y = 1;
 const LEFT_CENTRE_Q_Y = 2.6;
 
-const RIGHT_START_ANGLE = 1.5 * Math.PI;
-const RIGHT_END_ANGLE = 3.5 * Math.PI;
 const RIGHT_CENTRE_X = -LEFT_CENTRE_X;
 const RIGHT_CENTRE_P_Y = LEFT_CENTRE_P_Y;
 const RIGHT_CENTRE_Q_Y = LEFT_CENTRE_Q_Y;
@@ -101,8 +100,8 @@ const forms = [
     ellipseLineMeshQ: undefined,
     wipeCurveP: undefined,
     wipeCurveQ: undefined,
-    wipeLineGeometryQ: undefined,
-    wipeLineMeshQ: undefined,
+    // wipeLineGeometryQ: undefined,
+    // wipeLineMeshQ: undefined,
     membraneGeometryInner: undefined,
     membraneGeometryOuter: undefined,
     membraneMeshInner: undefined,
@@ -116,8 +115,8 @@ const forms = [
     ellipseLineMeshQ: undefined,
     wipeCurveP: undefined,
     wipeCurveQ: undefined,
-    wipeLineGeometryQ: undefined,
-    wipeLineMeshQ: undefined,
+    // wipeLineGeometryQ: undefined,
+    // wipeLineMeshQ: undefined,
     membraneGeometryInner: undefined,
     membraneGeometryOuter: undefined,
     membraneMeshInner: undefined,
@@ -143,8 +142,8 @@ forms[0].ellipseCurveP = new THREE.EllipseCurve(
   LEFT_CENTRE_P_Y,
   ELLIPSE_RADIUS_P,
   ELLIPSE_RADIUS_P,
-  LEFT_START_ANGLE,
-  LEFT_END_ANGLE,
+  START_ANGLE,
+  END_ANGLE,
   ELLIPSE_CLOCKWISE);
 
 forms[0].ellipseCurveQ = new THREE.EllipseCurve(
@@ -152,8 +151,8 @@ forms[0].ellipseCurveQ = new THREE.EllipseCurve(
   LEFT_CENTRE_Q_Y,
   ELLIPSE_RADIUS_Q_X,
   ELLIPSE_RADIUS_Q_Y,
-  LEFT_START_ANGLE,
-  LEFT_END_ANGLE,
+  START_ANGLE,
+  END_ANGLE,
   ELLIPSE_CLOCKWISE);
 
 forms[0].ellipseLineGeometryQ = Line();
@@ -163,9 +162,9 @@ scene.add(forms[0].ellipseLineMeshQ);
 forms[0].wipeCurveP = new THREE.CubicBezierCurve();
 forms[0].wipeCurveQ = new THREE.CubicBezierCurve();
 
-forms[0].wipeLineGeometryQ = Line();
-forms[0].wipeLineMeshQ = new THREE.Mesh(forms[0].wipeLineGeometryQ, lineMaterial);
-scene.add(forms[0].wipeLineMeshQ);
+// forms[0].wipeLineGeometryQ = Line();
+// forms[0].wipeLineMeshQ = new THREE.Mesh(forms[0].wipeLineGeometryQ, lineMaterial);
+// scene.add(forms[0].wipeLineMeshQ);
 
 // -------------------------------------
 // Right ellipse (everything => nothing)
@@ -176,8 +175,8 @@ forms[1].ellipseCurveP = new THREE.EllipseCurve(
   RIGHT_CENTRE_P_Y,
   ELLIPSE_RADIUS_P,
   ELLIPSE_RADIUS_P,
-  RIGHT_START_ANGLE,
-  RIGHT_END_ANGLE,
+  START_ANGLE,
+  END_ANGLE,
   ELLIPSE_CLOCKWISE);
 
 forms[1].ellipseCurveQ = new THREE.EllipseCurve(
@@ -185,8 +184,8 @@ forms[1].ellipseCurveQ = new THREE.EllipseCurve(
   RIGHT_CENTRE_Q_Y,
   ELLIPSE_RADIUS_Q_X,
   ELLIPSE_RADIUS_Q_Y,
-  RIGHT_START_ANGLE,
-  RIGHT_END_ANGLE,
+  START_ANGLE,
+  END_ANGLE,
   ELLIPSE_CLOCKWISE);
 
 forms[1].ellipseLineGeometryQ = Line();
@@ -196,9 +195,9 @@ scene.add(forms[1].ellipseLineMeshQ);
 forms[1].wipeCurveP = new THREE.CubicBezierCurve();
 forms[1].wipeCurveQ = new THREE.CubicBezierCurve();
 
-forms[1].wipeLineGeometryQ = Line();
-forms[1].wipeLineMeshQ = new THREE.Mesh(forms[1].wipeLineGeometryQ, lineMaterial);
-scene.add(forms[1].wipeLineMeshQ);
+// forms[1].wipeLineGeometryQ = Line();
+// forms[1].wipeLineMeshQ = new THREE.Mesh(forms[1].wipeLineGeometryQ, lineMaterial);
+// scene.add(forms[1].wipeLineMeshQ);
 
 // --------------------------------
 // Membrane spotlights (projectors)
@@ -296,21 +295,19 @@ const updateGrowingForm = form => {
   form.ellipseCurveP.aEndAngle -= ELLIPSE_ROTATION_DELTA;
   form.ellipseCurveQ.aEndAngle -= ELLIPSE_ROTATION_DELTA;
 
-  const ellipsePointsLPVec2 = form.ellipseCurveP.getPoints(ELLIPSE_POINT_COUNT);
-  const ellipsePointsLQVec2 = form.ellipseCurveQ.getPoints(ELLIPSE_POINT_COUNT);
-
-  const ellipsePointsLQArr = ellipsePointsLQVec2.map(vec2 => vec2.toArray());
-  form.ellipseLineGeometryQ.update(ellipsePointsLQArr);
+  const ellipsePointsPVec2 = form.ellipseCurveP.getPoints(ELLIPSE_POINT_COUNT);
+  const ellipsePointsQVec2 = form.ellipseCurveQ.getPoints(ELLIPSE_POINT_COUNT);
+  const ellipsePointsQArr = ellipsePointsQVec2.map(vec2 => vec2.toArray());
 
   const e = form.ellipseCurveQ;
-  const angle1 = e.aEndAngle + DELTA_ANGLE;
-  const angle2 = e.aEndAngle - DELTA_ANGLE;
-  const startingPoint = new THREE.Vector2(e.aX + e.xRadius * Math.cos(e.aEndAngle), e.aY + e.yRadius * Math.sin(e.aEndAngle));
-  const centrePoint = new THREE.Vector2(e.aX, e.aY);
-  const angleOffset = Math.abs(e.aEndAngle - LEFT_END_ANGLE);
+  const angleOffset = Math.abs(e.aEndAngle - END_ANGLE);
   const angleOffset2 = angleOffset < Math.PI ? angleOffset : 2 * Math.PI - angleOffset;
   const normalisingFactor = 1 / ANGLE_OFFSET_THRESHOLD;
   const alpha = angleOffset2 > ANGLE_OFFSET_THRESHOLD ? 1.0 : (angleOffset2 * normalisingFactor);
+  const angle1 = e.aEndAngle + DELTA_ANGLE * alpha;
+  const angle2 = e.aEndAngle - DELTA_ANGLE * alpha;
+  const startingPoint = new THREE.Vector2(e.aX + e.xRadius * Math.cos(e.aEndAngle), e.aY + e.yRadius * Math.sin(e.aEndAngle));
+  const centrePoint = new THREE.Vector2(e.aX, e.aY);
   const endingPoint = startingPoint.clone().lerp(centrePoint, alpha);
   const pt1 = new THREE.Vector2(e.aX + e.xRadius * Math.cos(angle1), e.aY + e.yRadius * Math.sin(angle1));
   const pt2 = new THREE.Vector2(e.aX + e.xRadius * Math.cos(angle2), e.aY + e.yRadius * Math.sin(angle2));
@@ -322,10 +319,11 @@ const updateGrowingForm = form => {
   form.wipeCurveQ.v3.copy(endingPoint);
   const wipePointsQVec2 = form.wipeCurveQ.getPoints(WIPE_POINT_COUNT);
   const wipePointsQArr = wipePointsQVec2.map(vec2 => vec2.toArray());
-  form.wipeLineGeometryQ.update(wipePointsQArr);
+  const combinedLinePointsQArr = ellipsePointsQArr.concat(wipePointsQArr.slice(1));
+  form.ellipseLineGeometryQ.update(combinedLinePointsQArr);
 
-  const ps = ellipsePointsLPVec2.map(vec2 => new THREE.Vector3(vec2.x, vec2.y, MEMBRANE_LENGTH));
-  const qs = ellipsePointsLQVec2.map(vec2 => new THREE.Vector3(vec2.x, vec2.y, 0));
+  const ps = ellipsePointsPVec2.map(vec2 => new THREE.Vector3(vec2.x, vec2.y, MEMBRANE_LENGTH));
+  const qs = ellipsePointsQVec2.map(vec2 => new THREE.Vector3(vec2.x, vec2.y, 0));
 
   const tempGeometry = new MembraneBufferGeometry(ps, qs, MEMBRANE_SEGMENT_COUNT);
   tempGeometry.computeVertexNormals();
@@ -342,19 +340,17 @@ const updateShrinkingForm = form => {
 
   const ellipsePointsPVec2 = form.ellipseCurveP.getPoints(ELLIPSE_POINT_COUNT);
   const ellipsePointsQVec2 = form.ellipseCurveQ.getPoints(ELLIPSE_POINT_COUNT);
-
   const ellipsePointsQArr = ellipsePointsQVec2.map(vec2 => vec2.toArray());
-  form.ellipseLineGeometryQ.update(ellipsePointsQArr);
 
   const e = form.ellipseCurveQ;
-  const angle1 = e.aStartAngle + DELTA_ANGLE;
-  const angle2 = e.aStartAngle - DELTA_ANGLE;
-  const startingPoint = new THREE.Vector2(e.aX + e.xRadius * Math.cos(e.aStartAngle), e.aY + e.yRadius * Math.sin(e.aStartAngle));
-  const centrePoint = new THREE.Vector2(e.aX, e.aY);
-  const angleOffset = Math.abs(e.aStartAngle - RIGHT_START_ANGLE);
+  const angleOffset = Math.abs(e.aStartAngle - START_ANGLE);
   const angleOffset2 = angleOffset < Math.PI ? angleOffset : 2 * Math.PI - angleOffset;
   const normalisingFactor = 1 / ANGLE_OFFSET_THRESHOLD;
   const alpha = angleOffset2 > ANGLE_OFFSET_THRESHOLD ? 1.0 : (angleOffset2 * normalisingFactor);
+  const angle1 = e.aStartAngle + DELTA_ANGLE * alpha;
+  const angle2 = e.aStartAngle - DELTA_ANGLE * alpha;
+  const startingPoint = new THREE.Vector2(e.aX + e.xRadius * Math.cos(e.aStartAngle), e.aY + e.yRadius * Math.sin(e.aStartAngle));
+  const centrePoint = new THREE.Vector2(e.aX, e.aY);
   const endingPoint = startingPoint.clone().lerp(centrePoint, alpha);
   const pt1 = new THREE.Vector2(e.aX + e.xRadius * Math.cos(angle1), e.aY + e.yRadius * Math.sin(angle1));
   const pt2 = new THREE.Vector2(e.aX + e.xRadius * Math.cos(angle2), e.aY + e.yRadius * Math.sin(angle2));
@@ -366,7 +362,8 @@ const updateShrinkingForm = form => {
   form.wipeCurveQ.v3.copy(endingPoint);
   const wipePointsQVec2 = form.wipeCurveQ.getPoints(WIPE_POINT_COUNT);
   const wipePointsQArr = wipePointsQVec2.map(vec2 => vec2.toArray());
-  form.wipeLineGeometryQ.update(wipePointsQArr);
+  const combinedLinePointsQArr = ellipsePointsQArr.slice().reverse().concat(wipePointsQArr.slice(1));
+  form.ellipseLineGeometryQ.update(combinedLinePointsQArr);
 
   const ps = ellipsePointsPVec2.map(vec2 => new THREE.Vector3(vec2.x, vec2.y, MEMBRANE_LENGTH));
   const qs = ellipsePointsQVec2.map(vec2 => new THREE.Vector3(vec2.x, vec2.y, 0));
@@ -477,10 +474,10 @@ const animate = () => {
     forms[0].ellipseCurveQ.aX = forms[0].ellipseCurveQ.aX === RIGHT_CENTRE_X ? LEFT_CENTRE_X : RIGHT_CENTRE_X;
     forms[1].ellipseCurveP.aX = forms[1].ellipseCurveP.aX === RIGHT_CENTRE_X ? LEFT_CENTRE_X : RIGHT_CENTRE_X;
     forms[1].ellipseCurveQ.aX = forms[1].ellipseCurveQ.aX === RIGHT_CENTRE_X ? LEFT_CENTRE_X : RIGHT_CENTRE_X;
-    forms[0].ellipseCurveP.aEndAngle = LEFT_END_ANGLE;
-    forms[0].ellipseCurveQ.aEndAngle = LEFT_END_ANGLE;
-    forms[1].ellipseCurveP.aStartAngle = RIGHT_START_ANGLE;
-    forms[1].ellipseCurveQ.aStartAngle = RIGHT_START_ANGLE;
+    forms[0].ellipseCurveP.aEndAngle = END_ANGLE;
+    forms[0].ellipseCurveQ.aEndAngle = END_ANGLE;
+    forms[1].ellipseCurveP.aStartAngle = START_ANGLE;
+    forms[1].ellipseCurveQ.aStartAngle = START_ANGLE;
   }
   if (membraneMeshLInnerVNH) {
     membraneMeshLInnerVNH.update();
