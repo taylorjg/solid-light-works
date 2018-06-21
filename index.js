@@ -82,9 +82,9 @@ const ELLIPSE_ROTATION_DELTA = Math.PI / (180 * 10);
 const WIPE_POINT_COUNT = 50;
 
 const MEMBRANE_LENGTH = 20;
-const MEMBRANE_SEGMENT_COUNT = 10;
+const MEMBRANE_SEGMENT_COUNT = 50;
 
-const lineMaterial = new THREE.ShaderMaterial(
+const lineMaterialQ = new THREE.ShaderMaterial(
   BasicShader({
     side: THREE.DoubleSide,
     diffuse: 0xffffff,
@@ -96,12 +96,10 @@ const forms = [
   {
     ellipseCurveP: undefined,
     ellipseCurveQ: undefined,
-    ellipseLineGeometryQ: undefined,
-    ellipseLineMeshQ: undefined,
     wipeCurveP: undefined,
     wipeCurveQ: undefined,
-    // wipeLineGeometryQ: undefined,
-    // wipeLineMeshQ: undefined,
+    lineGeometryQ: undefined,
+    lineMeshQ: undefined,
     membraneGeometryInner: undefined,
     membraneGeometryOuter: undefined,
     membraneMeshInner: undefined,
@@ -111,12 +109,10 @@ const forms = [
   {
     ellipseCurveP: undefined,
     ellipseCurveQ: undefined,
-    ellipseLineGeometryQ: undefined,
-    ellipseLineMeshQ: undefined,
     wipeCurveP: undefined,
     wipeCurveQ: undefined,
-    // wipeLineGeometryQ: undefined,
-    // wipeLineMeshQ: undefined,
+    lineGeometryQ: undefined,
+    lineMeshQ: undefined,
     membraneGeometryInner: undefined,
     membraneGeometryOuter: undefined,
     membraneMeshInner: undefined,
@@ -129,8 +125,8 @@ let membraneMeshLInnerVNH = undefined;
 let membraneMeshLOuterVNH = undefined;
 let membraneMeshRInnerVNH = undefined;
 let membraneMeshROuterVNH = undefined;
-// let spotLightLHelper = undefined;
-// let spotLightRHelper = undefined;
+let spotLightLHelper = undefined;
+let spotLightRHelper = undefined;
 // let spotLightRH1Helper = undefined;
 
 // ------------------------------------
@@ -155,16 +151,12 @@ forms[0].ellipseCurveQ = new THREE.EllipseCurve(
   END_ANGLE,
   ELLIPSE_CLOCKWISE);
 
-forms[0].ellipseLineGeometryQ = Line();
-forms[0].ellipseLineMeshQ = new THREE.Mesh(forms[0].ellipseLineGeometryQ, lineMaterial);
-scene.add(forms[0].ellipseLineMeshQ);
+forms[0].lineGeometryQ = Line();
+forms[0].lineMeshQ = new THREE.Mesh(forms[0].lineGeometryQ, lineMaterialQ);
+scene.add(forms[0].lineMeshQ);
 
 forms[0].wipeCurveP = new THREE.CubicBezierCurve();
 forms[0].wipeCurveQ = new THREE.CubicBezierCurve();
-
-// forms[0].wipeLineGeometryQ = Line();
-// forms[0].wipeLineMeshQ = new THREE.Mesh(forms[0].wipeLineGeometryQ, lineMaterial);
-// scene.add(forms[0].wipeLineMeshQ);
 
 // -------------------------------------
 // Right ellipse (everything => nothing)
@@ -188,16 +180,12 @@ forms[1].ellipseCurveQ = new THREE.EllipseCurve(
   END_ANGLE,
   ELLIPSE_CLOCKWISE);
 
-forms[1].ellipseLineGeometryQ = Line();
-forms[1].ellipseLineMeshQ = new THREE.Mesh(forms[1].ellipseLineGeometryQ, lineMaterial);
-scene.add(forms[1].ellipseLineMeshQ);
+forms[1].lineGeometryQ = Line();
+forms[1].lineMeshQ = new THREE.Mesh(forms[1].lineGeometryQ, lineMaterialQ);
+scene.add(forms[1].lineMeshQ);
 
 forms[1].wipeCurveP = new THREE.CubicBezierCurve();
 forms[1].wipeCurveQ = new THREE.CubicBezierCurve();
-
-// forms[1].wipeLineGeometryQ = Line();
-// forms[1].wipeLineMeshQ = new THREE.Mesh(forms[1].wipeLineGeometryQ, lineMaterial);
-// scene.add(forms[1].wipeLineMeshQ);
 
 // --------------------------------
 // Membrane spotlights (projectors)
@@ -206,7 +194,7 @@ forms[1].wipeCurveQ = new THREE.CubicBezierCurve();
 const spotLightTargetL = new THREE.Object3D();
 spotLightTargetL.position.set(LEFT_CENTRE_X, LEFT_CENTRE_Q_Y, 0);
 scene.add(spotLightTargetL);
-const spotLightL = new THREE.SpotLight(0xffffff, 200, MEMBRANE_LENGTH * 2, 19 * Math.PI / 180, 0);
+const spotLightL = new THREE.SpotLight(0xffffff, 200, MEMBRANE_LENGTH * 2, 14 * Math.PI / 180);
 spotLightL.position.set(LEFT_CENTRE_X, LEFT_CENTRE_P_Y, MEMBRANE_LENGTH);
 spotLightL.target = spotLightTargetL;
 scene.add(spotLightL);
@@ -214,7 +202,7 @@ scene.add(spotLightL);
 const spotLightTargetR = new THREE.Object3D();
 spotLightTargetR.position.set(RIGHT_CENTRE_X, RIGHT_CENTRE_Q_Y, 0);
 scene.add(spotLightTargetR);
-const spotLightR = new THREE.SpotLight(0xffffff, 200, MEMBRANE_LENGTH * 1.02, 19 * Math.PI / 180, 0);
+const spotLightR = new THREE.SpotLight(0xffffff, 200, MEMBRANE_LENGTH * 2, 14 * Math.PI / 180);
 spotLightR.position.set(RIGHT_CENTRE_X, RIGHT_CENTRE_P_Y, MEMBRANE_LENGTH);
 spotLightR.target = spotLightTargetR;
 scene.add(spotLightR);
@@ -297,33 +285,62 @@ const updateGrowingForm = form => {
 
   const ellipsePointsPVec2 = form.ellipseCurveP.getPoints(ELLIPSE_POINT_COUNT);
   const ellipsePointsQVec2 = form.ellipseCurveQ.getPoints(ELLIPSE_POINT_COUNT);
-  const ellipsePointsQArr = ellipsePointsQVec2.map(vec2 => vec2.toArray());
 
-  const e = form.ellipseCurveQ;
-  const angleOffset = Math.abs(e.aEndAngle - END_ANGLE);
+  const currentAngle = form.ellipseCurveQ.aEndAngle;
+  const angleOffset = Math.abs(currentAngle - END_ANGLE);
   const angleOffset2 = angleOffset < Math.PI ? angleOffset : 2 * Math.PI - angleOffset;
   const normalisingFactor = 1 / ANGLE_OFFSET_THRESHOLD;
   const alpha = angleOffset2 > ANGLE_OFFSET_THRESHOLD ? 1.0 : (angleOffset2 * normalisingFactor);
-  const angle1 = e.aEndAngle + DELTA_ANGLE * alpha;
-  const angle2 = e.aEndAngle - DELTA_ANGLE * alpha;
-  const startingPoint = new THREE.Vector2(e.aX + e.xRadius * Math.cos(e.aEndAngle), e.aY + e.yRadius * Math.sin(e.aEndAngle));
-  const centrePoint = new THREE.Vector2(e.aX, e.aY);
-  const endingPoint = startingPoint.clone().lerp(centrePoint, alpha);
-  const pt1 = new THREE.Vector2(e.aX + e.xRadius * Math.cos(angle1), e.aY + e.yRadius * Math.sin(angle1));
-  const pt2 = new THREE.Vector2(e.aX + e.xRadius * Math.cos(angle2), e.aY + e.yRadius * Math.sin(angle2));
-  const controlPoint1 = pt1.lerp(endingPoint, 0.25);
-  const controlPoint2 = pt2.lerp(endingPoint, 0.75);
-  form.wipeCurveQ.v0.copy(startingPoint);
-  form.wipeCurveQ.v1.copy(controlPoint1);
-  form.wipeCurveQ.v2.copy(controlPoint2);
-  form.wipeCurveQ.v3.copy(endingPoint);
-  const wipePointsQVec2 = form.wipeCurveQ.getPoints(WIPE_POINT_COUNT);
-  const wipePointsQArr = wipePointsQVec2.map(vec2 => vec2.toArray());
-  const combinedLinePointsQArr = ellipsePointsQArr.concat(wipePointsQArr.slice(1));
-  form.ellipseLineGeometryQ.update(combinedLinePointsQArr);
+  const angle1 = currentAngle + DELTA_ANGLE * alpha;
+  const angle2 = currentAngle - DELTA_ANGLE * alpha;
 
-  const ps = ellipsePointsPVec2.map(vec2 => new THREE.Vector3(vec2.x, vec2.y, MEMBRANE_LENGTH));
-  const qs = ellipsePointsQVec2.map(vec2 => new THREE.Vector3(vec2.x, vec2.y, 0));
+  let wipePointsPVec2;
+  let wipePointsQVec2;
+
+  {
+    const e = form.ellipseCurveP;
+    const w = form.wipeCurveP;
+    const startingPoint = new THREE.Vector2(e.aX + e.xRadius * Math.cos(e.aEndAngle), e.aY + e.yRadius * Math.sin(e.aEndAngle));
+    const centrePoint = new THREE.Vector2(e.aX, e.aY);
+    const endingPoint = startingPoint.clone().lerp(centrePoint, alpha);
+    const pt1 = new THREE.Vector2(e.aX + e.xRadius * Math.cos(angle1), e.aY + e.yRadius * Math.sin(angle1));
+    const pt2 = new THREE.Vector2(e.aX + e.xRadius * Math.cos(angle2), e.aY + e.yRadius * Math.sin(angle2));
+    const controlPoint1 = pt1.lerp(endingPoint, 0.25);
+    const controlPoint2 = pt2.lerp(endingPoint, 0.75);
+    w.v0.copy(startingPoint);
+    w.v1.copy(controlPoint1);
+    w.v2.copy(controlPoint2);
+    w.v3.copy(endingPoint);
+    wipePointsPVec2 = w.getPoints(WIPE_POINT_COUNT);
+  }
+
+  {
+    const e = form.ellipseCurveQ;
+    const w = form.wipeCurveQ;
+    const startingPoint = new THREE.Vector2(e.aX + e.xRadius * Math.cos(e.aEndAngle), e.aY + e.yRadius * Math.sin(e.aEndAngle));
+    const centrePoint = new THREE.Vector2(e.aX, e.aY);
+    const endingPoint = startingPoint.clone().lerp(centrePoint, alpha);
+    const pt1 = new THREE.Vector2(e.aX + e.xRadius * Math.cos(angle1), e.aY + e.yRadius * Math.sin(angle1));
+    const pt2 = new THREE.Vector2(e.aX + e.xRadius * Math.cos(angle2), e.aY + e.yRadius * Math.sin(angle2));
+    const controlPoint1 = pt1.lerp(endingPoint, 0.25);
+    const controlPoint2 = pt2.lerp(endingPoint, 0.75);
+    w.v0.copy(startingPoint);
+    w.v1.copy(controlPoint1);
+    w.v2.copy(controlPoint2);
+    w.v3.copy(endingPoint);
+    wipePointsQVec2 = w.getPoints(WIPE_POINT_COUNT);
+    const wipePointsQArr = wipePointsQVec2.map(vec2 => vec2.toArray());
+    const ellipsePointsQArr = ellipsePointsQVec2.map(vec2 => vec2.toArray());
+    const combinedLinePointsQArr = ellipsePointsQArr.concat(wipePointsQArr.slice(1));
+    form.lineGeometryQ.update(combinedLinePointsQArr);
+  }
+
+  const psEllipse = ellipsePointsPVec2.map(vec2 => new THREE.Vector3(vec2.x, vec2.y, MEMBRANE_LENGTH));
+  const qsEllipse = ellipsePointsQVec2.map(vec2 => new THREE.Vector3(vec2.x, vec2.y, 0));
+  const psWipe = wipePointsPVec2.map(vec2 => new THREE.Vector3(vec2.x, vec2.y, MEMBRANE_LENGTH));
+  const qsWipe = wipePointsQVec2.map(vec2 => new THREE.Vector3(vec2.x, vec2.y, 0));
+  const ps = psEllipse.concat(psWipe.slice(1));
+  const qs = qsEllipse.concat(qsWipe.slice(1));
 
   const tempGeometry = new MembraneBufferGeometry(ps, qs, MEMBRANE_SEGMENT_COUNT);
   tempGeometry.computeVertexNormals();
@@ -340,33 +357,63 @@ const updateShrinkingForm = form => {
 
   const ellipsePointsPVec2 = form.ellipseCurveP.getPoints(ELLIPSE_POINT_COUNT);
   const ellipsePointsQVec2 = form.ellipseCurveQ.getPoints(ELLIPSE_POINT_COUNT);
-  const ellipsePointsQArr = ellipsePointsQVec2.map(vec2 => vec2.toArray());
 
-  const e = form.ellipseCurveQ;
-  const angleOffset = Math.abs(e.aStartAngle - START_ANGLE);
+  const currentAngle = form.ellipseCurveQ.aStartAngle;
+
+  const angleOffset = Math.abs(currentAngle - START_ANGLE);
   const angleOffset2 = angleOffset < Math.PI ? angleOffset : 2 * Math.PI - angleOffset;
   const normalisingFactor = 1 / ANGLE_OFFSET_THRESHOLD;
   const alpha = angleOffset2 > ANGLE_OFFSET_THRESHOLD ? 1.0 : (angleOffset2 * normalisingFactor);
-  const angle1 = e.aStartAngle + DELTA_ANGLE * alpha;
-  const angle2 = e.aStartAngle - DELTA_ANGLE * alpha;
-  const startingPoint = new THREE.Vector2(e.aX + e.xRadius * Math.cos(e.aStartAngle), e.aY + e.yRadius * Math.sin(e.aStartAngle));
-  const centrePoint = new THREE.Vector2(e.aX, e.aY);
-  const endingPoint = startingPoint.clone().lerp(centrePoint, alpha);
-  const pt1 = new THREE.Vector2(e.aX + e.xRadius * Math.cos(angle1), e.aY + e.yRadius * Math.sin(angle1));
-  const pt2 = new THREE.Vector2(e.aX + e.xRadius * Math.cos(angle2), e.aY + e.yRadius * Math.sin(angle2));
-  const controlPoint1 = pt1.lerp(endingPoint, 0.25);
-  const controlPoint2 = pt2.lerp(endingPoint, 0.75);
-  form.wipeCurveQ.v0.copy(startingPoint);
-  form.wipeCurveQ.v1.copy(controlPoint1);
-  form.wipeCurveQ.v2.copy(controlPoint2);
-  form.wipeCurveQ.v3.copy(endingPoint);
-  const wipePointsQVec2 = form.wipeCurveQ.getPoints(WIPE_POINT_COUNT);
-  const wipePointsQArr = wipePointsQVec2.map(vec2 => vec2.toArray());
-  const combinedLinePointsQArr = ellipsePointsQArr.slice().reverse().concat(wipePointsQArr.slice(1));
-  form.ellipseLineGeometryQ.update(combinedLinePointsQArr);
+  const angle1 = currentAngle + DELTA_ANGLE * alpha;
+  const angle2 = currentAngle - DELTA_ANGLE * alpha;
 
-  const ps = ellipsePointsPVec2.map(vec2 => new THREE.Vector3(vec2.x, vec2.y, MEMBRANE_LENGTH));
-  const qs = ellipsePointsQVec2.map(vec2 => new THREE.Vector3(vec2.x, vec2.y, 0));
+  let wipePointsPVec2;
+  let wipePointsQVec2;
+
+  {
+    const e = form.ellipseCurveP;
+    const w = form.wipeCurveP;
+    const startingPoint = new THREE.Vector2(e.aX + e.xRadius * Math.cos(e.aStartAngle), e.aY + e.yRadius * Math.sin(e.aStartAngle));
+    const centrePoint = new THREE.Vector2(e.aX, e.aY);
+    const endingPoint = startingPoint.clone().lerp(centrePoint, alpha);
+    const pt1 = new THREE.Vector2(e.aX + e.xRadius * Math.cos(angle1), e.aY + e.yRadius * Math.sin(angle1));
+    const pt2 = new THREE.Vector2(e.aX + e.xRadius * Math.cos(angle2), e.aY + e.yRadius * Math.sin(angle2));
+    const controlPoint1 = pt1.lerp(endingPoint, 0.25);
+    const controlPoint2 = pt2.lerp(endingPoint, 0.75);
+    w.v0.copy(startingPoint);
+    w.v1.copy(controlPoint1);
+    w.v2.copy(controlPoint2);
+    w.v3.copy(endingPoint);
+    wipePointsPVec2 = w.getPoints(WIPE_POINT_COUNT);
+  }
+
+  {
+    const e = form.ellipseCurveQ;
+    const w = form.wipeCurveQ;
+    const startingPoint = new THREE.Vector2(e.aX + e.xRadius * Math.cos(e.aStartAngle), e.aY + e.yRadius * Math.sin(e.aStartAngle));
+    const centrePoint = new THREE.Vector2(e.aX, e.aY);
+    const endingPoint = startingPoint.clone().lerp(centrePoint, alpha);
+    const pt1 = new THREE.Vector2(e.aX + e.xRadius * Math.cos(angle1), e.aY + e.yRadius * Math.sin(angle1));
+    const pt2 = new THREE.Vector2(e.aX + e.xRadius * Math.cos(angle2), e.aY + e.yRadius * Math.sin(angle2));
+    const controlPoint1 = pt1.lerp(endingPoint, 0.25);
+    const controlPoint2 = pt2.lerp(endingPoint, 0.75);
+    w.v0.copy(startingPoint);
+    w.v1.copy(controlPoint1);
+    w.v2.copy(controlPoint2);
+    w.v3.copy(endingPoint);
+    wipePointsQVec2 = w.getPoints(WIPE_POINT_COUNT);
+    const wipePointsQArr = wipePointsQVec2.map(vec2 => vec2.toArray());
+    const ellipsePointsQArr = ellipsePointsQVec2.map(vec2 => vec2.toArray());
+    const combinedLinePointsQArr = ellipsePointsQArr.reverse().concat(wipePointsQArr.slice(1));
+    form.lineGeometryQ.update(combinedLinePointsQArr);
+  }
+
+  const psEllipse = ellipsePointsPVec2.map(vec2 => new THREE.Vector3(vec2.x, vec2.y, MEMBRANE_LENGTH));
+  const qsEllipse = ellipsePointsQVec2.map(vec2 => new THREE.Vector3(vec2.x, vec2.y, 0));
+  const psWipe = wipePointsPVec2.map(vec2 => new THREE.Vector3(vec2.x, vec2.y, MEMBRANE_LENGTH));
+  const qsWipe = wipePointsQVec2.map(vec2 => new THREE.Vector3(vec2.x, vec2.y, 0));
+  const ps = psEllipse.reverse().concat(psWipe.slice(1)).reverse();
+  const qs = qsEllipse.reverse().concat(qsWipe.slice(1)).reverse();
 
   const tempGeometry = new MembraneBufferGeometry(ps, qs, MEMBRANE_SEGMENT_COUNT);
   tempGeometry.computeVertexNormals();
@@ -402,24 +449,24 @@ const onDocumentKeyDownHandler = ev => {
     }
   }
 
-  // if (ev.key === 's') {
-  //   if (spotLightRH1Helper) {
-  //     scene.remove(spotLightLHelper);
-  //     scene.remove(spotLightRHelper);
-  //     scene.remove(spotLightRH1Helper);
-  //     spotLightLHelper = undefined;
-  //     spotLightRHelper = undefined;
-  //     spotLightRH1Helper = undefined;
-  //   }
-  //   else {
-  //     spotLightLHelper = new THREE.SpotLightHelper(spotLightL);
-  //     spotLightRHelper = new THREE.SpotLightHelper(spotLightR);
-  //     spotLightRH1Helper = new THREE.SpotLightHelper(spotLightRH1);
-  //     scene.add(spotLightLHelper);
-  //     scene.add(spotLightRHelper);
-  //     scene.add(spotLightRH1Helper);
-  //   }
-  // }
+  if (ev.key === 's') {
+    if (spotLightLHelper) {
+      scene.remove(spotLightLHelper);
+      scene.remove(spotLightRHelper);
+      // scene.remove(spotLightRH1Helper);
+      spotLightLHelper = undefined;
+      spotLightRHelper = undefined;
+      // spotLightRH1Helper = undefined;
+    }
+    else {
+      spotLightLHelper = new THREE.SpotLightHelper(spotLightL);
+      spotLightRHelper = new THREE.SpotLightHelper(spotLightR);
+      // spotLightRH1Helper = new THREE.SpotLightHelper(spotLightRH1);
+      scene.add(spotLightLHelper);
+      scene.add(spotLightRHelper);
+      // scene.add(spotLightRH1Helper);
+    }
+  }
 
   if (ev.key === 'r') {
     controls.autoRotate = !controls.autoRotate;
