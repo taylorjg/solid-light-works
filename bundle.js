@@ -47061,14 +47061,13 @@ scene.add(screen);
 // Sizes and positions
 // -------------------
 
-var LEFT_START_ANGLE = 1.5 * Math.PI;
-var LEFT_END_ANGLE = 3.5 * Math.PI;
+var START_ANGLE = 1.5 * Math.PI;
+var END_ANGLE = 3.5 * Math.PI;
+
 var LEFT_CENTRE_X = -3.5;
 var LEFT_CENTRE_P_Y = 1;
 var LEFT_CENTRE_Q_Y = 2.6;
 
-var RIGHT_START_ANGLE = 1.5 * Math.PI;
-var RIGHT_END_ANGLE = 3.5 * Math.PI;
 var RIGHT_CENTRE_X = -LEFT_CENTRE_X;
 var RIGHT_CENTRE_P_Y = LEFT_CENTRE_P_Y;
 var RIGHT_CENTRE_Q_Y = LEFT_CENTRE_Q_Y;
@@ -47101,8 +47100,8 @@ var forms = [
   ellipseLineMeshQ: undefined,
   wipeCurveP: undefined,
   wipeCurveQ: undefined,
-  wipeLineGeometryQ: undefined,
-  wipeLineMeshQ: undefined,
+  // wipeLineGeometryQ: undefined,
+  // wipeLineMeshQ: undefined,
   membraneGeometryInner: undefined,
   membraneGeometryOuter: undefined,
   membraneMeshInner: undefined,
@@ -47116,8 +47115,8 @@ var forms = [
   ellipseLineMeshQ: undefined,
   wipeCurveP: undefined,
   wipeCurveQ: undefined,
-  wipeLineGeometryQ: undefined,
-  wipeLineMeshQ: undefined,
+  // wipeLineGeometryQ: undefined,
+  // wipeLineMeshQ: undefined,
   membraneGeometryInner: undefined,
   membraneGeometryOuter: undefined,
   membraneMeshInner: undefined,
@@ -47137,9 +47136,9 @@ var membraneMeshROuterVNH = undefined;
 // Left ellipse (nothing => everything)
 // ------------------------------------
 
-forms[0].ellipseCurveP = new THREE.EllipseCurve(LEFT_CENTRE_X, LEFT_CENTRE_P_Y, ELLIPSE_RADIUS_P, ELLIPSE_RADIUS_P, LEFT_START_ANGLE, LEFT_END_ANGLE, ELLIPSE_CLOCKWISE);
+forms[0].ellipseCurveP = new THREE.EllipseCurve(LEFT_CENTRE_X, LEFT_CENTRE_P_Y, ELLIPSE_RADIUS_P, ELLIPSE_RADIUS_P, START_ANGLE, END_ANGLE, ELLIPSE_CLOCKWISE);
 
-forms[0].ellipseCurveQ = new THREE.EllipseCurve(LEFT_CENTRE_X, LEFT_CENTRE_Q_Y, ELLIPSE_RADIUS_Q_X, ELLIPSE_RADIUS_Q_Y, LEFT_START_ANGLE, LEFT_END_ANGLE, ELLIPSE_CLOCKWISE);
+forms[0].ellipseCurveQ = new THREE.EllipseCurve(LEFT_CENTRE_X, LEFT_CENTRE_Q_Y, ELLIPSE_RADIUS_Q_X, ELLIPSE_RADIUS_Q_Y, START_ANGLE, END_ANGLE, ELLIPSE_CLOCKWISE);
 
 forms[0].ellipseLineGeometryQ = Line();
 forms[0].ellipseLineMeshQ = new THREE.Mesh(forms[0].ellipseLineGeometryQ, lineMaterial);
@@ -47148,17 +47147,17 @@ scene.add(forms[0].ellipseLineMeshQ);
 forms[0].wipeCurveP = new THREE.CubicBezierCurve();
 forms[0].wipeCurveQ = new THREE.CubicBezierCurve();
 
-forms[0].wipeLineGeometryQ = Line();
-forms[0].wipeLineMeshQ = new THREE.Mesh(forms[0].wipeLineGeometryQ, lineMaterial);
-scene.add(forms[0].wipeLineMeshQ);
+// forms[0].wipeLineGeometryQ = Line();
+// forms[0].wipeLineMeshQ = new THREE.Mesh(forms[0].wipeLineGeometryQ, lineMaterial);
+// scene.add(forms[0].wipeLineMeshQ);
 
 // -------------------------------------
 // Right ellipse (everything => nothing)
 // -------------------------------------
 
-forms[1].ellipseCurveP = new THREE.EllipseCurve(RIGHT_CENTRE_X, RIGHT_CENTRE_P_Y, ELLIPSE_RADIUS_P, ELLIPSE_RADIUS_P, RIGHT_START_ANGLE, RIGHT_END_ANGLE, ELLIPSE_CLOCKWISE);
+forms[1].ellipseCurveP = new THREE.EllipseCurve(RIGHT_CENTRE_X, RIGHT_CENTRE_P_Y, ELLIPSE_RADIUS_P, ELLIPSE_RADIUS_P, START_ANGLE, END_ANGLE, ELLIPSE_CLOCKWISE);
 
-forms[1].ellipseCurveQ = new THREE.EllipseCurve(RIGHT_CENTRE_X, RIGHT_CENTRE_Q_Y, ELLIPSE_RADIUS_Q_X, ELLIPSE_RADIUS_Q_Y, RIGHT_START_ANGLE, RIGHT_END_ANGLE, ELLIPSE_CLOCKWISE);
+forms[1].ellipseCurveQ = new THREE.EllipseCurve(RIGHT_CENTRE_X, RIGHT_CENTRE_Q_Y, ELLIPSE_RADIUS_Q_X, ELLIPSE_RADIUS_Q_Y, START_ANGLE, END_ANGLE, ELLIPSE_CLOCKWISE);
 
 forms[1].ellipseLineGeometryQ = Line();
 forms[1].ellipseLineMeshQ = new THREE.Mesh(forms[1].ellipseLineGeometryQ, lineMaterial);
@@ -47167,9 +47166,9 @@ scene.add(forms[1].ellipseLineMeshQ);
 forms[1].wipeCurveP = new THREE.CubicBezierCurve();
 forms[1].wipeCurveQ = new THREE.CubicBezierCurve();
 
-forms[1].wipeLineGeometryQ = Line();
-forms[1].wipeLineMeshQ = new THREE.Mesh(forms[1].wipeLineGeometryQ, lineMaterial);
-scene.add(forms[1].wipeLineMeshQ);
+// forms[1].wipeLineGeometryQ = Line();
+// forms[1].wipeLineMeshQ = new THREE.Mesh(forms[1].wipeLineGeometryQ, lineMaterial);
+// scene.add(forms[1].wipeLineMeshQ);
 
 // --------------------------------
 // Membrane spotlights (projectors)
@@ -47267,23 +47266,21 @@ var updateGrowingForm = function updateGrowingForm(form) {
   form.ellipseCurveP.aEndAngle -= ELLIPSE_ROTATION_DELTA;
   form.ellipseCurveQ.aEndAngle -= ELLIPSE_ROTATION_DELTA;
 
-  var ellipsePointsLPVec2 = form.ellipseCurveP.getPoints(ELLIPSE_POINT_COUNT);
-  var ellipsePointsLQVec2 = form.ellipseCurveQ.getPoints(ELLIPSE_POINT_COUNT);
-
-  var ellipsePointsLQArr = ellipsePointsLQVec2.map(function (vec2) {
+  var ellipsePointsPVec2 = form.ellipseCurveP.getPoints(ELLIPSE_POINT_COUNT);
+  var ellipsePointsQVec2 = form.ellipseCurveQ.getPoints(ELLIPSE_POINT_COUNT);
+  var ellipsePointsQArr = ellipsePointsQVec2.map(function (vec2) {
     return vec2.toArray();
   });
-  form.ellipseLineGeometryQ.update(ellipsePointsLQArr);
 
   var e = form.ellipseCurveQ;
-  var angle1 = e.aEndAngle + DELTA_ANGLE;
-  var angle2 = e.aEndAngle - DELTA_ANGLE;
-  var startingPoint = new THREE.Vector2(e.aX + e.xRadius * Math.cos(e.aEndAngle), e.aY + e.yRadius * Math.sin(e.aEndAngle));
-  var centrePoint = new THREE.Vector2(e.aX, e.aY);
-  var angleOffset = Math.abs(e.aEndAngle - LEFT_END_ANGLE);
+  var angleOffset = Math.abs(e.aEndAngle - END_ANGLE);
   var angleOffset2 = angleOffset < Math.PI ? angleOffset : 2 * Math.PI - angleOffset;
   var normalisingFactor = 1 / ANGLE_OFFSET_THRESHOLD;
   var alpha = angleOffset2 > ANGLE_OFFSET_THRESHOLD ? 1.0 : angleOffset2 * normalisingFactor;
+  var angle1 = e.aEndAngle + DELTA_ANGLE * alpha;
+  var angle2 = e.aEndAngle - DELTA_ANGLE * alpha;
+  var startingPoint = new THREE.Vector2(e.aX + e.xRadius * Math.cos(e.aEndAngle), e.aY + e.yRadius * Math.sin(e.aEndAngle));
+  var centrePoint = new THREE.Vector2(e.aX, e.aY);
   var endingPoint = startingPoint.clone().lerp(centrePoint, alpha);
   var pt1 = new THREE.Vector2(e.aX + e.xRadius * Math.cos(angle1), e.aY + e.yRadius * Math.sin(angle1));
   var pt2 = new THREE.Vector2(e.aX + e.xRadius * Math.cos(angle2), e.aY + e.yRadius * Math.sin(angle2));
@@ -47297,12 +47294,13 @@ var updateGrowingForm = function updateGrowingForm(form) {
   var wipePointsQArr = wipePointsQVec2.map(function (vec2) {
     return vec2.toArray();
   });
-  form.wipeLineGeometryQ.update(wipePointsQArr);
+  var combinedLinePointsQArr = ellipsePointsQArr.concat(wipePointsQArr.slice(1));
+  form.ellipseLineGeometryQ.update(combinedLinePointsQArr);
 
-  var ps = ellipsePointsLPVec2.map(function (vec2) {
+  var ps = ellipsePointsPVec2.map(function (vec2) {
     return new THREE.Vector3(vec2.x, vec2.y, MEMBRANE_LENGTH);
   });
-  var qs = ellipsePointsLQVec2.map(function (vec2) {
+  var qs = ellipsePointsQVec2.map(function (vec2) {
     return new THREE.Vector3(vec2.x, vec2.y, 0);
   });
 
@@ -47321,21 +47319,19 @@ var updateShrinkingForm = function updateShrinkingForm(form) {
 
   var ellipsePointsPVec2 = form.ellipseCurveP.getPoints(ELLIPSE_POINT_COUNT);
   var ellipsePointsQVec2 = form.ellipseCurveQ.getPoints(ELLIPSE_POINT_COUNT);
-
   var ellipsePointsQArr = ellipsePointsQVec2.map(function (vec2) {
     return vec2.toArray();
   });
-  form.ellipseLineGeometryQ.update(ellipsePointsQArr);
 
   var e = form.ellipseCurveQ;
-  var angle1 = e.aStartAngle + DELTA_ANGLE;
-  var angle2 = e.aStartAngle - DELTA_ANGLE;
-  var startingPoint = new THREE.Vector2(e.aX + e.xRadius * Math.cos(e.aStartAngle), e.aY + e.yRadius * Math.sin(e.aStartAngle));
-  var centrePoint = new THREE.Vector2(e.aX, e.aY);
-  var angleOffset = Math.abs(e.aStartAngle - RIGHT_START_ANGLE);
+  var angleOffset = Math.abs(e.aStartAngle - START_ANGLE);
   var angleOffset2 = angleOffset < Math.PI ? angleOffset : 2 * Math.PI - angleOffset;
   var normalisingFactor = 1 / ANGLE_OFFSET_THRESHOLD;
   var alpha = angleOffset2 > ANGLE_OFFSET_THRESHOLD ? 1.0 : angleOffset2 * normalisingFactor;
+  var angle1 = e.aStartAngle + DELTA_ANGLE * alpha;
+  var angle2 = e.aStartAngle - DELTA_ANGLE * alpha;
+  var startingPoint = new THREE.Vector2(e.aX + e.xRadius * Math.cos(e.aStartAngle), e.aY + e.yRadius * Math.sin(e.aStartAngle));
+  var centrePoint = new THREE.Vector2(e.aX, e.aY);
   var endingPoint = startingPoint.clone().lerp(centrePoint, alpha);
   var pt1 = new THREE.Vector2(e.aX + e.xRadius * Math.cos(angle1), e.aY + e.yRadius * Math.sin(angle1));
   var pt2 = new THREE.Vector2(e.aX + e.xRadius * Math.cos(angle2), e.aY + e.yRadius * Math.sin(angle2));
@@ -47349,7 +47345,8 @@ var updateShrinkingForm = function updateShrinkingForm(form) {
   var wipePointsQArr = wipePointsQVec2.map(function (vec2) {
     return vec2.toArray();
   });
-  form.wipeLineGeometryQ.update(wipePointsQArr);
+  var combinedLinePointsQArr = ellipsePointsQArr.slice().reverse().concat(wipePointsQArr.slice(1));
+  form.ellipseLineGeometryQ.update(combinedLinePointsQArr);
 
   var ps = ellipsePointsPVec2.map(function (vec2) {
     return new THREE.Vector3(vec2.x, vec2.y, MEMBRANE_LENGTH);
@@ -47463,10 +47460,10 @@ var animate = function animate() {
     forms[0].ellipseCurveQ.aX = forms[0].ellipseCurveQ.aX === RIGHT_CENTRE_X ? LEFT_CENTRE_X : RIGHT_CENTRE_X;
     forms[1].ellipseCurveP.aX = forms[1].ellipseCurveP.aX === RIGHT_CENTRE_X ? LEFT_CENTRE_X : RIGHT_CENTRE_X;
     forms[1].ellipseCurveQ.aX = forms[1].ellipseCurveQ.aX === RIGHT_CENTRE_X ? LEFT_CENTRE_X : RIGHT_CENTRE_X;
-    forms[0].ellipseCurveP.aEndAngle = LEFT_END_ANGLE;
-    forms[0].ellipseCurveQ.aEndAngle = LEFT_END_ANGLE;
-    forms[1].ellipseCurveP.aStartAngle = RIGHT_START_ANGLE;
-    forms[1].ellipseCurveQ.aStartAngle = RIGHT_START_ANGLE;
+    forms[0].ellipseCurveP.aEndAngle = END_ANGLE;
+    forms[0].ellipseCurveQ.aEndAngle = END_ANGLE;
+    forms[1].ellipseCurveP.aStartAngle = START_ANGLE;
+    forms[1].ellipseCurveQ.aStartAngle = START_ANGLE;
   }
   if (membraneMeshLInnerVNH) {
     membraneMeshLInnerVNH.update();
