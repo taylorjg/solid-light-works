@@ -82,13 +82,13 @@ See also:
 ## TODO
 
 * [x] Create basic project structure
-* [x] Add simple ellipse
-* [x] Add basic animation of the ellipse
-* [ ] Add simple "clock-hand"
-* [ ] Add basic animation of the "clock-hand"
-* [ ] Combine the ellipse and the "clock-hand" into a single line
-* [ ] Try to re-create the exact movement of the ellipse
-* [ ] Try to re-create the exact movement of the "clock-hand"
+* [x] Add simple ellipses
+* [x] Add basic animation of the ellipses
+* [x] Add simple "clock-hands"
+* [x] Add basic animation of the "clock-hands"
+* [x] Combine the ellipses and the "clock-hands"
+* [ ] Try to re-create the exact movement of the ellipses
+* [ ] Try to re-create the exact movement of the "clock-hands"
 * [x] Add the opposite form
 * [x] Try to re-create the membrane effect
 * [ ] Improve the membrane effect (highlights)

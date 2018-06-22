@@ -81,8 +81,8 @@ const ELLIPSE_ROTATION_DELTA = Math.PI / (180 * 10);
 
 const WIPE_POINT_COUNT = 50;
 
-const MEMBRANE_LENGTH = 20;
-const MEMBRANE_SEGMENT_COUNT = 50;
+const MEMBRANE_LENGTH = 18;
+const MEMBRANE_SEGMENT_COUNT = 1;
 
 const lineMaterialQ = new THREE.ShaderMaterial(
   BasicShader({
@@ -191,21 +191,64 @@ forms[1].wipeCurveQ = new THREE.CubicBezierCurve();
 // Membrane spotlights (projectors)
 // --------------------------------
 
+const HIGH_INTENSITY = 100;
+const LOW_INTENSITY = 20;
+
 const spotLightTargetL = new THREE.Object3D();
 spotLightTargetL.position.set(LEFT_CENTRE_X, LEFT_CENTRE_Q_Y, 0);
 scene.add(spotLightTargetL);
-const spotLightL = new THREE.SpotLight(0xffffff, 200, MEMBRANE_LENGTH * 2, 14 * Math.PI / 180);
+const spotLightL = new THREE.SpotLight(0xffffff, HIGH_INTENSITY, MEMBRANE_LENGTH * 2, 14 * Math.PI / 180);
 spotLightL.position.set(LEFT_CENTRE_X, LEFT_CENTRE_P_Y, MEMBRANE_LENGTH);
 spotLightL.target = spotLightTargetL;
 scene.add(spotLightL);
 
+{
+  const spotLightTarget = new THREE.Object3D();
+  spotLightTarget.position.set(LEFT_CENTRE_X, LEFT_CENTRE_Q_Y, 0);
+  scene.add(spotLightTarget);
+  const spotLight = new THREE.SpotLight(0xffffff, LOW_INTENSITY, MEMBRANE_LENGTH * 2, 14 * Math.PI / 180);
+  spotLight.position.set(LEFT_CENTRE_X, 0, MEMBRANE_LENGTH);
+  spotLight.target = spotLightTarget;
+  scene.add(spotLight);
+}
+
+{
+  const spotLightTarget = new THREE.Object3D();
+  spotLightTarget.position.set(LEFT_CENTRE_X, LEFT_CENTRE_Q_Y, 0);
+  scene.add(spotLightTarget);
+  const spotLight = new THREE.SpotLight(0xffffff, LOW_INTENSITY, MEMBRANE_LENGTH * 2, 14 * Math.PI / 180);
+  spotLight.position.set(LEFT_CENTRE_X, LEFT_CENTRE_P_Y * 2, MEMBRANE_LENGTH);
+  spotLight.target = spotLightTarget;
+  scene.add(spotLight);
+}
+
 const spotLightTargetR = new THREE.Object3D();
 spotLightTargetR.position.set(RIGHT_CENTRE_X, RIGHT_CENTRE_Q_Y, 0);
 scene.add(spotLightTargetR);
-const spotLightR = new THREE.SpotLight(0xffffff, 200, MEMBRANE_LENGTH * 2, 14 * Math.PI / 180);
+const spotLightR = new THREE.SpotLight(0xffffff, HIGH_INTENSITY, MEMBRANE_LENGTH * 2, 14 * Math.PI / 180);
 spotLightR.position.set(RIGHT_CENTRE_X, RIGHT_CENTRE_P_Y, MEMBRANE_LENGTH);
 spotLightR.target = spotLightTargetR;
 scene.add(spotLightR);
+
+{
+  const spotLightTarget = new THREE.Object3D();
+  spotLightTarget.position.set(RIGHT_CENTRE_X, RIGHT_CENTRE_P_Y, 0);
+  scene.add(spotLightTarget);
+  const spotLight = new THREE.SpotLight(0xffffff, LOW_INTENSITY, MEMBRANE_LENGTH * 2, 14 * Math.PI / 180);
+  spotLight.position.set(RIGHT_CENTRE_X, 0, MEMBRANE_LENGTH);
+  spotLight.target = spotLightTarget;
+  scene.add(spotLight);
+}
+
+{
+  const spotLightTarget = new THREE.Object3D();
+  spotLightTarget.position.set(RIGHT_CENTRE_X, RIGHT_CENTRE_P_Y, 0);
+  scene.add(spotLightTarget);
+  const spotLight = new THREE.SpotLight(0xffffff, LOW_INTENSITY, MEMBRANE_LENGTH * 2, 14 * Math.PI / 180);
+  spotLight.position.set(RIGHT_CENTRE_X, RIGHT_CENTRE_P_Y * 2, MEMBRANE_LENGTH);
+  spotLight.target = spotLightTarget;
+  scene.add(spotLight);
+}
 
 // const spotLightTargetRH1 = new THREE.Object3D();
 // spotLightTargetRH1.position.set(RIGHT_CENTRE_X, RIGHT_CENTRE_Q_Y + ELLIPSE_RADIUS_Q_Y, 0);
@@ -217,19 +260,19 @@ scene.add(spotLightR);
 
 const onTextureLoaded = hazeTexture => {
 
-  const membraneTextureMaterialOuter = new THREE.MeshLambertMaterial({
-    map: hazeTexture,
-    side: THREE.BackSide,
-    color: 0xffffff,
-    transparent: true,
-    opacity: 0.4
-  });
-
   const membraneTextureMaterialInner = new THREE.MeshLambertMaterial({
     map: hazeTexture,
     side: THREE.FrontSide,
     color: 0xffffff,
-    transparent: true,
+    transparent: false,
+    opacity: 0.4
+  });
+
+  const membraneTextureMaterialOuter = new THREE.MeshLambertMaterial({
+    map: hazeTexture,
+    side: THREE.BackSide,
+    color: 0xffffff,
+    transparent: false,
     opacity: 0.4
   });
 
@@ -343,6 +386,7 @@ const updateGrowingForm = form => {
   const qs = qsEllipse.concat(qsWipe.slice(1));
 
   const tempGeometry = new MembraneBufferGeometry(ps, qs, MEMBRANE_SEGMENT_COUNT);
+  // const tempGeometry = new MembraneBufferGeometry(psWipe, qsWipe, MEMBRANE_SEGMENT_COUNT);
   tempGeometry.computeVertexNormals();
   form.membraneGeometryInner.copy(tempGeometry);
   reverseNormals(tempGeometry);
@@ -416,6 +460,7 @@ const updateShrinkingForm = form => {
   const qs = qsEllipse.reverse().concat(qsWipe.slice(1)).reverse();
 
   const tempGeometry = new MembraneBufferGeometry(ps, qs, MEMBRANE_SEGMENT_COUNT);
+  // const tempGeometry = new MembraneBufferGeometry(psWipe, qsWipe, MEMBRANE_SEGMENT_COUNT);
   tempGeometry.computeVertexNormals();
   form.membraneGeometryInner.copy(tempGeometry);
   reverseNormals(tempGeometry);
