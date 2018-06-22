@@ -47082,10 +47082,10 @@ var ELLIPSE_ROTATION_DELTA = Math.PI / (180 * 10);
 
 var WIPE_POINT_COUNT = 50;
 
-var MEMBRANE_LENGTH = 20;
-var MEMBRANE_SEGMENT_COUNT = 10;
+var MEMBRANE_LENGTH = 18;
+var MEMBRANE_SEGMENT_COUNT = 1;
 
-var lineMaterial = new THREE.ShaderMaterial(BasicShader({
+var lineMaterialQ = new THREE.ShaderMaterial(BasicShader({
   side: THREE.DoubleSide,
   diffuse: 0xffffff,
   thickness: ELLIPSE_THICKNESS
@@ -47096,12 +47096,10 @@ var forms = [
 {
   ellipseCurveP: undefined,
   ellipseCurveQ: undefined,
-  ellipseLineGeometryQ: undefined,
-  ellipseLineMeshQ: undefined,
   wipeCurveP: undefined,
   wipeCurveQ: undefined,
-  // wipeLineGeometryQ: undefined,
-  // wipeLineMeshQ: undefined,
+  lineGeometryQ: undefined,
+  lineMeshQ: undefined,
   membraneGeometryInner: undefined,
   membraneGeometryOuter: undefined,
   membraneMeshInner: undefined,
@@ -47111,12 +47109,10 @@ var forms = [
 {
   ellipseCurveP: undefined,
   ellipseCurveQ: undefined,
-  ellipseLineGeometryQ: undefined,
-  ellipseLineMeshQ: undefined,
   wipeCurveP: undefined,
   wipeCurveQ: undefined,
-  // wipeLineGeometryQ: undefined,
-  // wipeLineMeshQ: undefined,
+  lineGeometryQ: undefined,
+  lineMeshQ: undefined,
   membraneGeometryInner: undefined,
   membraneGeometryOuter: undefined,
   membraneMeshInner: undefined,
@@ -47128,8 +47124,8 @@ var membraneMeshLInnerVNH = undefined;
 var membraneMeshLOuterVNH = undefined;
 var membraneMeshRInnerVNH = undefined;
 var membraneMeshROuterVNH = undefined;
-// let spotLightLHelper = undefined;
-// let spotLightRHelper = undefined;
+var spotLightLHelper = undefined;
+var spotLightRHelper = undefined;
 // let spotLightRH1Helper = undefined;
 
 // ------------------------------------
@@ -47140,16 +47136,12 @@ forms[0].ellipseCurveP = new THREE.EllipseCurve(LEFT_CENTRE_X, LEFT_CENTRE_P_Y, 
 
 forms[0].ellipseCurveQ = new THREE.EllipseCurve(LEFT_CENTRE_X, LEFT_CENTRE_Q_Y, ELLIPSE_RADIUS_Q_X, ELLIPSE_RADIUS_Q_Y, START_ANGLE, END_ANGLE, ELLIPSE_CLOCKWISE);
 
-forms[0].ellipseLineGeometryQ = Line();
-forms[0].ellipseLineMeshQ = new THREE.Mesh(forms[0].ellipseLineGeometryQ, lineMaterial);
-scene.add(forms[0].ellipseLineMeshQ);
+forms[0].lineGeometryQ = Line();
+forms[0].lineMeshQ = new THREE.Mesh(forms[0].lineGeometryQ, lineMaterialQ);
+scene.add(forms[0].lineMeshQ);
 
 forms[0].wipeCurveP = new THREE.CubicBezierCurve();
 forms[0].wipeCurveQ = new THREE.CubicBezierCurve();
-
-// forms[0].wipeLineGeometryQ = Line();
-// forms[0].wipeLineMeshQ = new THREE.Mesh(forms[0].wipeLineGeometryQ, lineMaterial);
-// scene.add(forms[0].wipeLineMeshQ);
 
 // -------------------------------------
 // Right ellipse (everything => nothing)
@@ -47159,36 +47151,75 @@ forms[1].ellipseCurveP = new THREE.EllipseCurve(RIGHT_CENTRE_X, RIGHT_CENTRE_P_Y
 
 forms[1].ellipseCurveQ = new THREE.EllipseCurve(RIGHT_CENTRE_X, RIGHT_CENTRE_Q_Y, ELLIPSE_RADIUS_Q_X, ELLIPSE_RADIUS_Q_Y, START_ANGLE, END_ANGLE, ELLIPSE_CLOCKWISE);
 
-forms[1].ellipseLineGeometryQ = Line();
-forms[1].ellipseLineMeshQ = new THREE.Mesh(forms[1].ellipseLineGeometryQ, lineMaterial);
-scene.add(forms[1].ellipseLineMeshQ);
+forms[1].lineGeometryQ = Line();
+forms[1].lineMeshQ = new THREE.Mesh(forms[1].lineGeometryQ, lineMaterialQ);
+scene.add(forms[1].lineMeshQ);
 
 forms[1].wipeCurveP = new THREE.CubicBezierCurve();
 forms[1].wipeCurveQ = new THREE.CubicBezierCurve();
-
-// forms[1].wipeLineGeometryQ = Line();
-// forms[1].wipeLineMeshQ = new THREE.Mesh(forms[1].wipeLineGeometryQ, lineMaterial);
-// scene.add(forms[1].wipeLineMeshQ);
 
 // --------------------------------
 // Membrane spotlights (projectors)
 // --------------------------------
 
+var HIGH_INTENSITY = 100;
+var LOW_INTENSITY = 20;
+
 var spotLightTargetL = new THREE.Object3D();
 spotLightTargetL.position.set(LEFT_CENTRE_X, LEFT_CENTRE_Q_Y, 0);
 scene.add(spotLightTargetL);
-var spotLightL = new THREE.SpotLight(0xffffff, 200, MEMBRANE_LENGTH * 2, 19 * Math.PI / 180, 0);
+var spotLightL = new THREE.SpotLight(0xffffff, HIGH_INTENSITY, MEMBRANE_LENGTH * 2, 14 * Math.PI / 180);
 spotLightL.position.set(LEFT_CENTRE_X, LEFT_CENTRE_P_Y, MEMBRANE_LENGTH);
 spotLightL.target = spotLightTargetL;
 scene.add(spotLightL);
 
+{
+  var spotLightTarget = new THREE.Object3D();
+  spotLightTarget.position.set(LEFT_CENTRE_X, LEFT_CENTRE_Q_Y, 0);
+  scene.add(spotLightTarget);
+  var spotLight = new THREE.SpotLight(0xffffff, LOW_INTENSITY, MEMBRANE_LENGTH * 2, 14 * Math.PI / 180);
+  spotLight.position.set(LEFT_CENTRE_X, 0, MEMBRANE_LENGTH);
+  spotLight.target = spotLightTarget;
+  scene.add(spotLight);
+}
+
+{
+  var _spotLightTarget = new THREE.Object3D();
+  _spotLightTarget.position.set(LEFT_CENTRE_X, LEFT_CENTRE_Q_Y, 0);
+  scene.add(_spotLightTarget);
+  var _spotLight = new THREE.SpotLight(0xffffff, LOW_INTENSITY, MEMBRANE_LENGTH * 2, 14 * Math.PI / 180);
+  _spotLight.position.set(LEFT_CENTRE_X, LEFT_CENTRE_P_Y * 2, MEMBRANE_LENGTH);
+  _spotLight.target = _spotLightTarget;
+  scene.add(_spotLight);
+}
+
 var spotLightTargetR = new THREE.Object3D();
 spotLightTargetR.position.set(RIGHT_CENTRE_X, RIGHT_CENTRE_Q_Y, 0);
 scene.add(spotLightTargetR);
-var spotLightR = new THREE.SpotLight(0xffffff, 200, MEMBRANE_LENGTH * 1.02, 19 * Math.PI / 180, 0);
+var spotLightR = new THREE.SpotLight(0xffffff, HIGH_INTENSITY, MEMBRANE_LENGTH * 2, 14 * Math.PI / 180);
 spotLightR.position.set(RIGHT_CENTRE_X, RIGHT_CENTRE_P_Y, MEMBRANE_LENGTH);
 spotLightR.target = spotLightTargetR;
 scene.add(spotLightR);
+
+{
+  var _spotLightTarget2 = new THREE.Object3D();
+  _spotLightTarget2.position.set(RIGHT_CENTRE_X, RIGHT_CENTRE_P_Y, 0);
+  scene.add(_spotLightTarget2);
+  var _spotLight2 = new THREE.SpotLight(0xffffff, LOW_INTENSITY, MEMBRANE_LENGTH * 2, 14 * Math.PI / 180);
+  _spotLight2.position.set(RIGHT_CENTRE_X, 0, MEMBRANE_LENGTH);
+  _spotLight2.target = _spotLightTarget2;
+  scene.add(_spotLight2);
+}
+
+{
+  var _spotLightTarget3 = new THREE.Object3D();
+  _spotLightTarget3.position.set(RIGHT_CENTRE_X, RIGHT_CENTRE_P_Y, 0);
+  scene.add(_spotLightTarget3);
+  var _spotLight3 = new THREE.SpotLight(0xffffff, LOW_INTENSITY, MEMBRANE_LENGTH * 2, 14 * Math.PI / 180);
+  _spotLight3.position.set(RIGHT_CENTRE_X, RIGHT_CENTRE_P_Y * 2, MEMBRANE_LENGTH);
+  _spotLight3.target = _spotLightTarget3;
+  scene.add(_spotLight3);
+}
 
 // const spotLightTargetRH1 = new THREE.Object3D();
 // spotLightTargetRH1.position.set(RIGHT_CENTRE_X, RIGHT_CENTRE_Q_Y + ELLIPSE_RADIUS_Q_Y, 0);
@@ -47200,19 +47231,19 @@ scene.add(spotLightR);
 
 var onTextureLoaded = function onTextureLoaded(hazeTexture) {
 
-  var membraneTextureMaterialOuter = new THREE.MeshLambertMaterial({
-    map: hazeTexture,
-    side: THREE.BackSide,
-    color: 0xffffff,
-    transparent: true,
-    opacity: 0.4
-  });
-
   var membraneTextureMaterialInner = new THREE.MeshLambertMaterial({
     map: hazeTexture,
     side: THREE.FrontSide,
     color: 0xffffff,
-    transparent: true,
+    transparent: false,
+    opacity: 0.4
+  });
+
+  var membraneTextureMaterialOuter = new THREE.MeshLambertMaterial({
+    map: hazeTexture,
+    side: THREE.BackSide,
+    color: 0xffffff,
+    transparent: false,
     opacity: 0.4
   });
 
@@ -47268,43 +47299,77 @@ var updateGrowingForm = function updateGrowingForm(form) {
 
   var ellipsePointsPVec2 = form.ellipseCurveP.getPoints(ELLIPSE_POINT_COUNT);
   var ellipsePointsQVec2 = form.ellipseCurveQ.getPoints(ELLIPSE_POINT_COUNT);
-  var ellipsePointsQArr = ellipsePointsQVec2.map(function (vec2) {
-    return vec2.toArray();
-  });
 
-  var e = form.ellipseCurveQ;
-  var angleOffset = Math.abs(e.aEndAngle - END_ANGLE);
+  var currentAngle = form.ellipseCurveQ.aEndAngle;
+  var angleOffset = Math.abs(currentAngle - END_ANGLE);
   var angleOffset2 = angleOffset < Math.PI ? angleOffset : 2 * Math.PI - angleOffset;
   var normalisingFactor = 1 / ANGLE_OFFSET_THRESHOLD;
   var alpha = angleOffset2 > ANGLE_OFFSET_THRESHOLD ? 1.0 : angleOffset2 * normalisingFactor;
-  var angle1 = e.aEndAngle + DELTA_ANGLE * alpha;
-  var angle2 = e.aEndAngle - DELTA_ANGLE * alpha;
-  var startingPoint = new THREE.Vector2(e.aX + e.xRadius * Math.cos(e.aEndAngle), e.aY + e.yRadius * Math.sin(e.aEndAngle));
-  var centrePoint = new THREE.Vector2(e.aX, e.aY);
-  var endingPoint = startingPoint.clone().lerp(centrePoint, alpha);
-  var pt1 = new THREE.Vector2(e.aX + e.xRadius * Math.cos(angle1), e.aY + e.yRadius * Math.sin(angle1));
-  var pt2 = new THREE.Vector2(e.aX + e.xRadius * Math.cos(angle2), e.aY + e.yRadius * Math.sin(angle2));
-  var controlPoint1 = pt1.lerp(endingPoint, 0.25);
-  var controlPoint2 = pt2.lerp(endingPoint, 0.75);
-  form.wipeCurveQ.v0.copy(startingPoint);
-  form.wipeCurveQ.v1.copy(controlPoint1);
-  form.wipeCurveQ.v2.copy(controlPoint2);
-  form.wipeCurveQ.v3.copy(endingPoint);
-  var wipePointsQVec2 = form.wipeCurveQ.getPoints(WIPE_POINT_COUNT);
-  var wipePointsQArr = wipePointsQVec2.map(function (vec2) {
-    return vec2.toArray();
-  });
-  var combinedLinePointsQArr = ellipsePointsQArr.concat(wipePointsQArr.slice(1));
-  form.ellipseLineGeometryQ.update(combinedLinePointsQArr);
+  var angle1 = currentAngle + DELTA_ANGLE * alpha;
+  var angle2 = currentAngle - DELTA_ANGLE * alpha;
 
-  var ps = ellipsePointsPVec2.map(function (vec2) {
+  var wipePointsPVec2 = void 0;
+  var wipePointsQVec2 = void 0;
+
+  {
+    var e = form.ellipseCurveP;
+    var _w = form.wipeCurveP;
+    var startingPoint = new THREE.Vector2(e.aX + e.xRadius * Math.cos(e.aEndAngle), e.aY + e.yRadius * Math.sin(e.aEndAngle));
+    var centrePoint = new THREE.Vector2(e.aX, e.aY);
+    var endingPoint = startingPoint.clone().lerp(centrePoint, alpha);
+    var pt1 = new THREE.Vector2(e.aX + e.xRadius * Math.cos(angle1), e.aY + e.yRadius * Math.sin(angle1));
+    var pt2 = new THREE.Vector2(e.aX + e.xRadius * Math.cos(angle2), e.aY + e.yRadius * Math.sin(angle2));
+    var controlPoint1 = pt1.lerp(endingPoint, 0.25);
+    var controlPoint2 = pt2.lerp(endingPoint, 0.75);
+    _w.v0.copy(startingPoint);
+    _w.v1.copy(controlPoint1);
+    _w.v2.copy(controlPoint2);
+    _w.v3.copy(endingPoint);
+    wipePointsPVec2 = _w.getPoints(WIPE_POINT_COUNT);
+  }
+
+  {
+    var _e = form.ellipseCurveQ;
+    var _w2 = form.wipeCurveQ;
+    var _startingPoint = new THREE.Vector2(_e.aX + _e.xRadius * Math.cos(_e.aEndAngle), _e.aY + _e.yRadius * Math.sin(_e.aEndAngle));
+    var _centrePoint = new THREE.Vector2(_e.aX, _e.aY);
+    var _endingPoint = _startingPoint.clone().lerp(_centrePoint, alpha);
+    var _pt = new THREE.Vector2(_e.aX + _e.xRadius * Math.cos(angle1), _e.aY + _e.yRadius * Math.sin(angle1));
+    var _pt2 = new THREE.Vector2(_e.aX + _e.xRadius * Math.cos(angle2), _e.aY + _e.yRadius * Math.sin(angle2));
+    var _controlPoint = _pt.lerp(_endingPoint, 0.25);
+    var _controlPoint2 = _pt2.lerp(_endingPoint, 0.75);
+    _w2.v0.copy(_startingPoint);
+    _w2.v1.copy(_controlPoint);
+    _w2.v2.copy(_controlPoint2);
+    _w2.v3.copy(_endingPoint);
+    wipePointsQVec2 = _w2.getPoints(WIPE_POINT_COUNT);
+    var wipePointsQArr = wipePointsQVec2.map(function (vec2) {
+      return vec2.toArray();
+    });
+    var ellipsePointsQArr = ellipsePointsQVec2.map(function (vec2) {
+      return vec2.toArray();
+    });
+    var combinedLinePointsQArr = ellipsePointsQArr.concat(wipePointsQArr.slice(1));
+    form.lineGeometryQ.update(combinedLinePointsQArr);
+  }
+
+  var psEllipse = ellipsePointsPVec2.map(function (vec2) {
     return new THREE.Vector3(vec2.x, vec2.y, MEMBRANE_LENGTH);
   });
-  var qs = ellipsePointsQVec2.map(function (vec2) {
+  var qsEllipse = ellipsePointsQVec2.map(function (vec2) {
     return new THREE.Vector3(vec2.x, vec2.y, 0);
   });
+  var psWipe = wipePointsPVec2.map(function (vec2) {
+    return new THREE.Vector3(vec2.x, vec2.y, MEMBRANE_LENGTH);
+  });
+  var qsWipe = wipePointsQVec2.map(function (vec2) {
+    return new THREE.Vector3(vec2.x, vec2.y, 0);
+  });
+  var ps = psEllipse.concat(psWipe.slice(1));
+  var qs = qsEllipse.concat(qsWipe.slice(1));
 
   var tempGeometry = new _MembraneGeometry.MembraneBufferGeometry(ps, qs, MEMBRANE_SEGMENT_COUNT);
+  // const tempGeometry = new MembraneBufferGeometry(psWipe, qsWipe, MEMBRANE_SEGMENT_COUNT);
   tempGeometry.computeVertexNormals();
   form.membraneGeometryInner.copy(tempGeometry);
   reverseNormals(tempGeometry);
@@ -47319,43 +47384,78 @@ var updateShrinkingForm = function updateShrinkingForm(form) {
 
   var ellipsePointsPVec2 = form.ellipseCurveP.getPoints(ELLIPSE_POINT_COUNT);
   var ellipsePointsQVec2 = form.ellipseCurveQ.getPoints(ELLIPSE_POINT_COUNT);
-  var ellipsePointsQArr = ellipsePointsQVec2.map(function (vec2) {
-    return vec2.toArray();
-  });
 
-  var e = form.ellipseCurveQ;
-  var angleOffset = Math.abs(e.aStartAngle - START_ANGLE);
+  var currentAngle = form.ellipseCurveQ.aStartAngle;
+
+  var angleOffset = Math.abs(currentAngle - START_ANGLE);
   var angleOffset2 = angleOffset < Math.PI ? angleOffset : 2 * Math.PI - angleOffset;
   var normalisingFactor = 1 / ANGLE_OFFSET_THRESHOLD;
   var alpha = angleOffset2 > ANGLE_OFFSET_THRESHOLD ? 1.0 : angleOffset2 * normalisingFactor;
-  var angle1 = e.aStartAngle + DELTA_ANGLE * alpha;
-  var angle2 = e.aStartAngle - DELTA_ANGLE * alpha;
-  var startingPoint = new THREE.Vector2(e.aX + e.xRadius * Math.cos(e.aStartAngle), e.aY + e.yRadius * Math.sin(e.aStartAngle));
-  var centrePoint = new THREE.Vector2(e.aX, e.aY);
-  var endingPoint = startingPoint.clone().lerp(centrePoint, alpha);
-  var pt1 = new THREE.Vector2(e.aX + e.xRadius * Math.cos(angle1), e.aY + e.yRadius * Math.sin(angle1));
-  var pt2 = new THREE.Vector2(e.aX + e.xRadius * Math.cos(angle2), e.aY + e.yRadius * Math.sin(angle2));
-  var controlPoint1 = pt1.lerp(endingPoint, 0.25);
-  var controlPoint2 = pt2.lerp(endingPoint, 0.75);
-  form.wipeCurveQ.v0.copy(startingPoint);
-  form.wipeCurveQ.v1.copy(controlPoint1);
-  form.wipeCurveQ.v2.copy(controlPoint2);
-  form.wipeCurveQ.v3.copy(endingPoint);
-  var wipePointsQVec2 = form.wipeCurveQ.getPoints(WIPE_POINT_COUNT);
-  var wipePointsQArr = wipePointsQVec2.map(function (vec2) {
-    return vec2.toArray();
-  });
-  var combinedLinePointsQArr = ellipsePointsQArr.slice().reverse().concat(wipePointsQArr.slice(1));
-  form.ellipseLineGeometryQ.update(combinedLinePointsQArr);
+  var angle1 = currentAngle + DELTA_ANGLE * alpha;
+  var angle2 = currentAngle - DELTA_ANGLE * alpha;
 
-  var ps = ellipsePointsPVec2.map(function (vec2) {
+  var wipePointsPVec2 = void 0;
+  var wipePointsQVec2 = void 0;
+
+  {
+    var e = form.ellipseCurveP;
+    var _w3 = form.wipeCurveP;
+    var startingPoint = new THREE.Vector2(e.aX + e.xRadius * Math.cos(e.aStartAngle), e.aY + e.yRadius * Math.sin(e.aStartAngle));
+    var centrePoint = new THREE.Vector2(e.aX, e.aY);
+    var endingPoint = startingPoint.clone().lerp(centrePoint, alpha);
+    var pt1 = new THREE.Vector2(e.aX + e.xRadius * Math.cos(angle1), e.aY + e.yRadius * Math.sin(angle1));
+    var pt2 = new THREE.Vector2(e.aX + e.xRadius * Math.cos(angle2), e.aY + e.yRadius * Math.sin(angle2));
+    var controlPoint1 = pt1.lerp(endingPoint, 0.25);
+    var controlPoint2 = pt2.lerp(endingPoint, 0.75);
+    _w3.v0.copy(startingPoint);
+    _w3.v1.copy(controlPoint1);
+    _w3.v2.copy(controlPoint2);
+    _w3.v3.copy(endingPoint);
+    wipePointsPVec2 = _w3.getPoints(WIPE_POINT_COUNT);
+  }
+
+  {
+    var _e2 = form.ellipseCurveQ;
+    var _w4 = form.wipeCurveQ;
+    var _startingPoint2 = new THREE.Vector2(_e2.aX + _e2.xRadius * Math.cos(_e2.aStartAngle), _e2.aY + _e2.yRadius * Math.sin(_e2.aStartAngle));
+    var _centrePoint2 = new THREE.Vector2(_e2.aX, _e2.aY);
+    var _endingPoint2 = _startingPoint2.clone().lerp(_centrePoint2, alpha);
+    var _pt3 = new THREE.Vector2(_e2.aX + _e2.xRadius * Math.cos(angle1), _e2.aY + _e2.yRadius * Math.sin(angle1));
+    var _pt4 = new THREE.Vector2(_e2.aX + _e2.xRadius * Math.cos(angle2), _e2.aY + _e2.yRadius * Math.sin(angle2));
+    var _controlPoint3 = _pt3.lerp(_endingPoint2, 0.25);
+    var _controlPoint4 = _pt4.lerp(_endingPoint2, 0.75);
+    _w4.v0.copy(_startingPoint2);
+    _w4.v1.copy(_controlPoint3);
+    _w4.v2.copy(_controlPoint4);
+    _w4.v3.copy(_endingPoint2);
+    wipePointsQVec2 = _w4.getPoints(WIPE_POINT_COUNT);
+    var wipePointsQArr = wipePointsQVec2.map(function (vec2) {
+      return vec2.toArray();
+    });
+    var ellipsePointsQArr = ellipsePointsQVec2.map(function (vec2) {
+      return vec2.toArray();
+    });
+    var combinedLinePointsQArr = ellipsePointsQArr.reverse().concat(wipePointsQArr.slice(1));
+    form.lineGeometryQ.update(combinedLinePointsQArr);
+  }
+
+  var psEllipse = ellipsePointsPVec2.map(function (vec2) {
     return new THREE.Vector3(vec2.x, vec2.y, MEMBRANE_LENGTH);
   });
-  var qs = ellipsePointsQVec2.map(function (vec2) {
+  var qsEllipse = ellipsePointsQVec2.map(function (vec2) {
     return new THREE.Vector3(vec2.x, vec2.y, 0);
   });
+  var psWipe = wipePointsPVec2.map(function (vec2) {
+    return new THREE.Vector3(vec2.x, vec2.y, MEMBRANE_LENGTH);
+  });
+  var qsWipe = wipePointsQVec2.map(function (vec2) {
+    return new THREE.Vector3(vec2.x, vec2.y, 0);
+  });
+  var ps = psEllipse.reverse().concat(psWipe.slice(1)).reverse();
+  var qs = qsEllipse.reverse().concat(qsWipe.slice(1)).reverse();
 
   var tempGeometry = new _MembraneGeometry.MembraneBufferGeometry(ps, qs, MEMBRANE_SEGMENT_COUNT);
+  // const tempGeometry = new MembraneBufferGeometry(psWipe, qsWipe, MEMBRANE_SEGMENT_COUNT);
   tempGeometry.computeVertexNormals();
   form.membraneGeometryInner.copy(tempGeometry);
   reverseNormals(tempGeometry);
@@ -47389,24 +47489,23 @@ var onDocumentKeyDownHandler = function onDocumentKeyDownHandler(ev) {
     }
   }
 
-  // if (ev.key === 's') {
-  //   if (spotLightRH1Helper) {
-  //     scene.remove(spotLightLHelper);
-  //     scene.remove(spotLightRHelper);
-  //     scene.remove(spotLightRH1Helper);
-  //     spotLightLHelper = undefined;
-  //     spotLightRHelper = undefined;
-  //     spotLightRH1Helper = undefined;
-  //   }
-  //   else {
-  //     spotLightLHelper = new THREE.SpotLightHelper(spotLightL);
-  //     spotLightRHelper = new THREE.SpotLightHelper(spotLightR);
-  //     spotLightRH1Helper = new THREE.SpotLightHelper(spotLightRH1);
-  //     scene.add(spotLightLHelper);
-  //     scene.add(spotLightRHelper);
-  //     scene.add(spotLightRH1Helper);
-  //   }
-  // }
+  if (ev.key === 's') {
+    if (spotLightLHelper) {
+      scene.remove(spotLightLHelper);
+      scene.remove(spotLightRHelper);
+      // scene.remove(spotLightRH1Helper);
+      spotLightLHelper = undefined;
+      spotLightRHelper = undefined;
+      // spotLightRH1Helper = undefined;
+    } else {
+      spotLightLHelper = new THREE.SpotLightHelper(spotLightL);
+      spotLightRHelper = new THREE.SpotLightHelper(spotLightR);
+      // spotLightRH1Helper = new THREE.SpotLightHelper(spotLightRH1);
+      scene.add(spotLightLHelper);
+      scene.add(spotLightRHelper);
+      // scene.add(spotLightRH1Helper);
+    }
+  }
 
   if (ev.key === 'r') {
     controls.autoRotate = !controls.autoRotate;
