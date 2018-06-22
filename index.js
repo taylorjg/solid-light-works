@@ -15,6 +15,10 @@ container.appendChild(renderer.domElement);
 
 const FAVOURITE_POSITIONS = [
   {
+    cameraPosition: new THREE.Vector3(0.95, 2.12, 12.46),
+    controlsTarget: new THREE.Vector3(0.95, 2.00, 9.63)
+  },
+  {
     cameraPosition: new THREE.Vector3(2.15, 4.05, -8.75),
     controlsTarget: new THREE.Vector3(-0.93, 2.00, 8.79)
   },
@@ -64,12 +68,10 @@ const START_ANGLE = 1.5 * Math.PI;
 const END_ANGLE = 3.5 * Math.PI;
 
 const LEFT_CENTRE_X = -3.5;
-const LEFT_CENTRE_P_Y = 1;
-const LEFT_CENTRE_Q_Y = 2.6;
-
 const RIGHT_CENTRE_X = -LEFT_CENTRE_X;
-const RIGHT_CENTRE_P_Y = LEFT_CENTRE_P_Y;
-const RIGHT_CENTRE_Q_Y = LEFT_CENTRE_Q_Y;
+
+const CENTRE_P_Y = 1;
+const CENTRE_Q_Y = 2.6;
 
 const ELLIPSE_RADIUS_Q_X = 2.8;
 const ELLIPSE_RADIUS_Q_Y = 2;
@@ -77,7 +79,7 @@ const ELLIPSE_RADIUS_P = ELLIPSE_RADIUS_Q_Y / 20;
 const ELLIPSE_THICKNESS = 0.08;
 const ELLIPSE_CLOCKWISE = true;
 const ELLIPSE_POINT_COUNT = 100;
-const ELLIPSE_ROTATION_DELTA = Math.PI / (180 * 10);
+const ELLIPSE_ROTATION_DELTA = Math.PI / (180 * 120);
 
 const WIPE_POINT_COUNT = 50;
 
@@ -92,7 +94,7 @@ const lineMaterialQ = new THREE.ShaderMaterial(
   }));
 
 const forms = [
-  // nothing => everything then reset and swap sides
+  // Nothing => everything then reset and swap sides
   {
     ellipseCurveP: undefined,
     ellipseCurveQ: undefined,
@@ -105,7 +107,7 @@ const forms = [
     membraneMeshInner: undefined,
     membraneMeshOuter: undefined
   },
-  // everything => nothing then reset and swap sides
+  // Everything => nothing then reset and swap sides
   {
     ellipseCurveP: undefined,
     ellipseCurveQ: undefined,
@@ -127,15 +129,14 @@ let membraneMeshRInnerVNH = undefined;
 let membraneMeshROuterVNH = undefined;
 let spotLightLHelper = undefined;
 let spotLightRHelper = undefined;
-// let spotLightRH1Helper = undefined;
 
-// ------------------------------------
-// Left ellipse (nothing => everything)
-// ------------------------------------
+// --------------------------------------
+// Nothing => everything ellipse and wipe
+// --------------------------------------
 
 forms[0].ellipseCurveP = new THREE.EllipseCurve(
   LEFT_CENTRE_X,
-  LEFT_CENTRE_P_Y,
+  CENTRE_P_Y,
   ELLIPSE_RADIUS_P,
   ELLIPSE_RADIUS_P,
   START_ANGLE,
@@ -144,7 +145,7 @@ forms[0].ellipseCurveP = new THREE.EllipseCurve(
 
 forms[0].ellipseCurveQ = new THREE.EllipseCurve(
   LEFT_CENTRE_X,
-  LEFT_CENTRE_Q_Y,
+  CENTRE_Q_Y,
   ELLIPSE_RADIUS_Q_X,
   ELLIPSE_RADIUS_Q_Y,
   START_ANGLE,
@@ -158,13 +159,13 @@ scene.add(forms[0].lineMeshQ);
 forms[0].wipeCurveP = new THREE.CubicBezierCurve();
 forms[0].wipeCurveQ = new THREE.CubicBezierCurve();
 
-// -------------------------------------
-// Right ellipse (everything => nothing)
-// -------------------------------------
+// --------------------------------------
+// Everything => nothing ellipse and wipe
+// --------------------------------------
 
 forms[1].ellipseCurveP = new THREE.EllipseCurve(
   RIGHT_CENTRE_X,
-  RIGHT_CENTRE_P_Y,
+  CENTRE_P_Y,
   ELLIPSE_RADIUS_P,
   ELLIPSE_RADIUS_P,
   START_ANGLE,
@@ -173,7 +174,7 @@ forms[1].ellipseCurveP = new THREE.EllipseCurve(
 
 forms[1].ellipseCurveQ = new THREE.EllipseCurve(
   RIGHT_CENTRE_X,
-  RIGHT_CENTRE_Q_Y,
+  CENTRE_Q_Y,
   ELLIPSE_RADIUS_Q_X,
   ELLIPSE_RADIUS_Q_Y,
   START_ANGLE,
@@ -191,22 +192,33 @@ forms[1].wipeCurveQ = new THREE.CubicBezierCurve();
 // Membrane spotlights (projectors)
 // --------------------------------
 
-const HIGH_INTENSITY = 100;
-const LOW_INTENSITY = 20;
+const SPOTLIGHT_COLOUR = 0xffffff;
+const SPOTLIGHT_HIGH_INTENSITY = 100;
+const SPOTLIGHT_LOW_INTENSITY = 50;
+const SPOTLIGHT_DISTANCE = MEMBRANE_LENGTH * 2;
+const SPOTLIGHT_ANGLE = 14 * Math.PI / 180;
 
 const spotLightTargetL = new THREE.Object3D();
-spotLightTargetL.position.set(LEFT_CENTRE_X, LEFT_CENTRE_Q_Y, 0);
+spotLightTargetL.position.set(LEFT_CENTRE_X, CENTRE_Q_Y, 0);
 scene.add(spotLightTargetL);
-const spotLightL = new THREE.SpotLight(0xffffff, HIGH_INTENSITY, MEMBRANE_LENGTH * 2, 14 * Math.PI / 180);
-spotLightL.position.set(LEFT_CENTRE_X, LEFT_CENTRE_P_Y, MEMBRANE_LENGTH);
+const spotLightL = new THREE.SpotLight(
+  SPOTLIGHT_COLOUR,
+  SPOTLIGHT_HIGH_INTENSITY,
+  SPOTLIGHT_DISTANCE,
+  SPOTLIGHT_ANGLE);
+spotLightL.position.set(LEFT_CENTRE_X, CENTRE_P_Y, MEMBRANE_LENGTH);
 spotLightL.target = spotLightTargetL;
 scene.add(spotLightL);
 
 {
   const spotLightTarget = new THREE.Object3D();
-  spotLightTarget.position.set(LEFT_CENTRE_X, LEFT_CENTRE_Q_Y, 0);
+  spotLightTarget.position.set(LEFT_CENTRE_X, CENTRE_Q_Y, 0);
   scene.add(spotLightTarget);
-  const spotLight = new THREE.SpotLight(0xffffff, LOW_INTENSITY, MEMBRANE_LENGTH * 2, 14 * Math.PI / 180);
+  const spotLight = new THREE.SpotLight(
+    SPOTLIGHT_COLOUR,
+    SPOTLIGHT_LOW_INTENSITY,
+    SPOTLIGHT_DISTANCE,
+    SPOTLIGHT_ANGLE);
   spotLight.position.set(LEFT_CENTRE_X, 0, MEMBRANE_LENGTH);
   spotLight.target = spotLightTarget;
   scene.add(spotLight);
@@ -214,27 +226,39 @@ scene.add(spotLightL);
 
 {
   const spotLightTarget = new THREE.Object3D();
-  spotLightTarget.position.set(LEFT_CENTRE_X, LEFT_CENTRE_Q_Y, 0);
+  spotLightTarget.position.set(LEFT_CENTRE_X, CENTRE_Q_Y, 0);
   scene.add(spotLightTarget);
-  const spotLight = new THREE.SpotLight(0xffffff, LOW_INTENSITY, MEMBRANE_LENGTH * 2, 14 * Math.PI / 180);
-  spotLight.position.set(LEFT_CENTRE_X, LEFT_CENTRE_P_Y * 2, MEMBRANE_LENGTH);
+  const spotLight = new THREE.SpotLight(
+    SPOTLIGHT_COLOUR,
+    SPOTLIGHT_LOW_INTENSITY,
+    SPOTLIGHT_DISTANCE,
+    SPOTLIGHT_ANGLE);
+  spotLight.position.set(LEFT_CENTRE_X, CENTRE_P_Y * 2, MEMBRANE_LENGTH);
   spotLight.target = spotLightTarget;
   scene.add(spotLight);
 }
 
 const spotLightTargetR = new THREE.Object3D();
-spotLightTargetR.position.set(RIGHT_CENTRE_X, RIGHT_CENTRE_Q_Y, 0);
+spotLightTargetR.position.set(RIGHT_CENTRE_X, CENTRE_Q_Y, 0);
 scene.add(spotLightTargetR);
-const spotLightR = new THREE.SpotLight(0xffffff, HIGH_INTENSITY, MEMBRANE_LENGTH * 2, 14 * Math.PI / 180);
-spotLightR.position.set(RIGHT_CENTRE_X, RIGHT_CENTRE_P_Y, MEMBRANE_LENGTH);
+const spotLightR = new THREE.SpotLight(
+  SPOTLIGHT_COLOUR,
+  SPOTLIGHT_HIGH_INTENSITY,
+  SPOTLIGHT_DISTANCE,
+  SPOTLIGHT_ANGLE);
+spotLightR.position.set(RIGHT_CENTRE_X, CENTRE_P_Y, MEMBRANE_LENGTH);
 spotLightR.target = spotLightTargetR;
 scene.add(spotLightR);
 
 {
   const spotLightTarget = new THREE.Object3D();
-  spotLightTarget.position.set(RIGHT_CENTRE_X, RIGHT_CENTRE_P_Y, 0);
+  spotLightTarget.position.set(RIGHT_CENTRE_X, CENTRE_P_Y, 0);
   scene.add(spotLightTarget);
-  const spotLight = new THREE.SpotLight(0xffffff, LOW_INTENSITY, MEMBRANE_LENGTH * 2, 14 * Math.PI / 180);
+  const spotLight = new THREE.SpotLight(
+    SPOTLIGHT_COLOUR,
+    SPOTLIGHT_LOW_INTENSITY,
+    SPOTLIGHT_DISTANCE,
+    SPOTLIGHT_ANGLE);
   spotLight.position.set(RIGHT_CENTRE_X, 0, MEMBRANE_LENGTH);
   spotLight.target = spotLightTarget;
   scene.add(spotLight);
@@ -242,21 +266,17 @@ scene.add(spotLightR);
 
 {
   const spotLightTarget = new THREE.Object3D();
-  spotLightTarget.position.set(RIGHT_CENTRE_X, RIGHT_CENTRE_P_Y, 0);
+  spotLightTarget.position.set(RIGHT_CENTRE_X, CENTRE_P_Y, 0);
   scene.add(spotLightTarget);
-  const spotLight = new THREE.SpotLight(0xffffff, LOW_INTENSITY, MEMBRANE_LENGTH * 2, 14 * Math.PI / 180);
-  spotLight.position.set(RIGHT_CENTRE_X, RIGHT_CENTRE_P_Y * 2, MEMBRANE_LENGTH);
+  const spotLight = new THREE.SpotLight(
+    SPOTLIGHT_COLOUR,
+    SPOTLIGHT_LOW_INTENSITY,
+    SPOTLIGHT_DISTANCE,
+    SPOTLIGHT_ANGLE);
+  spotLight.position.set(RIGHT_CENTRE_X, CENTRE_P_Y * 2, MEMBRANE_LENGTH);
   spotLight.target = spotLightTarget;
   scene.add(spotLight);
 }
-
-// const spotLightTargetRH1 = new THREE.Object3D();
-// spotLightTargetRH1.position.set(RIGHT_CENTRE_X, RIGHT_CENTRE_Q_Y + ELLIPSE_RADIUS_Q_Y, 0);
-// scene.add(spotLightTargetRH1);
-// const spotLightRH1 = new THREE.SpotLight(0xffffff, 1000, MEMBRANE_LENGTH * 2, 0.5 * Math.PI / 180);
-// spotLightRH1.position.set(RIGHT_CENTRE_X, RIGHT_CENTRE_P_Y, MEMBRANE_LENGTH);
-// spotLightRH1.target = spotLightTargetRH1;
-// scene.add(spotLightRH1);
 
 const onTextureLoaded = hazeTexture => {
 
@@ -264,7 +284,7 @@ const onTextureLoaded = hazeTexture => {
     map: hazeTexture,
     side: THREE.FrontSide,
     color: 0xffffff,
-    transparent: false,
+    transparent: true,
     opacity: 0.4
   });
 
@@ -272,7 +292,7 @@ const onTextureLoaded = hazeTexture => {
     map: hazeTexture,
     side: THREE.BackSide,
     color: 0xffffff,
-    transparent: false,
+    transparent: true,
     opacity: 0.4
   });
 
@@ -386,7 +406,6 @@ const updateGrowingForm = form => {
   const qs = qsEllipse.concat(qsWipe.slice(1));
 
   const tempGeometry = new MembraneBufferGeometry(ps, qs, MEMBRANE_SEGMENT_COUNT);
-  // const tempGeometry = new MembraneBufferGeometry(psWipe, qsWipe, MEMBRANE_SEGMENT_COUNT);
   tempGeometry.computeVertexNormals();
   form.membraneGeometryInner.copy(tempGeometry);
   reverseNormals(tempGeometry);
@@ -460,15 +479,11 @@ const updateShrinkingForm = form => {
   const qs = qsEllipse.reverse().concat(qsWipe.slice(1)).reverse();
 
   const tempGeometry = new MembraneBufferGeometry(ps, qs, MEMBRANE_SEGMENT_COUNT);
-  // const tempGeometry = new MembraneBufferGeometry(psWipe, qsWipe, MEMBRANE_SEGMENT_COUNT);
   tempGeometry.computeVertexNormals();
   form.membraneGeometryInner.copy(tempGeometry);
   reverseNormals(tempGeometry);
   form.membraneGeometryOuter.copy(tempGeometry);
   tempGeometry.dispose();
-
-  // spotLightTargetRH1.position.set(qs[0].x, qs[0].y, 0);
-  // spotLightTargetRH1.updateMatrixWorld();
 };
 
 window.addEventListener("resize", () => {
@@ -478,11 +493,6 @@ window.addEventListener("resize", () => {
 });
 
 const onDocumentKeyDownHandler = ev => {
-
-  if (ev.key === 'c') {
-    console.log(`camera.position: ${JSON.stringify(camera.position)}`);
-    console.log(`controls.target: ${JSON.stringify(controls.target)}`);
-  }
 
   if (ev.key === 'a') {
     if (axesHelper) {
@@ -494,27 +504,9 @@ const onDocumentKeyDownHandler = ev => {
     }
   }
 
-  if (ev.key === 's') {
-    if (spotLightLHelper) {
-      scene.remove(spotLightLHelper);
-      scene.remove(spotLightRHelper);
-      // scene.remove(spotLightRH1Helper);
-      spotLightLHelper = undefined;
-      spotLightRHelper = undefined;
-      // spotLightRH1Helper = undefined;
-    }
-    else {
-      spotLightLHelper = new THREE.SpotLightHelper(spotLightL);
-      spotLightRHelper = new THREE.SpotLightHelper(spotLightR);
-      // spotLightRH1Helper = new THREE.SpotLightHelper(spotLightRH1);
-      scene.add(spotLightLHelper);
-      scene.add(spotLightRHelper);
-      // scene.add(spotLightRH1Helper);
-    }
-  }
-
-  if (ev.key === 'r') {
-    controls.autoRotate = !controls.autoRotate;
+  if (ev.key === 'c') {
+    console.log(`camera.position: ${JSON.stringify(camera.position)}`);
+    console.log(`controls.target: ${JSON.stringify(controls.target)}`);
   }
 
   if (ev.key === 'p') {
@@ -522,6 +514,25 @@ const onDocumentKeyDownHandler = ev => {
     currentFavouritePositionIndex %= FAVOURITE_POSITIONS.length;
     camera.position.copy(FAVOURITE_POSITIONS[currentFavouritePositionIndex].cameraPosition);
     controls.target.copy(FAVOURITE_POSITIONS[currentFavouritePositionIndex].controlsTarget);
+  }
+
+  if (ev.key === 'r') {
+    controls.autoRotate = !controls.autoRotate;
+  }
+
+  if (ev.key === 's') {
+    if (spotLightLHelper) {
+      scene.remove(spotLightLHelper);
+      scene.remove(spotLightRHelper);
+      spotLightLHelper = undefined;
+      spotLightRHelper = undefined;
+    }
+    else {
+      spotLightLHelper = new THREE.SpotLightHelper(spotLightL);
+      spotLightRHelper = new THREE.SpotLightHelper(spotLightR);
+      scene.add(spotLightLHelper);
+      scene.add(spotLightRHelper);
+    }
   }
 
   if (ev.key === 'v') {
