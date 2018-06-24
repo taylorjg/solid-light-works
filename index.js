@@ -1,7 +1,8 @@
 import * as THREE from "three";
 import OrbitControls from "three-orbitcontrols";
-import { Form, LEFT, RIGHT, GROWING, SHRINKING, swapSidesTest } from "./form";
+import { Form, swapSidesTest } from "./form";
 import * as C from "./constants";
+import { addSpotLights, toggleSpotLightHelpers } from "./spotlights";
 
 const container = document.getElementById("container");
 const w = container.offsetWidth;
@@ -58,114 +59,20 @@ const screen = new THREE.Mesh(projectionScreenGeometry, projectionScreenMaterial
 scene.add(screen);
 
 let axesHelper = undefined;
-let spotLightLHelper = undefined;
-let spotLightRHelper = undefined;
 
-// --------------------------------
-// Membrane spotlights (projectors)
-// --------------------------------
+addSpotLights(scene, C.CENTRE_P_Y, C.CENTRE_Q_Y, C.HIGH_INTENSITY_SPOTLIGHT);
+addSpotLights(scene, 0, C.CENTRE_Q_Y, C.LOW_INTENSITY_SPOTLIGHT);
+addSpotLights(scene, C.CENTRE_P_Y * 2, C.CENTRE_Q_Y, C.LOW_INTENSITY_SPOTLIGHT);
 
-const SPOTLIGHT_COLOUR = 0xffffff;
-const SPOTLIGHT_HIGH_INTENSITY = 100;
-const SPOTLIGHT_LOW_INTENSITY = 50;
-const SPOTLIGHT_DISTANCE = C.MEMBRANE_LENGTH * 2;
-const SPOTLIGHT_ANGLE = 14 * Math.PI / 180;
+let growingForm = new Form(scene, C.GROWING, C.LEFT);
+let shrinkingForm = new Form(scene, C.SHRINKING, C.RIGHT);
 
-const spotLightTargetL = new THREE.Object3D();
-spotLightTargetL.position.set(C.LEFT_CENTRE_X, C.CENTRE_Q_Y, 0);
-scene.add(spotLightTargetL);
-const spotLightL = new THREE.SpotLight(
-  SPOTLIGHT_COLOUR,
-  SPOTLIGHT_HIGH_INTENSITY,
-  SPOTLIGHT_DISTANCE,
-  SPOTLIGHT_ANGLE);
-spotLightL.position.set(C.LEFT_CENTRE_X, C.CENTRE_P_Y, C.MEMBRANE_LENGTH);
-spotLightL.target = spotLightTargetL;
-scene.add(spotLightL);
-
-{
-  const spotLightTarget = new THREE.Object3D();
-  spotLightTarget.position.set(C.LEFT_CENTRE_X, C.CENTRE_Q_Y, 0);
-  scene.add(spotLightTarget);
-  const spotLight = new THREE.SpotLight(
-    SPOTLIGHT_COLOUR,
-    SPOTLIGHT_LOW_INTENSITY,
-    SPOTLIGHT_DISTANCE,
-    SPOTLIGHT_ANGLE);
-  spotLight.position.set(C.LEFT_CENTRE_X, 0, C.MEMBRANE_LENGTH);
-  spotLight.target = spotLightTarget;
-  scene.add(spotLight);
-}
-
-{
-  const spotLightTarget = new THREE.Object3D();
-  spotLightTarget.position.set(C.LEFT_CENTRE_X, C.CENTRE_Q_Y, 0);
-  scene.add(spotLightTarget);
-  const spotLight = new THREE.SpotLight(
-    SPOTLIGHT_COLOUR,
-    SPOTLIGHT_LOW_INTENSITY,
-    SPOTLIGHT_DISTANCE,
-    SPOTLIGHT_ANGLE);
-  spotLight.position.set(C.LEFT_CENTRE_X, C.CENTRE_P_Y * 2, C.MEMBRANE_LENGTH);
-  spotLight.target = spotLightTarget;
-  scene.add(spotLight);
-}
-
-const spotLightTargetR = new THREE.Object3D();
-spotLightTargetR.position.set(C.RIGHT_CENTRE_X, C.CENTRE_Q_Y, 0);
-scene.add(spotLightTargetR);
-const spotLightR = new THREE.SpotLight(
-  SPOTLIGHT_COLOUR,
-  SPOTLIGHT_HIGH_INTENSITY,
-  SPOTLIGHT_DISTANCE,
-  SPOTLIGHT_ANGLE);
-spotLightR.position.set(C.RIGHT_CENTRE_X, C.CENTRE_P_Y, C.MEMBRANE_LENGTH);
-spotLightR.target = spotLightTargetR;
-scene.add(spotLightR);
-
-{
-  const spotLightTarget = new THREE.Object3D();
-  spotLightTarget.position.set(C.RIGHT_CENTRE_X, C.CENTRE_P_Y, 0);
-  scene.add(spotLightTarget);
-  const spotLight = new THREE.SpotLight(
-    SPOTLIGHT_COLOUR,
-    SPOTLIGHT_LOW_INTENSITY,
-    SPOTLIGHT_DISTANCE,
-    SPOTLIGHT_ANGLE);
-  spotLight.position.set(C.RIGHT_CENTRE_X, 0, C.MEMBRANE_LENGTH);
-  spotLight.target = spotLightTarget;
-  scene.add(spotLight);
-}
-
-{
-  const spotLightTarget = new THREE.Object3D();
-  spotLightTarget.position.set(C.RIGHT_CENTRE_X, C.CENTRE_P_Y, 0);
-  scene.add(spotLightTarget);
-  const spotLight = new THREE.SpotLight(
-    SPOTLIGHT_COLOUR,
-    SPOTLIGHT_LOW_INTENSITY,
-    SPOTLIGHT_DISTANCE,
-    SPOTLIGHT_ANGLE);
-  spotLight.position.set(C.RIGHT_CENTRE_X, C.CENTRE_P_Y * 2, C.MEMBRANE_LENGTH);
-  spotLight.target = spotLightTarget;
-  scene.add(spotLight);
-}
-
-let growingForm = new Form(scene, GROWING, LEFT);
-let shrinkingForm = new Form(scene, SHRINKING, RIGHT);
-
-const onTextureLoaded = texture => {
+const textureLoader = new THREE.TextureLoader();
+textureLoader.load("haze.jpg", texture => {
   growingForm.onTextureLoaded(texture);
   shrinkingForm.onTextureLoaded(texture);
   animate();
-};
-
-const textureLoader = new THREE.TextureLoader();
-textureLoader.load("haze.jpg", onTextureLoaded);
-
-// ---------
-// Animation
-// ---------
+});
 
 window.addEventListener("resize", () => {
   renderer.setSize(container.offsetWidth, container.offsetHeight);
@@ -202,18 +109,7 @@ const onDocumentKeyDownHandler = ev => {
   }
 
   if (ev.key === "s") {
-    if (spotLightLHelper) {
-      scene.remove(spotLightLHelper);
-      scene.remove(spotLightRHelper);
-      spotLightLHelper = undefined;
-      spotLightRHelper = undefined;
-    }
-    else {
-      spotLightLHelper = new THREE.SpotLightHelper(spotLightL);
-      spotLightRHelper = new THREE.SpotLightHelper(spotLightR);
-      scene.add(spotLightLHelper);
-      scene.add(spotLightRHelper);
-    }
+    toggleSpotLightHelpers(scene);
   }
 
   if (ev.key === "v") {

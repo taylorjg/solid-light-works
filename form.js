@@ -36,11 +36,6 @@ const reverseNormals = bufferGeometry => {
   }
 };
 
-export const LEFT = Symbol("LEFT");
-export const RIGHT = Symbol("RIGHT");
-export const GROWING = Symbol("GROWING");
-export const SHRINKING = Symbol("SHRINKING");
-
 export class Form {
 
   constructor(scene, disposition, initialSide) {
@@ -52,7 +47,7 @@ export class Form {
 
   init() {
     this.ellipseCurveP = new THREE.EllipseCurve(
-      this.initialSide === LEFT ? C.LEFT_CENTRE_X : C.RIGHT_CENTRE_X,
+      this.initialSide === C.LEFT ? C.LEFT_CENTRE_X : C.RIGHT_CENTRE_X,
       C.CENTRE_P_Y,
       PROJECTOR_BULB_RADIUS,
       PROJECTOR_BULB_RADIUS,
@@ -61,7 +56,7 @@ export class Form {
       CLOCKWISE);
 
     this.ellipseCurveQ = new THREE.EllipseCurve(
-      this.initialSide === LEFT ? C.LEFT_CENTRE_X : C.RIGHT_CENTRE_X,
+      this.initialSide === C.LEFT ? C.LEFT_CENTRE_X : C.RIGHT_CENTRE_X,
       C.CENTRE_Q_Y,
       PROJECTED_IMAGE_RADIUS_X,
       PROJECTED_IMAGE_RADIUS_Y,
@@ -128,7 +123,7 @@ export class Form {
   }
 
   reverseIfShrinking(xs) {
-    return this.disposition === SHRINKING ? xs.slice().reverse() : xs;
+    return this.disposition === C.SHRINKING ? xs.slice().reverse() : xs;
   }
 
   getWipePoints(e, w, currentAngle, deltaAngle1, deltaAngle2, alpha) {
@@ -156,7 +151,7 @@ export class Form {
 
   updateCurrentAngle() {
 
-    if (this.disposition === GROWING) {
+    if (this.disposition === C.GROWING) {
       this.ellipseCurveP.aEndAngle -= ROTATION_DELTA;
       this.ellipseCurveQ.aEndAngle -= ROTATION_DELTA;
       return this.ellipseCurveQ.aEndAngle;
@@ -169,7 +164,7 @@ export class Form {
 
   update() {
 
-    const initialAngle = this.disposition === GROWING ? END_ANGLE : START_ANGLE;
+    const initialAngle = this.disposition === C.GROWING ? END_ANGLE : START_ANGLE;
     const currentAngle = this.updateCurrentAngle();
     const angleOffset = Math.abs(currentAngle - initialAngle);
     const angleOffset2 = angleOffset < Math.PI ? angleOffset : 2 * Math.PI - angleOffset;
