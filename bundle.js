@@ -60,7 +60,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 1);
+/******/ 	return __webpack_require__(__webpack_require__.s = 2);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -46975,11 +46975,33 @@ function LensFlare() {
 /* 1 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(2);
+"use strict";
 
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+var LEFT_CENTRE_X = exports.LEFT_CENTRE_X = -3.5;
+var RIGHT_CENTRE_X = exports.RIGHT_CENTRE_X = -LEFT_CENTRE_X;
+var CENTRE_P_Y = exports.CENTRE_P_Y = 1;
+var CENTRE_Q_Y = exports.CENTRE_Q_Y = 2.6;
+var MEMBRANE_LENGTH = exports.MEMBRANE_LENGTH = 18;
+var LEFT = exports.LEFT = Symbol("LEFT");
+var RIGHT = exports.RIGHT = Symbol("RIGHT");
+var GROWING = exports.GROWING = Symbol("GROWING");
+var SHRINKING = exports.SHRINKING = Symbol("SHRINKING");
+var HIGH_INTENSITY_SPOTLIGHT = exports.HIGH_INTENSITY_SPOTLIGHT = Symbol("HIGH_INTENSITY_SPOTLIGHT");
+var LOW_INTENSITY_SPOTLIGHT = exports.LOW_INTENSITY_SPOTLIGHT = Symbol("LOW_INTENSITY_SPOTLIGHT");
 
 /***/ }),
 /* 2 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = __webpack_require__(3);
+
+
+/***/ }),
+/* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -46989,27 +47011,21 @@ var _three = __webpack_require__(0);
 
 var THREE = _interopRequireWildcard(_three);
 
-var _threeOrbitcontrols = __webpack_require__(3);
+var _threeOrbitcontrols = __webpack_require__(4);
 
 var _threeOrbitcontrols2 = _interopRequireDefault(_threeOrbitcontrols);
 
-var _threeLine2d = __webpack_require__(4);
+var _form = __webpack_require__(5);
 
-var _threeLine2d2 = _interopRequireDefault(_threeLine2d);
+var _spotlights = __webpack_require__(18);
 
-var _basic = __webpack_require__(13);
+var _constants = __webpack_require__(1);
 
-var _basic2 = _interopRequireDefault(_basic);
-
-var _MembraneGeometry = __webpack_require__(15);
+var C = _interopRequireWildcard(_constants);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-
-var Line = (0, _threeLine2d2.default)(THREE);
-var BasicShader = (0, _basic2.default)(THREE);
-
 
 var container = document.getElementById("container");
 var w = container.offsetWidth;
@@ -47060,401 +47076,21 @@ var projectionScreenMaterial = new THREE.MeshBasicMaterial({
 var screen = new THREE.Mesh(projectionScreenGeometry, projectionScreenMaterial);
 scene.add(screen);
 
-// -------------------
-// Sizes and positions
-// -------------------
-
-var START_ANGLE = 1.5 * Math.PI;
-var END_ANGLE = 3.5 * Math.PI;
-
-var LEFT_CENTRE_X = -3.5;
-var RIGHT_CENTRE_X = -LEFT_CENTRE_X;
-
-var CENTRE_P_Y = 1;
-var CENTRE_Q_Y = 2.6;
-
-var ELLIPSE_RADIUS_Q_X = 2.8;
-var ELLIPSE_RADIUS_Q_Y = 2;
-var ELLIPSE_RADIUS_P = ELLIPSE_RADIUS_Q_Y / 20;
-var ELLIPSE_THICKNESS = 0.08;
-var ELLIPSE_CLOCKWISE = true;
-var ELLIPSE_POINT_COUNT = 100;
-var ELLIPSE_ROTATION_DELTA = Math.PI / (180 * 60);
-
-var WIPE_POINT_COUNT = 50;
-
-var MEMBRANE_LENGTH = 18;
-var MEMBRANE_SEGMENT_COUNT = 1;
-
-var lineMaterialQ = new THREE.ShaderMaterial(BasicShader({
-  side: THREE.DoubleSide,
-  diffuse: 0xffffff,
-  thickness: ELLIPSE_THICKNESS
-}));
-
-var forms = [
-// Nothing => everything then reset and swap sides
-{
-  ellipseCurveP: undefined,
-  ellipseCurveQ: undefined,
-  wipeCurveP: undefined,
-  wipeCurveQ: undefined,
-  lineGeometryQ: undefined,
-  lineMeshQ: undefined,
-  membraneGeometryInner: undefined,
-  membraneGeometryOuter: undefined,
-  membraneMeshInner: undefined,
-  membraneMeshOuter: undefined
-},
-// Everything => nothing then reset and swap sides
-{
-  ellipseCurveP: undefined,
-  ellipseCurveQ: undefined,
-  wipeCurveP: undefined,
-  wipeCurveQ: undefined,
-  lineGeometryQ: undefined,
-  lineMeshQ: undefined,
-  membraneGeometryInner: undefined,
-  membraneGeometryOuter: undefined,
-  membraneMeshInner: undefined,
-  membraneMeshOuter: undefined
-}];
-
 var axesHelper = undefined;
-var membraneMeshLInnerVNH = undefined;
-var membraneMeshLOuterVNH = undefined;
-var membraneMeshRInnerVNH = undefined;
-var membraneMeshROuterVNH = undefined;
-var spotLightLHelper = undefined;
-var spotLightRHelper = undefined;
 
-// --------------------------------------
-// Nothing => everything ellipse and wipe
-// --------------------------------------
+(0, _spotlights.addSpotLights)(scene, C.CENTRE_P_Y, C.CENTRE_Q_Y, C.HIGH_INTENSITY_SPOTLIGHT);
+(0, _spotlights.addSpotLights)(scene, 0, C.CENTRE_Q_Y, C.LOW_INTENSITY_SPOTLIGHT);
+(0, _spotlights.addSpotLights)(scene, C.CENTRE_P_Y * 2, C.CENTRE_Q_Y, C.LOW_INTENSITY_SPOTLIGHT);
 
-forms[0].ellipseCurveP = new THREE.EllipseCurve(LEFT_CENTRE_X, CENTRE_P_Y, ELLIPSE_RADIUS_P, ELLIPSE_RADIUS_P, START_ANGLE, END_ANGLE, ELLIPSE_CLOCKWISE);
-
-forms[0].ellipseCurveQ = new THREE.EllipseCurve(LEFT_CENTRE_X, CENTRE_Q_Y, ELLIPSE_RADIUS_Q_X, ELLIPSE_RADIUS_Q_Y, START_ANGLE, END_ANGLE, ELLIPSE_CLOCKWISE);
-
-forms[0].lineGeometryQ = Line();
-forms[0].lineMeshQ = new THREE.Mesh(forms[0].lineGeometryQ, lineMaterialQ);
-scene.add(forms[0].lineMeshQ);
-
-forms[0].wipeCurveP = new THREE.CubicBezierCurve();
-forms[0].wipeCurveQ = new THREE.CubicBezierCurve();
-
-// --------------------------------------
-// Everything => nothing ellipse and wipe
-// --------------------------------------
-
-forms[1].ellipseCurveP = new THREE.EllipseCurve(RIGHT_CENTRE_X, CENTRE_P_Y, ELLIPSE_RADIUS_P, ELLIPSE_RADIUS_P, START_ANGLE, END_ANGLE, ELLIPSE_CLOCKWISE);
-
-forms[1].ellipseCurveQ = new THREE.EllipseCurve(RIGHT_CENTRE_X, CENTRE_Q_Y, ELLIPSE_RADIUS_Q_X, ELLIPSE_RADIUS_Q_Y, START_ANGLE, END_ANGLE, ELLIPSE_CLOCKWISE);
-
-forms[1].lineGeometryQ = Line();
-forms[1].lineMeshQ = new THREE.Mesh(forms[1].lineGeometryQ, lineMaterialQ);
-scene.add(forms[1].lineMeshQ);
-
-forms[1].wipeCurveP = new THREE.CubicBezierCurve();
-forms[1].wipeCurveQ = new THREE.CubicBezierCurve();
-
-// --------------------------------
-// Membrane spotlights (projectors)
-// --------------------------------
-
-var SPOTLIGHT_COLOUR = 0xffffff;
-var SPOTLIGHT_HIGH_INTENSITY = 100;
-var SPOTLIGHT_LOW_INTENSITY = 50;
-var SPOTLIGHT_DISTANCE = MEMBRANE_LENGTH * 2;
-var SPOTLIGHT_ANGLE = 14 * Math.PI / 180;
-
-var spotLightTargetL = new THREE.Object3D();
-spotLightTargetL.position.set(LEFT_CENTRE_X, CENTRE_Q_Y, 0);
-scene.add(spotLightTargetL);
-var spotLightL = new THREE.SpotLight(SPOTLIGHT_COLOUR, SPOTLIGHT_HIGH_INTENSITY, SPOTLIGHT_DISTANCE, SPOTLIGHT_ANGLE);
-spotLightL.position.set(LEFT_CENTRE_X, CENTRE_P_Y, MEMBRANE_LENGTH);
-spotLightL.target = spotLightTargetL;
-scene.add(spotLightL);
-
-{
-  var spotLightTarget = new THREE.Object3D();
-  spotLightTarget.position.set(LEFT_CENTRE_X, CENTRE_Q_Y, 0);
-  scene.add(spotLightTarget);
-  var spotLight = new THREE.SpotLight(SPOTLIGHT_COLOUR, SPOTLIGHT_LOW_INTENSITY, SPOTLIGHT_DISTANCE, SPOTLIGHT_ANGLE);
-  spotLight.position.set(LEFT_CENTRE_X, 0, MEMBRANE_LENGTH);
-  spotLight.target = spotLightTarget;
-  scene.add(spotLight);
-}
-
-{
-  var _spotLightTarget = new THREE.Object3D();
-  _spotLightTarget.position.set(LEFT_CENTRE_X, CENTRE_Q_Y, 0);
-  scene.add(_spotLightTarget);
-  var _spotLight = new THREE.SpotLight(SPOTLIGHT_COLOUR, SPOTLIGHT_LOW_INTENSITY, SPOTLIGHT_DISTANCE, SPOTLIGHT_ANGLE);
-  _spotLight.position.set(LEFT_CENTRE_X, CENTRE_P_Y * 2, MEMBRANE_LENGTH);
-  _spotLight.target = _spotLightTarget;
-  scene.add(_spotLight);
-}
-
-var spotLightTargetR = new THREE.Object3D();
-spotLightTargetR.position.set(RIGHT_CENTRE_X, CENTRE_Q_Y, 0);
-scene.add(spotLightTargetR);
-var spotLightR = new THREE.SpotLight(SPOTLIGHT_COLOUR, SPOTLIGHT_HIGH_INTENSITY, SPOTLIGHT_DISTANCE, SPOTLIGHT_ANGLE);
-spotLightR.position.set(RIGHT_CENTRE_X, CENTRE_P_Y, MEMBRANE_LENGTH);
-spotLightR.target = spotLightTargetR;
-scene.add(spotLightR);
-
-{
-  var _spotLightTarget2 = new THREE.Object3D();
-  _spotLightTarget2.position.set(RIGHT_CENTRE_X, CENTRE_P_Y, 0);
-  scene.add(_spotLightTarget2);
-  var _spotLight2 = new THREE.SpotLight(SPOTLIGHT_COLOUR, SPOTLIGHT_LOW_INTENSITY, SPOTLIGHT_DISTANCE, SPOTLIGHT_ANGLE);
-  _spotLight2.position.set(RIGHT_CENTRE_X, 0, MEMBRANE_LENGTH);
-  _spotLight2.target = _spotLightTarget2;
-  scene.add(_spotLight2);
-}
-
-{
-  var _spotLightTarget3 = new THREE.Object3D();
-  _spotLightTarget3.position.set(RIGHT_CENTRE_X, CENTRE_P_Y, 0);
-  scene.add(_spotLightTarget3);
-  var _spotLight3 = new THREE.SpotLight(SPOTLIGHT_COLOUR, SPOTLIGHT_LOW_INTENSITY, SPOTLIGHT_DISTANCE, SPOTLIGHT_ANGLE);
-  _spotLight3.position.set(RIGHT_CENTRE_X, CENTRE_P_Y * 2, MEMBRANE_LENGTH);
-  _spotLight3.target = _spotLightTarget3;
-  scene.add(_spotLight3);
-}
-
-var onTextureLoaded = function onTextureLoaded(hazeTexture) {
-
-  var membraneTextureMaterialInner = new THREE.MeshLambertMaterial({
-    map: hazeTexture,
-    side: THREE.FrontSide,
-    color: 0xffffff,
-    transparent: true,
-    opacity: 0.4
-  });
-
-  var membraneTextureMaterialOuter = new THREE.MeshLambertMaterial({
-    map: hazeTexture,
-    side: THREE.BackSide,
-    color: 0xffffff,
-    transparent: true,
-    opacity: 0.4
-  });
-
-  // -------------
-  // Left membrane
-  // -------------
-
-  forms[0].membraneGeometryInner = new _MembraneGeometry.MembraneBufferGeometry();
-  forms[0].membraneMeshInner = new THREE.Mesh(forms[0].membraneGeometryInner, membraneTextureMaterialInner);
-  scene.add(forms[0].membraneMeshInner);
-
-  forms[0].membraneGeometryOuter = new _MembraneGeometry.MembraneBufferGeometry();
-  forms[0].membraneMeshOuter = new THREE.Mesh(forms[0].membraneGeometryOuter, membraneTextureMaterialOuter);
-  scene.add(forms[0].membraneMeshOuter);
-
-  // --------------
-  // Right membrane
-  // --------------
-
-  forms[1].membraneGeometryInner = new _MembraneGeometry.MembraneBufferGeometry();
-  forms[1].membraneMeshInner = new THREE.Mesh(forms[1].membraneGeometryInner, membraneTextureMaterialInner);
-  scene.add(forms[1].membraneMeshInner);
-
-  forms[1].membraneGeometryOuter = new _MembraneGeometry.MembraneBufferGeometry();
-  forms[1].membraneMeshOuter = new THREE.Mesh(forms[1].membraneGeometryOuter, membraneTextureMaterialOuter);
-  scene.add(forms[1].membraneMeshOuter);
-
-  animate();
-};
+var growingForm = new _form.GrowingForm(scene, C.LEFT);
+var shrinkingForm = new _form.ShrinkingForm(scene, C.RIGHT);
 
 var textureLoader = new THREE.TextureLoader();
-textureLoader.load("haze.jpg", onTextureLoaded);
-
-// ---------
-// Animation
-// ---------
-
-var reverseNormals = function reverseNormals(bufferGeometry) {
-  var normalAttribute = bufferGeometry.getAttribute("normal");
-  var array = normalAttribute.array;
-  for (var i = 0; i < array.length; i++) {
-    array[i] *= -1;
-  }
-};
-
-var DELTA_ANGLE = 15 * Math.PI / 180;
-var ANGLE_OFFSET_THRESHOLD = 45 * Math.PI / 180;
-
-var updateGrowingForm = function updateGrowingForm(form) {
-
-  form.ellipseCurveP.aEndAngle -= ELLIPSE_ROTATION_DELTA;
-  form.ellipseCurveQ.aEndAngle -= ELLIPSE_ROTATION_DELTA;
-
-  var ellipsePointsPVec2 = form.ellipseCurveP.getPoints(ELLIPSE_POINT_COUNT);
-  var ellipsePointsQVec2 = form.ellipseCurveQ.getPoints(ELLIPSE_POINT_COUNT);
-
-  var currentAngle = form.ellipseCurveQ.aEndAngle;
-  var angleOffset = Math.abs(currentAngle - END_ANGLE);
-  var angleOffset2 = angleOffset < Math.PI ? angleOffset : 2 * Math.PI - angleOffset;
-  var normalisingFactor = 1 / ANGLE_OFFSET_THRESHOLD;
-  var alpha = angleOffset2 > ANGLE_OFFSET_THRESHOLD ? 1.0 : angleOffset2 * normalisingFactor;
-  var angle1 = currentAngle + DELTA_ANGLE * alpha;
-  var angle2 = currentAngle - DELTA_ANGLE * alpha;
-
-  var wipePointsPVec2 = void 0;
-  var wipePointsQVec2 = void 0;
-
-  {
-    var e = form.ellipseCurveP;
-    var _w = form.wipeCurveP;
-    var startingPoint = new THREE.Vector2(e.aX + e.xRadius * Math.cos(e.aEndAngle), e.aY + e.yRadius * Math.sin(e.aEndAngle));
-    var centrePoint = new THREE.Vector2(e.aX, e.aY);
-    var endingPoint = startingPoint.clone().lerp(centrePoint, alpha);
-    var pt1 = new THREE.Vector2(e.aX + e.xRadius * Math.cos(angle1), e.aY + e.yRadius * Math.sin(angle1));
-    var pt2 = new THREE.Vector2(e.aX + e.xRadius * Math.cos(angle2), e.aY + e.yRadius * Math.sin(angle2));
-    var controlPoint1 = pt1.lerp(endingPoint, 0.25);
-    var controlPoint2 = pt2.lerp(endingPoint, 0.75);
-    _w.v0.copy(startingPoint);
-    _w.v1.copy(controlPoint1);
-    _w.v2.copy(controlPoint2);
-    _w.v3.copy(endingPoint);
-    wipePointsPVec2 = _w.getPoints(WIPE_POINT_COUNT);
-  }
-
-  {
-    var _e = form.ellipseCurveQ;
-    var _w2 = form.wipeCurveQ;
-    var _startingPoint = new THREE.Vector2(_e.aX + _e.xRadius * Math.cos(_e.aEndAngle), _e.aY + _e.yRadius * Math.sin(_e.aEndAngle));
-    var _centrePoint = new THREE.Vector2(_e.aX, _e.aY);
-    var _endingPoint = _startingPoint.clone().lerp(_centrePoint, alpha);
-    var _pt = new THREE.Vector2(_e.aX + _e.xRadius * Math.cos(angle1), _e.aY + _e.yRadius * Math.sin(angle1));
-    var _pt2 = new THREE.Vector2(_e.aX + _e.xRadius * Math.cos(angle2), _e.aY + _e.yRadius * Math.sin(angle2));
-    var _controlPoint = _pt.lerp(_endingPoint, 0.25);
-    var _controlPoint2 = _pt2.lerp(_endingPoint, 0.75);
-    _w2.v0.copy(_startingPoint);
-    _w2.v1.copy(_controlPoint);
-    _w2.v2.copy(_controlPoint2);
-    _w2.v3.copy(_endingPoint);
-    wipePointsQVec2 = _w2.getPoints(WIPE_POINT_COUNT);
-    var wipePointsQArr = wipePointsQVec2.map(function (vec2) {
-      return vec2.toArray();
-    });
-    var ellipsePointsQArr = ellipsePointsQVec2.map(function (vec2) {
-      return vec2.toArray();
-    });
-    var combinedLinePointsQArr = ellipsePointsQArr.concat(wipePointsQArr.slice(1));
-    form.lineGeometryQ.update(combinedLinePointsQArr);
-  }
-
-  var psEllipse = ellipsePointsPVec2.map(function (vec2) {
-    return new THREE.Vector3(vec2.x, vec2.y, MEMBRANE_LENGTH);
-  });
-  var qsEllipse = ellipsePointsQVec2.map(function (vec2) {
-    return new THREE.Vector3(vec2.x, vec2.y, 0);
-  });
-  var psWipe = wipePointsPVec2.map(function (vec2) {
-    return new THREE.Vector3(vec2.x, vec2.y, MEMBRANE_LENGTH);
-  });
-  var qsWipe = wipePointsQVec2.map(function (vec2) {
-    return new THREE.Vector3(vec2.x, vec2.y, 0);
-  });
-  var ps = psEllipse.concat(psWipe.slice(1));
-  var qs = qsEllipse.concat(qsWipe.slice(1));
-
-  var tempGeometry = new _MembraneGeometry.MembraneBufferGeometry(ps, qs, MEMBRANE_SEGMENT_COUNT);
-  tempGeometry.computeVertexNormals();
-  form.membraneGeometryInner.copy(tempGeometry);
-  reverseNormals(tempGeometry);
-  form.membraneGeometryOuter.copy(tempGeometry);
-  tempGeometry.dispose();
-};
-
-var updateShrinkingForm = function updateShrinkingForm(form) {
-
-  form.ellipseCurveP.aStartAngle -= ELLIPSE_ROTATION_DELTA;
-  form.ellipseCurveQ.aStartAngle -= ELLIPSE_ROTATION_DELTA;
-
-  var ellipsePointsPVec2 = form.ellipseCurveP.getPoints(ELLIPSE_POINT_COUNT);
-  var ellipsePointsQVec2 = form.ellipseCurveQ.getPoints(ELLIPSE_POINT_COUNT);
-
-  var currentAngle = form.ellipseCurveQ.aStartAngle;
-
-  var angleOffset = Math.abs(currentAngle - START_ANGLE);
-  var angleOffset2 = angleOffset < Math.PI ? angleOffset : 2 * Math.PI - angleOffset;
-  var normalisingFactor = 1 / ANGLE_OFFSET_THRESHOLD;
-  var alpha = angleOffset2 > ANGLE_OFFSET_THRESHOLD ? 1.0 : angleOffset2 * normalisingFactor;
-  var angle1 = currentAngle + DELTA_ANGLE * alpha;
-  var angle2 = currentAngle - DELTA_ANGLE * alpha;
-
-  var wipePointsPVec2 = void 0;
-  var wipePointsQVec2 = void 0;
-
-  {
-    var e = form.ellipseCurveP;
-    var _w3 = form.wipeCurveP;
-    var startingPoint = new THREE.Vector2(e.aX + e.xRadius * Math.cos(e.aStartAngle), e.aY + e.yRadius * Math.sin(e.aStartAngle));
-    var centrePoint = new THREE.Vector2(e.aX, e.aY);
-    var endingPoint = startingPoint.clone().lerp(centrePoint, alpha);
-    var pt1 = new THREE.Vector2(e.aX + e.xRadius * Math.cos(angle1), e.aY + e.yRadius * Math.sin(angle1));
-    var pt2 = new THREE.Vector2(e.aX + e.xRadius * Math.cos(angle2), e.aY + e.yRadius * Math.sin(angle2));
-    var controlPoint1 = pt1.lerp(endingPoint, 0.25);
-    var controlPoint2 = pt2.lerp(endingPoint, 0.75);
-    _w3.v0.copy(startingPoint);
-    _w3.v1.copy(controlPoint1);
-    _w3.v2.copy(controlPoint2);
-    _w3.v3.copy(endingPoint);
-    wipePointsPVec2 = _w3.getPoints(WIPE_POINT_COUNT);
-  }
-
-  {
-    var _e2 = form.ellipseCurveQ;
-    var _w4 = form.wipeCurveQ;
-    var _startingPoint2 = new THREE.Vector2(_e2.aX + _e2.xRadius * Math.cos(_e2.aStartAngle), _e2.aY + _e2.yRadius * Math.sin(_e2.aStartAngle));
-    var _centrePoint2 = new THREE.Vector2(_e2.aX, _e2.aY);
-    var _endingPoint2 = _startingPoint2.clone().lerp(_centrePoint2, alpha);
-    var _pt3 = new THREE.Vector2(_e2.aX + _e2.xRadius * Math.cos(angle1), _e2.aY + _e2.yRadius * Math.sin(angle1));
-    var _pt4 = new THREE.Vector2(_e2.aX + _e2.xRadius * Math.cos(angle2), _e2.aY + _e2.yRadius * Math.sin(angle2));
-    var _controlPoint3 = _pt3.lerp(_endingPoint2, 0.25);
-    var _controlPoint4 = _pt4.lerp(_endingPoint2, 0.75);
-    _w4.v0.copy(_startingPoint2);
-    _w4.v1.copy(_controlPoint3);
-    _w4.v2.copy(_controlPoint4);
-    _w4.v3.copy(_endingPoint2);
-    wipePointsQVec2 = _w4.getPoints(WIPE_POINT_COUNT);
-    var wipePointsQArr = wipePointsQVec2.map(function (vec2) {
-      return vec2.toArray();
-    });
-    var ellipsePointsQArr = ellipsePointsQVec2.map(function (vec2) {
-      return vec2.toArray();
-    });
-    var combinedLinePointsQArr = ellipsePointsQArr.reverse().concat(wipePointsQArr.slice(1));
-    form.lineGeometryQ.update(combinedLinePointsQArr);
-  }
-
-  var psEllipse = ellipsePointsPVec2.map(function (vec2) {
-    return new THREE.Vector3(vec2.x, vec2.y, MEMBRANE_LENGTH);
-  });
-  var qsEllipse = ellipsePointsQVec2.map(function (vec2) {
-    return new THREE.Vector3(vec2.x, vec2.y, 0);
-  });
-  var psWipe = wipePointsPVec2.map(function (vec2) {
-    return new THREE.Vector3(vec2.x, vec2.y, MEMBRANE_LENGTH);
-  });
-  var qsWipe = wipePointsQVec2.map(function (vec2) {
-    return new THREE.Vector3(vec2.x, vec2.y, 0);
-  });
-  var ps = psEllipse.reverse().concat(psWipe.slice(1)).reverse();
-  var qs = qsEllipse.reverse().concat(qsWipe.slice(1)).reverse();
-
-  var tempGeometry = new _MembraneGeometry.MembraneBufferGeometry(ps, qs, MEMBRANE_SEGMENT_COUNT);
-  tempGeometry.computeVertexNormals();
-  form.membraneGeometryInner.copy(tempGeometry);
-  reverseNormals(tempGeometry);
-  form.membraneGeometryOuter.copy(tempGeometry);
-  tempGeometry.dispose();
-};
+textureLoader.load("haze.jpg", function (texture) {
+  growingForm.onTextureLoaded(texture);
+  shrinkingForm.onTextureLoaded(texture);
+  animate();
+});
 
 window.addEventListener("resize", function () {
   renderer.setSize(container.offsetWidth, container.offsetHeight);
@@ -47464,7 +47100,7 @@ window.addEventListener("resize", function () {
 
 var onDocumentKeyDownHandler = function onDocumentKeyDownHandler(ev) {
 
-  if (ev.key === 'a') {
+  if (ev.key === "a") {
     if (axesHelper) {
       scene.remove(axesHelper);
       axesHelper = undefined;
@@ -47474,92 +47110,51 @@ var onDocumentKeyDownHandler = function onDocumentKeyDownHandler(ev) {
     }
   }
 
-  if (ev.key === 'c') {
+  if (ev.key === "c") {
     console.log("camera.position: " + JSON.stringify(camera.position));
     console.log("controls.target: " + JSON.stringify(controls.target));
   }
 
-  if (ev.key === 'p') {
+  if (ev.key === "p") {
     currentFavouritePositionIndex++;
     currentFavouritePositionIndex %= FAVOURITE_POSITIONS.length;
     camera.position.copy(FAVOURITE_POSITIONS[currentFavouritePositionIndex].cameraPosition);
     controls.target.copy(FAVOURITE_POSITIONS[currentFavouritePositionIndex].controlsTarget);
   }
 
-  if (ev.key === 'r') {
+  if (ev.key === "r") {
     controls.autoRotate = !controls.autoRotate;
   }
 
-  if (ev.key === 's') {
-    if (spotLightLHelper) {
-      scene.remove(spotLightLHelper);
-      scene.remove(spotLightRHelper);
-      spotLightLHelper = undefined;
-      spotLightRHelper = undefined;
-    } else {
-      spotLightLHelper = new THREE.SpotLightHelper(spotLightL);
-      spotLightRHelper = new THREE.SpotLightHelper(spotLightR);
-      scene.add(spotLightLHelper);
-      scene.add(spotLightRHelper);
-    }
+  if (ev.key === "s") {
+    (0, _spotlights.toggleSpotLightHelpers)(scene);
   }
 
-  if (ev.key === 'v') {
-    if (membraneMeshLInnerVNH) {
-      scene.remove(membraneMeshLInnerVNH);
-      scene.remove(membraneMeshLOuterVNH);
-      scene.remove(membraneMeshRInnerVNH);
-      scene.remove(membraneMeshROuterVNH);
-      membraneMeshLInnerVNH = undefined;
-      membraneMeshLOuterVNH = undefined;
-      membraneMeshRInnerVNH = undefined;
-      membraneMeshROuterVNH = undefined;
-    } else {
-      membraneMeshLInnerVNH = new THREE.VertexNormalsHelper(forms[0].membraneMeshInner, 0.1, 0x00ff00);
-      membraneMeshLOuterVNH = new THREE.VertexNormalsHelper(forms[0].membraneMeshOuter, 0.1, 0x0000ff);
-      membraneMeshRInnerVNH = new THREE.VertexNormalsHelper(forms[1].membraneMeshInner, 0.1, 0x00ff00);
-      membraneMeshROuterVNH = new THREE.VertexNormalsHelper(forms[1].membraneMeshOuter, 0.1, 0x0000ff);
-      scene.add(membraneMeshLInnerVNH);
-      scene.add(membraneMeshLOuterVNH);
-      scene.add(membraneMeshRInnerVNH);
-      scene.add(membraneMeshROuterVNH);
-    }
+  if (ev.key === "v") {
+    growingForm.toggleHelpers();
+    shrinkingForm.toggleHelpers();
   }
 };
 
-document.addEventListener('keydown', onDocumentKeyDownHandler);
+document.addEventListener("keydown", onDocumentKeyDownHandler);
 
-var renderLoopCount = 0;
-var swapAtCount = Math.floor(2 * Math.PI / ELLIPSE_ROTATION_DELTA);
+var tick = 0;
 
 var animate = function animate() {
   window.requestAnimationFrame(animate);
-  updateGrowingForm(forms[0]);
-  updateShrinkingForm(forms[1]);
+  growingForm.update(tick);
+  shrinkingForm.update(tick);
   controls.update();
   renderer.render(scene, camera);
-  renderLoopCount++;
-  if (renderLoopCount === swapAtCount) {
-    renderLoopCount = 0;
-    forms[0].ellipseCurveP.aX = forms[0].ellipseCurveP.aX === RIGHT_CENTRE_X ? LEFT_CENTRE_X : RIGHT_CENTRE_X;
-    forms[0].ellipseCurveQ.aX = forms[0].ellipseCurveQ.aX === RIGHT_CENTRE_X ? LEFT_CENTRE_X : RIGHT_CENTRE_X;
-    forms[1].ellipseCurveP.aX = forms[1].ellipseCurveP.aX === RIGHT_CENTRE_X ? LEFT_CENTRE_X : RIGHT_CENTRE_X;
-    forms[1].ellipseCurveQ.aX = forms[1].ellipseCurveQ.aX === RIGHT_CENTRE_X ? LEFT_CENTRE_X : RIGHT_CENTRE_X;
-    forms[0].ellipseCurveP.aEndAngle = END_ANGLE;
-    forms[0].ellipseCurveQ.aEndAngle = END_ANGLE;
-    forms[1].ellipseCurveP.aStartAngle = START_ANGLE;
-    forms[1].ellipseCurveQ.aStartAngle = START_ANGLE;
-  }
-  if (membraneMeshLInnerVNH) {
-    membraneMeshLInnerVNH.update();
-    membraneMeshLOuterVNH.update();
-    membraneMeshRInnerVNH.update();
-    membraneMeshROuterVNH.update();
+  if ((0, _form.swapSidesTest)(++tick)) {
+    tick = 0;
+    growingForm.swapSides();
+    shrinkingForm.swapSides();
   }
 };
 
 /***/ }),
-/* 3 */
+/* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var THREE = __webpack_require__(0)
@@ -48612,11 +48207,354 @@ module.exports = exports.default = THREE.OrbitControls
 
 
 /***/ }),
-/* 4 */
+/* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var inherits = __webpack_require__(5);
-var getNormals = __webpack_require__(6);
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.ShrinkingForm = exports.GrowingForm = exports.swapSidesTest = undefined;
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _three = __webpack_require__(0);
+
+var THREE = _interopRequireWildcard(_three);
+
+var _threeLine2d = __webpack_require__(6);
+
+var _threeLine2d2 = _interopRequireDefault(_threeLine2d);
+
+var _basic = __webpack_require__(15);
+
+var _basic2 = _interopRequireDefault(_basic);
+
+var _MembraneGeometry = __webpack_require__(17);
+
+var _constants = __webpack_require__(1);
+
+var C = _interopRequireWildcard(_constants);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var Line = (0, _threeLine2d2.default)(THREE);
+var BasicShader = (0, _basic2.default)(THREE);
+
+
+var START_ANGLE = 1.5 * Math.PI;
+var END_ANGLE = 3.5 * Math.PI;
+var PROJECTED_IMAGE_RADIUS_X = 2.8;
+var PROJECTED_IMAGE_RADIUS_Y = 2;
+var PROJECTED_IMAGE_LINE_THICKNESS = 0.08;
+var PROJECTOR_BULB_RADIUS = 0.08;
+var CLOCKWISE = true;
+var ELLIPSE_POINT_COUNT = 100;
+var WIPE_POINT_COUNT = 50;
+var MEMBRANE_SEGMENT_COUNT = 1;
+var ROTATION_DELTA = Math.PI / (180 * 60);
+var SWAP_AT_TICK = Math.floor(2 * Math.PI / ROTATION_DELTA);
+var DELTA_ANGLE = 15 * Math.PI / 180;
+var ANGLE_OFFSET_THRESHOLD = 45 * Math.PI / 180;
+
+var lineMaterialQ = new THREE.ShaderMaterial(BasicShader({
+  side: THREE.DoubleSide,
+  diffuse: 0xffffff,
+  thickness: PROJECTED_IMAGE_LINE_THICKNESS
+}));
+
+var reverseNormals = function reverseNormals(bufferGeometry) {
+  var normalAttribute = bufferGeometry.getAttribute("normal");
+  var array = normalAttribute.array;
+  for (var i = 0; i < array.length; i++) {
+    array[i] *= -1;
+  }
+};
+
+var toArrPoints = function toArrPoints(pointsVec2) {
+  return pointsVec2.map(function (vec2) {
+    return vec2.toArray();
+  });
+};
+
+var toVec3Points = function toVec3Points(pointsVec2, z) {
+  return pointsVec2.map(function (vec2) {
+    return new THREE.Vector3(vec2.x, vec2.y, z);
+  });
+};
+
+var swapSidesTest = exports.swapSidesTest = function swapSidesTest(tick) {
+  return tick === SWAP_AT_TICK;
+};
+
+var Form = function () {
+  function Form(scene, initialSide) {
+    _classCallCheck(this, Form);
+
+    this.scene = scene;
+    this.initialSide = initialSide;
+    this.init();
+  }
+
+  _createClass(Form, [{
+    key: "init",
+    value: function init() {
+      this.ellipseCurveP = new THREE.EllipseCurve(this.initialSide === C.LEFT ? C.LEFT_CENTRE_X : C.RIGHT_CENTRE_X, C.CENTRE_P_Y, PROJECTOR_BULB_RADIUS, PROJECTOR_BULB_RADIUS, START_ANGLE, END_ANGLE, CLOCKWISE);
+
+      this.ellipseCurveQ = new THREE.EllipseCurve(this.initialSide === C.LEFT ? C.LEFT_CENTRE_X : C.RIGHT_CENTRE_X, C.CENTRE_Q_Y, PROJECTED_IMAGE_RADIUS_X, PROJECTED_IMAGE_RADIUS_Y, START_ANGLE, END_ANGLE, CLOCKWISE);
+
+      this.wipeCurveP = new THREE.CubicBezierCurve();
+      this.wipeCurveQ = new THREE.CubicBezierCurve();
+
+      this.lineGeometryQ = Line();
+      this.lineMeshQ = new THREE.Mesh(this.lineGeometryQ, lineMaterialQ);
+      this.scene.add(this.lineMeshQ);
+
+      this.membraneGeometryInner = new _MembraneGeometry.MembraneBufferGeometry();
+      this.membraneGeometryOuter = new _MembraneGeometry.MembraneBufferGeometry();
+
+      this.membraneMaterialInner = undefined;
+      this.membraneMaterialOuter = undefined;
+
+      this.membraneMeshInner = undefined;
+      this.membraneMeshOuter = undefined;
+
+      this.membraneMeshInnerHelper = undefined;
+      this.membraneMeshOuterHelper = undefined;
+    }
+  }, {
+    key: "onTextureLoaded",
+    value: function onTextureLoaded(texture) {
+
+      this.membraneMaterialInner = new THREE.MeshBasicMaterial({
+        map: texture,
+        side: THREE.FrontSide,
+        color: 0xffffff,
+        transparent: true,
+        opacity: 0.4
+      });
+
+      this.membraneMaterialOuter = new THREE.MeshBasicMaterial({
+        map: texture,
+        side: THREE.BackSide,
+        color: 0xffffff,
+        transparent: true,
+        opacity: 0.4
+      });
+
+      this.membraneMeshInner = new THREE.Mesh(this.membraneGeometryInner, this.membraneMaterialInner);
+
+      this.membraneMeshOuter = new THREE.Mesh(this.membraneGeometryOuter, this.membraneMaterialOuter);
+
+      this.scene.add(this.membraneMeshInner);
+      this.scene.add(this.membraneMeshOuter);
+    }
+  }, {
+    key: "updateCurrentAngle",
+    value: function updateCurrentAngle() {
+      throw new Error("You have to implement the method updateCurrentAngle!");
+    }
+  }, {
+    key: "getInitialAngle",
+    value: function getInitialAngle() {
+      throw new Error("You have to implement the method getInitialAngle!");
+    }
+  }, {
+    key: "combineEllipseAndWipeLines",
+    value: function combineEllipseAndWipeLines() /* ellipsePoints, wipePoints */{
+      throw new Error("You have to implement the method combineEllipseAndWipeLines!");
+    }
+  }, {
+    key: "combineEllipseAndWipeMembranes",
+    value: function combineEllipseAndWipeMembranes() /* ellipsePoints, wipePoints */{
+      throw new Error("You have to implement the method combineEllipseAndWipeMembranes!");
+    }
+  }, {
+    key: "getWipePoints",
+    value: function getWipePoints(e, w, currentAngle, deltaAngle1, deltaAngle2, alpha) {
+
+      var calculateEllipsePoint = function calculateEllipsePoint(theta) {
+        return new THREE.Vector2(e.aX + e.xRadius * Math.cos(theta), e.aY + e.yRadius * Math.sin(theta));
+      };
+
+      var centrePoint = new THREE.Vector2(e.aX, e.aY);
+      var deltaPoint1 = calculateEllipsePoint(deltaAngle1);
+      var deltaPoint2 = calculateEllipsePoint(deltaAngle2);
+
+      var startingPoint = calculateEllipsePoint(currentAngle);
+      var endingPoint = startingPoint.clone().lerp(centrePoint, alpha);
+      var controlPoint1 = deltaPoint1.lerp(endingPoint, 0.25);
+      var controlPoint2 = deltaPoint2.lerp(endingPoint, 0.75);
+
+      w.v0.copy(startingPoint);
+      w.v1.copy(controlPoint1);
+      w.v2.copy(controlPoint2);
+      w.v3.copy(endingPoint);
+
+      return w.getPoints(WIPE_POINT_COUNT);
+    }
+  }, {
+    key: "update",
+    value: function update() {
+
+      var initialAngle = this.getInitialAngle();
+      var currentAngle = this.updateCurrentAngle();
+      var angleOffset = Math.abs(currentAngle - initialAngle);
+      var angleOffset2 = angleOffset < Math.PI ? angleOffset : 2 * Math.PI - angleOffset;
+      var normalisingFactor = 1 / ANGLE_OFFSET_THRESHOLD;
+      var alpha = angleOffset2 > ANGLE_OFFSET_THRESHOLD ? 1.0 : angleOffset2 * normalisingFactor;
+      var deltaAngle1 = currentAngle + DELTA_ANGLE * alpha;
+      var deltaAngle2 = currentAngle - DELTA_ANGLE * alpha;
+
+      var ellipsePointsPVec2 = this.ellipseCurveP.getPoints(ELLIPSE_POINT_COUNT);
+      var ellipsePointsQVec2 = this.ellipseCurveQ.getPoints(ELLIPSE_POINT_COUNT);
+
+      var wipePointsPVec2 = this.getWipePoints(this.ellipseCurveP, this.wipeCurveP, currentAngle, deltaAngle1, deltaAngle2, alpha);
+
+      var wipePointsQVec2 = this.getWipePoints(this.ellipseCurveQ, this.wipeCurveQ, currentAngle, deltaAngle1, deltaAngle2, alpha);
+
+      var ellipsePointsQArr = toArrPoints(ellipsePointsQVec2);
+      var wipePointsQArr = toArrPoints(wipePointsQVec2);
+      var combinedLinePointsQArr = this.combineEllipseAndWipeLines(ellipsePointsQArr, wipePointsQArr.slice(1));
+      this.lineGeometryQ.update(combinedLinePointsQArr);
+
+      var psEllipse = toVec3Points(ellipsePointsPVec2, C.MEMBRANE_LENGTH);
+      var qsEllipse = toVec3Points(ellipsePointsQVec2, 0);
+      var psWipe = toVec3Points(wipePointsPVec2, C.MEMBRANE_LENGTH);
+      var qsWipe = toVec3Points(wipePointsQVec2, 0);
+      var ps = this.combineEllipseAndWipeMembranes(psEllipse, psWipe.slice(1));
+      var qs = this.combineEllipseAndWipeMembranes(qsEllipse, qsWipe.slice(1));
+
+      var tempMembraneGeometry = new _MembraneGeometry.MembraneBufferGeometry(ps, qs, MEMBRANE_SEGMENT_COUNT);
+      tempMembraneGeometry.computeVertexNormals(); // NOT NEEDED ?
+      this.membraneGeometryInner.copy(tempMembraneGeometry);
+      reverseNormals(tempMembraneGeometry); // NOT NEEDED ?
+      this.membraneGeometryOuter.copy(tempMembraneGeometry);
+      tempMembraneGeometry.dispose();
+
+      if (this.membraneMeshInnerHelper) {
+        this.membraneMeshInnerHelper.update();
+        this.membraneMeshOuterHelper.update();
+      }
+    }
+  }, {
+    key: "swapSides",
+    value: function swapSides() {
+      this.ellipseCurveP.aX = this.ellipseCurveP.aX === C.RIGHT_CENTRE_X ? C.LEFT_CENTRE_X : C.RIGHT_CENTRE_X;
+      this.ellipseCurveQ.aX = this.ellipseCurveQ.aX === C.RIGHT_CENTRE_X ? C.LEFT_CENTRE_X : C.RIGHT_CENTRE_X;
+      this.ellipseCurveP.aStartAngle = START_ANGLE;
+      this.ellipseCurveQ.aStartAngle = START_ANGLE;
+      this.ellipseCurveP.aEndAngle = END_ANGLE;
+      this.ellipseCurveQ.aEndAngle = END_ANGLE;
+    }
+  }, {
+    key: "toggleHelpers",
+    value: function toggleHelpers() {
+      if (this.membraneMeshInnerHelper) {
+        this.scene.remove(this.membraneMeshInnerHelper);
+        this.scene.remove(this.membraneMeshOuterHelper);
+        this.membraneMeshInnerHelper = undefined;
+        this.membraneMeshOuterHelper = undefined;
+      } else {
+        this.membraneMeshInnerHelper = new THREE.VertexNormalsHelper(this.membraneMeshInner, 0.1, 0x00ff00);
+        this.membraneMeshOuterHelper = new THREE.VertexNormalsHelper(this.membraneMeshOuter, 0.1, 0x0000ff);
+        this.scene.add(this.membraneMeshInnerHelper);
+        this.scene.add(this.membraneMeshOuterHelper);
+      }
+    }
+  }]);
+
+  return Form;
+}();
+
+var GrowingForm = exports.GrowingForm = function (_Form) {
+  _inherits(GrowingForm, _Form);
+
+  function GrowingForm(scene, initialSide) {
+    _classCallCheck(this, GrowingForm);
+
+    return _possibleConstructorReturn(this, (GrowingForm.__proto__ || Object.getPrototypeOf(GrowingForm)).call(this, scene, initialSide));
+  }
+
+  _createClass(GrowingForm, [{
+    key: "updateCurrentAngle",
+    value: function updateCurrentAngle() {
+      this.ellipseCurveP.aEndAngle -= ROTATION_DELTA;
+      this.ellipseCurveQ.aEndAngle -= ROTATION_DELTA;
+      return this.ellipseCurveQ.aEndAngle;
+    }
+  }, {
+    key: "getInitialAngle",
+    value: function getInitialAngle() {
+      return END_ANGLE;
+    }
+  }, {
+    key: "combineEllipseAndWipeLines",
+    value: function combineEllipseAndWipeLines(ellipsePoints, wipePoints) {
+      return ellipsePoints.concat(wipePoints);
+    }
+  }, {
+    key: "combineEllipseAndWipeMembranes",
+    value: function combineEllipseAndWipeMembranes(ellipsePoints, wipePoints) {
+      return ellipsePoints.concat(wipePoints);
+    }
+  }]);
+
+  return GrowingForm;
+}(Form);
+
+var ShrinkingForm = exports.ShrinkingForm = function (_Form2) {
+  _inherits(ShrinkingForm, _Form2);
+
+  function ShrinkingForm(scene, initialSide) {
+    _classCallCheck(this, ShrinkingForm);
+
+    return _possibleConstructorReturn(this, (ShrinkingForm.__proto__ || Object.getPrototypeOf(ShrinkingForm)).call(this, scene, initialSide));
+  }
+
+  _createClass(ShrinkingForm, [{
+    key: "updateCurrentAngle",
+    value: function updateCurrentAngle() {
+      this.ellipseCurveP.aStartAngle -= ROTATION_DELTA;
+      this.ellipseCurveQ.aStartAngle -= ROTATION_DELTA;
+      return this.ellipseCurveQ.aStartAngle;
+    }
+  }, {
+    key: "getInitialAngle",
+    value: function getInitialAngle() {
+      return START_ANGLE;
+    }
+  }, {
+    key: "combineEllipseAndWipeLines",
+    value: function combineEllipseAndWipeLines(ellipsePoints, wipePoints) {
+      return ellipsePoints.slice().reverse().concat(wipePoints);
+    }
+  }, {
+    key: "combineEllipseAndWipeMembranes",
+    value: function combineEllipseAndWipeMembranes(ellipsePoints, wipePoints) {
+      return ellipsePoints.slice().reverse().concat(wipePoints).reverse();
+    }
+  }]);
+
+  return ShrinkingForm;
+}(Form);
+
+/***/ }),
+/* 6 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var inherits = __webpack_require__(7);
+var getNormals = __webpack_require__(8);
 var VERTS_PER_POINT = 2;
 
 module.exports = function createLineMesh (THREE) {
@@ -48750,7 +48688,7 @@ module.exports = function createLineMesh (THREE) {
 
 
 /***/ }),
-/* 5 */
+/* 7 */
 /***/ (function(module, exports) {
 
 if (typeof Object.create === 'function') {
@@ -48779,10 +48717,10 @@ if (typeof Object.create === 'function') {
 
 
 /***/ }),
-/* 6 */
+/* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var util = __webpack_require__(7)
+var util = __webpack_require__(9)
 
 var lineA = [0, 0]
 var lineB = [0, 0]
@@ -48851,14 +48789,14 @@ function addNext(out, normal, length) {
 }
 
 /***/ }),
-/* 7 */
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var add = __webpack_require__(8)
-var set = __webpack_require__(9)
-var normalize = __webpack_require__(10)
-var subtract = __webpack_require__(11)
-var dot = __webpack_require__(12)
+var add = __webpack_require__(10)
+var set = __webpack_require__(11)
+var normalize = __webpack_require__(12)
+var subtract = __webpack_require__(13)
+var dot = __webpack_require__(14)
 
 var tmp = [0, 0]
 
@@ -48889,7 +48827,7 @@ module.exports.direction = function direction(out, a, b) {
 }
 
 /***/ }),
-/* 8 */
+/* 10 */
 /***/ (function(module, exports) {
 
 module.exports = add
@@ -48909,7 +48847,7 @@ function add(out, a, b) {
 }
 
 /***/ }),
-/* 9 */
+/* 11 */
 /***/ (function(module, exports) {
 
 module.exports = set
@@ -48929,7 +48867,7 @@ function set(out, x, y) {
 }
 
 /***/ }),
-/* 10 */
+/* 12 */
 /***/ (function(module, exports) {
 
 module.exports = normalize
@@ -48955,7 +48893,7 @@ function normalize(out, a) {
 }
 
 /***/ }),
-/* 11 */
+/* 13 */
 /***/ (function(module, exports) {
 
 module.exports = subtract
@@ -48975,7 +48913,7 @@ function subtract(out, a, b) {
 }
 
 /***/ }),
-/* 12 */
+/* 14 */
 /***/ (function(module, exports) {
 
 module.exports = dot
@@ -48992,10 +48930,10 @@ function dot(a, b) {
 }
 
 /***/ }),
-/* 13 */
+/* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var assign = __webpack_require__(14);
+var assign = __webpack_require__(16);
 
 module.exports = function (THREE) {
   return function (opt) {
@@ -49048,7 +48986,7 @@ module.exports = function (THREE) {
 
 
 /***/ }),
-/* 14 */
+/* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -49145,7 +49083,7 @@ module.exports = shouldUseNative() ? Object.assign : function (target, source) {
 
 
 /***/ }),
-/* 15 */
+/* 17 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -49266,6 +49204,78 @@ function MembraneBufferGeometry() {
 
 MembraneBufferGeometry.prototype = Object.create(_three.BufferGeometry.prototype);
 MembraneBufferGeometry.prototype.constructor = MembraneBufferGeometry;
+
+/***/ }),
+/* 18 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.toggleSpotLightHelpers = exports.addSpotLights = undefined;
+
+var _three = __webpack_require__(0);
+
+var THREE = _interopRequireWildcard(_three);
+
+var _constants = __webpack_require__(1);
+
+var C = _interopRequireWildcard(_constants);
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+var COLOUR = 0xffffff;
+var HIGH_INTENSITY = 100;
+var LOW_INTENSITY = 50;
+var DISTANCE = C.MEMBRANE_LENGTH * 2;
+var ANGLE = 14 * Math.PI / 180;
+
+var highIntensitySpotLights = [];
+var helpers = [];
+
+var addSpotLights = exports.addSpotLights = function addSpotLights(scene, positionY, targetY, intensityType) {
+
+  var addTo = function addTo(side) {
+
+    var x = side === C.LEFT ? C.LEFT_CENTRE_X : C.RIGHT_CENTRE_X;
+    var intensity = intensityType === C.HIGH_INTENSITY_SPOTLIGHT ? HIGH_INTENSITY : LOW_INTENSITY;
+
+    var spotLightTarget = new THREE.Object3D();
+    spotLightTarget.position.set(x, targetY, 0);
+    scene.add(spotLightTarget);
+
+    var spotLight = new THREE.SpotLight(COLOUR, intensity, DISTANCE, ANGLE);
+    spotLight.position.set(x, positionY, C.MEMBRANE_LENGTH);
+    spotLight.target = spotLightTarget;
+    scene.add(spotLight);
+
+    if (intensityType === C.HIGH_INTENSITY_SPOTLIGHT) {
+      highIntensitySpotLights.push(spotLight);
+    }
+  };
+
+  addTo(C.LEFT);
+  addTo(C.RIGHT);
+};
+
+var toggleSpotLightHelpers = exports.toggleSpotLightHelpers = function toggleSpotLightHelpers(scene) {
+  if (helpers.length) {
+    helpers.forEach(function (helper) {
+      return scene.remove(helper);
+    });
+    helpers.splice(0, helpers.length);
+  } else {
+    highIntensitySpotLights.forEach(function (spotLight) {
+      return helpers.push(new THREE.SpotLightHelper(spotLight));
+    });
+    helpers.forEach(function (helper) {
+      return scene.add(helper);
+    });
+  }
+};
 
 /***/ })
 /******/ ]);
