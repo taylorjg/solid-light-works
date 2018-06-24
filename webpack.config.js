@@ -9,7 +9,7 @@ const dist = path.join(__dirname, 'dist');
 
 module.exports = {
     entry: [
-        './index.js'
+        './src/index.js'
     ],
     output: {
         path: dist,
