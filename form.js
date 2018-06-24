@@ -36,11 +36,19 @@ const reverseNormals = bufferGeometry => {
   }
 };
 
-export class Form {
+const toArrPoints = pointsVec2 =>
+  pointsVec2.map(vec2 => vec2.toArray());
 
-  constructor(scene, disposition, initialSide) {
+const toVec3Points = (pointsVec2, z) =>
+  pointsVec2.map(vec2 => new THREE.Vector3(vec2.x, vec2.y, z));
+
+export const swapSidesTest = tick =>
+  tick === SWAP_AT_TICK;
+
+class Form {
+
+  constructor(scene, initialSide) {
     this.scene = scene;
-    this.disposition = disposition;
     this.initialSide = initialSide;
     this.init();
   }
@@ -114,16 +122,20 @@ export class Form {
     this.scene.add(this.membraneMeshOuter);
   }
 
-  toArrPoints(pointsVec2) {
-    return pointsVec2.map(vec2 => vec2.toArray());
+  updateCurrentAngle() {
+    throw new Error("You have to implement the method updateCurrentAngle!");
   }
 
-  toVec3Points(pointsVec2, z) {
-    return pointsVec2.map(vec2 => new THREE.Vector3(vec2.x, vec2.y, z));
+  getInitialAngle() {
+    throw new Error("You have to implement the method getInitialAngle!");
   }
 
-  reverseIfShrinking(xs) {
-    return this.disposition === C.SHRINKING ? xs.slice().reverse() : xs;
+  combineEllipseAndWipeLines(/* ellipsePoints, wipePoints */) {
+    throw new Error("You have to implement the method combineEllipseAndWipeLines!");
+  }
+
+  combineEllipseAndWipeMembranes(/* ellipsePoints, wipePoints */) {
+    throw new Error("You have to implement the method combineEllipseAndWipeMembranes!");
   }
 
   getWipePoints(e, w, currentAngle, deltaAngle1, deltaAngle2, alpha) {
@@ -149,22 +161,9 @@ export class Form {
     return w.getPoints(WIPE_POINT_COUNT);
   }
 
-  updateCurrentAngle() {
-
-    if (this.disposition === C.GROWING) {
-      this.ellipseCurveP.aEndAngle -= ROTATION_DELTA;
-      this.ellipseCurveQ.aEndAngle -= ROTATION_DELTA;
-      return this.ellipseCurveQ.aEndAngle;
-    }
-
-    this.ellipseCurveP.aStartAngle -= ROTATION_DELTA;
-    this.ellipseCurveQ.aStartAngle -= ROTATION_DELTA;
-    return this.ellipseCurveQ.aStartAngle;
-  }
-
   update() {
 
-    const initialAngle = this.disposition === C.GROWING ? END_ANGLE : START_ANGLE;
+    const initialAngle = this.getInitialAngle();
     const currentAngle = this.updateCurrentAngle();
     const angleOffset = Math.abs(currentAngle - initialAngle);
     const angleOffset2 = angleOffset < Math.PI ? angleOffset : 2 * Math.PI - angleOffset;
@@ -192,17 +191,17 @@ export class Form {
       deltaAngle2,
       alpha);
 
-    const ellipsePointsQArr = this.toArrPoints(ellipsePointsQVec2);
-    const wipePointsQArr = this.toArrPoints(wipePointsQVec2);
-    const combinedLinePointsQArr = this.reverseIfShrinking(ellipsePointsQArr).concat(wipePointsQArr.slice(1));
+    const ellipsePointsQArr = toArrPoints(ellipsePointsQVec2);
+    const wipePointsQArr = toArrPoints(wipePointsQVec2);
+    const combinedLinePointsQArr = this.combineEllipseAndWipeLines(ellipsePointsQArr, wipePointsQArr.slice(1));
     this.lineGeometryQ.update(combinedLinePointsQArr);
 
-    const psEllipse = this.toVec3Points(ellipsePointsPVec2, C.MEMBRANE_LENGTH);
-    const qsEllipse = this.toVec3Points(ellipsePointsQVec2, 0);
-    const psWipe = this.toVec3Points(wipePointsPVec2, C.MEMBRANE_LENGTH);
-    const qsWipe = this.toVec3Points(wipePointsQVec2, 0);
-    const ps = this.reverseIfShrinking(this.reverseIfShrinking(psEllipse).concat(psWipe.slice(1)));
-    const qs = this.reverseIfShrinking(this.reverseIfShrinking(qsEllipse).concat(qsWipe.slice(1)));
+    const psEllipse = toVec3Points(ellipsePointsPVec2, C.MEMBRANE_LENGTH);
+    const qsEllipse = toVec3Points(ellipsePointsQVec2, 0);
+    const psWipe = toVec3Points(wipePointsPVec2, C.MEMBRANE_LENGTH);
+    const qsWipe = toVec3Points(wipePointsQVec2, 0);
+    const ps = this.combineEllipseAndWipeMembranes(psEllipse, psWipe.slice(1));
+    const qs = this.combineEllipseAndWipeMembranes(qsEllipse, qsWipe.slice(1));
 
     const tempMembraneGeometry = new MembraneBufferGeometry(ps, qs, MEMBRANE_SEGMENT_COUNT);
     tempMembraneGeometry.computeVertexNormals(); // NOT NEEDED ?
@@ -242,5 +241,52 @@ export class Form {
   }
 }
 
-export const swapSidesTest = tick =>
-  tick === SWAP_AT_TICK;
+export class GrowingForm extends Form {
+
+  constructor(scene, initialSide) {
+    super(scene, initialSide);
+  }
+
+  updateCurrentAngle() {
+    this.ellipseCurveP.aEndAngle -= ROTATION_DELTA;
+    this.ellipseCurveQ.aEndAngle -= ROTATION_DELTA;
+    return this.ellipseCurveQ.aEndAngle;
+  }
+
+  getInitialAngle() {
+    return END_ANGLE;
+  }
+
+  combineEllipseAndWipeLines(ellipsePoints, wipePoints) {
+    return ellipsePoints.concat(wipePoints);
+  }
+
+  combineEllipseAndWipeMembranes(ellipsePoints, wipePoints) {
+    return ellipsePoints.concat(wipePoints);
+  }
+}
+
+export class ShrinkingForm extends Form {
+
+  constructor(scene, initialSide) {
+    super(scene, initialSide);
+  }
+
+  updateCurrentAngle() {
+    this.ellipseCurveP.aStartAngle -= ROTATION_DELTA;
+    this.ellipseCurveQ.aStartAngle -= ROTATION_DELTA;
+    return this.ellipseCurveQ.aStartAngle;
+  }
+
+  getInitialAngle() {
+    return START_ANGLE;
+  }
+
+  combineEllipseAndWipeLines(ellipsePoints, wipePoints) {
+    return ellipsePoints.slice().reverse().concat(wipePoints);
+  }
+
+  combineEllipseAndWipeMembranes(ellipsePoints, wipePoints) {
+    return ellipsePoints.slice().reverse().concat(wipePoints).reverse();
+  }
+}

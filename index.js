@@ -1,8 +1,8 @@
 import * as THREE from "three";
 import OrbitControls from "three-orbitcontrols";
-import { Form, swapSidesTest } from "./form";
-import * as C from "./constants";
+import { GrowingForm, ShrinkingForm, swapSidesTest } from "./form";
 import { addSpotLights, toggleSpotLightHelpers } from "./spotlights";
+import * as C from "./constants";
 
 const container = document.getElementById("container");
 const w = container.offsetWidth;
@@ -64,8 +64,8 @@ addSpotLights(scene, C.CENTRE_P_Y, C.CENTRE_Q_Y, C.HIGH_INTENSITY_SPOTLIGHT);
 addSpotLights(scene, 0, C.CENTRE_Q_Y, C.LOW_INTENSITY_SPOTLIGHT);
 addSpotLights(scene, C.CENTRE_P_Y * 2, C.CENTRE_Q_Y, C.LOW_INTENSITY_SPOTLIGHT);
 
-let growingForm = new Form(scene, C.GROWING, C.LEFT);
-let shrinkingForm = new Form(scene, C.SHRINKING, C.RIGHT);
+let growingForm = new GrowingForm(scene, C.LEFT);
+let shrinkingForm = new ShrinkingForm(scene, C.RIGHT);
 
 const textureLoader = new THREE.TextureLoader();
 textureLoader.load("haze.jpg", texture => {
