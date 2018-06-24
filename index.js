@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import OrbitControls from "three-orbitcontrols";
-import { Form, LEFT, RIGHT, GROWING, SHRINKING } from "./form";
-import { LEFT_CENTRE_X, RIGHT_CENTRE_X, CENTRE_P_Y, CENTRE_Q_Y, ELLIPSE_ROTATION_DELTA, MEMBRANE_LENGTH } from "./form";
+import { Form, LEFT, RIGHT, GROWING, SHRINKING, swapSidesTest } from "./form";
+import * as C from "./constants";
 
 const container = document.getElementById("container");
 const w = container.offsetWidth;
@@ -68,85 +68,85 @@ let spotLightRHelper = undefined;
 const SPOTLIGHT_COLOUR = 0xffffff;
 const SPOTLIGHT_HIGH_INTENSITY = 100;
 const SPOTLIGHT_LOW_INTENSITY = 50;
-const SPOTLIGHT_DISTANCE = MEMBRANE_LENGTH * 2;
+const SPOTLIGHT_DISTANCE = C.MEMBRANE_LENGTH * 2;
 const SPOTLIGHT_ANGLE = 14 * Math.PI / 180;
 
 const spotLightTargetL = new THREE.Object3D();
-spotLightTargetL.position.set(LEFT_CENTRE_X, CENTRE_Q_Y, 0);
+spotLightTargetL.position.set(C.LEFT_CENTRE_X, C.CENTRE_Q_Y, 0);
 scene.add(spotLightTargetL);
 const spotLightL = new THREE.SpotLight(
   SPOTLIGHT_COLOUR,
   SPOTLIGHT_HIGH_INTENSITY,
   SPOTLIGHT_DISTANCE,
   SPOTLIGHT_ANGLE);
-spotLightL.position.set(LEFT_CENTRE_X, CENTRE_P_Y, MEMBRANE_LENGTH);
+spotLightL.position.set(C.LEFT_CENTRE_X, C.CENTRE_P_Y, C.MEMBRANE_LENGTH);
 spotLightL.target = spotLightTargetL;
 scene.add(spotLightL);
 
 {
   const spotLightTarget = new THREE.Object3D();
-  spotLightTarget.position.set(LEFT_CENTRE_X, CENTRE_Q_Y, 0);
+  spotLightTarget.position.set(C.LEFT_CENTRE_X, C.CENTRE_Q_Y, 0);
   scene.add(spotLightTarget);
   const spotLight = new THREE.SpotLight(
     SPOTLIGHT_COLOUR,
     SPOTLIGHT_LOW_INTENSITY,
     SPOTLIGHT_DISTANCE,
     SPOTLIGHT_ANGLE);
-  spotLight.position.set(LEFT_CENTRE_X, 0, MEMBRANE_LENGTH);
+  spotLight.position.set(C.LEFT_CENTRE_X, 0, C.MEMBRANE_LENGTH);
   spotLight.target = spotLightTarget;
   scene.add(spotLight);
 }
 
 {
   const spotLightTarget = new THREE.Object3D();
-  spotLightTarget.position.set(LEFT_CENTRE_X, CENTRE_Q_Y, 0);
+  spotLightTarget.position.set(C.LEFT_CENTRE_X, C.CENTRE_Q_Y, 0);
   scene.add(spotLightTarget);
   const spotLight = new THREE.SpotLight(
     SPOTLIGHT_COLOUR,
     SPOTLIGHT_LOW_INTENSITY,
     SPOTLIGHT_DISTANCE,
     SPOTLIGHT_ANGLE);
-  spotLight.position.set(LEFT_CENTRE_X, CENTRE_P_Y * 2, MEMBRANE_LENGTH);
+  spotLight.position.set(C.LEFT_CENTRE_X, C.CENTRE_P_Y * 2, C.MEMBRANE_LENGTH);
   spotLight.target = spotLightTarget;
   scene.add(spotLight);
 }
 
 const spotLightTargetR = new THREE.Object3D();
-spotLightTargetR.position.set(RIGHT_CENTRE_X, CENTRE_Q_Y, 0);
+spotLightTargetR.position.set(C.RIGHT_CENTRE_X, C.CENTRE_Q_Y, 0);
 scene.add(spotLightTargetR);
 const spotLightR = new THREE.SpotLight(
   SPOTLIGHT_COLOUR,
   SPOTLIGHT_HIGH_INTENSITY,
   SPOTLIGHT_DISTANCE,
   SPOTLIGHT_ANGLE);
-spotLightR.position.set(RIGHT_CENTRE_X, CENTRE_P_Y, MEMBRANE_LENGTH);
+spotLightR.position.set(C.RIGHT_CENTRE_X, C.CENTRE_P_Y, C.MEMBRANE_LENGTH);
 spotLightR.target = spotLightTargetR;
 scene.add(spotLightR);
 
 {
   const spotLightTarget = new THREE.Object3D();
-  spotLightTarget.position.set(RIGHT_CENTRE_X, CENTRE_P_Y, 0);
+  spotLightTarget.position.set(C.RIGHT_CENTRE_X, C.CENTRE_P_Y, 0);
   scene.add(spotLightTarget);
   const spotLight = new THREE.SpotLight(
     SPOTLIGHT_COLOUR,
     SPOTLIGHT_LOW_INTENSITY,
     SPOTLIGHT_DISTANCE,
     SPOTLIGHT_ANGLE);
-  spotLight.position.set(RIGHT_CENTRE_X, 0, MEMBRANE_LENGTH);
+  spotLight.position.set(C.RIGHT_CENTRE_X, 0, C.MEMBRANE_LENGTH);
   spotLight.target = spotLightTarget;
   scene.add(spotLight);
 }
 
 {
   const spotLightTarget = new THREE.Object3D();
-  spotLightTarget.position.set(RIGHT_CENTRE_X, CENTRE_P_Y, 0);
+  spotLightTarget.position.set(C.RIGHT_CENTRE_X, C.CENTRE_P_Y, 0);
   scene.add(spotLightTarget);
   const spotLight = new THREE.SpotLight(
     SPOTLIGHT_COLOUR,
     SPOTLIGHT_LOW_INTENSITY,
     SPOTLIGHT_DISTANCE,
     SPOTLIGHT_ANGLE);
-  spotLight.position.set(RIGHT_CENTRE_X, CENTRE_P_Y * 2, MEMBRANE_LENGTH);
+  spotLight.position.set(C.RIGHT_CENTRE_X, C.CENTRE_P_Y * 2, C.MEMBRANE_LENGTH);
   spotLight.target = spotLightTarget;
   scene.add(spotLight);
 }
@@ -224,18 +224,16 @@ const onDocumentKeyDownHandler = ev => {
 
 document.addEventListener("keydown", onDocumentKeyDownHandler);
 
-let renderLoopCount = 0;
-let swapAtCount = Math.floor(2 * Math.PI / ELLIPSE_ROTATION_DELTA);
+let tick = 0;
 
 const animate = () => {
   window.requestAnimationFrame(animate);
-  growingForm.update();
-  shrinkingForm.update();
+  growingForm.update(tick);
+  shrinkingForm.update(tick);
   controls.update();
   renderer.render(scene, camera);
-  renderLoopCount++;
-  if (renderLoopCount === swapAtCount) {
-    renderLoopCount = 0;
+  if (swapSidesTest(++tick)) {
+    tick = 0;
     growingForm.swapSides();
     shrinkingForm.swapSides();
   }
