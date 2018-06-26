@@ -36,7 +36,7 @@ const reverseNormals = bufferGeometry => {
   }
 };
 
-const toArrPoints = pointsVec2 =>
+const toArr2Points = pointsVec2 =>
   pointsVec2.map(vec2 => vec2.toArray());
 
 const toVec3Points = (pointsVec2, z) =>
@@ -161,7 +161,7 @@ class Form {
     return w.getPoints(WIPE_POINT_COUNT);
   }
 
-  update() {
+  updatePoints(/* tick */) {
 
     const initialAngle = this.getInitialAngle();
     const currentAngle = this.updateCurrentAngle();
@@ -172,10 +172,10 @@ class Form {
     const deltaAngle1 = currentAngle + DELTA_ANGLE * alpha;
     const deltaAngle2 = currentAngle - DELTA_ANGLE * alpha;
 
-    const ellipsePointsPVec2 = this.ellipseCurveP.getPoints(ELLIPSE_POINT_COUNT);
-    const ellipsePointsQVec2 = this.ellipseCurveQ.getPoints(ELLIPSE_POINT_COUNT);
+    const psEllipseVec2 = this.ellipseCurveP.getPoints(ELLIPSE_POINT_COUNT);
+    const qsEllipseVec2 = this.ellipseCurveQ.getPoints(ELLIPSE_POINT_COUNT);
 
-    let wipePointsPVec2 = this.getWipePoints(
+    let psWipeVec2 = this.getWipePoints(
       this.ellipseCurveP,
       this.wipeCurveP,
       currentAngle,
@@ -183,7 +183,7 @@ class Form {
       deltaAngle2,
       alpha);
 
-    let wipePointsQVec2 = this.getWipePoints(
+    let qsWipeVec2 = this.getWipePoints(
       this.ellipseCurveQ,
       this.wipeCurveQ,
       currentAngle,
@@ -191,19 +191,31 @@ class Form {
       deltaAngle2,
       alpha);
 
-    const ellipsePointsQArr = toArrPoints(ellipsePointsQVec2);
-    const wipePointsQArr = toArrPoints(wipePointsQVec2);
-    const combinedLinePointsQArr = this.combineEllipseAndWipeLines(ellipsePointsQArr, wipePointsQArr.slice(1));
-    this.lineGeometryQ.update(combinedLinePointsQArr);
+    return {
+      psEllipseVec2,
+      qsEllipseVec2,
+      psWipeVec2,
+      qsWipeVec2
+    };
+  }
 
-    const psEllipse = toVec3Points(ellipsePointsPVec2, C.MEMBRANE_LENGTH);
-    const qsEllipse = toVec3Points(ellipsePointsQVec2, 0);
-    const psWipe = toVec3Points(wipePointsPVec2, C.MEMBRANE_LENGTH);
-    const qsWipe = toVec3Points(wipePointsQVec2, 0);
-    const ps = this.combineEllipseAndWipeMembranes(psEllipse, psWipe.slice(1));
-    const qs = this.combineEllipseAndWipeMembranes(qsEllipse, qsWipe.slice(1));
+  updateProjectedImage({ qsEllipseVec2, qsWipeVec2 }) {
+    const qsEllipseArr2 = toArr2Points(qsEllipseVec2);
+    const qsWipeArr2 = toArr2Points(qsWipeVec2);
+    const qsCombinedLineArr2 = this.combineEllipseAndWipeLines(qsEllipseArr2, qsWipeArr2.slice(1));
+    this.lineGeometryQ.update(qsCombinedLineArr2);
+  }
 
-    const tempMembraneGeometry = new MembraneBufferGeometry(ps, qs, MEMBRANE_SEGMENT_COUNT);
+  updateMembrane({ psEllipseVec2, qsEllipseVec2, psWipeVec2, qsWipeVec2 }) {
+
+    const psEllipseVec3 = toVec3Points(psEllipseVec2, C.MEMBRANE_LENGTH);
+    const qsEllipseVec3 = toVec3Points(qsEllipseVec2, 0);
+    const psWipeVec3 = toVec3Points(psWipeVec2, C.MEMBRANE_LENGTH);
+    const qsWipeVec3 = toVec3Points(qsWipeVec2, 0);
+    const psCombinedVec3 = this.combineEllipseAndWipeMembranes(psEllipseVec3, psWipeVec3.slice(1));
+    const qsCombinedVec3 = this.combineEllipseAndWipeMembranes(qsEllipseVec3, qsWipeVec3.slice(1));
+
+    const tempMembraneGeometry = new MembraneBufferGeometry(psCombinedVec3, qsCombinedVec3, MEMBRANE_SEGMENT_COUNT);
     tempMembraneGeometry.computeVertexNormals(); // NOT NEEDED ?
     this.membraneGeometryInner.copy(tempMembraneGeometry);
     reverseNormals(tempMembraneGeometry); // NOT NEEDED ?
@@ -214,6 +226,12 @@ class Form {
       this.membraneMeshInnerHelper.update();
       this.membraneMeshOuterHelper.update();
     }
+  }
+
+  update(tick) {
+    const updatedPoints = this.updatePoints(tick);
+    this.updateProjectedImage(updatedPoints);
+    this.updateMembrane(updatedPoints);
   }
 
   swapSides() {
