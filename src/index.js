@@ -120,7 +120,7 @@ const onDocumentKeyDownHandler = ev => {
 
 document.addEventListener("keydown", onDocumentKeyDownHandler);
 
-let tick = 0;
+let tick = 1;
 
 const animate = () => {
   window.requestAnimationFrame(animate);
@@ -129,7 +129,7 @@ const animate = () => {
   controls.update();
   renderer.render(scene, camera);
   if (swapSidesTest(++tick)) {
-    tick = 0;
+    tick = 1;
     growingForm.swapSides();
     shrinkingForm.swapSides();
   }

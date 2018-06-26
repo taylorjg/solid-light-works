@@ -16,7 +16,7 @@ const CLOCKWISE = true;
 const ELLIPSE_POINT_COUNT = 100;
 const WIPE_POINT_COUNT = 50;
 const MEMBRANE_SEGMENT_COUNT = 1;
-const ROTATION_DELTA = Math.PI / (180 * 60);
+const ROTATION_DELTA = Math.PI / (180 * 1);
 const SWAP_AT_TICK = Math.floor(2 * Math.PI / ROTATION_DELTA);
 const DELTA_ANGLE = 15 * Math.PI / 180;
 const ANGLE_OFFSET_THRESHOLD = 45 * Math.PI / 180;
@@ -122,12 +122,12 @@ class Form {
     this.scene.add(this.membraneMeshOuter);
   }
 
-  updateCurrentAngle() {
-    throw new Error("You have to implement the method updateCurrentAngle!");
-  }
-
   getInitialAngle() {
     throw new Error("You have to implement the method getInitialAngle!");
+  }
+
+  updateCurrentAngle(/* tick */) {
+    throw new Error("You have to implement the method updateCurrentAngle!");
   }
 
   combineEllipseAndWipeLines(/* ellipsePoints, wipePoints */) {
@@ -161,10 +161,10 @@ class Form {
     return w.getPoints(WIPE_POINT_COUNT);
   }
 
-  updatePoints(/* tick */) {
+  updatePoints(tick) {
 
     const initialAngle = this.getInitialAngle();
-    const currentAngle = this.updateCurrentAngle();
+    const currentAngle = this.updateCurrentAngle(tick);
     const angleOffset = Math.abs(currentAngle - initialAngle);
     const angleOffset2 = angleOffset < Math.PI ? angleOffset : 2 * Math.PI - angleOffset;
     const normalisingFactor = 1 / ANGLE_OFFSET_THRESHOLD;
@@ -265,14 +265,15 @@ export class GrowingForm extends Form {
     super(scene, initialSide);
   }
 
-  updateCurrentAngle() {
-    this.ellipseCurveP.aEndAngle -= ROTATION_DELTA;
-    this.ellipseCurveQ.aEndAngle -= ROTATION_DELTA;
-    return this.ellipseCurveQ.aEndAngle;
-  }
-
   getInitialAngle() {
     return END_ANGLE;
+  }
+
+  updateCurrentAngle(tick) {
+    const currentAngle = END_ANGLE - (ROTATION_DELTA * tick);
+    this.ellipseCurveP.aEndAngle = currentAngle;
+    this.ellipseCurveQ.aEndAngle = currentAngle;
+    return currentAngle;
   }
 
   combineEllipseAndWipeLines(ellipsePoints, wipePoints) {
@@ -290,14 +291,15 @@ export class ShrinkingForm extends Form {
     super(scene, initialSide);
   }
 
-  updateCurrentAngle() {
-    this.ellipseCurveP.aStartAngle -= ROTATION_DELTA;
-    this.ellipseCurveQ.aStartAngle -= ROTATION_DELTA;
-    return this.ellipseCurveQ.aStartAngle;
-  }
-
   getInitialAngle() {
     return START_ANGLE;
+  }
+
+  updateCurrentAngle(tick) {
+    const currentAngle = START_ANGLE - (ROTATION_DELTA * tick);
+    this.ellipseCurveP.aStartAngle = currentAngle;
+    this.ellipseCurveQ.aStartAngle = currentAngle;
+    return currentAngle;
   }
 
   combineEllipseAndWipeLines(ellipsePoints, wipePoints) {
