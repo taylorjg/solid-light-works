@@ -6,13 +6,10 @@ const BasicShader = BasicShaderInitFn(THREE);
 import { MembraneBufferGeometry } from "./MembraneGeometry";
 import * as C from "./constants";
 
-const START_ANGLE = 1.5 * Math.PI;
-const END_ANGLE = 3.5 * Math.PI;
 const PROJECTED_IMAGE_RADIUS_X = 2.8;
 const PROJECTED_IMAGE_RADIUS_Y = 2;
 const PROJECTED_IMAGE_LINE_THICKNESS = 0.08;
 const PROJECTOR_BULB_RADIUS = 0.08;
-const CLOCKWISE = true;
 const ELLIPSE_POINT_COUNT = 100;
 const WIPE_POINT_COUNT = 50;
 const MEMBRANE_SEGMENT_COUNT = 1;
@@ -59,18 +56,18 @@ class Form {
       C.CENTRE_P_Y,
       PROJECTOR_BULB_RADIUS,
       PROJECTOR_BULB_RADIUS,
-      START_ANGLE,
-      END_ANGLE,
-      CLOCKWISE);
+      this.getStartAngle(),
+      this.getEndAngle(),
+      this.getIsClockwise());
 
     this.ellipseCurveQ = new THREE.EllipseCurve(
       this.initialSide === C.LEFT ? C.LEFT_CENTRE_X : C.RIGHT_CENTRE_X,
       C.CENTRE_Q_Y,
       PROJECTED_IMAGE_RADIUS_X,
       PROJECTED_IMAGE_RADIUS_Y,
-      START_ANGLE,
-      END_ANGLE,
-      CLOCKWISE);
+      this.getStartAngle(),
+      this.getEndAngle(),
+      this.getIsClockwise());
 
     this.wipeCurveP = new THREE.CubicBezierCurve();
     this.wipeCurveQ = new THREE.CubicBezierCurve();
@@ -122,16 +119,24 @@ class Form {
     this.scene.add(this.membraneMeshOuter);
   }
 
-  getInitialAngle() {
-    throw new Error("You have to implement the method getInitialAngle!");
+  getStartAngle() {
+    throw new Error("You have to implement the method getStartAngle!");
   }
 
-  updateCurrentAngle(/* tick */) {
-    throw new Error("You have to implement the method updateCurrentAngle!");
+  getEndAngle() {
+    throw new Error("You have to implement the method getEndAngle!");
   }
 
-  combineEllipseAndWipe(/* ellipsePoints, wipePoints */) {
-    throw new Error("You have to implement the method combineEllipseAndWipe!");
+  getIsClockwise() {
+    throw new Error("You have to implement the method getIsClockwise!");
+  }
+
+  getCurrentAngle(tick) {
+    return this.getStartAngle() - (ROTATION_DELTA * tick);
+  }
+
+  combineEllipseAndWipe(ellipsePoints, wipePoints) {
+    return ellipsePoints.slice().reverse().concat(wipePoints.slice(1));
   }
 
   getWipePoints(e, w, currentAngle, deltaAngle1, deltaAngle2, alpha) {
@@ -159,9 +164,11 @@ class Form {
 
   updatePoints(tick) {
 
-    const initialAngle = this.getInitialAngle();
-    const currentAngle = this.updateCurrentAngle(tick);
-    const angleOffset = Math.abs(currentAngle - initialAngle);
+    const startAngle = this.getStartAngle();
+    const currentAngle = this.getCurrentAngle(tick);
+    this.ellipseCurveP.aStartAngle = currentAngle;
+    this.ellipseCurveQ.aStartAngle = currentAngle;
+    const angleOffset = Math.abs(currentAngle - startAngle);
     const angleOffset2 = angleOffset < Math.PI ? angleOffset : 2 * Math.PI - angleOffset;
     const normalisingFactor = 1 / ANGLE_OFFSET_THRESHOLD;
     const alpha = angleOffset2 > ANGLE_OFFSET_THRESHOLD ? 1.0 : (angleOffset2 * normalisingFactor);
@@ -187,26 +194,25 @@ class Form {
       deltaAngle2,
       alpha);
 
-    const psCombinedLineVec2 = this.combineEllipseAndWipe(psEllipseVec2, psWipeVec2.slice(1));
-    const qsCombinedLineVec2 = this.combineEllipseAndWipe(qsEllipseVec2, qsWipeVec2.slice(1));
+    const psCombinedVec2 = this.combineEllipseAndWipe(psEllipseVec2, psWipeVec2);
+    const qsCombinedVec2 = this.combineEllipseAndWipe(qsEllipseVec2, qsWipeVec2);
 
     return {
-      psCombinedLineVec2,
-      qsCombinedLineVec2
+      psVec2: psCombinedVec2,
+      qsVec2: qsCombinedVec2
     };
   }
 
-  updateProjectedImage({ qsCombinedLineVec2 }) {
-    const qsCombinedLineArr2 = toArr2Points(qsCombinedLineVec2);
-    this.lineGeometryQ.update(qsCombinedLineArr2);
+  updateProjectedImage({ qsVec2 }) {
+    this.lineGeometryQ.update(toArr2Points(qsVec2));
   }
 
-  updateMembrane({ psCombinedLineVec2, qsCombinedLineVec2 }) {
+  updateMembrane({ psVec2, qsVec2 }) {
 
-    const psCombinedVec3 = toVec3Points(psCombinedLineVec2, C.MEMBRANE_LENGTH);
-    const qsCombinedVec3 = toVec3Points(qsCombinedLineVec2, 0);
+    const psVec3 = toVec3Points(psVec2, C.MEMBRANE_LENGTH);
+    const qsVec3 = toVec3Points(qsVec2, 0);
 
-    const tempMembraneGeometry = new MembraneBufferGeometry(psCombinedVec3, qsCombinedVec3, MEMBRANE_SEGMENT_COUNT);
+    const tempMembraneGeometry = new MembraneBufferGeometry(psVec3, qsVec3, MEMBRANE_SEGMENT_COUNT);
     tempMembraneGeometry.computeVertexNormals(); // NOT NEEDED ?
     this.membraneGeometryInner.copy(tempMembraneGeometry);
     reverseNormals(tempMembraneGeometry); // NOT NEEDED ?
@@ -228,10 +234,8 @@ class Form {
   swapSides() {
     this.ellipseCurveP.aX = this.ellipseCurveP.aX === C.RIGHT_CENTRE_X ? C.LEFT_CENTRE_X : C.RIGHT_CENTRE_X;
     this.ellipseCurveQ.aX = this.ellipseCurveQ.aX === C.RIGHT_CENTRE_X ? C.LEFT_CENTRE_X : C.RIGHT_CENTRE_X;
-    this.ellipseCurveP.aStartAngle = START_ANGLE;
-    this.ellipseCurveQ.aStartAngle = START_ANGLE;
-    this.ellipseCurveP.aEndAngle = END_ANGLE;
-    this.ellipseCurveQ.aEndAngle = END_ANGLE;
+    this.ellipseCurveP.aStartAngle = this.getStartAngle();
+    this.ellipseCurveQ.aStartAngle = this.getStartAngle();
   }
 
   toggleHelpers() {
@@ -256,19 +260,16 @@ export class GrowingForm extends Form {
     super(scene, initialSide);
   }
 
-  getInitialAngle() {
-    return END_ANGLE;
+  getStartAngle() {
+    return 1.5 * Math.PI;
   }
 
-  updateCurrentAngle(tick) {
-    const currentAngle = END_ANGLE - (ROTATION_DELTA * tick);
-    this.ellipseCurveP.aEndAngle = currentAngle;
-    this.ellipseCurveQ.aEndAngle = currentAngle;
-    return currentAngle;
+  getEndAngle() {
+    return -0.5 * Math.PI;
   }
 
-  combineEllipseAndWipe(ellipsePoints, wipePoints) {
-    return ellipsePoints.concat(wipePoints);
+  getIsClockwise() {
+    return false;
   }
 }
 
@@ -278,18 +279,15 @@ export class ShrinkingForm extends Form {
     super(scene, initialSide);
   }
 
-  getInitialAngle() {
-    return START_ANGLE;
+  getStartAngle() {
+    return 1.5 * Math.PI;
   }
 
-  updateCurrentAngle(tick) {
-    const currentAngle = START_ANGLE - (ROTATION_DELTA * tick);
-    this.ellipseCurveP.aStartAngle = currentAngle;
-    this.ellipseCurveQ.aStartAngle = currentAngle;
-    return currentAngle;
+  getEndAngle() {
+    return 3.5 * Math.PI;
   }
 
-  combineEllipseAndWipe(ellipsePoints, wipePoints) {
-    return ellipsePoints.slice().reverse().concat(wipePoints);
+  getIsClockwise() {
+    return true;
   }
 }
