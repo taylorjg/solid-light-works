@@ -130,12 +130,8 @@ class Form {
     throw new Error("You have to implement the method updateCurrentAngle!");
   }
 
-  combineEllipseAndWipeLines(/* ellipsePoints, wipePoints */) {
-    throw new Error("You have to implement the method combineEllipseAndWipeLines!");
-  }
-
-  combineEllipseAndWipeMembranes(/* ellipsePoints, wipePoints */) {
-    throw new Error("You have to implement the method combineEllipseAndWipeMembranes!");
+  combineEllipseAndWipe(/* ellipsePoints, wipePoints */) {
+    throw new Error("You have to implement the method combineEllipseAndWipe!");
   }
 
   getWipePoints(e, w, currentAngle, deltaAngle1, deltaAngle2, alpha) {
@@ -191,29 +187,24 @@ class Form {
       deltaAngle2,
       alpha);
 
+    const psCombinedLineVec2 = this.combineEllipseAndWipe(psEllipseVec2, psWipeVec2.slice(1));
+    const qsCombinedLineVec2 = this.combineEllipseAndWipe(qsEllipseVec2, qsWipeVec2.slice(1));
+
     return {
-      psEllipseVec2,
-      qsEllipseVec2,
-      psWipeVec2,
-      qsWipeVec2
+      psCombinedLineVec2,
+      qsCombinedLineVec2
     };
   }
 
-  updateProjectedImage({ qsEllipseVec2, qsWipeVec2 }) {
-    const qsEllipseArr2 = toArr2Points(qsEllipseVec2);
-    const qsWipeArr2 = toArr2Points(qsWipeVec2);
-    const qsCombinedLineArr2 = this.combineEllipseAndWipeLines(qsEllipseArr2, qsWipeArr2.slice(1));
+  updateProjectedImage({ qsCombinedLineVec2 }) {
+    const qsCombinedLineArr2 = toArr2Points(qsCombinedLineVec2);
     this.lineGeometryQ.update(qsCombinedLineArr2);
   }
 
-  updateMembrane({ psEllipseVec2, qsEllipseVec2, psWipeVec2, qsWipeVec2 }) {
+  updateMembrane({ psCombinedLineVec2, qsCombinedLineVec2 }) {
 
-    const psEllipseVec3 = toVec3Points(psEllipseVec2, C.MEMBRANE_LENGTH);
-    const qsEllipseVec3 = toVec3Points(qsEllipseVec2, 0);
-    const psWipeVec3 = toVec3Points(psWipeVec2, C.MEMBRANE_LENGTH);
-    const qsWipeVec3 = toVec3Points(qsWipeVec2, 0);
-    const psCombinedVec3 = this.combineEllipseAndWipeMembranes(psEllipseVec3, psWipeVec3.slice(1));
-    const qsCombinedVec3 = this.combineEllipseAndWipeMembranes(qsEllipseVec3, qsWipeVec3.slice(1));
+    const psCombinedVec3 = toVec3Points(psCombinedLineVec2, C.MEMBRANE_LENGTH);
+    const qsCombinedVec3 = toVec3Points(qsCombinedLineVec2, 0);
 
     const tempMembraneGeometry = new MembraneBufferGeometry(psCombinedVec3, qsCombinedVec3, MEMBRANE_SEGMENT_COUNT);
     tempMembraneGeometry.computeVertexNormals(); // NOT NEEDED ?
@@ -276,11 +267,7 @@ export class GrowingForm extends Form {
     return currentAngle;
   }
 
-  combineEllipseAndWipeLines(ellipsePoints, wipePoints) {
-    return ellipsePoints.concat(wipePoints);
-  }
-
-  combineEllipseAndWipeMembranes(ellipsePoints, wipePoints) {
+  combineEllipseAndWipe(ellipsePoints, wipePoints) {
     return ellipsePoints.concat(wipePoints);
   }
 }
@@ -302,11 +289,7 @@ export class ShrinkingForm extends Form {
     return currentAngle;
   }
 
-  combineEllipseAndWipeLines(ellipsePoints, wipePoints) {
+  combineEllipseAndWipe(ellipsePoints, wipePoints) {
     return ellipsePoints.slice().reverse().concat(wipePoints);
-  }
-
-  combineEllipseAndWipeMembranes(ellipsePoints, wipePoints) {
-    return ellipsePoints.slice().reverse().concat(wipePoints).reverse();
   }
 }
