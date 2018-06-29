@@ -14,7 +14,6 @@ const ELLIPSE_POINT_COUNT = 100;
 const WIPE_POINT_COUNT = 50;
 const MEMBRANE_SEGMENT_COUNT = 1;
 const ROTATION_DELTA = Math.PI / (180 * 1);
-const SWAP_AT_TICK = Math.floor(2 * Math.PI / ROTATION_DELTA);
 const DELTA_ANGLE = 15 * Math.PI / 180;
 const ANGLE_OFFSET_THRESHOLD = 45 * Math.PI / 180;
 
@@ -38,9 +37,6 @@ const toArr2Points = pointsVec2 =>
 
 const toVec3Points = (pointsVec2, z) =>
   pointsVec2.map(vec2 => new THREE.Vector3(vec2.x, vec2.y, z));
-
-export const swapSidesTest = tick =>
-  tick === SWAP_AT_TICK;
 
 class Form {
 
@@ -234,6 +230,11 @@ class Form {
     const updatedPoints = this.updatePoints(tick);
     this.updateProjectedImage(updatedPoints);
     this.updateMembrane(updatedPoints);
+  }
+
+  swapSidesTest() {
+    const endAngleDelta = Math.abs(this.getEndAngle() - this.ellipseCurveQ.aStartAngle);
+    return endAngleDelta < ROTATION_DELTA;
   }
 
   swapSides() {

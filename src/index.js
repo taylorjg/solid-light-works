@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import OrbitControls from "three-orbitcontrols";
-import { GrowingForm, ShrinkingForm, swapSidesTest } from "./form";
+import { GrowingForm, ShrinkingForm } from "./form";
 import { addSpotLights, toggleSpotLightHelpers } from "./spotlights";
 import * as C from "./constants";
 
@@ -128,7 +128,8 @@ const animate = () => {
   shrinkingForm.update(tick);
   controls.update();
   renderer.render(scene, camera);
-  if (swapSidesTest(++tick)) {
+  tick++;
+  if (growingForm.swapSidesTest()) {
     tick = 1;
     growingForm.swapSides();
     shrinkingForm.swapSides();
