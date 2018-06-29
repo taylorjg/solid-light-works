@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import OrbitControls from "three-orbitcontrols";
-import { GrowingForm, ShrinkingForm } from "./form";
+import { GrowingForm, ShrinkingForm, setSpeed } from "./form";
 import { addSpotLights, toggleSpotLightHelpers } from "./spotlights";
 import * as C from "./constants";
 
@@ -116,6 +116,26 @@ const onDocumentKeyDownHandler = ev => {
     growingForm.toggleHelpers();
     shrinkingForm.toggleHelpers();
   }
+
+  if (ev.key === "1") {
+    setSpeedAndReset(1);
+  }
+  if (ev.key === "2") {
+    setSpeedAndReset(2);
+  }
+  if (ev.key === "3") {
+    setSpeedAndReset(5);
+  }
+  if (ev.key === "4") {
+    setSpeedAndReset(10);
+  }
+};
+
+const setSpeedAndReset = multiplier => {
+  setSpeed(multiplier);
+  growingForm.reset();
+  shrinkingForm.reset();
+  tick = 1;
 };
 
 document.addEventListener("keydown", onDocumentKeyDownHandler);

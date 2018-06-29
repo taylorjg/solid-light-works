@@ -13,9 +13,11 @@ const PROJECTOR_BULB_RADIUS = 0.08;
 const ELLIPSE_POINT_COUNT = 100;
 const WIPE_POINT_COUNT = 50;
 const MEMBRANE_SEGMENT_COUNT = 1;
-const ROTATION_DELTA = Math.PI / (180 * 1);
+const ROTATION_DELTA = Math.PI / (180 * 60);
 const DELTA_ANGLE = 15 * Math.PI / 180;
 const ANGLE_OFFSET_THRESHOLD = 45 * Math.PI / 180;
+
+let currentRotationDelta = ROTATION_DELTA;
 
 const lineMaterial = new THREE.ShaderMaterial(
   BasicShader({
@@ -37,6 +39,10 @@ const toArr2Points = pointsVec2 =>
 
 const toVec3Points = (pointsVec2, z) =>
   pointsVec2.map(vec2 => new THREE.Vector3(vec2.x, vec2.y, z));
+
+export const setSpeed = multiplier => {
+  currentRotationDelta = ROTATION_DELTA * multiplier;
+};
 
 class Form {
 
@@ -128,7 +134,7 @@ class Form {
   }
 
   getCurrentAngle(tick) {
-    return this.getStartAngle() - (ROTATION_DELTA * tick);
+    return this.getStartAngle() - (currentRotationDelta * tick);
   }
 
   getWipeControlPoints(e, currentAngle) {
@@ -234,12 +240,19 @@ class Form {
 
   swapSidesTest() {
     const endAngleDelta = Math.abs(this.getEndAngle() - this.ellipseCurveQ.aStartAngle);
-    return endAngleDelta < ROTATION_DELTA;
+    return endAngleDelta < currentRotationDelta;
   }
 
   swapSides() {
     this.ellipseCurveP.aX = this.ellipseCurveP.aX === C.RIGHT_CENTRE_X ? C.LEFT_CENTRE_X : C.RIGHT_CENTRE_X;
     this.ellipseCurveQ.aX = this.ellipseCurveQ.aX === C.RIGHT_CENTRE_X ? C.LEFT_CENTRE_X : C.RIGHT_CENTRE_X;
+    this.ellipseCurveP.aStartAngle = this.getStartAngle();
+    this.ellipseCurveQ.aStartAngle = this.getStartAngle();
+  }
+
+  reset() {
+    this.ellipseCurveP.aX = this.initialSide === C.LEFT ? C.LEFT_CENTRE_X : C.RIGHT_CENTRE_X;
+    this.ellipseCurveQ.aX = this.initialSide === C.LEFT ? C.LEFT_CENTRE_X : C.RIGHT_CENTRE_X;
     this.ellipseCurveP.aStartAngle = this.getStartAngle();
     this.ellipseCurveQ.aStartAngle = this.getStartAngle();
   }
