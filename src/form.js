@@ -18,7 +18,7 @@ const SWAP_AT_TICK = Math.floor(2 * Math.PI / ROTATION_DELTA);
 const DELTA_ANGLE = 15 * Math.PI / 180;
 const ANGLE_OFFSET_THRESHOLD = 45 * Math.PI / 180;
 
-const lineMaterialQ = new THREE.ShaderMaterial(
+const lineMaterial = new THREE.ShaderMaterial(
   BasicShader({
     side: THREE.DoubleSide,
     diffuse: 0xffffff,
@@ -72,8 +72,8 @@ class Form {
     this.wipeCurveP = new THREE.CubicBezierCurve();
     this.wipeCurveQ = new THREE.CubicBezierCurve();
 
-    this.lineGeometryQ = Line();
-    this.lineMeshQ = new THREE.Mesh(this.lineGeometryQ, lineMaterialQ);
+    this.lineGeometry = Line();
+    this.lineMeshQ = new THREE.Mesh(this.lineGeometry, lineMaterial);
     this.scene.add(this.lineMeshQ);
 
     this.membraneGeometryInner = new MembraneBufferGeometry();
@@ -135,17 +135,21 @@ class Form {
     return this.getStartAngle() - (ROTATION_DELTA * tick);
   }
 
-  combineEllipseAndWipe(ellipsePoints, wipePoints) {
-    return ellipsePoints.slice().reverse().concat(wipePoints.slice(1));
-  }
-
-  getWipePoints(e, w, currentAngle, deltaAngle1, deltaAngle2, alpha) {
+  getWipeControlPoints(e, currentAngle) {
 
     const calculateEllipsePoint = theta => new THREE.Vector2(
       e.aX + e.xRadius * Math.cos(theta),
       e.aY + e.yRadius * Math.sin(theta));
 
+    const startAngle = this.getStartAngle();
+    const angleOffset = Math.abs(currentAngle - startAngle);
+    const angleOffset2 = angleOffset < Math.PI ? angleOffset : 2 * Math.PI - angleOffset;
+    const normalisingFactor = 1 / ANGLE_OFFSET_THRESHOLD;
+    const alpha = angleOffset2 > ANGLE_OFFSET_THRESHOLD ? 1.0 : (angleOffset2 * normalisingFactor);
+    const deltaAngle1 = currentAngle + DELTA_ANGLE * alpha;
+    const deltaAngle2 = currentAngle - DELTA_ANGLE * alpha;
     const centrePoint = new THREE.Vector2(e.aX, e.aY);
+
     const deltaPoint1 = calculateEllipsePoint(deltaAngle1);
     const deltaPoint2 = calculateEllipsePoint(deltaAngle2);
 
@@ -153,6 +157,27 @@ class Form {
     const endingPoint = startingPoint.clone().lerp(centrePoint, alpha);
     const controlPoint1 = deltaPoint1.lerp(endingPoint, 0.25);
     const controlPoint2 = deltaPoint2.lerp(endingPoint, 0.75);
+
+    return {
+      startingPoint,
+      controlPoint1,
+      controlPoint2,
+      endingPoint
+    };
+  }
+
+  combineEllipseAndWipe(ellipsePoints, wipePoints) {
+    return ellipsePoints.slice().reverse().concat(wipePoints.slice(1));
+  }
+
+  getWipePoints(e, w, currentAngle, deltaAngle1, deltaAngle2, alpha) {
+
+    const {
+      startingPoint,
+      controlPoint1,
+      controlPoint2,
+      endingPoint
+    } = this.getWipeControlPoints(e, currentAngle, deltaAngle1, deltaAngle2, alpha);
 
     w.v0.copy(startingPoint);
     w.v1.copy(controlPoint1);
@@ -164,35 +189,15 @@ class Form {
 
   updatePoints(tick) {
 
-    const startAngle = this.getStartAngle();
     const currentAngle = this.getCurrentAngle(tick);
     this.ellipseCurveP.aStartAngle = currentAngle;
     this.ellipseCurveQ.aStartAngle = currentAngle;
-    const angleOffset = Math.abs(currentAngle - startAngle);
-    const angleOffset2 = angleOffset < Math.PI ? angleOffset : 2 * Math.PI - angleOffset;
-    const normalisingFactor = 1 / ANGLE_OFFSET_THRESHOLD;
-    const alpha = angleOffset2 > ANGLE_OFFSET_THRESHOLD ? 1.0 : (angleOffset2 * normalisingFactor);
-    const deltaAngle1 = currentAngle + DELTA_ANGLE * alpha;
-    const deltaAngle2 = currentAngle - DELTA_ANGLE * alpha;
 
     const psEllipseVec2 = this.ellipseCurveP.getPoints(ELLIPSE_POINT_COUNT);
     const qsEllipseVec2 = this.ellipseCurveQ.getPoints(ELLIPSE_POINT_COUNT);
 
-    let psWipeVec2 = this.getWipePoints(
-      this.ellipseCurveP,
-      this.wipeCurveP,
-      currentAngle,
-      deltaAngle1,
-      deltaAngle2,
-      alpha);
-
-    let qsWipeVec2 = this.getWipePoints(
-      this.ellipseCurveQ,
-      this.wipeCurveQ,
-      currentAngle,
-      deltaAngle1,
-      deltaAngle2,
-      alpha);
+    const psWipeVec2 = this.getWipePoints(this.ellipseCurveP, this.wipeCurveP, currentAngle);
+    const qsWipeVec2 = this.getWipePoints(this.ellipseCurveQ, this.wipeCurveQ, currentAngle);
 
     const psCombinedVec2 = this.combineEllipseAndWipe(psEllipseVec2, psWipeVec2);
     const qsCombinedVec2 = this.combineEllipseAndWipe(qsEllipseVec2, qsWipeVec2);
@@ -204,7 +209,7 @@ class Form {
   }
 
   updateProjectedImage({ qsVec2 }) {
-    this.lineGeometryQ.update(toArr2Points(qsVec2));
+    this.lineGeometry.update(toArr2Points(qsVec2));
   }
 
   updateMembrane({ psVec2, qsVec2 }) {
