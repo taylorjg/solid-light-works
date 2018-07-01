@@ -47134,11 +47134,31 @@ var onDocumentKeyDownHandler = function onDocumentKeyDownHandler(ev) {
     growingForm.toggleHelpers();
     shrinkingForm.toggleHelpers();
   }
+
+  if (ev.key === "1") {
+    setSpeedAndReset(1);
+  }
+  if (ev.key === "2") {
+    setSpeedAndReset(2);
+  }
+  if (ev.key === "3") {
+    setSpeedAndReset(5);
+  }
+  if (ev.key === "4") {
+    setSpeedAndReset(10);
+  }
+};
+
+var setSpeedAndReset = function setSpeedAndReset(multiplier) {
+  (0, _form.setSpeed)(multiplier);
+  growingForm.reset();
+  shrinkingForm.reset();
+  tick = 1;
 };
 
 document.addEventListener("keydown", onDocumentKeyDownHandler);
 
-var tick = 0;
+var tick = 1;
 
 var animate = function animate() {
   window.requestAnimationFrame(animate);
@@ -47146,8 +47166,9 @@ var animate = function animate() {
   shrinkingForm.update(tick);
   controls.update();
   renderer.render(scene, camera);
-  if ((0, _form.swapSidesTest)(++tick)) {
-    tick = 0;
+  tick++;
+  if (growingForm.swapSidesTest()) {
+    tick = 1;
     growingForm.swapSides();
     shrinkingForm.swapSides();
   }
@@ -48216,7 +48237,7 @@ module.exports = exports.default = THREE.OrbitControls
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.ShrinkingForm = exports.GrowingForm = exports.swapSidesTest = undefined;
+exports.ShrinkingForm = exports.GrowingForm = exports.setSpeed = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
@@ -48252,22 +48273,20 @@ var Line = (0, _threeLine2d2.default)(THREE);
 var BasicShader = (0, _basic2.default)(THREE);
 
 
-var START_ANGLE = 1.5 * Math.PI;
-var END_ANGLE = 3.5 * Math.PI;
 var PROJECTED_IMAGE_RADIUS_X = 2.8;
 var PROJECTED_IMAGE_RADIUS_Y = 2;
 var PROJECTED_IMAGE_LINE_THICKNESS = 0.08;
 var PROJECTOR_BULB_RADIUS = 0.08;
-var CLOCKWISE = true;
 var ELLIPSE_POINT_COUNT = 100;
 var WIPE_POINT_COUNT = 50;
 var MEMBRANE_SEGMENT_COUNT = 1;
 var ROTATION_DELTA = Math.PI / (180 * 60);
-var SWAP_AT_TICK = Math.floor(2 * Math.PI / ROTATION_DELTA);
 var DELTA_ANGLE = 15 * Math.PI / 180;
 var ANGLE_OFFSET_THRESHOLD = 45 * Math.PI / 180;
 
-var lineMaterialQ = new THREE.ShaderMaterial(BasicShader({
+var currentRotationDelta = ROTATION_DELTA;
+
+var lineMaterial = new THREE.ShaderMaterial(BasicShader({
   side: THREE.DoubleSide,
   diffuse: 0xffffff,
   thickness: PROJECTED_IMAGE_LINE_THICKNESS
@@ -48281,7 +48300,7 @@ var reverseNormals = function reverseNormals(bufferGeometry) {
   }
 };
 
-var toArrPoints = function toArrPoints(pointsVec2) {
+var toArr2Points = function toArr2Points(pointsVec2) {
   return pointsVec2.map(function (vec2) {
     return vec2.toArray();
   });
@@ -48293,8 +48312,8 @@ var toVec3Points = function toVec3Points(pointsVec2, z) {
   });
 };
 
-var swapSidesTest = exports.swapSidesTest = function swapSidesTest(tick) {
-  return tick === SWAP_AT_TICK;
+var setSpeed = exports.setSpeed = function setSpeed(multiplier) {
+  currentRotationDelta = ROTATION_DELTA * multiplier;
 };
 
 var Form = function () {
@@ -48309,15 +48328,15 @@ var Form = function () {
   _createClass(Form, [{
     key: "init",
     value: function init() {
-      this.ellipseCurveP = new THREE.EllipseCurve(this.initialSide === C.LEFT ? C.LEFT_CENTRE_X : C.RIGHT_CENTRE_X, C.CENTRE_P_Y, PROJECTOR_BULB_RADIUS, PROJECTOR_BULB_RADIUS, START_ANGLE, END_ANGLE, CLOCKWISE);
+      this.ellipseCurveP = new THREE.EllipseCurve(this.initialSide === C.LEFT ? C.LEFT_CENTRE_X : C.RIGHT_CENTRE_X, C.CENTRE_P_Y, PROJECTOR_BULB_RADIUS, PROJECTOR_BULB_RADIUS, this.getStartAngle(), this.getEndAngle(), this.getIsClockwise());
 
-      this.ellipseCurveQ = new THREE.EllipseCurve(this.initialSide === C.LEFT ? C.LEFT_CENTRE_X : C.RIGHT_CENTRE_X, C.CENTRE_Q_Y, PROJECTED_IMAGE_RADIUS_X, PROJECTED_IMAGE_RADIUS_Y, START_ANGLE, END_ANGLE, CLOCKWISE);
+      this.ellipseCurveQ = new THREE.EllipseCurve(this.initialSide === C.LEFT ? C.LEFT_CENTRE_X : C.RIGHT_CENTRE_X, C.CENTRE_Q_Y, PROJECTED_IMAGE_RADIUS_X, PROJECTED_IMAGE_RADIUS_Y, this.getStartAngle(), this.getEndAngle(), this.getIsClockwise());
 
       this.wipeCurveP = new THREE.CubicBezierCurve();
       this.wipeCurveQ = new THREE.CubicBezierCurve();
 
-      this.lineGeometryQ = Line();
-      this.lineMeshQ = new THREE.Mesh(this.lineGeometryQ, lineMaterialQ);
+      this.lineGeometry = Line();
+      this.lineMeshQ = new THREE.Mesh(this.lineGeometry, lineMaterial);
       this.scene.add(this.lineMeshQ);
 
       this.membraneGeometryInner = new _MembraneGeometry.MembraneBufferGeometry();
@@ -48341,7 +48360,7 @@ var Form = function () {
         side: THREE.FrontSide,
         color: 0xffffff,
         transparent: true,
-        opacity: 0.4
+        opacity: 0.3
       });
 
       this.membraneMaterialOuter = new THREE.MeshBasicMaterial({
@@ -48349,7 +48368,7 @@ var Form = function () {
         side: THREE.BackSide,
         color: 0xffffff,
         transparent: true,
-        opacity: 0.4
+        opacity: 0.3
       });
 
       this.membraneMeshInner = new THREE.Mesh(this.membraneGeometryInner, this.membraneMaterialInner);
@@ -48360,34 +48379,59 @@ var Form = function () {
       this.scene.add(this.membraneMeshOuter);
     }
   }, {
-    key: "updateCurrentAngle",
-    value: function updateCurrentAngle() {
-      throw new Error("You have to implement the method updateCurrentAngle!");
+    key: "getStartAngle",
+    value: function getStartAngle() {
+      throw new Error("You have to implement the method getStartAngle!");
     }
   }, {
-    key: "getInitialAngle",
-    value: function getInitialAngle() {
-      throw new Error("You have to implement the method getInitialAngle!");
+    key: "getEndAngle",
+    value: function getEndAngle() {
+      throw new Error("You have to implement the method getEndAngle!");
     }
   }, {
-    key: "combineEllipseAndWipeLines",
-    value: function combineEllipseAndWipeLines() /* ellipsePoints, wipePoints */{
-      throw new Error("You have to implement the method combineEllipseAndWipeLines!");
+    key: "getIsClockwise",
+    value: function getIsClockwise() {
+      throw new Error("You have to implement the method getIsClockwise!");
     }
   }, {
-    key: "combineEllipseAndWipeMembranes",
-    value: function combineEllipseAndWipeMembranes() /* ellipsePoints, wipePoints */{
-      throw new Error("You have to implement the method combineEllipseAndWipeMembranes!");
+    key: "calculateSinusoidalDampingFactor",
+    value: function calculateSinusoidalDampingFactor(a) {
+      var dampingFactor = Math.pow(3 + (1 - Math.sin(a % Math.PI)) * 5, 2);
+      // console.log(`a: ${a}; dampingFactor: ${dampingFactor}`);
+      return dampingFactor;
     }
   }, {
-    key: "getWipePoints",
-    value: function getWipePoints(e, w, currentAngle, deltaAngle1, deltaAngle2, alpha) {
+    key: "getCurrentAngle",
+    value: function getCurrentAngle(tick) {
+      var baseAngle = this.getStartAngle() - currentRotationDelta * tick;
+      var offsetFromStartAngle = Math.abs(baseAngle - this.getStartAngle());
+      var totalTicks = 2 * Math.PI / currentRotationDelta;
+      var sinWaveTicks = totalTicks / 48;
+      var x = 2 * Math.PI * ((tick - 1) % sinWaveTicks) / sinWaveTicks;
+      var sinx = Math.sin(x);
+      var sinusoidalDampingFactor = this.calculateSinusoidalDampingFactor(offsetFromStartAngle);
+      var sinusoidalOffset = sinx / sinusoidalDampingFactor;
+      var finalAngle = baseAngle - sinusoidalOffset;
+      // console.log(`tick: ${tick}; offsetFromStartAngle: ${offsetFromStartAngle}; totalTicks: ${totalTicks}; sinWaveTicks: ${sinWaveTicks}; x: ${x}; sinx: ${sinx}; sinusoidalDampingFactor: ${sinusoidalDampingFactor}; sinusoidalOffset: ${sinusoidalOffset}; baseAngle: ${baseAngle}; finalAngle: ${finalAngle}`);
+      return finalAngle;
+    }
+  }, {
+    key: "getWipeControlPoints",
+    value: function getWipeControlPoints(e, currentAngle) {
 
       var calculateEllipsePoint = function calculateEllipsePoint(theta) {
         return new THREE.Vector2(e.aX + e.xRadius * Math.cos(theta), e.aY + e.yRadius * Math.sin(theta));
       };
 
+      var startAngle = this.getStartAngle();
+      var angleOffset = Math.abs(currentAngle - startAngle);
+      var angleOffset2 = angleOffset < Math.PI ? angleOffset : 2 * Math.PI - angleOffset;
+      var normalisingFactor = 1 / ANGLE_OFFSET_THRESHOLD;
+      var alpha = angleOffset2 > ANGLE_OFFSET_THRESHOLD ? 1.0 : angleOffset2 * normalisingFactor;
+      var deltaAngle1 = currentAngle + DELTA_ANGLE * alpha;
+      var deltaAngle2 = currentAngle - DELTA_ANGLE * alpha;
       var centrePoint = new THREE.Vector2(e.aX, e.aY);
+
       var deltaPoint1 = calculateEllipsePoint(deltaAngle1);
       var deltaPoint2 = calculateEllipsePoint(deltaAngle2);
 
@@ -48395,6 +48439,27 @@ var Form = function () {
       var endingPoint = startingPoint.clone().lerp(centrePoint, alpha);
       var controlPoint1 = deltaPoint1.lerp(endingPoint, 0.25);
       var controlPoint2 = deltaPoint2.lerp(endingPoint, 0.75);
+
+      return {
+        startingPoint: startingPoint,
+        controlPoint1: controlPoint1,
+        controlPoint2: controlPoint2,
+        endingPoint: endingPoint
+      };
+    }
+  }, {
+    key: "combineEllipseAndWipe",
+    value: function combineEllipseAndWipe(ellipsePoints, wipePoints) {
+      return ellipsePoints.slice().reverse().concat(wipePoints.slice(1));
+    }
+  }, {
+    key: "getWipePoints",
+    value: function getWipePoints(e, w, currentAngle, deltaAngle1, deltaAngle2, alpha) {
+      var _getWipeControlPoints = this.getWipeControlPoints(e, currentAngle, deltaAngle1, deltaAngle2, alpha),
+          startingPoint = _getWipeControlPoints.startingPoint,
+          controlPoint1 = _getWipeControlPoints.controlPoint1,
+          controlPoint2 = _getWipeControlPoints.controlPoint2,
+          endingPoint = _getWipeControlPoints.endingPoint;
 
       w.v0.copy(startingPoint);
       w.v1.copy(controlPoint1);
@@ -48404,38 +48469,45 @@ var Form = function () {
       return w.getPoints(WIPE_POINT_COUNT);
     }
   }, {
-    key: "update",
-    value: function update() {
+    key: "updatePoints",
+    value: function updatePoints(tick) {
 
-      var initialAngle = this.getInitialAngle();
-      var currentAngle = this.updateCurrentAngle();
-      var angleOffset = Math.abs(currentAngle - initialAngle);
-      var angleOffset2 = angleOffset < Math.PI ? angleOffset : 2 * Math.PI - angleOffset;
-      var normalisingFactor = 1 / ANGLE_OFFSET_THRESHOLD;
-      var alpha = angleOffset2 > ANGLE_OFFSET_THRESHOLD ? 1.0 : angleOffset2 * normalisingFactor;
-      var deltaAngle1 = currentAngle + DELTA_ANGLE * alpha;
-      var deltaAngle2 = currentAngle - DELTA_ANGLE * alpha;
+      var currentAngle = this.getCurrentAngle(tick);
+      this.ellipseCurveP.aStartAngle = currentAngle;
+      this.ellipseCurveQ.aStartAngle = currentAngle;
 
-      var ellipsePointsPVec2 = this.ellipseCurveP.getPoints(ELLIPSE_POINT_COUNT);
-      var ellipsePointsQVec2 = this.ellipseCurveQ.getPoints(ELLIPSE_POINT_COUNT);
+      var psEllipseVec2 = this.ellipseCurveP.getPoints(ELLIPSE_POINT_COUNT);
+      var qsEllipseVec2 = this.ellipseCurveQ.getPoints(ELLIPSE_POINT_COUNT);
 
-      var wipePointsPVec2 = this.getWipePoints(this.ellipseCurveP, this.wipeCurveP, currentAngle, deltaAngle1, deltaAngle2, alpha);
+      var psWipeVec2 = this.getWipePoints(this.ellipseCurveP, this.wipeCurveP, currentAngle);
+      var qsWipeVec2 = this.getWipePoints(this.ellipseCurveQ, this.wipeCurveQ, currentAngle);
 
-      var wipePointsQVec2 = this.getWipePoints(this.ellipseCurveQ, this.wipeCurveQ, currentAngle, deltaAngle1, deltaAngle2, alpha);
+      var psCombinedVec2 = this.combineEllipseAndWipe(psEllipseVec2, psWipeVec2);
+      var qsCombinedVec2 = this.combineEllipseAndWipe(qsEllipseVec2, qsWipeVec2);
 
-      var ellipsePointsQArr = toArrPoints(ellipsePointsQVec2);
-      var wipePointsQArr = toArrPoints(wipePointsQVec2);
-      var combinedLinePointsQArr = this.combineEllipseAndWipeLines(ellipsePointsQArr, wipePointsQArr.slice(1));
-      this.lineGeometryQ.update(combinedLinePointsQArr);
+      return {
+        psVec2: psCombinedVec2,
+        qsVec2: qsCombinedVec2
+      };
+    }
+  }, {
+    key: "updateProjectedImage",
+    value: function updateProjectedImage(_ref) {
+      var qsVec2 = _ref.qsVec2;
 
-      var psEllipse = toVec3Points(ellipsePointsPVec2, C.MEMBRANE_LENGTH);
-      var qsEllipse = toVec3Points(ellipsePointsQVec2, 0);
-      var psWipe = toVec3Points(wipePointsPVec2, C.MEMBRANE_LENGTH);
-      var qsWipe = toVec3Points(wipePointsQVec2, 0);
-      var ps = this.combineEllipseAndWipeMembranes(psEllipse, psWipe.slice(1));
-      var qs = this.combineEllipseAndWipeMembranes(qsEllipse, qsWipe.slice(1));
+      this.lineGeometry.update(toArr2Points(qsVec2));
+    }
+  }, {
+    key: "updateMembrane",
+    value: function updateMembrane(_ref2) {
+      var psVec2 = _ref2.psVec2,
+          qsVec2 = _ref2.qsVec2;
 
-      var tempMembraneGeometry = new _MembraneGeometry.MembraneBufferGeometry(ps, qs, MEMBRANE_SEGMENT_COUNT);
+
+      var psVec3 = toVec3Points(psVec2, C.MEMBRANE_LENGTH);
+      var qsVec3 = toVec3Points(qsVec2, 0);
+
+      var tempMembraneGeometry = new _MembraneGeometry.MembraneBufferGeometry(psVec3, qsVec3, MEMBRANE_SEGMENT_COUNT);
       tempMembraneGeometry.computeVertexNormals(); // NOT NEEDED ?
       this.membraneGeometryInner.copy(tempMembraneGeometry);
       reverseNormals(tempMembraneGeometry); // NOT NEEDED ?
@@ -48448,14 +48520,34 @@ var Form = function () {
       }
     }
   }, {
+    key: "update",
+    value: function update(tick) {
+      var updatedPoints = this.updatePoints(tick);
+      this.updateProjectedImage(updatedPoints);
+      this.updateMembrane(updatedPoints);
+    }
+  }, {
+    key: "swapSidesTest",
+    value: function swapSidesTest() {
+      var endAngleDelta = Math.abs(this.getEndAngle() - this.ellipseCurveQ.aStartAngle);
+      // console.log(`endAngleDelta: ${endAngleDelta}; currentRotationDelta: ${currentRotationDelta}`);
+      return endAngleDelta <= 2 * currentRotationDelta;
+    }
+  }, {
     key: "swapSides",
     value: function swapSides() {
       this.ellipseCurveP.aX = this.ellipseCurveP.aX === C.RIGHT_CENTRE_X ? C.LEFT_CENTRE_X : C.RIGHT_CENTRE_X;
       this.ellipseCurveQ.aX = this.ellipseCurveQ.aX === C.RIGHT_CENTRE_X ? C.LEFT_CENTRE_X : C.RIGHT_CENTRE_X;
-      this.ellipseCurveP.aStartAngle = START_ANGLE;
-      this.ellipseCurveQ.aStartAngle = START_ANGLE;
-      this.ellipseCurveP.aEndAngle = END_ANGLE;
-      this.ellipseCurveQ.aEndAngle = END_ANGLE;
+      this.ellipseCurveP.aStartAngle = this.getStartAngle();
+      this.ellipseCurveQ.aStartAngle = this.getStartAngle();
+    }
+  }, {
+    key: "reset",
+    value: function reset() {
+      this.ellipseCurveP.aX = this.initialSide === C.LEFT ? C.LEFT_CENTRE_X : C.RIGHT_CENTRE_X;
+      this.ellipseCurveQ.aX = this.initialSide === C.LEFT ? C.LEFT_CENTRE_X : C.RIGHT_CENTRE_X;
+      this.ellipseCurveP.aStartAngle = this.getStartAngle();
+      this.ellipseCurveQ.aStartAngle = this.getStartAngle();
     }
   }, {
     key: "toggleHelpers",
@@ -48487,26 +48579,19 @@ var GrowingForm = exports.GrowingForm = function (_Form) {
   }
 
   _createClass(GrowingForm, [{
-    key: "updateCurrentAngle",
-    value: function updateCurrentAngle() {
-      this.ellipseCurveP.aEndAngle -= ROTATION_DELTA;
-      this.ellipseCurveQ.aEndAngle -= ROTATION_DELTA;
-      return this.ellipseCurveQ.aEndAngle;
+    key: "getStartAngle",
+    value: function getStartAngle() {
+      return 1.5 * Math.PI;
     }
   }, {
-    key: "getInitialAngle",
-    value: function getInitialAngle() {
-      return END_ANGLE;
+    key: "getEndAngle",
+    value: function getEndAngle() {
+      return -0.5 * Math.PI;
     }
   }, {
-    key: "combineEllipseAndWipeLines",
-    value: function combineEllipseAndWipeLines(ellipsePoints, wipePoints) {
-      return ellipsePoints.concat(wipePoints);
-    }
-  }, {
-    key: "combineEllipseAndWipeMembranes",
-    value: function combineEllipseAndWipeMembranes(ellipsePoints, wipePoints) {
-      return ellipsePoints.concat(wipePoints);
+    key: "getIsClockwise",
+    value: function getIsClockwise() {
+      return false;
     }
   }]);
 
@@ -48523,26 +48608,19 @@ var ShrinkingForm = exports.ShrinkingForm = function (_Form2) {
   }
 
   _createClass(ShrinkingForm, [{
-    key: "updateCurrentAngle",
-    value: function updateCurrentAngle() {
-      this.ellipseCurveP.aStartAngle -= ROTATION_DELTA;
-      this.ellipseCurveQ.aStartAngle -= ROTATION_DELTA;
-      return this.ellipseCurveQ.aStartAngle;
+    key: "getStartAngle",
+    value: function getStartAngle() {
+      return 3.5 * Math.PI;
     }
   }, {
-    key: "getInitialAngle",
-    value: function getInitialAngle() {
-      return START_ANGLE;
+    key: "getEndAngle",
+    value: function getEndAngle() {
+      return 1.5 * Math.PI;
     }
   }, {
-    key: "combineEllipseAndWipeLines",
-    value: function combineEllipseAndWipeLines(ellipsePoints, wipePoints) {
-      return ellipsePoints.slice().reverse().concat(wipePoints);
-    }
-  }, {
-    key: "combineEllipseAndWipeMembranes",
-    value: function combineEllipseAndWipeMembranes(ellipsePoints, wipePoints) {
-      return ellipsePoints.slice().reverse().concat(wipePoints).reverse();
+    key: "getIsClockwise",
+    value: function getIsClockwise() {
+      return true;
     }
   }]);
 
