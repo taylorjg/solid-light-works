@@ -87,7 +87,7 @@ See also:
 * [x] Add simple "clock-hands"
 * [x] Add basic animation of the "clock-hands"
 * [x] Combine the ellipses and the "clock-hands"
-* [ ] Try to re-create the exact movement of the ellipses (sinusoidal ?)
+* [x] Try to re-create the exact movement of the ellipses (sinusoidal ?)
     * [x] loci of the starting points of the ellipses
         * _the starting point of an ellipse is also the starting point of the corresponding "clock-hand" Bézier curve (see below)_
     * [x] get the speed right
