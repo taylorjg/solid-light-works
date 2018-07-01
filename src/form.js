@@ -98,7 +98,7 @@ class Form {
       side: THREE.FrontSide,
       color: 0xffffff,
       transparent: true,
-      opacity: 0.4
+      opacity: 0.3
     });
 
     this.membraneMaterialOuter = new THREE.MeshBasicMaterial({
@@ -106,7 +106,7 @@ class Form {
       side: THREE.BackSide,
       color: 0xffffff,
       transparent: true,
-      opacity: 0.4
+      opacity: 0.3
     });
 
     this.membraneMeshInner = new THREE.Mesh(
@@ -133,8 +133,24 @@ class Form {
     throw new Error("You have to implement the method getIsClockwise!");
   }
 
+  calculateSinusoidalDampingFactor(a) {
+    const dampingFactor = Math.pow(3 + (1 - Math.sin(a % Math.PI)) * 5, 2);
+    // console.log(`a: ${a}; dampingFactor: ${dampingFactor}`);
+    return dampingFactor;
+  }
+
   getCurrentAngle(tick) {
-    return this.getStartAngle() - (currentRotationDelta * tick);
+    const baseAngle = this.getStartAngle() - (currentRotationDelta * tick);
+    const offsetFromStartAngle = Math.abs(baseAngle - this.getStartAngle());
+    const totalTicks = 2 * Math.PI / currentRotationDelta;
+    const sinWaveTicks = totalTicks / 48;
+    const x = 2 * Math.PI * ((tick - 1) % sinWaveTicks) / sinWaveTicks;
+    const sinx = Math.sin(x);
+    const sinusoidalDampingFactor = this.calculateSinusoidalDampingFactor(offsetFromStartAngle);
+    const sinusoidalOffset = sinx / sinusoidalDampingFactor;
+    const finalAngle = baseAngle - sinusoidalOffset;
+    // console.log(`tick: ${tick}; offsetFromStartAngle: ${offsetFromStartAngle}; totalTicks: ${totalTicks}; sinWaveTicks: ${sinWaveTicks}; x: ${x}; sinx: ${sinx}; sinusoidalDampingFactor: ${sinusoidalDampingFactor}; sinusoidalOffset: ${sinusoidalOffset}; baseAngle: ${baseAngle}; finalAngle: ${finalAngle}`);
+    return finalAngle;
   }
 
   getWipeControlPoints(e, currentAngle) {
@@ -240,7 +256,8 @@ class Form {
 
   swapSidesTest() {
     const endAngleDelta = Math.abs(this.getEndAngle() - this.ellipseCurveQ.aStartAngle);
-    return endAngleDelta < currentRotationDelta;
+    // console.log(`endAngleDelta: ${endAngleDelta}; currentRotationDelta: ${currentRotationDelta}`);
+    return endAngleDelta <= 2 * currentRotationDelta;
   }
 
   swapSides() {
@@ -299,11 +316,11 @@ export class ShrinkingForm extends Form {
   }
 
   getStartAngle() {
-    return 1.5 * Math.PI;
+    return 3.5 * Math.PI;
   }
 
   getEndAngle() {
-    return 3.5 * Math.PI;
+    return 1.5 * Math.PI;
   }
 
   getIsClockwise() {
