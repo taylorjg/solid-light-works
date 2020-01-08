@@ -4,7 +4,6 @@ import LineInitFn from "three-line-2d"
 import BasicShaderInitFn from "three-line-2d/shaders/basic"
 const Line = LineInitFn(THREE)
 const BasicShader = BasicShaderInitFn(THREE)
-import { MembraneBufferGeometry } from "./MembraneGeometry"
 import * as C from "./constants"
 
 const PROJECTED_IMAGE_RADIUS_X = 2.8
@@ -13,7 +12,6 @@ const PROJECTED_IMAGE_LINE_THICKNESS = 0.08
 const PROJECTOR_BULB_RADIUS = 0.08
 const ELLIPSE_POINT_COUNT = 100
 const WIPE_POINT_COUNT = 50
-const MEMBRANE_SEGMENT_COUNT = 1
 const ROTATION_DELTA = Math.PI / (180 * 60)
 const DELTA_ANGLE = 15 * Math.PI / 180
 const ANGLE_OFFSET_THRESHOLD = 45 * Math.PI / 180
@@ -78,48 +76,6 @@ class Form {
     this.lineGeometry = Line()
     this.lineMeshQ = new THREE.Mesh(this.lineGeometry, lineMaterial)
     this.scene.add(this.lineMeshQ)
-
-    this.membraneGeometryInner = new MembraneBufferGeometry()
-    this.membraneGeometryOuter = new MembraneBufferGeometry()
-
-    this.membraneMaterialInner = undefined
-    this.membraneMaterialOuter = undefined
-
-    this.membraneMeshInner = undefined
-    this.membraneMeshOuter = undefined
-
-    this.membraneMeshInnerHelper = undefined
-    this.membraneMeshOuterHelper = undefined
-  }
-
-  onTextureLoaded(texture) {
-
-    this.membraneMaterialInner = new THREE.MeshBasicMaterial({
-      map: texture,
-      side: THREE.FrontSide,
-      color: 0xffffff,
-      transparent: true,
-      opacity: 0.3
-    })
-
-    this.membraneMaterialOuter = new THREE.MeshBasicMaterial({
-      map: texture,
-      side: THREE.BackSide,
-      color: 0xffffff,
-      transparent: true,
-      opacity: 0.3
-    })
-
-    this.membraneMeshInner = new THREE.Mesh(
-      this.membraneGeometryInner,
-      this.membraneMaterialInner)
-
-    this.membraneMeshOuter = new THREE.Mesh(
-      this.membraneGeometryOuter,
-      this.membraneMaterialOuter)
-
-    this.scene.add(this.membraneMeshInner)
-    this.scene.add(this.membraneMeshOuter)
   }
 
   getStartAngle() {
@@ -231,28 +187,9 @@ class Form {
     this.lineGeometry.update(toArr2Points(qsVec2))
   }
 
-  updateMembrane({ psVec2, qsVec2 }) {
-
-    const psVec3 = toVec3Points(psVec2, C.MEMBRANE_LENGTH)
-    const qsVec3 = toVec3Points(qsVec2, 0)
-
-    const tempMembraneGeometry = new MembraneBufferGeometry(psVec3, qsVec3, MEMBRANE_SEGMENT_COUNT)
-    tempMembraneGeometry.computeVertexNormals(); // NOT NEEDED ?
-    this.membraneGeometryInner.copy(tempMembraneGeometry)
-    reverseNormals(tempMembraneGeometry); // NOT NEEDED ?
-    this.membraneGeometryOuter.copy(tempMembraneGeometry)
-    tempMembraneGeometry.dispose()
-
-    if (this.membraneMeshInnerHelper) {
-      this.membraneMeshInnerHelper.update()
-      this.membraneMeshOuterHelper.update()
-    }
-  }
-
   update(tick) {
     const updatedPoints = this.updatePoints(tick)
     this.updateProjectedImage(updatedPoints)
-    this.updateMembrane(updatedPoints)
   }
 
   swapSidesTest() {
@@ -273,21 +210,6 @@ class Form {
     this.ellipseCurveQ.aX = this.initialSide === C.LEFT ? C.LEFT_CENTRE_X : C.RIGHT_CENTRE_X
     this.ellipseCurveP.aStartAngle = this.getStartAngle()
     this.ellipseCurveQ.aStartAngle = this.getStartAngle()
-  }
-
-  toggleHelpers() {
-    if (this.membraneMeshInnerHelper) {
-      this.scene.remove(this.membraneMeshInnerHelper)
-      this.scene.remove(this.membraneMeshOuterHelper)
-      this.membraneMeshInnerHelper = undefined
-      this.membraneMeshOuterHelper = undefined
-    }
-    else {
-      this.membraneMeshInnerHelper = new VertexNormalsHelper(this.membraneMeshInner, 0.1, 0x00ff00)
-      this.membraneMeshOuterHelper = new VertexNormalsHelper(this.membraneMeshOuter, 0.1, 0x0000ff)
-      this.scene.add(this.membraneMeshInnerHelper)
-      this.scene.add(this.membraneMeshOuterHelper)
-    }
   }
 }
 

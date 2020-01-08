@@ -67,13 +67,6 @@ addSpotLights(scene, C.CENTRE_P_Y * 2, C.CENTRE_Q_Y, C.LOW_INTENSITY_SPOTLIGHT)
 let growingForm = new GrowingForm(scene, C.LEFT)
 let shrinkingForm = new ShrinkingForm(scene, C.RIGHT)
 
-const textureLoader = new THREE.TextureLoader()
-textureLoader.load("haze.jpg", texture => {
-  growingForm.onTextureLoaded(texture)
-  shrinkingForm.onTextureLoaded(texture)
-  animate()
-})
-
 window.addEventListener("resize", () => {
   renderer.setSize(container.offsetWidth, container.offsetHeight)
   camera.aspect = container.offsetWidth / container.offsetHeight
@@ -112,10 +105,10 @@ const onDocumentKeyDownHandler = ev => {
     toggleSpotLightHelpers(scene)
   }
 
-  if (ev.key === "v") {
-    growingForm.toggleHelpers()
-    shrinkingForm.toggleHelpers()
-  }
+  // if (ev.key === "v") {
+  //   growingForm.toggleHelpers()
+  //   shrinkingForm.toggleHelpers()
+  // }
 
   if (ev.key === "1") {
     setSpeedAndReset(1)
@@ -143,15 +136,17 @@ document.addEventListener("keydown", onDocumentKeyDownHandler)
 let tick = 1
 
 const animate = () => {
-  window.requestAnimationFrame(animate)
   growingForm.update(tick)
   shrinkingForm.update(tick)
   controls.update()
   renderer.render(scene, camera)
   tick++
   if (growingForm.swapSidesTest()) {
-    tick = 1
     growingForm.swapSides()
     shrinkingForm.swapSides()
+    tick = 1
   }
+  requestAnimationFrame(animate)
 }
+
+animate()
