@@ -1,13 +1,12 @@
 {
   "name": "leaving",
-  "version": "0.0.22",
+  "version": "0.0.23",
   "description": "three.js rendering of Anthony McCall's \"Leaving (With Two-Minute Silence)\"",
   "author": "Jonathan Taylor",
   "license": "MIT",
   "dependencies": {
-    "three": "^0.93.0",
-    "three-line-2d": "^1.1.6",
-    "three-orbitcontrols": "^2.1.2"
+    "three": "^0.112.1",
+    "three-line-2d": "^1.1.6"
   },
   "scripts": {
     "eslint": "eslint .",
