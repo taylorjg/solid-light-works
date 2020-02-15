@@ -1,11 +1,11 @@
 {
   "name": "leaving",
-  "version": "0.0.23",
+  "version": "0.0.24",
   "description": "three.js rendering of Anthony McCall's \"Leaving (With Two-Minute Silence)\"",
   "author": "Jonathan Taylor",
   "license": "MIT",
   "dependencies": {
-    "three": "^0.112.1",
+    "three": "^0.113.2",
     "three-line-2d": "^1.1.6"
   },
   "scripts": {
@@ -21,8 +21,8 @@
     "copy-webpack-plugin": "^5.1.1",
     "eslint": "^6.8.0",
     "html-webpack-plugin": "^3.2.0",
-    "webpack": "^4.41.5",
-    "webpack-cli": "^3.3.10",
-    "webpack-dev-server": "^3.10.1"
+    "webpack": "^4.41.6",
+    "webpack-cli": "^3.3.11",
+    "webpack-dev-server": "^3.10.3"
   }
 }
