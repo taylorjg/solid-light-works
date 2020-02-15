@@ -2,6 +2,7 @@ import * as THREE from "three"
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls"
 import { GrowingForm, ShrinkingForm, setSpeed } from "./form"
 import { addSpotLights, toggleSpotLightHelpers } from "./spotlights"
+import { createDust } from "./dust"
 import * as C from "./constants"
 
 const container = document.getElementById("container")
@@ -60,9 +61,12 @@ scene.add(screen)
 
 let axesHelper = undefined
 
-addSpotLights(scene, C.CENTRE_P_Y, C.CENTRE_Q_Y, C.HIGH_INTENSITY_SPOTLIGHT)
-addSpotLights(scene, 0, C.CENTRE_Q_Y, C.LOW_INTENSITY_SPOTLIGHT)
-addSpotLights(scene, C.CENTRE_P_Y * 2, C.CENTRE_Q_Y, C.LOW_INTENSITY_SPOTLIGHT)
+addSpotLights(scene, C.CENTRE_P_Y, C.CENTRE_Q_Y + 2, C.HIGH_INTENSITY_SPOTLIGHT)
+// addSpotLights(scene, 0, C.CENTRE_Q_Y, C.LOW_INTENSITY_SPOTLIGHT)
+// addSpotLights(scene, C.CENTRE_P_Y * 2, C.CENTRE_Q_Y, C.LOW_INTENSITY_SPOTLIGHT)
+
+createDust(scene, C.LEFT_CENTRE_X)
+createDust(scene, C.RIGHT_CENTRE_X)
 
 let growingForm = new GrowingForm(scene, C.LEFT)
 let shrinkingForm = new ShrinkingForm(scene, C.RIGHT)
@@ -101,9 +105,9 @@ const onDocumentKeyDownHandler = ev => {
     controls.autoRotate = !controls.autoRotate
   }
 
-  if (ev.key === "s") {
-    toggleSpotLightHelpers(scene)
-  }
+  // if (ev.key === "s") {
+  //   toggleSpotLightHelpers(scene)
+  // }
 
   // if (ev.key === "v") {
   //   growingForm.toggleHelpers()

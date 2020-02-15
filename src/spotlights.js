@@ -4,8 +4,9 @@ import * as C from "./constants"
 const COLOUR = 0xffffff
 const HIGH_INTENSITY = 100
 const LOW_INTENSITY = 50
-const DISTANCE = C.MEMBRANE_LENGTH * 2
-const ANGLE = 14 * Math.PI / 180
+const DISTANCE = C.MEMBRANE_LENGTH // * 2
+// const ANGLE = 14 * Math.PI / 180
+const ANGLE = .1 * Math.PI / 180
 
 const highIntensitySpotLights = []
 const helpers = []

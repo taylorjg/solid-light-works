@@ -1,5 +1,5 @@
 import * as THREE from "three"
-import { VertexNormalsHelper } from "three/examples/jsm/helpers/VertexNormalsHelper.js"
+// import { VertexNormalsHelper } from "three/examples/jsm/helpers/VertexNormalsHelper.js"
 import LineInitFn from "three-line-2d"
 import BasicShaderInitFn from "three-line-2d/shaders/basic"
 const Line = LineInitFn(THREE)
@@ -10,8 +10,10 @@ const PROJECTED_IMAGE_RADIUS_X = 2.8
 const PROJECTED_IMAGE_RADIUS_Y = 2
 const PROJECTED_IMAGE_LINE_THICKNESS = 0.08
 const PROJECTOR_BULB_RADIUS = 0.08
-const ELLIPSE_POINT_COUNT = 100
-const WIPE_POINT_COUNT = 50
+// const ELLIPSE_POINT_COUNT = 100
+// const WIPE_POINT_COUNT = 50
+const ELLIPSE_POINT_COUNT = 20
+const WIPE_POINT_COUNT = 10
 const ROTATION_DELTA = Math.PI / (180 * 60)
 const DELTA_ANGLE = 15 * Math.PI / 180
 const ANGLE_OFFSET_THRESHOLD = 45 * Math.PI / 180
@@ -25,19 +27,19 @@ const lineMaterial = new THREE.ShaderMaterial(
     thickness: PROJECTED_IMAGE_LINE_THICKNESS
   }))
 
-const reverseNormals = bufferGeometry => {
-  const normalAttribute = bufferGeometry.getAttribute("normal")
-  const array = normalAttribute.array
-  for (let i = 0; i < array.length; i++) {
-    array[i] *= -1
-  }
-}
+// const reverseNormals = bufferGeometry => {
+//   const normalAttribute = bufferGeometry.getAttribute("normal")
+//   const array = normalAttribute.array
+//   for (let i = 0; i < array.length; i++) {
+//     array[i] *= -1
+//   }
+// }
 
 const toArr2Points = pointsVec2 =>
   pointsVec2.map(vec2 => vec2.toArray())
 
-const toVec3Points = (pointsVec2, z) =>
-  pointsVec2.map(vec2 => new THREE.Vector3(vec2.x, vec2.y, z))
+// const toVec3Points = (pointsVec2, z) =>
+//   pointsVec2.map(vec2 => new THREE.Vector3(vec2.x, vec2.y, z))
 
 export const setSpeed = multiplier => {
   currentRotationDelta = ROTATION_DELTA * multiplier
