@@ -11,7 +11,7 @@ GH_PAGES_DIR=$DIR/../leaving-gh-pages
 cd "$GH_PAGES_DIR"
 
 git checkout gh-pages
-git rm -rf *
+git rm -r "$GH_PAGES_DIR/*"
 cp -R "$DIR/dist/" .
 git add -A
 git commit -m "Deploy to gh-pages branch"
