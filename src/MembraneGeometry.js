@@ -65,7 +65,7 @@ export function MembraneBufferGeometry(ps = [], qs = [], numSegments = 1) {
 				normals.push(0, 0, 0)
 
 				// uv
-				uvs.push(u, u)
+				uvs.push(u, v)
 
 				// save index of vertex in respective row
 				indexRow.push(index++)

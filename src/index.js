@@ -1,7 +1,7 @@
 import * as THREE from "three"
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls"
 import { GrowingForm, ShrinkingForm, setSpeed } from "./form"
-import { addSpotLights, toggleSpotLightHelpers } from "./spotlights"
+// import { addSpotLights, toggleSpotLightHelpers } from "./spotlights"
 import * as C from "./constants"
 
 const container = document.getElementById("container")
@@ -44,10 +44,6 @@ controls.enableDamping = true
 controls.dampingFactor = 0.9
 controls.autoRotate = false
 
-// -----------------
-// Projection screen
-// -----------------
-
 const projectionScreenGeometry = new THREE.PlaneGeometry(16, 6)
 projectionScreenGeometry.translate(0, 3, 0)
 const projectionScreenMaterial = new THREE.MeshBasicMaterial({
@@ -60,9 +56,9 @@ scene.add(screen)
 
 let axesHelper = undefined
 
-addSpotLights(scene, C.CENTRE_P_Y, C.CENTRE_Q_Y, C.HIGH_INTENSITY_SPOTLIGHT)
-addSpotLights(scene, 0, C.CENTRE_Q_Y, C.LOW_INTENSITY_SPOTLIGHT)
-addSpotLights(scene, C.CENTRE_P_Y * 2, C.CENTRE_Q_Y, C.LOW_INTENSITY_SPOTLIGHT)
+// addSpotLights(scene, C.CENTRE_P_Y, C.CENTRE_Q_Y, C.HIGH_INTENSITY_SPOTLIGHT)
+// addSpotLights(scene, 0, C.CENTRE_Q_Y, C.LOW_INTENSITY_SPOTLIGHT)
+// addSpotLights(scene, C.CENTRE_P_Y * 2, C.CENTRE_Q_Y, C.LOW_INTENSITY_SPOTLIGHT)
 
 let growingForm = new GrowingForm(scene, C.LEFT)
 let shrinkingForm = new ShrinkingForm(scene, C.RIGHT)
@@ -108,9 +104,9 @@ const onDocumentKeyDownHandler = ev => {
     controls.autoRotate = !controls.autoRotate
   }
 
-  if (ev.key === "s") {
-    toggleSpotLightHelpers(scene)
-  }
+  // if (ev.key === "s") {
+  //   toggleSpotLightHelpers(scene)
+  // }
 
   if (ev.key === "v") {
     growingForm.toggleHelpers()

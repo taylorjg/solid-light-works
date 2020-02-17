@@ -25,6 +25,14 @@ module.exports = {
       version
     })
   ],
+  module: {
+    rules: [
+      {
+        test: /\.glsl$/,
+        use: 'webpack-glsl-loader'
+      }
+    ]
+  },
   devtool: 'source-map',
   devServer: {
     contentBase: dist
