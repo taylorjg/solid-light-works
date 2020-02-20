@@ -15,7 +15,7 @@ const PROJECTED_IMAGE_LINE_THICKNESS = 0.08
 const PROJECTOR_BULB_RADIUS = 0.08
 const ELLIPSE_POINT_COUNT = 100
 const WIPE_POINT_COUNT = 50
-const MEMBRANE_SEGMENT_COUNT = 10
+const MEMBRANE_SEGMENT_COUNT = 200
 const ROTATION_DELTA = Math.PI / (180 * 60)
 const DELTA_ANGLE = 15 * Math.PI / 180
 const ANGLE_OFFSET_THRESHOLD = 45 * Math.PI / 180
@@ -81,12 +81,14 @@ class Form {
 
   onTextureLoaded(hazeTexture) {
 
-    // this.membraneMaterial = new THREE.MeshBasicMaterial({
-    //   map: texture,
-    //   side: THREE.DoubleSide,
+    // this.membraneMaterial = new THREE.MeshStandardMaterial({
+    //   map: hazeTexture,
+    //   side: this.getIsClockwise() ? THREE.FrontSide : THREE.BackSide,
     //   color: 0xffffff,
     //   transparent: true,
-    //   opacity: 0.3
+    //   opacity: 0.2,
+    //   emissive: new THREE.Color(0xffffff),
+    //   emissiveIntensity: 0.2
     // })
 
     this.membraneMaterial = new THREE.ShaderMaterial({
@@ -95,7 +97,7 @@ class Form {
       },
       vertexShader,
       fragmentShader,
-      side: THREE.DoubleSide,
+      side: this.getIsClockwise() ? THREE.FrontSide : THREE.BackSide,
       blending: THREE.AdditiveBlending
     })
 
@@ -221,6 +223,13 @@ class Form {
     const qsVec3 = toVec3Points(qsVec2, 0)
 
     const tempMembraneGeometry = new MembraneBufferGeometry(psVec3, qsVec3, MEMBRANE_SEGMENT_COUNT)
+    tempMembraneGeometry.computeFaceNormals()
+    tempMembraneGeometry.computeVertexNormals()
+    if (!this.getIsClockwise()) {
+      const normalAttribute = tempMembraneGeometry.getAttribute("normal")
+      const array = normalAttribute.array
+      array.forEach((_, index) => array[index] *= -1)
+    }
     this.membraneGeometry.copy(tempMembraneGeometry)
     tempMembraneGeometry.dispose()
 
@@ -261,7 +270,7 @@ class Form {
       this.membraneMeshHelper = undefined
     }
     else {
-      this.membraneMeshHelper = new VertexNormalsHelper(this.membraneMesh, 0.1, 0x00ff00)
+      this.membraneMeshHelper = new VertexNormalsHelper(this.membraneMesh, 0.05, 0xffffff)
       this.scene.add(this.membraneMeshHelper)
     }
   }

@@ -13,6 +13,10 @@ container.appendChild(renderer.domElement)
 
 const FAVOURITE_POSITIONS = [
   {
+    cameraPosition: new THREE.Vector3(-18.39, 6.51, 13.86),
+    controlsTarget: new THREE.Vector3(4.49, 2, 3.12)
+  },
+  {
     cameraPosition: new THREE.Vector3(0.95, 2.12, 12.46),
     controlsTarget: new THREE.Vector3(0.95, 2.00, 9.63)
   },
@@ -137,11 +141,17 @@ const setSpeedAndReset = multiplier => {
 document.addEventListener("keydown", onDocumentKeyDownHandler)
 
 let tick = 1
+let firstRender = true
 
 const animate = () => {
   window.requestAnimationFrame(animate)
   growingForm.update(tick)
   shrinkingForm.update(tick)
+  if (firstRender) {
+    growingForm.toggleHelpers()
+    shrinkingForm.toggleHelpers()
+    firstRender = false
+  }
   controls.update()
   renderer.render(scene, camera)
   tick++
