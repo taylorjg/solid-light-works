@@ -52764,7 +52764,7 @@ function MembraneBufferGeometry(ps = [], qs = [], numSegments = 1) {
 				normals.push(0, 0, 0)
 
 				// uv
-				uvs.push(u, u)
+				uvs.push(u, v)
 
 				// save index of vertex in respective row
 				indexRow.push(index++)
@@ -52830,9 +52830,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "LOW_INTENSITY_SPOTLIGHT", function() { return LOW_INTENSITY_SPOTLIGHT; });
 const LEFT_CENTRE_X = -3.5
 const RIGHT_CENTRE_X = -LEFT_CENTRE_X
-const CENTRE_P_Y = 1
+const CENTRE_P_Y = 0.2
 const CENTRE_Q_Y = 2.6
-const MEMBRANE_LENGTH = 18
+const MEMBRANE_LENGTH = 15
 const LEFT = Symbol("LEFT")
 const RIGHT = Symbol("RIGHT")
 const GROWING = Symbol("GROWING")
@@ -52862,7 +52862,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var three_line_2d_shaders_basic__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! three-line-2d/shaders/basic */ "./node_modules/three-line-2d/shaders/basic.js");
 /* harmony import */ var three_line_2d_shaders_basic__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(three_line_2d_shaders_basic__WEBPACK_IMPORTED_MODULE_3__);
 /* harmony import */ var _MembraneGeometry__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./MembraneGeometry */ "./src/MembraneGeometry.js");
-/* harmony import */ var _constants__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./constants */ "./src/constants.js");
+/* harmony import */ var _vertex_shader_glsl__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./vertex-shader.glsl */ "./src/vertex-shader.glsl");
+/* harmony import */ var _vertex_shader_glsl__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(_vertex_shader_glsl__WEBPACK_IMPORTED_MODULE_5__);
+/* harmony import */ var _fragment_shader_glsl__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./fragment-shader.glsl */ "./src/fragment-shader.glsl");
+/* harmony import */ var _fragment_shader_glsl__WEBPACK_IMPORTED_MODULE_6___default = /*#__PURE__*/__webpack_require__.n(_fragment_shader_glsl__WEBPACK_IMPORTED_MODULE_6__);
+/* harmony import */ var _constants__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./constants */ "./src/constants.js");
 
 
 
@@ -52872,13 +52876,15 @@ const BasicShader = three_line_2d_shaders_basic__WEBPACK_IMPORTED_MODULE_3___def
 
 
 
+
+
 const PROJECTED_IMAGE_RADIUS_X = 2.8
 const PROJECTED_IMAGE_RADIUS_Y = 2
 const PROJECTED_IMAGE_LINE_THICKNESS = 0.08
 const PROJECTOR_BULB_RADIUS = 0.08
 const ELLIPSE_POINT_COUNT = 100
 const WIPE_POINT_COUNT = 50
-const MEMBRANE_SEGMENT_COUNT = 1
+const MEMBRANE_SEGMENT_COUNT = 200
 const ROTATION_DELTA = Math.PI / (180 * 60)
 const DELTA_ANGLE = 15 * Math.PI / 180
 const ANGLE_OFFSET_THRESHOLD = 45 * Math.PI / 180
@@ -52891,14 +52897,6 @@ const lineMaterial = new three__WEBPACK_IMPORTED_MODULE_0__["ShaderMaterial"](
     diffuse: 0xffffff,
     thickness: PROJECTED_IMAGE_LINE_THICKNESS
   }))
-
-const reverseNormals = bufferGeometry => {
-  const normalAttribute = bufferGeometry.getAttribute("normal")
-  const array = normalAttribute.array
-  for (let i = 0; i < array.length; i++) {
-    array[i] *= -1
-  }
-}
 
 const toArr2Points = pointsVec2 =>
   pointsVec2.map(vec2 => vec2.toArray())
@@ -52920,8 +52918,8 @@ class Form {
 
   init() {
     this.ellipseCurveP = new three__WEBPACK_IMPORTED_MODULE_0__["EllipseCurve"](
-      this.initialSide === _constants__WEBPACK_IMPORTED_MODULE_5__["LEFT"] ? _constants__WEBPACK_IMPORTED_MODULE_5__["LEFT_CENTRE_X"] : _constants__WEBPACK_IMPORTED_MODULE_5__["RIGHT_CENTRE_X"],
-      _constants__WEBPACK_IMPORTED_MODULE_5__["CENTRE_P_Y"],
+      this.initialSide === _constants__WEBPACK_IMPORTED_MODULE_7__["LEFT"] ? _constants__WEBPACK_IMPORTED_MODULE_7__["LEFT_CENTRE_X"] : _constants__WEBPACK_IMPORTED_MODULE_7__["RIGHT_CENTRE_X"],
+      _constants__WEBPACK_IMPORTED_MODULE_7__["CENTRE_P_Y"],
       PROJECTOR_BULB_RADIUS,
       PROJECTOR_BULB_RADIUS,
       this.getStartAngle(),
@@ -52929,8 +52927,8 @@ class Form {
       this.getIsClockwise())
 
     this.ellipseCurveQ = new three__WEBPACK_IMPORTED_MODULE_0__["EllipseCurve"](
-      this.initialSide === _constants__WEBPACK_IMPORTED_MODULE_5__["LEFT"] ? _constants__WEBPACK_IMPORTED_MODULE_5__["LEFT_CENTRE_X"] : _constants__WEBPACK_IMPORTED_MODULE_5__["RIGHT_CENTRE_X"],
-      _constants__WEBPACK_IMPORTED_MODULE_5__["CENTRE_Q_Y"],
+      this.initialSide === _constants__WEBPACK_IMPORTED_MODULE_7__["LEFT"] ? _constants__WEBPACK_IMPORTED_MODULE_7__["LEFT_CENTRE_X"] : _constants__WEBPACK_IMPORTED_MODULE_7__["RIGHT_CENTRE_X"],
+      _constants__WEBPACK_IMPORTED_MODULE_7__["CENTRE_Q_Y"],
       PROJECTED_IMAGE_RADIUS_X,
       PROJECTED_IMAGE_RADIUS_Y,
       this.getStartAngle(),
@@ -52944,47 +52942,39 @@ class Form {
     this.lineMeshQ = new three__WEBPACK_IMPORTED_MODULE_0__["Mesh"](this.lineGeometry, lineMaterial)
     this.scene.add(this.lineMeshQ)
 
-    this.membraneGeometryInner = new _MembraneGeometry__WEBPACK_IMPORTED_MODULE_4__["MembraneBufferGeometry"]()
-    this.membraneGeometryOuter = new _MembraneGeometry__WEBPACK_IMPORTED_MODULE_4__["MembraneBufferGeometry"]()
-
-    this.membraneMaterialInner = undefined
-    this.membraneMaterialOuter = undefined
-
-    this.membraneMeshInner = undefined
-    this.membraneMeshOuter = undefined
-
-    this.membraneMeshInnerHelper = undefined
-    this.membraneMeshOuterHelper = undefined
+    this.membraneGeometry = new _MembraneGeometry__WEBPACK_IMPORTED_MODULE_4__["MembraneBufferGeometry"]()
+    this.membraneMaterial = undefined
+    this.membraneMesh = undefined
+    this.membraneMeshHelper = undefined
   }
 
-  onTextureLoaded(texture) {
+  onTextureLoaded(hazeTexture) {
 
-    this.membraneMaterialInner = new three__WEBPACK_IMPORTED_MODULE_0__["MeshBasicMaterial"]({
-      map: texture,
-      side: three__WEBPACK_IMPORTED_MODULE_0__["FrontSide"],
-      color: 0xffffff,
-      transparent: true,
-      opacity: 0.3
+    // this.membraneMaterial = new THREE.MeshStandardMaterial({
+    //   map: hazeTexture,
+    //   side: this.getIsClockwise() ? THREE.FrontSide : THREE.BackSide,
+    //   color: 0xffffff,
+    //   transparent: true,
+    //   opacity: 0.2,
+    //   emissive: new THREE.Color(0xffffff),
+    //   emissiveIntensity: 0.2
+    // })
+
+    this.membraneMaterial = new three__WEBPACK_IMPORTED_MODULE_0__["ShaderMaterial"]({
+      uniforms: {
+        hazeTexture: { value: hazeTexture }
+      },
+      vertexShader: (_vertex_shader_glsl__WEBPACK_IMPORTED_MODULE_5___default()),
+      fragmentShader: (_fragment_shader_glsl__WEBPACK_IMPORTED_MODULE_6___default()),
+      side: this.getIsClockwise() ? three__WEBPACK_IMPORTED_MODULE_0__["FrontSide"] : three__WEBPACK_IMPORTED_MODULE_0__["BackSide"],
+      blending: three__WEBPACK_IMPORTED_MODULE_0__["AdditiveBlending"]
     })
 
-    this.membraneMaterialOuter = new three__WEBPACK_IMPORTED_MODULE_0__["MeshBasicMaterial"]({
-      map: texture,
-      side: three__WEBPACK_IMPORTED_MODULE_0__["BackSide"],
-      color: 0xffffff,
-      transparent: true,
-      opacity: 0.3
-    })
+    this.membraneMesh = new three__WEBPACK_IMPORTED_MODULE_0__["Mesh"](
+      this.membraneGeometry,
+      this.membraneMaterial)
 
-    this.membraneMeshInner = new three__WEBPACK_IMPORTED_MODULE_0__["Mesh"](
-      this.membraneGeometryInner,
-      this.membraneMaterialInner)
-
-    this.membraneMeshOuter = new three__WEBPACK_IMPORTED_MODULE_0__["Mesh"](
-      this.membraneGeometryOuter,
-      this.membraneMaterialOuter)
-
-    this.scene.add(this.membraneMeshInner)
-    this.scene.add(this.membraneMeshOuter)
+    this.scene.add(this.membraneMesh)
   }
 
   getStartAngle() {
@@ -53098,19 +53088,22 @@ class Form {
 
   updateMembrane({ psVec2, qsVec2 }) {
 
-    const psVec3 = toVec3Points(psVec2, _constants__WEBPACK_IMPORTED_MODULE_5__["MEMBRANE_LENGTH"])
+    const psVec3 = toVec3Points(psVec2, _constants__WEBPACK_IMPORTED_MODULE_7__["MEMBRANE_LENGTH"])
     const qsVec3 = toVec3Points(qsVec2, 0)
 
     const tempMembraneGeometry = new _MembraneGeometry__WEBPACK_IMPORTED_MODULE_4__["MembraneBufferGeometry"](psVec3, qsVec3, MEMBRANE_SEGMENT_COUNT)
-    tempMembraneGeometry.computeVertexNormals(); // NOT NEEDED ?
-    this.membraneGeometryInner.copy(tempMembraneGeometry)
-    reverseNormals(tempMembraneGeometry); // NOT NEEDED ?
-    this.membraneGeometryOuter.copy(tempMembraneGeometry)
+    tempMembraneGeometry.computeFaceNormals()
+    tempMembraneGeometry.computeVertexNormals()
+    if (!this.getIsClockwise()) {
+      const normalAttribute = tempMembraneGeometry.getAttribute("normal")
+      const array = normalAttribute.array
+      array.forEach((_, index) => array[index] *= -1)
+    }
+    this.membraneGeometry.copy(tempMembraneGeometry)
     tempMembraneGeometry.dispose()
 
-    if (this.membraneMeshInnerHelper) {
-      this.membraneMeshInnerHelper.update()
-      this.membraneMeshOuterHelper.update()
+    if (this.membraneMeshHelper) {
+      this.membraneMeshHelper.update()
     }
   }
 
@@ -53127,31 +53120,27 @@ class Form {
   }
 
   swapSides() {
-    this.ellipseCurveP.aX = this.ellipseCurveP.aX === _constants__WEBPACK_IMPORTED_MODULE_5__["RIGHT_CENTRE_X"] ? _constants__WEBPACK_IMPORTED_MODULE_5__["LEFT_CENTRE_X"] : _constants__WEBPACK_IMPORTED_MODULE_5__["RIGHT_CENTRE_X"]
-    this.ellipseCurveQ.aX = this.ellipseCurveQ.aX === _constants__WEBPACK_IMPORTED_MODULE_5__["RIGHT_CENTRE_X"] ? _constants__WEBPACK_IMPORTED_MODULE_5__["LEFT_CENTRE_X"] : _constants__WEBPACK_IMPORTED_MODULE_5__["RIGHT_CENTRE_X"]
+    this.ellipseCurveP.aX = this.ellipseCurveP.aX === _constants__WEBPACK_IMPORTED_MODULE_7__["RIGHT_CENTRE_X"] ? _constants__WEBPACK_IMPORTED_MODULE_7__["LEFT_CENTRE_X"] : _constants__WEBPACK_IMPORTED_MODULE_7__["RIGHT_CENTRE_X"]
+    this.ellipseCurveQ.aX = this.ellipseCurveQ.aX === _constants__WEBPACK_IMPORTED_MODULE_7__["RIGHT_CENTRE_X"] ? _constants__WEBPACK_IMPORTED_MODULE_7__["LEFT_CENTRE_X"] : _constants__WEBPACK_IMPORTED_MODULE_7__["RIGHT_CENTRE_X"]
     this.ellipseCurveP.aStartAngle = this.getStartAngle()
     this.ellipseCurveQ.aStartAngle = this.getStartAngle()
   }
 
   reset() {
-    this.ellipseCurveP.aX = this.initialSide === _constants__WEBPACK_IMPORTED_MODULE_5__["LEFT"] ? _constants__WEBPACK_IMPORTED_MODULE_5__["LEFT_CENTRE_X"] : _constants__WEBPACK_IMPORTED_MODULE_5__["RIGHT_CENTRE_X"]
-    this.ellipseCurveQ.aX = this.initialSide === _constants__WEBPACK_IMPORTED_MODULE_5__["LEFT"] ? _constants__WEBPACK_IMPORTED_MODULE_5__["LEFT_CENTRE_X"] : _constants__WEBPACK_IMPORTED_MODULE_5__["RIGHT_CENTRE_X"]
+    this.ellipseCurveP.aX = this.initialSide === _constants__WEBPACK_IMPORTED_MODULE_7__["LEFT"] ? _constants__WEBPACK_IMPORTED_MODULE_7__["LEFT_CENTRE_X"] : _constants__WEBPACK_IMPORTED_MODULE_7__["RIGHT_CENTRE_X"]
+    this.ellipseCurveQ.aX = this.initialSide === _constants__WEBPACK_IMPORTED_MODULE_7__["LEFT"] ? _constants__WEBPACK_IMPORTED_MODULE_7__["LEFT_CENTRE_X"] : _constants__WEBPACK_IMPORTED_MODULE_7__["RIGHT_CENTRE_X"]
     this.ellipseCurveP.aStartAngle = this.getStartAngle()
     this.ellipseCurveQ.aStartAngle = this.getStartAngle()
   }
 
   toggleHelpers() {
-    if (this.membraneMeshInnerHelper) {
-      this.scene.remove(this.membraneMeshInnerHelper)
-      this.scene.remove(this.membraneMeshOuterHelper)
-      this.membraneMeshInnerHelper = undefined
-      this.membraneMeshOuterHelper = undefined
+    if (this.membraneMeshHelper) {
+      this.scene.remove(this.membraneMeshHelper)
+      this.membraneMeshHelper = undefined
     }
     else {
-      this.membraneMeshInnerHelper = new three_examples_jsm_helpers_VertexNormalsHelper_js__WEBPACK_IMPORTED_MODULE_1__["VertexNormalsHelper"](this.membraneMeshInner, 0.1, 0x00ff00)
-      this.membraneMeshOuterHelper = new three_examples_jsm_helpers_VertexNormalsHelper_js__WEBPACK_IMPORTED_MODULE_1__["VertexNormalsHelper"](this.membraneMeshOuter, 0.1, 0x0000ff)
-      this.scene.add(this.membraneMeshInnerHelper)
-      this.scene.add(this.membraneMeshOuterHelper)
+      this.membraneMeshHelper = new three_examples_jsm_helpers_VertexNormalsHelper_js__WEBPACK_IMPORTED_MODULE_1__["VertexNormalsHelper"](this.membraneMesh, 0.05, 0xffffff)
+      this.scene.add(this.membraneMeshHelper)
     }
   }
 }
@@ -53197,6 +53186,17 @@ class ShrinkingForm extends Form {
 
 /***/ }),
 
+/***/ "./src/fragment-shader.glsl":
+/*!**********************************!*\
+  !*** ./src/fragment-shader.glsl ***!
+  \**********************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = "uniform sampler2D hazeTexture;\nvarying vec2 vUv;\n\nvoid main() {\n  vec4 stHazeValue = texture2D(hazeTexture, vUv.st);\n  vec4 ssHazeValue = texture2D(hazeTexture, vUv.ss);\n  stHazeValue.a = 0.1;\n  ssHazeValue.a = 0.2;\n  gl_FragColor = stHazeValue + ssHazeValue;\n  // TODO: photon mapping ?\n}\n"
+
+/***/ }),
+
 /***/ "./src/index.js":
 /*!**********************!*\
   !*** ./src/index.js ***!
@@ -53209,12 +53209,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var three__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
 /* harmony import */ var three_examples_jsm_controls_OrbitControls__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! three/examples/jsm/controls/OrbitControls */ "./node_modules/three/examples/jsm/controls/OrbitControls.js");
 /* harmony import */ var _form__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./form */ "./src/form.js");
-/* harmony import */ var _spotlights__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./spotlights */ "./src/spotlights.js");
-/* harmony import */ var _constants__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./constants */ "./src/constants.js");
+/* harmony import */ var _constants__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./constants */ "./src/constants.js");
 
 
 
-
+// import { addSpotLights, toggleSpotLightHelpers } from "./spotlights"
 
 
 const container = document.getElementById("container")
@@ -53225,6 +53224,10 @@ renderer.setSize(w, h)
 container.appendChild(renderer.domElement)
 
 const FAVOURITE_POSITIONS = [
+  {
+    cameraPosition: new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](-18.39, 6.51, 13.86),
+    controlsTarget: new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](4.49, 2, 3.12)
+  },
   {
     cameraPosition: new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](0.95, 2.12, 12.46),
     controlsTarget: new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](0.95, 2.00, 9.63)
@@ -53257,10 +53260,6 @@ controls.enableDamping = true
 controls.dampingFactor = 0.9
 controls.autoRotate = false
 
-// -----------------
-// Projection screen
-// -----------------
-
 const projectionScreenGeometry = new three__WEBPACK_IMPORTED_MODULE_0__["PlaneGeometry"](16, 6)
 projectionScreenGeometry.translate(0, 3, 0)
 const projectionScreenMaterial = new three__WEBPACK_IMPORTED_MODULE_0__["MeshBasicMaterial"]({
@@ -53273,12 +53272,12 @@ scene.add(screen)
 
 let axesHelper = undefined
 
-Object(_spotlights__WEBPACK_IMPORTED_MODULE_3__["addSpotLights"])(scene, _constants__WEBPACK_IMPORTED_MODULE_4__["CENTRE_P_Y"], _constants__WEBPACK_IMPORTED_MODULE_4__["CENTRE_Q_Y"], _constants__WEBPACK_IMPORTED_MODULE_4__["HIGH_INTENSITY_SPOTLIGHT"])
-Object(_spotlights__WEBPACK_IMPORTED_MODULE_3__["addSpotLights"])(scene, 0, _constants__WEBPACK_IMPORTED_MODULE_4__["CENTRE_Q_Y"], _constants__WEBPACK_IMPORTED_MODULE_4__["LOW_INTENSITY_SPOTLIGHT"])
-Object(_spotlights__WEBPACK_IMPORTED_MODULE_3__["addSpotLights"])(scene, _constants__WEBPACK_IMPORTED_MODULE_4__["CENTRE_P_Y"] * 2, _constants__WEBPACK_IMPORTED_MODULE_4__["CENTRE_Q_Y"], _constants__WEBPACK_IMPORTED_MODULE_4__["LOW_INTENSITY_SPOTLIGHT"])
+// addSpotLights(scene, C.CENTRE_P_Y, C.CENTRE_Q_Y, C.HIGH_INTENSITY_SPOTLIGHT)
+// addSpotLights(scene, 0, C.CENTRE_Q_Y, C.LOW_INTENSITY_SPOTLIGHT)
+// addSpotLights(scene, C.CENTRE_P_Y * 2, C.CENTRE_Q_Y, C.LOW_INTENSITY_SPOTLIGHT)
 
-let growingForm = new _form__WEBPACK_IMPORTED_MODULE_2__["GrowingForm"](scene, _constants__WEBPACK_IMPORTED_MODULE_4__["LEFT"])
-let shrinkingForm = new _form__WEBPACK_IMPORTED_MODULE_2__["ShrinkingForm"](scene, _constants__WEBPACK_IMPORTED_MODULE_4__["RIGHT"])
+let growingForm = new _form__WEBPACK_IMPORTED_MODULE_2__["GrowingForm"](scene, _constants__WEBPACK_IMPORTED_MODULE_3__["LEFT"])
+let shrinkingForm = new _form__WEBPACK_IMPORTED_MODULE_2__["ShrinkingForm"](scene, _constants__WEBPACK_IMPORTED_MODULE_3__["RIGHT"])
 
 const textureLoader = new three__WEBPACK_IMPORTED_MODULE_0__["TextureLoader"]()
 textureLoader.load("haze.jpg", texture => {
@@ -53321,9 +53320,9 @@ const onDocumentKeyDownHandler = ev => {
     controls.autoRotate = !controls.autoRotate
   }
 
-  if (ev.key === "s") {
-    Object(_spotlights__WEBPACK_IMPORTED_MODULE_3__["toggleSpotLightHelpers"])(scene)
-  }
+  // if (ev.key === "s") {
+  //   toggleSpotLightHelpers(scene)
+  // }
 
   if (ev.key === "v") {
     growingForm.toggleHelpers()
@@ -53354,11 +53353,17 @@ const setSpeedAndReset = multiplier => {
 document.addEventListener("keydown", onDocumentKeyDownHandler)
 
 let tick = 1
+let firstRender = true
 
 const animate = () => {
   window.requestAnimationFrame(animate)
   growingForm.update(tick)
   shrinkingForm.update(tick)
+  if (firstRender) {
+    growingForm.toggleHelpers()
+    shrinkingForm.toggleHelpers()
+    firstRender = false
+  }
   controls.update()
   renderer.render(scene, camera)
   tick++
@@ -53372,67 +53377,14 @@ const animate = () => {
 
 /***/ }),
 
-/***/ "./src/spotlights.js":
-/*!***************************!*\
-  !*** ./src/spotlights.js ***!
-  \***************************/
-/*! exports provided: addSpotLights, toggleSpotLightHelpers */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+/***/ "./src/vertex-shader.glsl":
+/*!********************************!*\
+  !*** ./src/vertex-shader.glsl ***!
+  \********************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
 
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "addSpotLights", function() { return addSpotLights; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "toggleSpotLightHelpers", function() { return toggleSpotLightHelpers; });
-/* harmony import */ var three__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
-/* harmony import */ var _constants__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./constants */ "./src/constants.js");
-
-
-
-const COLOUR = 0xffffff
-const HIGH_INTENSITY = 100
-const LOW_INTENSITY = 50
-const DISTANCE = _constants__WEBPACK_IMPORTED_MODULE_1__["MEMBRANE_LENGTH"] * 2
-const ANGLE = 14 * Math.PI / 180
-
-const highIntensitySpotLights = []
-const helpers = []
-
-const addSpotLights = (scene, positionY, targetY, intensityType) => {
-
-  const addTo = side => {
-
-    const x = side === _constants__WEBPACK_IMPORTED_MODULE_1__["LEFT"] ? _constants__WEBPACK_IMPORTED_MODULE_1__["LEFT_CENTRE_X"] : _constants__WEBPACK_IMPORTED_MODULE_1__["RIGHT_CENTRE_X"]
-    const intensity = intensityType === _constants__WEBPACK_IMPORTED_MODULE_1__["HIGH_INTENSITY_SPOTLIGHT"] ? HIGH_INTENSITY : LOW_INTENSITY
-
-    const spotLightTarget = new three__WEBPACK_IMPORTED_MODULE_0__["Object3D"]()
-    spotLightTarget.position.set(x, targetY, 0)
-    scene.add(spotLightTarget)
-
-    const spotLight = new three__WEBPACK_IMPORTED_MODULE_0__["SpotLight"](COLOUR, intensity, DISTANCE, ANGLE)
-    spotLight.position.set(x, positionY, _constants__WEBPACK_IMPORTED_MODULE_1__["MEMBRANE_LENGTH"])
-    spotLight.target = spotLightTarget
-    scene.add(spotLight)
-
-    if (intensityType === _constants__WEBPACK_IMPORTED_MODULE_1__["HIGH_INTENSITY_SPOTLIGHT"]) {
-      highIntensitySpotLights.push(spotLight)
-    }
-  }
-
-  addTo(_constants__WEBPACK_IMPORTED_MODULE_1__["LEFT"])
-  addTo(_constants__WEBPACK_IMPORTED_MODULE_1__["RIGHT"])
-}
-
-const toggleSpotLightHelpers = scene => {
-  if (helpers.length) {
-    helpers.forEach(helper => scene.remove(helper))
-    helpers.splice(0, helpers.length)
-  }
-  else {
-    highIntensitySpotLights.forEach(spotLight => helpers.push(new three__WEBPACK_IMPORTED_MODULE_0__["SpotLightHelper"](spotLight)))
-    helpers.forEach(helper => scene.add(helper))
-  }
-}
-
+module.exports = "uniform sampler2D hazeTexture;\nvarying vec2 vUv;\n\nvoid main() {\n  vUv = uv;\n  gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);\n}\n"
 
 /***/ })
 
