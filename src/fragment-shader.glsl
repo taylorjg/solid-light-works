@@ -1,11 +1,14 @@
 uniform sampler2D hazeTexture;
+varying vec3 vPosition;
+varying vec3 vNormal;
 varying vec2 vUv;
 
+const vec4 WHITE = vec4(1.0);
+
 void main() {
-  vec4 stHazeValue = texture2D(hazeTexture, vUv.st);
-  vec4 ssHazeValue = texture2D(hazeTexture, vUv.ss);
-  stHazeValue.a = 0.1;
-  ssHazeValue.a = 0.2;
-  gl_FragColor = stHazeValue + ssHazeValue;
-  // TODO: photon mapping ?
+  vec3 cameraToPosition = normalize(vPosition - cameraPosition);
+  float weight = 1.0 - abs(dot(cameraToPosition, vNormal));
+  vec4 hazeValue = texture2D(hazeTexture, vUv.ss);
+  hazeValue.a = 0.1;
+  gl_FragColor = mix(hazeValue, WHITE, weight);
 }

@@ -141,17 +141,11 @@ const setSpeedAndReset = multiplier => {
 document.addEventListener("keydown", onDocumentKeyDownHandler)
 
 let tick = 1
-let firstRender = true
 
 const animate = () => {
   window.requestAnimationFrame(animate)
   growingForm.update(tick)
   shrinkingForm.update(tick)
-  if (firstRender) {
-    growingForm.toggleHelpers()
-    shrinkingForm.toggleHelpers()
-    firstRender = false
-  }
   controls.update()
   renderer.render(scene, camera)
   tick++

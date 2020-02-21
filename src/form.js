@@ -15,7 +15,7 @@ const PROJECTED_IMAGE_LINE_THICKNESS = 0.08
 const PROJECTOR_BULB_RADIUS = 0.08
 const ELLIPSE_POINT_COUNT = 100
 const WIPE_POINT_COUNT = 50
-const MEMBRANE_SEGMENT_COUNT = 200
+const MEMBRANE_SEGMENT_COUNT = 1
 const ROTATION_DELTA = Math.PI / (180 * 60)
 const DELTA_ANGLE = 15 * Math.PI / 180
 const ANGLE_OFFSET_THRESHOLD = 45 * Math.PI / 180
@@ -93,11 +93,14 @@ class Form {
 
     this.membraneMaterial = new THREE.ShaderMaterial({
       uniforms: {
-        hazeTexture: { value: hazeTexture }
+        hazeTexture: {
+          value: hazeTexture
+        }
       },
       vertexShader,
       fragmentShader,
       side: this.getIsClockwise() ? THREE.FrontSide : THREE.BackSide,
+      // side: THREE.DoubleSide,
       blending: THREE.AdditiveBlending
     })
 
