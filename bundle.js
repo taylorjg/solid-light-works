@@ -52884,7 +52884,7 @@ const PROJECTED_IMAGE_LINE_THICKNESS = 0.08
 const PROJECTOR_BULB_RADIUS = 0.08
 const ELLIPSE_POINT_COUNT = 100
 const WIPE_POINT_COUNT = 50
-const MEMBRANE_SEGMENT_COUNT = 200
+const MEMBRANE_SEGMENT_COUNT = 1
 const ROTATION_DELTA = Math.PI / (180 * 60)
 const DELTA_ANGLE = 15 * Math.PI / 180
 const ANGLE_OFFSET_THRESHOLD = 45 * Math.PI / 180
@@ -52962,11 +52962,14 @@ class Form {
 
     this.membraneMaterial = new three__WEBPACK_IMPORTED_MODULE_0__["ShaderMaterial"]({
       uniforms: {
-        hazeTexture: { value: hazeTexture }
+        hazeTexture: {
+          value: hazeTexture
+        }
       },
       vertexShader: (_vertex_shader_glsl__WEBPACK_IMPORTED_MODULE_5___default()),
       fragmentShader: (_fragment_shader_glsl__WEBPACK_IMPORTED_MODULE_6___default()),
       side: this.getIsClockwise() ? three__WEBPACK_IMPORTED_MODULE_0__["FrontSide"] : three__WEBPACK_IMPORTED_MODULE_0__["BackSide"],
+      // side: THREE.DoubleSide,
       blending: three__WEBPACK_IMPORTED_MODULE_0__["AdditiveBlending"]
     })
 
@@ -53193,7 +53196,7 @@ class ShrinkingForm extends Form {
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-module.exports = "uniform sampler2D hazeTexture;\nvarying vec2 vUv;\n\nvoid main() {\n  vec4 stHazeValue = texture2D(hazeTexture, vUv.st);\n  vec4 ssHazeValue = texture2D(hazeTexture, vUv.ss);\n  stHazeValue.a = 0.1;\n  ssHazeValue.a = 0.2;\n  gl_FragColor = stHazeValue + ssHazeValue;\n  // TODO: photon mapping ?\n}\n"
+module.exports = "uniform sampler2D hazeTexture;\nvarying vec3 vPosition;\nvarying vec3 vNormal;\nvarying vec2 vUv;\n\nconst vec4 WHITE = vec4(1.0);\n\nvoid main() {\n  vec3 cameraToPosition = normalize(vPosition - cameraPosition);\n  float weight = 1.0 - abs(dot(cameraToPosition, vNormal));\n  vec4 hazeValue = texture2D(hazeTexture, vUv.ss);\n  hazeValue.a = 0.1;\n  gl_FragColor = mix(hazeValue, WHITE, weight);\n}\n"
 
 /***/ }),
 
@@ -53353,17 +53356,11 @@ const setSpeedAndReset = multiplier => {
 document.addEventListener("keydown", onDocumentKeyDownHandler)
 
 let tick = 1
-let firstRender = true
 
 const animate = () => {
   window.requestAnimationFrame(animate)
   growingForm.update(tick)
   shrinkingForm.update(tick)
-  if (firstRender) {
-    growingForm.toggleHelpers()
-    shrinkingForm.toggleHelpers()
-    firstRender = false
-  }
   controls.update()
   renderer.render(scene, camera)
   tick++
@@ -53384,7 +53381,7 @@ const animate = () => {
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-module.exports = "uniform sampler2D hazeTexture;\nvarying vec2 vUv;\n\nvoid main() {\n  vUv = uv;\n  gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);\n}\n"
+module.exports = "uniform sampler2D hazeTexture;\nvarying vec3 vPosition;\nvarying vec3 vNormal;\nvarying vec2 vUv;\n\nvoid main() {\n  vPosition = (modelViewMatrix * vec4(position, 1.0)).xyz;\n  vNormal = normalize(normalMatrix * normal);\n  vUv = uv;\n  gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);\n}\n"
 
 /***/ })
 
