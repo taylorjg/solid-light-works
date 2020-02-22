@@ -52686,10 +52686,10 @@ VertexNormalsHelper.prototype.update = function () {
 
 /***/ }),
 
-/***/ "./src/MembraneGeometry.js":
-/*!*********************************!*\
-  !*** ./src/MembraneGeometry.js ***!
-  \*********************************/
+/***/ "./src/MembraneBufferGeometry.js":
+/*!***************************************!*\
+  !*** ./src/MembraneBufferGeometry.js ***!
+  \***************************************/
 /*! exports provided: MembraneBufferGeometry */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
@@ -52709,7 +52709,7 @@ function MembraneBufferGeometry(ps = [], qs = [], numSegments = 1) {
 
 	three__WEBPACK_IMPORTED_MODULE_0__["BufferGeometry"].call(this)
 
-	this.type = "MembraneBufferGeometry"
+	this.type = 'MembraneBufferGeometry'
 
 	const scope = this
 
@@ -52731,9 +52731,9 @@ function MembraneBufferGeometry(ps = [], qs = [], numSegments = 1) {
 
 	// build geometry
 	this.setIndex(indices)
-	this.setAttribute("position", new three__WEBPACK_IMPORTED_MODULE_0__["Float32BufferAttribute"](vertices, 3))
-	this.setAttribute("normal", new three__WEBPACK_IMPORTED_MODULE_0__["Float32BufferAttribute"](normals, 3))
-	this.setAttribute("uv", new three__WEBPACK_IMPORTED_MODULE_0__["Float32BufferAttribute"](uvs, 2))
+	this.setAttribute('position', new three__WEBPACK_IMPORTED_MODULE_0__["Float32BufferAttribute"](vertices, 3))
+	this.setAttribute('normal', new three__WEBPACK_IMPORTED_MODULE_0__["Float32BufferAttribute"](normals, 3))
+	this.setAttribute('uv', new three__WEBPACK_IMPORTED_MODULE_0__["Float32BufferAttribute"](uvs, 2))
 
 	function generateTorso() {
 
@@ -52833,12 +52833,12 @@ const RIGHT_CENTRE_X = -LEFT_CENTRE_X
 const CENTRE_P_Y = 0.2
 const CENTRE_Q_Y = 2.6
 const MEMBRANE_LENGTH = 15
-const LEFT = Symbol("LEFT")
-const RIGHT = Symbol("RIGHT")
-const GROWING = Symbol("GROWING")
-const SHRINKING = Symbol("SHRINKING")
-const HIGH_INTENSITY_SPOTLIGHT = Symbol("HIGH_INTENSITY_SPOTLIGHT")
-const LOW_INTENSITY_SPOTLIGHT = Symbol("LOW_INTENSITY_SPOTLIGHT")
+const LEFT = Symbol('LEFT')
+const RIGHT = Symbol('RIGHT')
+const GROWING = Symbol('GROWING')
+const SHRINKING = Symbol('SHRINKING')
+const HIGH_INTENSITY_SPOTLIGHT = Symbol('HIGH_INTENSITY_SPOTLIGHT')
+const LOW_INTENSITY_SPOTLIGHT = Symbol('LOW_INTENSITY_SPOTLIGHT')
 
 
 /***/ }),
@@ -52847,12 +52847,14 @@ const LOW_INTENSITY_SPOTLIGHT = Symbol("LOW_INTENSITY_SPOTLIGHT")
 /*!*********************!*\
   !*** ./src/form.js ***!
   \*********************/
-/*! exports provided: setSpeed, GrowingForm, ShrinkingForm */
+/*! exports provided: setSpeed, GrowingFormPoints, ShrinkingFormPoints, GrowingForm, ShrinkingForm */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "setSpeed", function() { return setSpeed; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "GrowingFormPoints", function() { return GrowingFormPoints; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ShrinkingFormPoints", function() { return ShrinkingFormPoints; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "GrowingForm", function() { return GrowingForm; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ShrinkingForm", function() { return ShrinkingForm; });
 /* harmony import */ var three__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
@@ -52861,18 +52863,18 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var three_line_2d__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(three_line_2d__WEBPACK_IMPORTED_MODULE_2__);
 /* harmony import */ var three_line_2d_shaders_basic__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! three-line-2d/shaders/basic */ "./node_modules/three-line-2d/shaders/basic.js");
 /* harmony import */ var three_line_2d_shaders_basic__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(three_line_2d_shaders_basic__WEBPACK_IMPORTED_MODULE_3__);
-/* harmony import */ var _MembraneGeometry__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./MembraneGeometry */ "./src/MembraneGeometry.js");
-/* harmony import */ var _vertex_shader_glsl__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./vertex-shader.glsl */ "./src/vertex-shader.glsl");
-/* harmony import */ var _vertex_shader_glsl__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(_vertex_shader_glsl__WEBPACK_IMPORTED_MODULE_5__);
-/* harmony import */ var _fragment_shader_glsl__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./fragment-shader.glsl */ "./src/fragment-shader.glsl");
-/* harmony import */ var _fragment_shader_glsl__WEBPACK_IMPORTED_MODULE_6___default = /*#__PURE__*/__webpack_require__.n(_fragment_shader_glsl__WEBPACK_IMPORTED_MODULE_6__);
+/* harmony import */ var _MembraneBufferGeometry__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./MembraneBufferGeometry */ "./src/MembraneBufferGeometry.js");
+/* harmony import */ var _shaders_vertex_shader_glsl__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./shaders/vertex-shader.glsl */ "./src/shaders/vertex-shader.glsl");
+/* harmony import */ var _shaders_vertex_shader_glsl__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(_shaders_vertex_shader_glsl__WEBPACK_IMPORTED_MODULE_5__);
+/* harmony import */ var _shaders_fragment_shader_glsl__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./shaders/fragment-shader.glsl */ "./src/shaders/fragment-shader.glsl");
+/* harmony import */ var _shaders_fragment_shader_glsl__WEBPACK_IMPORTED_MODULE_6___default = /*#__PURE__*/__webpack_require__.n(_shaders_fragment_shader_glsl__WEBPACK_IMPORTED_MODULE_6__);
 /* harmony import */ var _constants__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./constants */ "./src/constants.js");
 
 
 
 
-const Line = three_line_2d__WEBPACK_IMPORTED_MODULE_2___default()(three__WEBPACK_IMPORTED_MODULE_0__)
-const BasicShader = three_line_2d_shaders_basic__WEBPACK_IMPORTED_MODULE_3___default()(three__WEBPACK_IMPORTED_MODULE_0__)
+const Line2d = three_line_2d__WEBPACK_IMPORTED_MODULE_2___default()(three__WEBPACK_IMPORTED_MODULE_0__)
+const Line2dBasicShader = three_line_2d_shaders_basic__WEBPACK_IMPORTED_MODULE_3___default()(three__WEBPACK_IMPORTED_MODULE_0__)
 
 
 
@@ -52881,7 +52883,7 @@ const BasicShader = three_line_2d_shaders_basic__WEBPACK_IMPORTED_MODULE_3___def
 const PROJECTED_IMAGE_RADIUS_X = 2.8
 const PROJECTED_IMAGE_RADIUS_Y = 2
 const PROJECTED_IMAGE_LINE_THICKNESS = 0.08
-const PROJECTOR_BULB_RADIUS = 0.08
+const PROJECTOR_BULB_RADIUS = 0.1
 const ELLIPSE_POINT_COUNT = 100
 const WIPE_POINT_COUNT = 50
 const MEMBRANE_SEGMENT_COUNT = 1
@@ -52890,13 +52892,6 @@ const DELTA_ANGLE = 15 * Math.PI / 180
 const ANGLE_OFFSET_THRESHOLD = 45 * Math.PI / 180
 
 let currentRotationDelta = ROTATION_DELTA
-
-const lineMaterial = new three__WEBPACK_IMPORTED_MODULE_0__["ShaderMaterial"](
-  BasicShader({
-    side: three__WEBPACK_IMPORTED_MODULE_0__["DoubleSide"],
-    diffuse: 0xffffff,
-    thickness: PROJECTED_IMAGE_LINE_THICKNESS
-  }))
 
 const toArr2Points = pointsVec2 =>
   pointsVec2.map(vec2 => vec2.toArray())
@@ -52908,10 +52903,9 @@ const setSpeed = multiplier => {
   currentRotationDelta = ROTATION_DELTA * multiplier
 }
 
-class Form {
+class FormPointsBase {
 
-  constructor(scene, initialSide) {
-    this.scene = scene
+  constructor(initialSide) {
     this.initialSide = initialSide
     this.init()
   }
@@ -52937,61 +52931,19 @@ class Form {
 
     this.wipeCurveP = new three__WEBPACK_IMPORTED_MODULE_0__["CubicBezierCurve"]()
     this.wipeCurveQ = new three__WEBPACK_IMPORTED_MODULE_0__["CubicBezierCurve"]()
-
-    this.lineGeometry = Line()
-    this.lineMeshQ = new three__WEBPACK_IMPORTED_MODULE_0__["Mesh"](this.lineGeometry, lineMaterial)
-    this.scene.add(this.lineMeshQ)
-
-    this.membraneGeometry = new _MembraneGeometry__WEBPACK_IMPORTED_MODULE_4__["MembraneBufferGeometry"]()
-    this.membraneMaterial = undefined
-    this.membraneMesh = undefined
-    this.membraneMeshHelper = undefined
-  }
-
-  onTextureLoaded(hazeTexture) {
-
-    // this.membraneMaterial = new THREE.MeshStandardMaterial({
-    //   map: hazeTexture,
-    //   side: this.getIsClockwise() ? THREE.FrontSide : THREE.BackSide,
-    //   color: 0xffffff,
-    //   transparent: true,
-    //   opacity: 0.2,
-    //   emissive: new THREE.Color(0xffffff),
-    //   emissiveIntensity: 0.2
-    // })
-
-    this.membraneMaterial = new three__WEBPACK_IMPORTED_MODULE_0__["ShaderMaterial"]({
-      uniforms: {
-        hazeTexture: {
-          value: hazeTexture
-        }
-      },
-      vertexShader: (_vertex_shader_glsl__WEBPACK_IMPORTED_MODULE_5___default()),
-      fragmentShader: (_fragment_shader_glsl__WEBPACK_IMPORTED_MODULE_6___default()),
-      side: this.getIsClockwise() ? three__WEBPACK_IMPORTED_MODULE_0__["FrontSide"] : three__WEBPACK_IMPORTED_MODULE_0__["BackSide"],
-      // side: THREE.DoubleSide,
-      blending: three__WEBPACK_IMPORTED_MODULE_0__["AdditiveBlending"]
-    })
-
-    this.membraneMesh = new three__WEBPACK_IMPORTED_MODULE_0__["Mesh"](
-      this.membraneGeometry,
-      this.membraneMaterial)
-
-    this.scene.add(this.membraneMesh)
   }
 
   getStartAngle() {
-    throw new Error("You have to implement the method getStartAngle!")
+    throw new Error('You have to override FormPointsBase#getStartAngle!')
   }
 
   getEndAngle() {
-    throw new Error("You have to implement the method getEndAngle!")
+    throw new Error('You have to override FormPointsBase#getEndAngle!')
   }
 
   getIsClockwise() {
-    throw new Error("You have to implement the method getIsClockwise!")
+    throw new Error('You have to override FormPointsBase#getIsClockwise!')
   }
-
   calculateSinusoidalDampingFactor(a) {
     const dampingFactor = Math.pow(3 + (1 - Math.sin(a % Math.PI)) * 5, 2)
     // console.log(`a: ${a}; dampingFactor: ${dampingFactor}`)
@@ -53085,37 +53037,6 @@ class Form {
     }
   }
 
-  updateProjectedImage({ qsVec2 }) {
-    this.lineGeometry.update(toArr2Points(qsVec2))
-  }
-
-  updateMembrane({ psVec2, qsVec2 }) {
-
-    const psVec3 = toVec3Points(psVec2, _constants__WEBPACK_IMPORTED_MODULE_7__["MEMBRANE_LENGTH"])
-    const qsVec3 = toVec3Points(qsVec2, 0)
-
-    const tempMembraneGeometry = new _MembraneGeometry__WEBPACK_IMPORTED_MODULE_4__["MembraneBufferGeometry"](psVec3, qsVec3, MEMBRANE_SEGMENT_COUNT)
-    tempMembraneGeometry.computeFaceNormals()
-    tempMembraneGeometry.computeVertexNormals()
-    if (!this.getIsClockwise()) {
-      const normalAttribute = tempMembraneGeometry.getAttribute("normal")
-      const array = normalAttribute.array
-      array.forEach((_, index) => array[index] *= -1)
-    }
-    this.membraneGeometry.copy(tempMembraneGeometry)
-    tempMembraneGeometry.dispose()
-
-    if (this.membraneMeshHelper) {
-      this.membraneMeshHelper.update()
-    }
-  }
-
-  update(tick) {
-    const updatedPoints = this.updatePoints(tick)
-    this.updateProjectedImage(updatedPoints)
-    this.updateMembrane(updatedPoints)
-  }
-
   swapSidesTest() {
     const endAngleDelta = Math.abs(this.getEndAngle() - this.ellipseCurveQ.aStartAngle)
     // console.log(`endAngleDelta: ${endAngleDelta}; currentRotationDelta: ${currentRotationDelta}`)
@@ -53135,23 +53056,12 @@ class Form {
     this.ellipseCurveP.aStartAngle = this.getStartAngle()
     this.ellipseCurveQ.aStartAngle = this.getStartAngle()
   }
-
-  toggleHelpers() {
-    if (this.membraneMeshHelper) {
-      this.scene.remove(this.membraneMeshHelper)
-      this.membraneMeshHelper = undefined
-    }
-    else {
-      this.membraneMeshHelper = new three_examples_jsm_helpers_VertexNormalsHelper_js__WEBPACK_IMPORTED_MODULE_1__["VertexNormalsHelper"](this.membraneMesh, 0.05, 0xffffff)
-      this.scene.add(this.membraneMeshHelper)
-    }
-  }
 }
 
-class GrowingForm extends Form {
+class GrowingFormPoints extends FormPointsBase {
 
-  constructor(scene, initialSide) {
-    super(scene, initialSide)
+  constructor(initialSide) {
+    super(initialSide)
   }
 
   getStartAngle() {
@@ -53167,10 +53077,10 @@ class GrowingForm extends Form {
   }
 }
 
-class ShrinkingForm extends Form {
+class ShrinkingFormPoints extends FormPointsBase {
 
-  constructor(scene, initialSide) {
-    super(scene, initialSide)
+  constructor(initialSide) {
+    super(initialSide)
   }
 
   getStartAngle() {
@@ -53186,17 +53096,107 @@ class ShrinkingForm extends Form {
   }
 }
 
+class Form {
 
-/***/ }),
+  constructor(scene, hazeTexture, formPoints) {
+    this.scene = scene
+    this.formPoints = formPoints
 
-/***/ "./src/fragment-shader.glsl":
-/*!**********************************!*\
-  !*** ./src/fragment-shader.glsl ***!
-  \**********************************/
-/*! no static exports found */
-/***/ (function(module, exports) {
+    this.lineGeometry = Line2d()
+    const lineMaterial = new three__WEBPACK_IMPORTED_MODULE_0__["ShaderMaterial"](
+      Line2dBasicShader({
+        side: three__WEBPACK_IMPORTED_MODULE_0__["DoubleSide"],
+        diffuse: 0xffffff,
+        thickness: PROJECTED_IMAGE_LINE_THICKNESS
+      }))
+    this.lineMesh = new three__WEBPACK_IMPORTED_MODULE_0__["Mesh"](this.lineGeometry, lineMaterial)
+    this.scene.add(this.lineMesh)
 
-module.exports = "uniform sampler2D hazeTexture;\nvarying vec3 vPosition;\nvarying vec3 vNormal;\nvarying vec2 vUv;\n\nconst vec4 WHITE = vec4(1.0);\n\nvoid main() {\n  vec3 cameraToPosition = normalize(vPosition - cameraPosition);\n  float weight = 1.0 - abs(dot(cameraToPosition, vNormal));\n  vec4 hazeValue = texture2D(hazeTexture, vUv.ss);\n  hazeValue.a = 0.1;\n  gl_FragColor = mix(hazeValue, WHITE, weight);\n}\n"
+    this.membraneGeometry = new _MembraneBufferGeometry__WEBPACK_IMPORTED_MODULE_4__["MembraneBufferGeometry"]()
+    const membraneMaterial = new three__WEBPACK_IMPORTED_MODULE_0__["ShaderMaterial"]({
+      uniforms: {
+        hazeTexture: {
+          value: hazeTexture
+        }
+      },
+      vertexShader: (_shaders_vertex_shader_glsl__WEBPACK_IMPORTED_MODULE_5___default()),
+      fragmentShader: (_shaders_fragment_shader_glsl__WEBPACK_IMPORTED_MODULE_6___default()),
+      side: this.formPoints.getIsClockwise() ? three__WEBPACK_IMPORTED_MODULE_0__["FrontSide"] : three__WEBPACK_IMPORTED_MODULE_0__["BackSide"],
+      blending: three__WEBPACK_IMPORTED_MODULE_0__["AdditiveBlending"]
+    })
+    this.membraneMesh = new three__WEBPACK_IMPORTED_MODULE_0__["Mesh"](this.membraneGeometry, membraneMaterial)
+    this.scene.add(this.membraneMesh)
+  }
+
+  updateProjectedImage({ qsVec2 }) {
+    this.lineGeometry.update(toArr2Points(qsVec2))
+  }
+
+  updateMembrane({ psVec2, qsVec2 }) {
+
+    const psVec3 = toVec3Points(psVec2, _constants__WEBPACK_IMPORTED_MODULE_7__["MEMBRANE_LENGTH"])
+    const qsVec3 = toVec3Points(qsVec2, 0)
+
+    const tempMembraneGeometry = new _MembraneBufferGeometry__WEBPACK_IMPORTED_MODULE_4__["MembraneBufferGeometry"](psVec3, qsVec3, MEMBRANE_SEGMENT_COUNT)
+    tempMembraneGeometry.computeFaceNormals()
+    tempMembraneGeometry.computeVertexNormals()
+    if (!this.formPoints.getIsClockwise()) {
+      const normalAttribute = tempMembraneGeometry.getAttribute('normal')
+      const array = normalAttribute.array
+      array.forEach((_, index) => array[index] *= -1)
+    }
+    this.membraneGeometry.copy(tempMembraneGeometry)
+    tempMembraneGeometry.dispose()
+
+    if (this.membraneMeshHelper) {
+      this.membraneMeshHelper.update()
+    }
+  }
+
+  update(tick) {
+    const updatedPoints = this.formPoints.updatePoints(tick)
+    this.updateProjectedImage(updatedPoints)
+    this.updateMembrane(updatedPoints)
+  }
+
+  swapSidesTest() {
+    return this.formPoints.swapSidesTest()
+  }
+
+  swapSides() {
+    this.formPoints.swapSides()
+  }
+
+  reset() {
+    this.formPoints.reset()
+  }
+
+  toggleHelpers() {
+    if (this.membraneMeshHelper) {
+      this.scene.remove(this.membraneMeshHelper)
+      this.membraneMeshHelper = undefined
+    }
+    else {
+      this.membraneMeshHelper = new three_examples_jsm_helpers_VertexNormalsHelper_js__WEBPACK_IMPORTED_MODULE_1__["VertexNormalsHelper"](this.membraneMesh, 0.2, 0xffffff)
+      this.scene.add(this.membraneMeshHelper)
+    }
+  }
+}
+
+class GrowingForm extends Form {
+  constructor(scene, hazeTexture, initialSide) {
+    const formPoints = new GrowingFormPoints(initialSide)
+    super(scene, hazeTexture, formPoints)
+  }
+}
+
+class ShrinkingForm extends Form {
+  constructor(scene, hazeTexture, initialSide) {
+    const formPoints = new ShrinkingFormPoints(initialSide)
+    super(scene, hazeTexture, formPoints)
+  }
+}
+
 
 /***/ }),
 
@@ -53216,15 +53216,8 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-// import { addSpotLights, toggleSpotLightHelpers } from "./spotlights"
+// import { addSpotLights, toggleSpotLightHelpers } from './spotlights'
 
-
-const container = document.getElementById("container")
-const w = container.offsetWidth
-const h = container.offsetHeight
-const renderer = new three__WEBPACK_IMPORTED_MODULE_0__["WebGLRenderer"]({ antialias: true })
-renderer.setSize(w, h)
-container.appendChild(renderer.domElement)
 
 const FAVOURITE_POSITIONS = [
   {
@@ -53248,136 +53241,160 @@ const FAVOURITE_POSITIONS = [
     controlsTarget: new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](0.95, 2.00, 9.63)
   }
 ]
-let currentFavouritePositionIndex = 0
 
-const scene = new three__WEBPACK_IMPORTED_MODULE_0__["Scene"]()
-const camera = new three__WEBPACK_IMPORTED_MODULE_0__["PerspectiveCamera"](45, w / h, 0.1, 50)
-camera.position.copy(FAVOURITE_POSITIONS[currentFavouritePositionIndex].cameraPosition)
-scene.add(camera)
+const main = async () => {
 
-const controls = new three_examples_jsm_controls_OrbitControls__WEBPACK_IMPORTED_MODULE_1__["OrbitControls"](camera, renderer.domElement)
-controls.target.copy(FAVOURITE_POSITIONS[currentFavouritePositionIndex].controlsTarget)
-controls.minDistance = 0
-controls.maxDistance = 50
-controls.enableDamping = true
-controls.dampingFactor = 0.9
-controls.autoRotate = false
+  const container = document.getElementById('container')
+  const w = container.offsetWidth
+  const h = container.offsetHeight
+  const renderer = new three__WEBPACK_IMPORTED_MODULE_0__["WebGLRenderer"]({ antialias: true })
+  renderer.setSize(w, h)
+  container.appendChild(renderer.domElement)
 
-const projectionScreenGeometry = new three__WEBPACK_IMPORTED_MODULE_0__["PlaneGeometry"](16, 6)
-projectionScreenGeometry.translate(0, 3, 0)
-const projectionScreenMaterial = new three__WEBPACK_IMPORTED_MODULE_0__["MeshBasicMaterial"]({
-  color: 0xA0A0A0,
-  transparent: true,
-  opacity: 0.2
-})
-const screen = new three__WEBPACK_IMPORTED_MODULE_0__["Mesh"](projectionScreenGeometry, projectionScreenMaterial)
-scene.add(screen)
+  let currentFavouritePositionIndex = 0
 
-let axesHelper = undefined
+  const scene = new three__WEBPACK_IMPORTED_MODULE_0__["Scene"]()
+  const camera = new three__WEBPACK_IMPORTED_MODULE_0__["PerspectiveCamera"](45, w / h, 0.1, 50)
+  camera.position.copy(FAVOURITE_POSITIONS[currentFavouritePositionIndex].cameraPosition)
+  scene.add(camera)
 
-// addSpotLights(scene, C.CENTRE_P_Y, C.CENTRE_Q_Y, C.HIGH_INTENSITY_SPOTLIGHT)
-// addSpotLights(scene, 0, C.CENTRE_Q_Y, C.LOW_INTENSITY_SPOTLIGHT)
-// addSpotLights(scene, C.CENTRE_P_Y * 2, C.CENTRE_Q_Y, C.LOW_INTENSITY_SPOTLIGHT)
+  const controls = new three_examples_jsm_controls_OrbitControls__WEBPACK_IMPORTED_MODULE_1__["OrbitControls"](camera, renderer.domElement)
+  controls.target.copy(FAVOURITE_POSITIONS[currentFavouritePositionIndex].controlsTarget)
+  controls.minDistance = 0
+  controls.maxDistance = 50
+  controls.enableDamping = true
+  controls.dampingFactor = 0.9
+  controls.autoRotate = false
 
-let growingForm = new _form__WEBPACK_IMPORTED_MODULE_2__["GrowingForm"](scene, _constants__WEBPACK_IMPORTED_MODULE_3__["LEFT"])
-let shrinkingForm = new _form__WEBPACK_IMPORTED_MODULE_2__["ShrinkingForm"](scene, _constants__WEBPACK_IMPORTED_MODULE_3__["RIGHT"])
+  const projectionScreenGeometry = new three__WEBPACK_IMPORTED_MODULE_0__["PlaneGeometry"](16, 6)
+  projectionScreenGeometry.translate(0, 3, 0)
+  const projectionScreenMaterial = new three__WEBPACK_IMPORTED_MODULE_0__["MeshBasicMaterial"]({
+    color: 0xA0A0A0,
+    transparent: true,
+    opacity: 0.2
+  })
+  const screen = new three__WEBPACK_IMPORTED_MODULE_0__["Mesh"](projectionScreenGeometry, projectionScreenMaterial)
+  scene.add(screen)
 
-const textureLoader = new three__WEBPACK_IMPORTED_MODULE_0__["TextureLoader"]()
-textureLoader.load("haze.jpg", texture => {
-  growingForm.onTextureLoaded(texture)
-  shrinkingForm.onTextureLoaded(texture)
-  animate()
-})
+  let axesHelper = undefined
 
-window.addEventListener("resize", () => {
-  renderer.setSize(container.offsetWidth, container.offsetHeight)
-  camera.aspect = container.offsetWidth / container.offsetHeight
-  camera.updateProjectionMatrix()
-})
+  // addSpotLights(scene, C.CENTRE_P_Y, C.CENTRE_Q_Y, C.HIGH_INTENSITY_SPOTLIGHT)
+  // addSpotLights(scene, 0, C.CENTRE_Q_Y, C.LOW_INTENSITY_SPOTLIGHT)
+  // addSpotLights(scene, C.CENTRE_P_Y * 2, C.CENTRE_Q_Y, C.LOW_INTENSITY_SPOTLIGHT)
 
-const onDocumentKeyDownHandler = ev => {
+  const hazeTexture = await new Promise((resolve, reject) => {
+    const textureLoader = new three__WEBPACK_IMPORTED_MODULE_0__["TextureLoader"]()
+    textureLoader.load('haze.jpg', resolve, reject)
+  })
 
-  if (ev.key === "a") {
-    if (axesHelper) {
-      scene.remove(axesHelper)
-      axesHelper = undefined
-    } else {
-      axesHelper = new three__WEBPACK_IMPORTED_MODULE_0__["AxesHelper"](5)
-      scene.add(axesHelper)
+  const growingForm = new _form__WEBPACK_IMPORTED_MODULE_2__["GrowingForm"](scene, hazeTexture, _constants__WEBPACK_IMPORTED_MODULE_3__["LEFT"])
+  const shrinkingForm = new _form__WEBPACK_IMPORTED_MODULE_2__["ShrinkingForm"](scene, hazeTexture, _constants__WEBPACK_IMPORTED_MODULE_3__["RIGHT"])
+
+  window.addEventListener('resize', () => {
+    renderer.setSize(container.offsetWidth, container.offsetHeight)
+    camera.aspect = container.offsetWidth / container.offsetHeight
+    camera.updateProjectionMatrix()
+  })
+
+  const onDocumentKeyDownHandler = ev => {
+
+    if (ev.key === 'a') {
+      if (axesHelper) {
+        scene.remove(axesHelper)
+        axesHelper = undefined
+      } else {
+        axesHelper = new three__WEBPACK_IMPORTED_MODULE_0__["AxesHelper"](5)
+        scene.add(axesHelper)
+      }
+    }
+
+    if (ev.key === 'c') {
+      console.log(`camera.position: ${JSON.stringify(camera.position)}`)
+      console.log(`controls.target: ${JSON.stringify(controls.target)}`)
+    }
+
+    if (ev.key === 'p') {
+      currentFavouritePositionIndex++
+      currentFavouritePositionIndex %= FAVOURITE_POSITIONS.length
+      camera.position.copy(FAVOURITE_POSITIONS[currentFavouritePositionIndex].cameraPosition)
+      controls.target.copy(FAVOURITE_POSITIONS[currentFavouritePositionIndex].controlsTarget)
+    }
+
+    if (ev.key === 'r') {
+      controls.autoRotate = !controls.autoRotate
+    }
+
+    // if (ev.key === 's') {
+    //   toggleSpotLightHelpers(scene)
+    // }
+
+    if (ev.key === 'v') {
+      growingForm.toggleHelpers()
+      shrinkingForm.toggleHelpers()
+    }
+
+    if (ev.key === '1') {
+      setSpeedAndReset(1)
+    }
+    if (ev.key === '2') {
+      setSpeedAndReset(2)
+    }
+    if (ev.key === '3') {
+      setSpeedAndReset(5)
+    }
+    if (ev.key === '4') {
+      setSpeedAndReset(10)
     }
   }
 
-  if (ev.key === "c") {
-    console.log(`camera.position: ${JSON.stringify(camera.position)}`)
-    console.log(`controls.target: ${JSON.stringify(controls.target)}`)
-  }
-
-  if (ev.key === "p") {
-    currentFavouritePositionIndex++
-    currentFavouritePositionIndex %= FAVOURITE_POSITIONS.length
-    camera.position.copy(FAVOURITE_POSITIONS[currentFavouritePositionIndex].cameraPosition)
-    controls.target.copy(FAVOURITE_POSITIONS[currentFavouritePositionIndex].controlsTarget)
-  }
-
-  if (ev.key === "r") {
-    controls.autoRotate = !controls.autoRotate
-  }
-
-  // if (ev.key === "s") {
-  //   toggleSpotLightHelpers(scene)
-  // }
-
-  if (ev.key === "v") {
-    growingForm.toggleHelpers()
-    shrinkingForm.toggleHelpers()
-  }
-
-  if (ev.key === "1") {
-    setSpeedAndReset(1)
-  }
-  if (ev.key === "2") {
-    setSpeedAndReset(2)
-  }
-  if (ev.key === "3") {
-    setSpeedAndReset(5)
-  }
-  if (ev.key === "4") {
-    setSpeedAndReset(10)
-  }
-}
-
-const setSpeedAndReset = multiplier => {
-  Object(_form__WEBPACK_IMPORTED_MODULE_2__["setSpeed"])(multiplier)
-  growingForm.reset()
-  shrinkingForm.reset()
-  tick = 1
-}
-
-document.addEventListener("keydown", onDocumentKeyDownHandler)
-
-let tick = 1
-
-const animate = () => {
-  window.requestAnimationFrame(animate)
-  growingForm.update(tick)
-  shrinkingForm.update(tick)
-  controls.update()
-  renderer.render(scene, camera)
-  tick++
-  if (growingForm.swapSidesTest()) {
+  const setSpeedAndReset = multiplier => {
+    Object(_form__WEBPACK_IMPORTED_MODULE_2__["setSpeed"])(multiplier)
+    growingForm.reset()
+    shrinkingForm.reset()
     tick = 1
-    growingForm.swapSides()
-    shrinkingForm.swapSides()
   }
+
+  document.addEventListener('keydown', onDocumentKeyDownHandler)
+
+  let tick = 1
+
+  const render = () => {
+    growingForm.update(tick)
+    shrinkingForm.update(tick)
+    controls.update()
+    renderer.render(scene, camera)
+    tick++
+    if (growingForm.swapSidesTest()) {
+      tick = 1
+      growingForm.swapSides()
+      shrinkingForm.swapSides()
+    }
+    requestAnimationFrame(render)
+  }
+
+  render()
 }
+
+main()
 
 
 /***/ }),
 
-/***/ "./src/vertex-shader.glsl":
-/*!********************************!*\
-  !*** ./src/vertex-shader.glsl ***!
-  \********************************/
+/***/ "./src/shaders/fragment-shader.glsl":
+/*!******************************************!*\
+  !*** ./src/shaders/fragment-shader.glsl ***!
+  \******************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = "uniform sampler2D hazeTexture;\nvarying vec3 vPosition;\nvarying vec3 vNormal;\nvarying vec2 vUv;\n\nconst vec4 WHITE = vec4(1.0);\n\nvoid main() {\n  vec3 v = normalize(vPosition - cameraPosition);\n  vec3 n = vNormal;\n  float weight = 1.0 - abs(dot(v, n));\n  vec4 hazeValue = texture2D(hazeTexture, vUv);\n  hazeValue.a = 0.1;\n  gl_FragColor = mix(hazeValue, WHITE, weight);\n}\n"
+
+/***/ }),
+
+/***/ "./src/shaders/vertex-shader.glsl":
+/*!****************************************!*\
+  !*** ./src/shaders/vertex-shader.glsl ***!
+  \****************************************/
 /*! no static exports found */
 /***/ (function(module, exports) {
 
