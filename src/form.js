@@ -4,7 +4,7 @@ import Line2dInit from 'three-line-2d'
 import Line2dBasicShaderInit from 'three-line-2d/shaders/basic'
 const Line2d = Line2dInit(THREE)
 const Line2dBasicShader = Line2dBasicShaderInit(THREE)
-import { MembraneBufferGeometry } from './MembraneBufferGeometry'
+import { MembraneBufferGeometry } from './membrane-geometry'
 import vertexShader from './shaders/vertex-shader.glsl'
 import fragmentShader from './shaders/fragment-shader.glsl'
 import * as C from './constants'
@@ -12,7 +12,6 @@ import * as C from './constants'
 const PROJECTED_IMAGE_RADIUS_X = 2.8
 const PROJECTED_IMAGE_RADIUS_Y = 2
 const PROJECTED_IMAGE_LINE_THICKNESS = 0.08
-const PROJECTOR_BULB_RADIUS = 0.1
 const ELLIPSE_POINT_COUNT = 100
 const WIPE_POINT_COUNT = 50
 const MEMBRANE_SEGMENT_COUNT = 1
@@ -43,8 +42,8 @@ class FormPointsBase {
     this.ellipseCurveP = new THREE.EllipseCurve(
       this.initialSide === C.LEFT ? C.LEFT_CENTRE_X : C.RIGHT_CENTRE_X,
       C.CENTRE_P_Y,
-      PROJECTOR_BULB_RADIUS,
-      PROJECTOR_BULB_RADIUS,
+      C.PROJECTOR_BULB_RADIUS,
+      C.PROJECTOR_BULB_RADIUS,
       this.getStartAngle(),
       this.getEndAngle(),
       this.getIsClockwise())

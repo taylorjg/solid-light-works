@@ -18,7 +18,8 @@ module.exports = {
     new CopyWebpackPlugin([
       { context: '.', from: '*.html' },
       { context: '.', from: '*.css' },
-      { context: './assets', from: '*.jpg' }
+      { context: './assets', from: '*.jpg' },
+      { context: './assets', from: '*.png' }
     ]),
     new HtmlWebpackPlugin({
       template: 'index.html',
