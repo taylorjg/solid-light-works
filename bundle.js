@@ -52686,133 +52686,11 @@ VertexNormalsHelper.prototype.update = function () {
 
 /***/ }),
 
-/***/ "./src/MembraneBufferGeometry.js":
-/*!***************************************!*\
-  !*** ./src/MembraneBufferGeometry.js ***!
-  \***************************************/
-/*! exports provided: MembraneBufferGeometry */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "MembraneBufferGeometry", function() { return MembraneBufferGeometry; });
-/* harmony import */ var three__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
-
-
-
-// TODO: make this a class
-// ps: array of Vector3 representing the small shape
-// - e.g. obtained from ElipseCurve.getPoints()
-// qs: array of Vector3 representing the large shape
-// - e.g. obtained from ElipseCurve.getPoints()
-function MembraneBufferGeometry(ps = [], qs = [], numSegments = 1) {
-
-	three__WEBPACK_IMPORTED_MODULE_0__["BufferGeometry"].call(this)
-
-	this.type = 'MembraneBufferGeometry'
-
-	const scope = this
-
-	numSegments = Math.floor(numSegments) || 1
-
-	// buffers
-	const indices = []
-	const vertices = []
-	const normals = []
-	const uvs = []
-
-	// helper variables
-	const indexArray = []
-	let index = 0
-	let groupStart = 0
-
-	// generate geometry
-	generateTorso()
-
-	// build geometry
-	this.setIndex(indices)
-	this.setAttribute('position', new three__WEBPACK_IMPORTED_MODULE_0__["Float32BufferAttribute"](vertices, 3))
-	this.setAttribute('normal', new three__WEBPACK_IMPORTED_MODULE_0__["Float32BufferAttribute"](normals, 3))
-	this.setAttribute('uv', new three__WEBPACK_IMPORTED_MODULE_0__["Float32BufferAttribute"](uvs, 2))
-
-	function generateTorso() {
-
-		const pslen = ps.length
-		const qslen = qs.length
-
-		if (pslen === 0 || qslen === 0 || pslen !== qslen) {
-			return
-		}
-
-		const numPoints = ps.length
-		let groupCount = 0
-
-		// generate vertices, normals and uvs
-		for (let y = 0; y <= numSegments; y++) {
-			const v = y / numSegments
-			const indexRow = []
-
-			for (let x = 0; x < numPoints; x++) {
-				const u = x / numPoints
-
-				// vertex
-				const clone = ps[x].clone()
-				clone.lerp(qs[x], v)
-				vertices.push(clone.x, clone.y, clone.z)
-
-				// normal
-				normals.push(0, 0, 0)
-
-				// uv
-				uvs.push(u, v)
-
-				// save index of vertex in respective row
-				indexRow.push(index++)
-			}
-
-			// now save vertices of the row in our index array
-			indexArray.push(indexRow)
-		}
-
-		// generate indices
-		for (let x = 0; x < numPoints; x++) {
-
-			for (let y = 0; y < numSegments; y++) {
-
-				// we use the index array to access the correct indices
-				const a = indexArray[y][x]
-				const b = indexArray[y + 1][x]
-				const c = indexArray[y + 1][x + 1]
-				const d = indexArray[y][x + 1]
-
-				// faces
-				indices.push(a, b, d)
-				indices.push(b, c, d)
-
-				// update group counter
-				groupCount += 6
-			}
-		}
-
-		// add a group to the geometry. this will ensure multi material support
-		scope.addGroup(groupStart, groupCount, 0)
-
-		// calculate new start value for groups
-		groupStart += groupCount
-	}
-}
-
-MembraneBufferGeometry.prototype = Object.create(three__WEBPACK_IMPORTED_MODULE_0__["BufferGeometry"].prototype)
-MembraneBufferGeometry.prototype.constructor = MembraneBufferGeometry
-
-
-/***/ }),
-
 /***/ "./src/constants.js":
 /*!**************************!*\
   !*** ./src/constants.js ***!
   \**************************/
-/*! exports provided: LEFT_CENTRE_X, RIGHT_CENTRE_X, CENTRE_P_Y, CENTRE_Q_Y, MEMBRANE_LENGTH, LEFT, RIGHT, GROWING, SHRINKING, HIGH_INTENSITY_SPOTLIGHT, LOW_INTENSITY_SPOTLIGHT */
+/*! exports provided: LEFT_CENTRE_X, RIGHT_CENTRE_X, CENTRE_P_Y, CENTRE_Q_Y, MEMBRANE_LENGTH, PROJECTOR_BULB_RADIUS, LEFT, RIGHT, GROWING, SHRINKING, HIGH_INTENSITY_SPOTLIGHT, LOW_INTENSITY_SPOTLIGHT */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -52822,6 +52700,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "CENTRE_P_Y", function() { return CENTRE_P_Y; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "CENTRE_Q_Y", function() { return CENTRE_Q_Y; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "MEMBRANE_LENGTH", function() { return MEMBRANE_LENGTH; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "PROJECTOR_BULB_RADIUS", function() { return PROJECTOR_BULB_RADIUS; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "LEFT", function() { return LEFT; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "RIGHT", function() { return RIGHT; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "GROWING", function() { return GROWING; });
@@ -52830,9 +52709,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "LOW_INTENSITY_SPOTLIGHT", function() { return LOW_INTENSITY_SPOTLIGHT; });
 const LEFT_CENTRE_X = -3.5
 const RIGHT_CENTRE_X = -LEFT_CENTRE_X
-const CENTRE_P_Y = 0.2
+const CENTRE_P_Y = 0.3
 const CENTRE_Q_Y = 2.6
 const MEMBRANE_LENGTH = 15
+const PROJECTOR_BULB_RADIUS = 0.1
 const LEFT = Symbol('LEFT')
 const RIGHT = Symbol('RIGHT')
 const GROWING = Symbol('GROWING')
@@ -52863,7 +52743,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var three_line_2d__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(three_line_2d__WEBPACK_IMPORTED_MODULE_2__);
 /* harmony import */ var three_line_2d_shaders_basic__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! three-line-2d/shaders/basic */ "./node_modules/three-line-2d/shaders/basic.js");
 /* harmony import */ var three_line_2d_shaders_basic__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(three_line_2d_shaders_basic__WEBPACK_IMPORTED_MODULE_3__);
-/* harmony import */ var _MembraneBufferGeometry__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./MembraneBufferGeometry */ "./src/MembraneBufferGeometry.js");
+/* harmony import */ var _membrane_geometry__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./membrane-geometry */ "./src/membrane-geometry.js");
 /* harmony import */ var _shaders_vertex_shader_glsl__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./shaders/vertex-shader.glsl */ "./src/shaders/vertex-shader.glsl");
 /* harmony import */ var _shaders_vertex_shader_glsl__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(_shaders_vertex_shader_glsl__WEBPACK_IMPORTED_MODULE_5__);
 /* harmony import */ var _shaders_fragment_shader_glsl__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./shaders/fragment-shader.glsl */ "./src/shaders/fragment-shader.glsl");
@@ -52883,7 +52763,6 @@ const Line2dBasicShader = three_line_2d_shaders_basic__WEBPACK_IMPORTED_MODULE_3
 const PROJECTED_IMAGE_RADIUS_X = 2.8
 const PROJECTED_IMAGE_RADIUS_Y = 2
 const PROJECTED_IMAGE_LINE_THICKNESS = 0.08
-const PROJECTOR_BULB_RADIUS = 0.1
 const ELLIPSE_POINT_COUNT = 100
 const WIPE_POINT_COUNT = 50
 const MEMBRANE_SEGMENT_COUNT = 1
@@ -52914,8 +52793,8 @@ class FormPointsBase {
     this.ellipseCurveP = new three__WEBPACK_IMPORTED_MODULE_0__["EllipseCurve"](
       this.initialSide === _constants__WEBPACK_IMPORTED_MODULE_7__["LEFT"] ? _constants__WEBPACK_IMPORTED_MODULE_7__["LEFT_CENTRE_X"] : _constants__WEBPACK_IMPORTED_MODULE_7__["RIGHT_CENTRE_X"],
       _constants__WEBPACK_IMPORTED_MODULE_7__["CENTRE_P_Y"],
-      PROJECTOR_BULB_RADIUS,
-      PROJECTOR_BULB_RADIUS,
+      _constants__WEBPACK_IMPORTED_MODULE_7__["PROJECTOR_BULB_RADIUS"],
+      _constants__WEBPACK_IMPORTED_MODULE_7__["PROJECTOR_BULB_RADIUS"],
       this.getStartAngle(),
       this.getEndAngle(),
       this.getIsClockwise())
@@ -53112,7 +52991,7 @@ class Form {
     this.lineMesh = new three__WEBPACK_IMPORTED_MODULE_0__["Mesh"](this.lineGeometry, lineMaterial)
     this.scene.add(this.lineMesh)
 
-    this.membraneGeometry = new _MembraneBufferGeometry__WEBPACK_IMPORTED_MODULE_4__["MembraneBufferGeometry"]()
+    this.membraneGeometry = new _membrane_geometry__WEBPACK_IMPORTED_MODULE_4__["MembraneBufferGeometry"]()
     const membraneMaterial = new three__WEBPACK_IMPORTED_MODULE_0__["ShaderMaterial"]({
       uniforms: {
         hazeTexture: {
@@ -53137,7 +53016,7 @@ class Form {
     const psVec3 = toVec3Points(psVec2, _constants__WEBPACK_IMPORTED_MODULE_7__["MEMBRANE_LENGTH"])
     const qsVec3 = toVec3Points(qsVec2, 0)
 
-    const tempMembraneGeometry = new _MembraneBufferGeometry__WEBPACK_IMPORTED_MODULE_4__["MembraneBufferGeometry"](psVec3, qsVec3, MEMBRANE_SEGMENT_COUNT)
+    const tempMembraneGeometry = new _membrane_geometry__WEBPACK_IMPORTED_MODULE_4__["MembraneBufferGeometry"](psVec3, qsVec3, MEMBRANE_SEGMENT_COUNT)
     tempMembraneGeometry.computeFaceNormals()
     tempMembraneGeometry.computeVertexNormals()
     if (!this.formPoints.getIsClockwise()) {
@@ -53212,11 +53091,13 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var three__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
 /* harmony import */ var three_examples_jsm_controls_OrbitControls__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! three/examples/jsm/controls/OrbitControls */ "./node_modules/three/examples/jsm/controls/OrbitControls.js");
 /* harmony import */ var _form__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./form */ "./src/form.js");
-/* harmony import */ var _constants__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./constants */ "./src/constants.js");
+/* harmony import */ var _projector_casing__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./projector-casing */ "./src/projector-casing.js");
+/* harmony import */ var _constants__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./constants */ "./src/constants.js");
 
 
 
 // import { addSpotLights, toggleSpotLightHelpers } from './spotlights'
+
 
 
 const FAVOURITE_POSITIONS = [
@@ -53282,13 +53163,16 @@ const main = async () => {
   // addSpotLights(scene, 0, C.CENTRE_Q_Y, C.LOW_INTENSITY_SPOTLIGHT)
   // addSpotLights(scene, C.CENTRE_P_Y * 2, C.CENTRE_Q_Y, C.LOW_INTENSITY_SPOTLIGHT)
 
+  await Object(_projector_casing__WEBPACK_IMPORTED_MODULE_3__["addProjectorCasing"])(scene, _constants__WEBPACK_IMPORTED_MODULE_4__["LEFT"])
+  await Object(_projector_casing__WEBPACK_IMPORTED_MODULE_3__["addProjectorCasing"])(scene, _constants__WEBPACK_IMPORTED_MODULE_4__["RIGHT"])
+
   const hazeTexture = await new Promise((resolve, reject) => {
     const textureLoader = new three__WEBPACK_IMPORTED_MODULE_0__["TextureLoader"]()
     textureLoader.load('haze.jpg', resolve, reject)
   })
 
-  const growingForm = new _form__WEBPACK_IMPORTED_MODULE_2__["GrowingForm"](scene, hazeTexture, _constants__WEBPACK_IMPORTED_MODULE_3__["LEFT"])
-  const shrinkingForm = new _form__WEBPACK_IMPORTED_MODULE_2__["ShrinkingForm"](scene, hazeTexture, _constants__WEBPACK_IMPORTED_MODULE_3__["RIGHT"])
+  const growingForm = new _form__WEBPACK_IMPORTED_MODULE_2__["GrowingForm"](scene, hazeTexture, _constants__WEBPACK_IMPORTED_MODULE_4__["LEFT"])
+  const shrinkingForm = new _form__WEBPACK_IMPORTED_MODULE_2__["ShrinkingForm"](scene, hazeTexture, _constants__WEBPACK_IMPORTED_MODULE_4__["RIGHT"])
 
   window.addEventListener('resize', () => {
     renderer.setSize(container.offsetWidth, container.offsetHeight)
@@ -53303,7 +53187,7 @@ const main = async () => {
         scene.remove(axesHelper)
         axesHelper = undefined
       } else {
-        axesHelper = new three__WEBPACK_IMPORTED_MODULE_0__["AxesHelper"](5)
+        axesHelper = new three__WEBPACK_IMPORTED_MODULE_0__["AxesHelper"](15)
         scene.add(axesHelper)
       }
     }
@@ -53376,6 +53260,184 @@ const main = async () => {
 }
 
 main()
+
+
+/***/ }),
+
+/***/ "./src/membrane-geometry.js":
+/*!**********************************!*\
+  !*** ./src/membrane-geometry.js ***!
+  \**********************************/
+/*! exports provided: MembraneBufferGeometry */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "MembraneBufferGeometry", function() { return MembraneBufferGeometry; });
+/* harmony import */ var three__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
+
+
+
+// TODO: make this a class
+// ps: array of Vector3 representing the small shape
+// - e.g. obtained from ElipseCurve.getPoints()
+// qs: array of Vector3 representing the large shape
+// - e.g. obtained from ElipseCurve.getPoints()
+function MembraneBufferGeometry(ps = [], qs = [], numSegments = 1) {
+
+	three__WEBPACK_IMPORTED_MODULE_0__["BufferGeometry"].call(this)
+
+	this.type = 'MembraneBufferGeometry'
+
+	const scope = this
+
+	numSegments = Math.floor(numSegments) || 1
+
+	// buffers
+	const indices = []
+	const vertices = []
+	const normals = []
+	const uvs = []
+
+	// helper variables
+	const indexArray = []
+	let index = 0
+	let groupStart = 0
+
+	// generate geometry
+	generateTorso()
+
+	// build geometry
+	this.setIndex(indices)
+	this.setAttribute('position', new three__WEBPACK_IMPORTED_MODULE_0__["Float32BufferAttribute"](vertices, 3))
+	this.setAttribute('normal', new three__WEBPACK_IMPORTED_MODULE_0__["Float32BufferAttribute"](normals, 3))
+	this.setAttribute('uv', new three__WEBPACK_IMPORTED_MODULE_0__["Float32BufferAttribute"](uvs, 2))
+
+	function generateTorso() {
+
+		const pslen = ps.length
+		const qslen = qs.length
+
+		if (pslen === 0 || qslen === 0 || pslen !== qslen) {
+			return
+		}
+
+		const numPoints = ps.length
+		let groupCount = 0
+
+		// generate vertices, normals and uvs
+		for (let y = 0; y <= numSegments; y++) {
+			const v = y / numSegments
+			const indexRow = []
+
+			for (let x = 0; x < numPoints; x++) {
+				const u = x / numPoints
+
+				// vertex
+				const clone = ps[x].clone()
+				clone.lerp(qs[x], v)
+				vertices.push(clone.x, clone.y, clone.z)
+
+				// normal
+				normals.push(0, 0, 0)
+
+				// uv
+				uvs.push(u, v)
+
+				// save index of vertex in respective row
+				indexRow.push(index++)
+			}
+
+			// now save vertices of the row in our index array
+			indexArray.push(indexRow)
+		}
+
+		// generate indices
+		for (let x = 0; x < numPoints; x++) {
+
+			for (let y = 0; y < numSegments; y++) {
+
+				// we use the index array to access the correct indices
+				const a = indexArray[y][x]
+				const b = indexArray[y + 1][x]
+				const c = indexArray[y + 1][x + 1]
+				const d = indexArray[y][x + 1]
+
+				// faces
+				indices.push(a, b, d)
+				indices.push(b, c, d)
+
+				// update group counter
+				groupCount += 6
+			}
+		}
+
+		// add a group to the geometry. this will ensure multi material support
+		scope.addGroup(groupStart, groupCount, 0)
+
+		// calculate new start value for groups
+		groupStart += groupCount
+	}
+}
+
+MembraneBufferGeometry.prototype = Object.create(three__WEBPACK_IMPORTED_MODULE_0__["BufferGeometry"].prototype)
+MembraneBufferGeometry.prototype.constructor = MembraneBufferGeometry
+
+
+/***/ }),
+
+/***/ "./src/projector-casing.js":
+/*!*********************************!*\
+  !*** ./src/projector-casing.js ***!
+  \*********************************/
+/*! exports provided: addProjectorCasing */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "addProjectorCasing", function() { return addProjectorCasing; });
+/* harmony import */ var three__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
+/* harmony import */ var _constants__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./constants */ "./src/constants.js");
+
+
+
+const PROJECTOR_CASING_WIDTH = 1.2
+const PROJECTOR_CASING_HEIGHT = 0.6
+const PROJECTOR_CASING_DEPTH = 0.6
+const HALF_PROJECTOR_CASING_HEIGHT = PROJECTOR_CASING_HEIGHT / 2
+const HALF_PROJECTOR_CASING_DEPTH = PROJECTOR_CASING_DEPTH / 2
+
+const addProjectorCasing = async (scene, side) => {
+
+  const centreX = side === _constants__WEBPACK_IMPORTED_MODULE_1__["LEFT"] ? _constants__WEBPACK_IMPORTED_MODULE_1__["LEFT_CENTRE_X"] : _constants__WEBPACK_IMPORTED_MODULE_1__["RIGHT_CENTRE_X"]
+
+  const dimensions = [PROJECTOR_CASING_WIDTH, PROJECTOR_CASING_HEIGHT, PROJECTOR_CASING_DEPTH]
+  const projectorCasingGeometry = new three__WEBPACK_IMPORTED_MODULE_0__["BoxBufferGeometry"](...dimensions)
+  const projectorCasingMaterial = new three__WEBPACK_IMPORTED_MODULE_0__["MeshBasicMaterial"]({ color: 0x808080 })
+  const projectorCasingMesh = new three__WEBPACK_IMPORTED_MODULE_0__["Mesh"](projectorCasingGeometry, projectorCasingMaterial)
+  projectorCasingMesh.position.setX(centreX)
+  projectorCasingMesh.position.setY(HALF_PROJECTOR_CASING_HEIGHT)
+  projectorCasingMesh.position.setZ(_constants__WEBPACK_IMPORTED_MODULE_1__["MEMBRANE_LENGTH"] + HALF_PROJECTOR_CASING_DEPTH)
+  scene.add(projectorCasingMesh)
+
+  const projectorLensTexture = await new Promise((resolve, reject) => {
+    const textureLoader = new three__WEBPACK_IMPORTED_MODULE_0__["TextureLoader"]()
+    textureLoader.load('projector-lens.png', resolve, reject)
+  })
+  const lensSize = _constants__WEBPACK_IMPORTED_MODULE_1__["PROJECTOR_BULB_RADIUS"] * 2
+  const projectorLensGeometry = new three__WEBPACK_IMPORTED_MODULE_0__["PlaneBufferGeometry"](lensSize, lensSize)
+  const projectorLensMaterial = new three__WEBPACK_IMPORTED_MODULE_0__["MeshBasicMaterial"]({
+    color: 0xffffff,
+    map: projectorLensTexture,
+    side: three__WEBPACK_IMPORTED_MODULE_0__["DoubleSide"],
+    transparent: true
+  })
+  const projectorLensMesh = new three__WEBPACK_IMPORTED_MODULE_0__["Mesh"](projectorLensGeometry, projectorLensMaterial)
+  projectorLensMesh.position.setX(centreX)
+  projectorLensMesh.position.setY(HALF_PROJECTOR_CASING_HEIGHT)
+  projectorLensMesh.position.setZ(_constants__WEBPACK_IMPORTED_MODULE_1__["MEMBRANE_LENGTH"])
+  scene.add(projectorLensMesh)
+}
 
 
 /***/ }),
