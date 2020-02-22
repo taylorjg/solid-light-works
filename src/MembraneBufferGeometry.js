@@ -1,5 +1,5 @@
-import { BufferGeometry } from "three"
-import { Float32BufferAttribute } from "three"
+import { BufferGeometry } from 'three'
+import { Float32BufferAttribute } from 'three'
 
 // TODO: make this a class
 // ps: array of Vector3 representing the small shape
@@ -10,7 +10,7 @@ export function MembraneBufferGeometry(ps = [], qs = [], numSegments = 1) {
 
 	BufferGeometry.call(this)
 
-	this.type = "MembraneBufferGeometry"
+	this.type = 'MembraneBufferGeometry'
 
 	const scope = this
 
@@ -32,9 +32,9 @@ export function MembraneBufferGeometry(ps = [], qs = [], numSegments = 1) {
 
 	// build geometry
 	this.setIndex(indices)
-	this.setAttribute("position", new Float32BufferAttribute(vertices, 3))
-	this.setAttribute("normal", new Float32BufferAttribute(normals, 3))
-	this.setAttribute("uv", new Float32BufferAttribute(uvs, 2))
+	this.setAttribute('position', new Float32BufferAttribute(vertices, 3))
+	this.setAttribute('normal', new Float32BufferAttribute(normals, 3))
+	this.setAttribute('uv', new Float32BufferAttribute(uvs, 2))
 
 	function generateTorso() {
 

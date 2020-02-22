@@ -1,5 +1,5 @@
-import * as THREE from "three"
-import * as C from "./constants"
+import * as THREE from 'three'
+import * as C from './constants'
 
 const COLOUR = 0xffffff
 const HIGH_INTENSITY = 100

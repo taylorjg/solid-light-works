@@ -1,18 +1,18 @@
-import * as THREE from "three"
-import { VertexNormalsHelper } from "three/examples/jsm/helpers/VertexNormalsHelper.js"
-import LineInitFn from "three-line-2d"
-import BasicShaderInitFn from "three-line-2d/shaders/basic"
-const Line = LineInitFn(THREE)
-const BasicShader = BasicShaderInitFn(THREE)
-import { MembraneBufferGeometry } from "./MembraneGeometry"
-import vertexShader from './vertex-shader.glsl'
-import fragmentShader from './fragment-shader.glsl'
-import * as C from "./constants"
+import * as THREE from 'three'
+import { VertexNormalsHelper } from 'three/examples/jsm/helpers/VertexNormalsHelper.js'
+import Line2dInit from 'three-line-2d'
+import Line2dBasicShaderInit from 'three-line-2d/shaders/basic'
+const Line2d = Line2dInit(THREE)
+const Line2dBasicShader = Line2dBasicShaderInit(THREE)
+import { MembraneBufferGeometry } from './MembraneBufferGeometry'
+import vertexShader from './shaders/vertex-shader.glsl'
+import fragmentShader from './shaders/fragment-shader.glsl'
+import * as C from './constants'
 
 const PROJECTED_IMAGE_RADIUS_X = 2.8
 const PROJECTED_IMAGE_RADIUS_Y = 2
 const PROJECTED_IMAGE_LINE_THICKNESS = 0.08
-const PROJECTOR_BULB_RADIUS = 0.08
+const PROJECTOR_BULB_RADIUS = 0.1
 const ELLIPSE_POINT_COUNT = 100
 const WIPE_POINT_COUNT = 50
 const MEMBRANE_SEGMENT_COUNT = 1
@@ -21,13 +21,6 @@ const DELTA_ANGLE = 15 * Math.PI / 180
 const ANGLE_OFFSET_THRESHOLD = 45 * Math.PI / 180
 
 let currentRotationDelta = ROTATION_DELTA
-
-const lineMaterial = new THREE.ShaderMaterial(
-  BasicShader({
-    side: THREE.DoubleSide,
-    diffuse: 0xffffff,
-    thickness: PROJECTED_IMAGE_LINE_THICKNESS
-  }))
 
 const toArr2Points = pointsVec2 =>
   pointsVec2.map(vec2 => vec2.toArray())
@@ -39,10 +32,9 @@ export const setSpeed = multiplier => {
   currentRotationDelta = ROTATION_DELTA * multiplier
 }
 
-class Form {
+class FormPointsBase {
 
-  constructor(scene, initialSide) {
-    this.scene = scene
+  constructor(initialSide) {
     this.initialSide = initialSide
     this.init()
   }
@@ -68,61 +60,19 @@ class Form {
 
     this.wipeCurveP = new THREE.CubicBezierCurve()
     this.wipeCurveQ = new THREE.CubicBezierCurve()
-
-    this.lineGeometry = Line()
-    this.lineMeshQ = new THREE.Mesh(this.lineGeometry, lineMaterial)
-    this.scene.add(this.lineMeshQ)
-
-    this.membraneGeometry = new MembraneBufferGeometry()
-    this.membraneMaterial = undefined
-    this.membraneMesh = undefined
-    this.membraneMeshHelper = undefined
-  }
-
-  onTextureLoaded(hazeTexture) {
-
-    // this.membraneMaterial = new THREE.MeshStandardMaterial({
-    //   map: hazeTexture,
-    //   side: this.getIsClockwise() ? THREE.FrontSide : THREE.BackSide,
-    //   color: 0xffffff,
-    //   transparent: true,
-    //   opacity: 0.2,
-    //   emissive: new THREE.Color(0xffffff),
-    //   emissiveIntensity: 0.2
-    // })
-
-    this.membraneMaterial = new THREE.ShaderMaterial({
-      uniforms: {
-        hazeTexture: {
-          value: hazeTexture
-        }
-      },
-      vertexShader,
-      fragmentShader,
-      side: this.getIsClockwise() ? THREE.FrontSide : THREE.BackSide,
-      // side: THREE.DoubleSide,
-      blending: THREE.AdditiveBlending
-    })
-
-    this.membraneMesh = new THREE.Mesh(
-      this.membraneGeometry,
-      this.membraneMaterial)
-
-    this.scene.add(this.membraneMesh)
   }
 
   getStartAngle() {
-    throw new Error("You have to implement the method getStartAngle!")
+    throw new Error('You have to override FormPointsBase#getStartAngle!')
   }
 
   getEndAngle() {
-    throw new Error("You have to implement the method getEndAngle!")
+    throw new Error('You have to override FormPointsBase#getEndAngle!')
   }
 
   getIsClockwise() {
-    throw new Error("You have to implement the method getIsClockwise!")
+    throw new Error('You have to override FormPointsBase#getIsClockwise!')
   }
-
   calculateSinusoidalDampingFactor(a) {
     const dampingFactor = Math.pow(3 + (1 - Math.sin(a % Math.PI)) * 5, 2)
     // console.log(`a: ${a}; dampingFactor: ${dampingFactor}`)
@@ -216,37 +166,6 @@ class Form {
     }
   }
 
-  updateProjectedImage({ qsVec2 }) {
-    this.lineGeometry.update(toArr2Points(qsVec2))
-  }
-
-  updateMembrane({ psVec2, qsVec2 }) {
-
-    const psVec3 = toVec3Points(psVec2, C.MEMBRANE_LENGTH)
-    const qsVec3 = toVec3Points(qsVec2, 0)
-
-    const tempMembraneGeometry = new MembraneBufferGeometry(psVec3, qsVec3, MEMBRANE_SEGMENT_COUNT)
-    tempMembraneGeometry.computeFaceNormals()
-    tempMembraneGeometry.computeVertexNormals()
-    if (!this.getIsClockwise()) {
-      const normalAttribute = tempMembraneGeometry.getAttribute("normal")
-      const array = normalAttribute.array
-      array.forEach((_, index) => array[index] *= -1)
-    }
-    this.membraneGeometry.copy(tempMembraneGeometry)
-    tempMembraneGeometry.dispose()
-
-    if (this.membraneMeshHelper) {
-      this.membraneMeshHelper.update()
-    }
-  }
-
-  update(tick) {
-    const updatedPoints = this.updatePoints(tick)
-    this.updateProjectedImage(updatedPoints)
-    this.updateMembrane(updatedPoints)
-  }
-
   swapSidesTest() {
     const endAngleDelta = Math.abs(this.getEndAngle() - this.ellipseCurveQ.aStartAngle)
     // console.log(`endAngleDelta: ${endAngleDelta}; currentRotationDelta: ${currentRotationDelta}`)
@@ -266,23 +185,12 @@ class Form {
     this.ellipseCurveP.aStartAngle = this.getStartAngle()
     this.ellipseCurveQ.aStartAngle = this.getStartAngle()
   }
-
-  toggleHelpers() {
-    if (this.membraneMeshHelper) {
-      this.scene.remove(this.membraneMeshHelper)
-      this.membraneMeshHelper = undefined
-    }
-    else {
-      this.membraneMeshHelper = new VertexNormalsHelper(this.membraneMesh, 0.05, 0xffffff)
-      this.scene.add(this.membraneMeshHelper)
-    }
-  }
 }
 
-export class GrowingForm extends Form {
+export class GrowingFormPoints extends FormPointsBase {
 
-  constructor(scene, initialSide) {
-    super(scene, initialSide)
+  constructor(initialSide) {
+    super(initialSide)
   }
 
   getStartAngle() {
@@ -298,10 +206,10 @@ export class GrowingForm extends Form {
   }
 }
 
-export class ShrinkingForm extends Form {
+export class ShrinkingFormPoints extends FormPointsBase {
 
-  constructor(scene, initialSide) {
-    super(scene, initialSide)
+  constructor(initialSide) {
+    super(initialSide)
   }
 
   getStartAngle() {
@@ -314,5 +222,106 @@ export class ShrinkingForm extends Form {
 
   getIsClockwise() {
     return true
+  }
+}
+
+class Form {
+
+  constructor(scene, hazeTexture, formPoints) {
+    this.scene = scene
+    this.formPoints = formPoints
+
+    this.lineGeometry = Line2d()
+    const lineMaterial = new THREE.ShaderMaterial(
+      Line2dBasicShader({
+        side: THREE.DoubleSide,
+        diffuse: 0xffffff,
+        thickness: PROJECTED_IMAGE_LINE_THICKNESS
+      }))
+    this.lineMesh = new THREE.Mesh(this.lineGeometry, lineMaterial)
+    this.scene.add(this.lineMesh)
+
+    this.membraneGeometry = new MembraneBufferGeometry()
+    const membraneMaterial = new THREE.ShaderMaterial({
+      uniforms: {
+        hazeTexture: {
+          value: hazeTexture
+        }
+      },
+      vertexShader,
+      fragmentShader,
+      side: this.formPoints.getIsClockwise() ? THREE.FrontSide : THREE.BackSide,
+      blending: THREE.AdditiveBlending
+    })
+    this.membraneMesh = new THREE.Mesh(this.membraneGeometry, membraneMaterial)
+    this.scene.add(this.membraneMesh)
+  }
+
+  updateProjectedImage({ qsVec2 }) {
+    this.lineGeometry.update(toArr2Points(qsVec2))
+  }
+
+  updateMembrane({ psVec2, qsVec2 }) {
+
+    const psVec3 = toVec3Points(psVec2, C.MEMBRANE_LENGTH)
+    const qsVec3 = toVec3Points(qsVec2, 0)
+
+    const tempMembraneGeometry = new MembraneBufferGeometry(psVec3, qsVec3, MEMBRANE_SEGMENT_COUNT)
+    tempMembraneGeometry.computeFaceNormals()
+    tempMembraneGeometry.computeVertexNormals()
+    if (!this.formPoints.getIsClockwise()) {
+      const normalAttribute = tempMembraneGeometry.getAttribute('normal')
+      const array = normalAttribute.array
+      array.forEach((_, index) => array[index] *= -1)
+    }
+    this.membraneGeometry.copy(tempMembraneGeometry)
+    tempMembraneGeometry.dispose()
+
+    if (this.membraneMeshHelper) {
+      this.membraneMeshHelper.update()
+    }
+  }
+
+  update(tick) {
+    const updatedPoints = this.formPoints.updatePoints(tick)
+    this.updateProjectedImage(updatedPoints)
+    this.updateMembrane(updatedPoints)
+  }
+
+  swapSidesTest() {
+    return this.formPoints.swapSidesTest()
+  }
+
+  swapSides() {
+    this.formPoints.swapSides()
+  }
+
+  reset() {
+    this.formPoints.reset()
+  }
+
+  toggleHelpers() {
+    if (this.membraneMeshHelper) {
+      this.scene.remove(this.membraneMeshHelper)
+      this.membraneMeshHelper = undefined
+    }
+    else {
+      this.membraneMeshHelper = new VertexNormalsHelper(this.membraneMesh, 0.2, 0xffffff)
+      this.scene.add(this.membraneMeshHelper)
+    }
+  }
+}
+
+export class GrowingForm extends Form {
+  constructor(scene, hazeTexture, initialSide) {
+    const formPoints = new GrowingFormPoints(initialSide)
+    super(scene, hazeTexture, formPoints)
+  }
+}
+
+export class ShrinkingForm extends Form {
+  constructor(scene, hazeTexture, initialSide) {
+    const formPoints = new ShrinkingFormPoints(initialSide)
+    super(scene, hazeTexture, formPoints)
   }
 }
