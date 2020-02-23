@@ -7,6 +7,7 @@ const Line2dBasicShader = Line2dBasicShaderInit(THREE)
 import { MembraneBufferGeometry } from './membrane-geometry'
 import vertexShader from './shaders/vertex-shader.glsl'
 import fragmentShader from './shaders/fragment-shader.glsl'
+import * as U from './utils'
 import * as C from './constants'
 
 const PROJECTED_IMAGE_RADIUS_X = 2.8
@@ -20,12 +21,6 @@ const DELTA_ANGLE = 15 * Math.PI / 180
 const ANGLE_OFFSET_THRESHOLD = 45 * Math.PI / 180
 
 let currentRotationDelta = ROTATION_DELTA
-
-const toArr2Points = pointsVec2 =>
-  pointsVec2.map(vec2 => vec2.toArray())
-
-const toVec3Points = (pointsVec2, z) =>
-  pointsVec2.map(vec2 => new THREE.Vector3(vec2.x, vec2.y, z))
 
 export const setSpeed = multiplier => {
   currentRotationDelta = ROTATION_DELTA * multiplier
@@ -257,13 +252,13 @@ class Form {
   }
 
   updateProjectedImage({ qsVec2 }) {
-    this.lineGeometry.update(toArr2Points(qsVec2))
+    this.lineGeometry.update(U.vectorsAsArrays(qsVec2))
   }
 
   updateMembrane({ psVec2, qsVec2 }) {
 
-    const psVec3 = toVec3Points(psVec2, C.MEMBRANE_LENGTH)
-    const qsVec3 = toVec3Points(qsVec2, 0)
+    const psVec3 = U.vec2sToVec3s(psVec2, C.MEMBRANE_LENGTH)
+    const qsVec3 = U.vec2sToVec3s(qsVec2)
 
     const tempMembraneGeometry = new MembraneBufferGeometry(psVec3, qsVec3, MEMBRANE_SEGMENT_COUNT)
     tempMembraneGeometry.computeFaceNormals()

@@ -3,6 +3,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import { GrowingForm, ShrinkingForm, setSpeed } from './form'
 // import { addSpotLights, toggleSpotLightHelpers } from './spotlights'
 import { addProjectorCasing } from './projector-casing'
+import * as U from './utils'
 import * as C from './constants'
 
 const FAVOURITE_POSITIONS = [
@@ -68,14 +69,11 @@ const main = async () => {
   // addSpotLights(scene, 0, C.CENTRE_Q_Y, C.LOW_INTENSITY_SPOTLIGHT)
   // addSpotLights(scene, C.CENTRE_P_Y * 2, C.CENTRE_Q_Y, C.LOW_INTENSITY_SPOTLIGHT)
 
-  await addProjectorCasing(scene, C.LEFT)
-  await addProjectorCasing(scene, C.RIGHT)
+  const projectorLensTexture = await U.loadTexture('projector-lens.png')
+  await addProjectorCasing(scene, projectorLensTexture, C.LEFT)
+  await addProjectorCasing(scene, projectorLensTexture, C.RIGHT)
 
-  const hazeTexture = await new Promise((resolve, reject) => {
-    const textureLoader = new THREE.TextureLoader()
-    textureLoader.load('haze.jpg', resolve, reject)
-  })
-
+  const hazeTexture = await U.loadTexture('haze.jpg')
   const growingForm = new GrowingForm(scene, hazeTexture, C.LEFT)
   const shrinkingForm = new ShrinkingForm(scene, hazeTexture, C.RIGHT)
 

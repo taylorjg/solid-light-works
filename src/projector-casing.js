@@ -7,7 +7,7 @@ const PROJECTOR_CASING_DEPTH = 0.6
 const HALF_PROJECTOR_CASING_HEIGHT = PROJECTOR_CASING_HEIGHT / 2
 const HALF_PROJECTOR_CASING_DEPTH = PROJECTOR_CASING_DEPTH / 2
 
-export const addProjectorCasing = async (scene, side) => {
+export const addProjectorCasing = async (scene, projectorLensTexture, side) => {
 
   const centreX = side === C.LEFT ? C.LEFT_CENTRE_X : C.RIGHT_CENTRE_X
 
@@ -20,10 +20,6 @@ export const addProjectorCasing = async (scene, side) => {
   projectorCasingMesh.position.setZ(C.MEMBRANE_LENGTH + HALF_PROJECTOR_CASING_DEPTH)
   scene.add(projectorCasingMesh)
 
-  const projectorLensTexture = await new Promise((resolve, reject) => {
-    const textureLoader = new THREE.TextureLoader()
-    textureLoader.load('projector-lens.png', resolve, reject)
-  })
   const lensSize = C.PROJECTOR_BULB_RADIUS * 2
   const projectorLensGeometry = new THREE.PlaneBufferGeometry(lensSize, lensSize)
   const projectorLensMaterial = new THREE.MeshBasicMaterial({
