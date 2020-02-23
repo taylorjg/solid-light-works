@@ -52727,16 +52727,14 @@ const LOW_INTENSITY_SPOTLIGHT = Symbol('LOW_INTENSITY_SPOTLIGHT')
 /*!*********************!*\
   !*** ./src/form.js ***!
   \*********************/
-/*! exports provided: setSpeed, GrowingFormPoints, ShrinkingFormPoints, GrowingForm, ShrinkingForm */
+/*! exports provided: setSpeed, makeGrowingForm, makeShrinkingForm */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "setSpeed", function() { return setSpeed; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "GrowingFormPoints", function() { return GrowingFormPoints; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ShrinkingFormPoints", function() { return ShrinkingFormPoints; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "GrowingForm", function() { return GrowingForm; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ShrinkingForm", function() { return ShrinkingForm; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "makeGrowingForm", function() { return makeGrowingForm; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "makeShrinkingForm", function() { return makeShrinkingForm; });
 /* harmony import */ var three__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
 /* harmony import */ var three_examples_jsm_helpers_VertexNormalsHelper_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! three/examples/jsm/helpers/VertexNormalsHelper.js */ "./node_modules/three/examples/jsm/helpers/VertexNormalsHelper.js");
 /* harmony import */ var three_line_2d__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! three-line-2d */ "./node_modules/three-line-2d/index.js");
@@ -52781,11 +52779,9 @@ const setSpeed = multiplier => {
 class FormPointsBase {
 
   constructor(initialSide) {
-    this.initialSide = initialSide
-    this.init()
-  }
 
-  init() {
+    this.initialSide = initialSide
+
     this.ellipseCurveP = new three__WEBPACK_IMPORTED_MODULE_0__["EllipseCurve"](
       this.initialSide === _constants__WEBPACK_IMPORTED_MODULE_8__["LEFT"] ? _constants__WEBPACK_IMPORTED_MODULE_8__["LEFT_CENTRE_X"] : _constants__WEBPACK_IMPORTED_MODULE_8__["RIGHT_CENTRE_X"],
       _constants__WEBPACK_IMPORTED_MODULE_8__["CENTRE_P_Y"],
@@ -52819,6 +52815,7 @@ class FormPointsBase {
   getIsClockwise() {
     throw new Error('You have to override FormPointsBase#getIsClockwise!')
   }
+
   calculateSinusoidalDampingFactor(a) {
     const dampingFactor = Math.pow(3 + (1 - Math.sin(a % Math.PI)) * 5, 2)
     // console.log(`a: ${a}; dampingFactor: ${dampingFactor}`)
@@ -52891,7 +52888,7 @@ class FormPointsBase {
     return w.getPoints(WIPE_POINT_COUNT)
   }
 
-  updatePoints(tick) {
+  getUpdatedPoints(tick) {
 
     const currentAngle = this.getCurrentAngle(tick)
     this.ellipseCurveP.aStartAngle = currentAngle
@@ -52907,8 +52904,8 @@ class FormPointsBase {
     const qsCombinedVec2 = this.combineEllipseAndWipe(qsEllipseVec2, qsWipeVec2)
 
     return {
-      psVec2: psCombinedVec2,
-      qsVec2: qsCombinedVec2
+      screenPoints: qsCombinedVec2,
+      projectorPoints: psCombinedVec2
     }
   }
 
@@ -52971,12 +52968,9 @@ class ShrinkingFormPoints extends FormPointsBase {
   }
 }
 
-class Form {
+class ScreenImage {
 
-  constructor(scene, hazeTexture, formPoints) {
-    this.scene = scene
-    this.formPoints = formPoints
-
+  constructor(scene) {
     this.lineGeometry = Line2d()
     const lineMaterial = new three__WEBPACK_IMPORTED_MODULE_0__["ShaderMaterial"](
       Line2dBasicShader({
@@ -52985,8 +52979,18 @@ class Form {
         thickness: PROJECTED_IMAGE_LINE_THICKNESS
       }))
     this.lineMesh = new three__WEBPACK_IMPORTED_MODULE_0__["Mesh"](this.lineGeometry, lineMaterial)
-    this.scene.add(this.lineMesh)
+    scene.add(this.lineMesh)
+  }
 
+  update(screenPoints) {
+    this.lineGeometry.update(_utils__WEBPACK_IMPORTED_MODULE_7__["vectorsAsArrays"](screenPoints))
+  }
+}
+
+class ProjectionEffect {
+
+  constructor(scene, hazeTexture, isClockwise) {
+    this.scene = scene
     this.membraneGeometry = new _membrane_geometry__WEBPACK_IMPORTED_MODULE_4__["MembraneBufferGeometry"]()
     const membraneMaterial = new three__WEBPACK_IMPORTED_MODULE_0__["ShaderMaterial"]({
       uniforms: {
@@ -52996,26 +53000,22 @@ class Form {
       },
       vertexShader: (_shaders_vertex_shader_glsl__WEBPACK_IMPORTED_MODULE_5___default()),
       fragmentShader: (_shaders_fragment_shader_glsl__WEBPACK_IMPORTED_MODULE_6___default()),
-      side: this.formPoints.getIsClockwise() ? three__WEBPACK_IMPORTED_MODULE_0__["FrontSide"] : three__WEBPACK_IMPORTED_MODULE_0__["BackSide"],
+      side: isClockwise ? three__WEBPACK_IMPORTED_MODULE_0__["FrontSide"] : three__WEBPACK_IMPORTED_MODULE_0__["BackSide"],
       blending: three__WEBPACK_IMPORTED_MODULE_0__["AdditiveBlending"]
     })
     this.membraneMesh = new three__WEBPACK_IMPORTED_MODULE_0__["Mesh"](this.membraneGeometry, membraneMaterial)
-    this.scene.add(this.membraneMesh)
+    scene.add(this.membraneMesh)
   }
 
-  updateProjectedImage({ qsVec2 }) {
-    this.lineGeometry.update(_utils__WEBPACK_IMPORTED_MODULE_7__["vectorsAsArrays"](qsVec2))
-  }
+  update(updatedPoints, isClockwise) {
 
-  updateMembrane({ psVec2, qsVec2 }) {
+    const screenPoints = _utils__WEBPACK_IMPORTED_MODULE_7__["vec2sToVec3s"](updatedPoints.screenPoints)
+    const projectorPoints = _utils__WEBPACK_IMPORTED_MODULE_7__["vec2sToVec3s"](updatedPoints.projectorPoints, _constants__WEBPACK_IMPORTED_MODULE_8__["MEMBRANE_LENGTH"])
 
-    const psVec3 = _utils__WEBPACK_IMPORTED_MODULE_7__["vec2sToVec3s"](psVec2, _constants__WEBPACK_IMPORTED_MODULE_8__["MEMBRANE_LENGTH"])
-    const qsVec3 = _utils__WEBPACK_IMPORTED_MODULE_7__["vec2sToVec3s"](qsVec2)
-
-    const tempMembraneGeometry = new _membrane_geometry__WEBPACK_IMPORTED_MODULE_4__["MembraneBufferGeometry"](psVec3, qsVec3, MEMBRANE_SEGMENT_COUNT)
+    const tempMembraneGeometry = new _membrane_geometry__WEBPACK_IMPORTED_MODULE_4__["MembraneBufferGeometry"](projectorPoints, screenPoints, MEMBRANE_SEGMENT_COUNT)
     tempMembraneGeometry.computeFaceNormals()
     tempMembraneGeometry.computeVertexNormals()
-    if (!this.formPoints.getIsClockwise()) {
+    if (!isClockwise) {
       const normalAttribute = tempMembraneGeometry.getAttribute('normal')
       const array = normalAttribute.array
       array.forEach((_, index) => array[index] *= -1)
@@ -53028,10 +53028,30 @@ class Form {
     }
   }
 
+  toggleHelpers() {
+    if (this.membraneMeshHelper) {
+      this.scene.remove(this.membraneMeshHelper)
+      this.membraneMeshHelper = undefined
+    }
+    else {
+      this.membraneMeshHelper = new three_examples_jsm_helpers_VertexNormalsHelper_js__WEBPACK_IMPORTED_MODULE_1__["VertexNormalsHelper"](this.membraneMesh, 0.2, 0xffffff)
+      this.scene.add(this.membraneMeshHelper)
+    }
+  }
+}
+
+class FormCoordinator {
+
+  constructor(scene, hazeTexture, formPoints) {
+    this.formPoints = formPoints
+    this.screenImage = new ScreenImage(scene)
+    this.projectionEffect = new ProjectionEffect(scene, hazeTexture, this.formPoints.getIsClockwise())
+  }
+
   update(tick) {
-    const updatedPoints = this.formPoints.updatePoints(tick)
-    this.updateProjectedImage(updatedPoints)
-    this.updateMembrane(updatedPoints)
+    const updatedPoints = this.formPoints.getUpdatedPoints(tick)
+    this.screenImage.update(updatedPoints.screenPoints)
+    this.projectionEffect.update(updatedPoints, this.formPoints.getIsClockwise())
   }
 
   swapSidesTest() {
@@ -53047,30 +53067,20 @@ class Form {
   }
 
   toggleHelpers() {
-    if (this.membraneMeshHelper) {
-      this.scene.remove(this.membraneMeshHelper)
-      this.membraneMeshHelper = undefined
-    }
-    else {
-      this.membraneMeshHelper = new three_examples_jsm_helpers_VertexNormalsHelper_js__WEBPACK_IMPORTED_MODULE_1__["VertexNormalsHelper"](this.membraneMesh, 0.2, 0xffffff)
-      this.scene.add(this.membraneMeshHelper)
-    }
+    this.projectionEffect.toggleHelpers()
   }
 }
 
-class GrowingForm extends Form {
-  constructor(scene, hazeTexture, initialSide) {
-    const formPoints = new GrowingFormPoints(initialSide)
-    super(scene, hazeTexture, formPoints)
-  }
+const makeForm = (scene, hazeTexture, initialSide, FormPointsConstructor) => {
+  const formPoints = new FormPointsConstructor(initialSide)
+  return new FormCoordinator(scene, hazeTexture, formPoints)
 }
 
-class ShrinkingForm extends Form {
-  constructor(scene, hazeTexture, initialSide) {
-    const formPoints = new ShrinkingFormPoints(initialSide)
-    super(scene, hazeTexture, formPoints)
-  }
-}
+const makeGrowingForm = (scene, hazeTexture, initialSide) =>
+  makeForm(scene, hazeTexture, initialSide, GrowingFormPoints)
+
+const makeShrinkingForm = (scene, hazeTexture, initialSide) =>
+  makeForm(scene, hazeTexture, initialSide, ShrinkingFormPoints)
 
 
 /***/ }),
@@ -53166,8 +53176,8 @@ const main = async () => {
   await Object(_projector_casing__WEBPACK_IMPORTED_MODULE_3__["addProjectorCasing"])(scene, projectorLensTexture, _constants__WEBPACK_IMPORTED_MODULE_5__["RIGHT"])
 
   const hazeTexture = await _utils__WEBPACK_IMPORTED_MODULE_4__["loadTexture"]('haze.jpg')
-  const growingForm = new _form__WEBPACK_IMPORTED_MODULE_2__["GrowingForm"](scene, hazeTexture, _constants__WEBPACK_IMPORTED_MODULE_5__["LEFT"])
-  const shrinkingForm = new _form__WEBPACK_IMPORTED_MODULE_2__["ShrinkingForm"](scene, hazeTexture, _constants__WEBPACK_IMPORTED_MODULE_5__["RIGHT"])
+  const growingForm = Object(_form__WEBPACK_IMPORTED_MODULE_2__["makeGrowingForm"])(scene, hazeTexture, _constants__WEBPACK_IMPORTED_MODULE_5__["LEFT"])
+  const shrinkingForm = Object(_form__WEBPACK_IMPORTED_MODULE_2__["makeShrinkingForm"])(scene, hazeTexture, _constants__WEBPACK_IMPORTED_MODULE_5__["RIGHT"])
 
   window.addEventListener('resize', () => {
     renderer.setSize(container.offsetWidth, container.offsetHeight)
