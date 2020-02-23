@@ -1,6 +1,6 @@
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
-import { GrowingForm, ShrinkingForm, setSpeed } from './form'
+import { makeGrowingForm, makeShrinkingForm, setSpeed } from './form'
 // import { addSpotLights, toggleSpotLightHelpers } from './spotlights'
 import { addProjectorCasing } from './projector-casing'
 import * as U from './utils'
@@ -74,8 +74,8 @@ const main = async () => {
   await addProjectorCasing(scene, projectorLensTexture, C.RIGHT)
 
   const hazeTexture = await U.loadTexture('haze.jpg')
-  const growingForm = new GrowingForm(scene, hazeTexture, C.LEFT)
-  const shrinkingForm = new ShrinkingForm(scene, hazeTexture, C.RIGHT)
+  const growingForm = makeGrowingForm(scene, hazeTexture, C.LEFT)
+  const shrinkingForm = makeShrinkingForm(scene, hazeTexture, C.RIGHT)
 
   window.addEventListener('resize', () => {
     renderer.setSize(container.offsetWidth, container.offsetHeight)

@@ -29,11 +29,9 @@ export const setSpeed = multiplier => {
 class FormPointsBase {
 
   constructor(initialSide) {
-    this.initialSide = initialSide
-    this.init()
-  }
 
-  init() {
+    this.initialSide = initialSide
+
     this.ellipseCurveP = new THREE.EllipseCurve(
       this.initialSide === C.LEFT ? C.LEFT_CENTRE_X : C.RIGHT_CENTRE_X,
       C.CENTRE_P_Y,
@@ -67,6 +65,7 @@ class FormPointsBase {
   getIsClockwise() {
     throw new Error('You have to override FormPointsBase#getIsClockwise!')
   }
+
   calculateSinusoidalDampingFactor(a) {
     const dampingFactor = Math.pow(3 + (1 - Math.sin(a % Math.PI)) * 5, 2)
     // console.log(`a: ${a}; dampingFactor: ${dampingFactor}`)
@@ -139,7 +138,7 @@ class FormPointsBase {
     return w.getPoints(WIPE_POINT_COUNT)
   }
 
-  updatePoints(tick) {
+  getUpdatedPoints(tick) {
 
     const currentAngle = this.getCurrentAngle(tick)
     this.ellipseCurveP.aStartAngle = currentAngle
@@ -155,8 +154,8 @@ class FormPointsBase {
     const qsCombinedVec2 = this.combineEllipseAndWipe(qsEllipseVec2, qsWipeVec2)
 
     return {
-      psVec2: psCombinedVec2,
-      qsVec2: qsCombinedVec2
+      screenPoints: qsCombinedVec2,
+      projectorPoints: psCombinedVec2
     }
   }
 
@@ -181,7 +180,7 @@ class FormPointsBase {
   }
 }
 
-export class GrowingFormPoints extends FormPointsBase {
+class GrowingFormPoints extends FormPointsBase {
 
   constructor(initialSide) {
     super(initialSide)
@@ -200,7 +199,7 @@ export class GrowingFormPoints extends FormPointsBase {
   }
 }
 
-export class ShrinkingFormPoints extends FormPointsBase {
+class ShrinkingFormPoints extends FormPointsBase {
 
   constructor(initialSide) {
     super(initialSide)
@@ -219,12 +218,9 @@ export class ShrinkingFormPoints extends FormPointsBase {
   }
 }
 
-class Form {
+class ScreenImage {
 
-  constructor(scene, hazeTexture, formPoints) {
-    this.scene = scene
-    this.formPoints = formPoints
-
+  constructor(scene) {
     this.lineGeometry = Line2d()
     const lineMaterial = new THREE.ShaderMaterial(
       Line2dBasicShader({
@@ -233,8 +229,18 @@ class Form {
         thickness: PROJECTED_IMAGE_LINE_THICKNESS
       }))
     this.lineMesh = new THREE.Mesh(this.lineGeometry, lineMaterial)
-    this.scene.add(this.lineMesh)
+    scene.add(this.lineMesh)
+  }
 
+  update(screenPoints) {
+    this.lineGeometry.update(U.vectorsAsArrays(screenPoints))
+  }
+}
+
+class ProjectionEffect {
+
+  constructor(scene, hazeTexture, isClockwise) {
+    this.scene = scene
     this.membraneGeometry = new MembraneBufferGeometry()
     const membraneMaterial = new THREE.ShaderMaterial({
       uniforms: {
@@ -244,26 +250,22 @@ class Form {
       },
       vertexShader,
       fragmentShader,
-      side: this.formPoints.getIsClockwise() ? THREE.FrontSide : THREE.BackSide,
+      side: isClockwise ? THREE.FrontSide : THREE.BackSide,
       blending: THREE.AdditiveBlending
     })
     this.membraneMesh = new THREE.Mesh(this.membraneGeometry, membraneMaterial)
-    this.scene.add(this.membraneMesh)
+    scene.add(this.membraneMesh)
   }
 
-  updateProjectedImage({ qsVec2 }) {
-    this.lineGeometry.update(U.vectorsAsArrays(qsVec2))
-  }
+  update(updatedPoints, isClockwise) {
 
-  updateMembrane({ psVec2, qsVec2 }) {
+    const screenPoints = U.vec2sToVec3s(updatedPoints.screenPoints)
+    const projectorPoints = U.vec2sToVec3s(updatedPoints.projectorPoints, C.MEMBRANE_LENGTH)
 
-    const psVec3 = U.vec2sToVec3s(psVec2, C.MEMBRANE_LENGTH)
-    const qsVec3 = U.vec2sToVec3s(qsVec2)
-
-    const tempMembraneGeometry = new MembraneBufferGeometry(psVec3, qsVec3, MEMBRANE_SEGMENT_COUNT)
+    const tempMembraneGeometry = new MembraneBufferGeometry(projectorPoints, screenPoints, MEMBRANE_SEGMENT_COUNT)
     tempMembraneGeometry.computeFaceNormals()
     tempMembraneGeometry.computeVertexNormals()
-    if (!this.formPoints.getIsClockwise()) {
+    if (!isClockwise) {
       const normalAttribute = tempMembraneGeometry.getAttribute('normal')
       const array = normalAttribute.array
       array.forEach((_, index) => array[index] *= -1)
@@ -276,10 +278,30 @@ class Form {
     }
   }
 
+  toggleHelpers() {
+    if (this.membraneMeshHelper) {
+      this.scene.remove(this.membraneMeshHelper)
+      this.membraneMeshHelper = undefined
+    }
+    else {
+      this.membraneMeshHelper = new VertexNormalsHelper(this.membraneMesh, 0.2, 0xffffff)
+      this.scene.add(this.membraneMeshHelper)
+    }
+  }
+}
+
+class FormCoordinator {
+
+  constructor(scene, hazeTexture, formPoints) {
+    this.formPoints = formPoints
+    this.screenImage = new ScreenImage(scene)
+    this.projectionEffect = new ProjectionEffect(scene, hazeTexture, this.formPoints.getIsClockwise())
+  }
+
   update(tick) {
-    const updatedPoints = this.formPoints.updatePoints(tick)
-    this.updateProjectedImage(updatedPoints)
-    this.updateMembrane(updatedPoints)
+    const updatedPoints = this.formPoints.getUpdatedPoints(tick)
+    this.screenImage.update(updatedPoints.screenPoints)
+    this.projectionEffect.update(updatedPoints, this.formPoints.getIsClockwise())
   }
 
   swapSidesTest() {
@@ -295,27 +317,17 @@ class Form {
   }
 
   toggleHelpers() {
-    if (this.membraneMeshHelper) {
-      this.scene.remove(this.membraneMeshHelper)
-      this.membraneMeshHelper = undefined
-    }
-    else {
-      this.membraneMeshHelper = new VertexNormalsHelper(this.membraneMesh, 0.2, 0xffffff)
-      this.scene.add(this.membraneMeshHelper)
-    }
+    this.projectionEffect.toggleHelpers()
   }
 }
 
-export class GrowingForm extends Form {
-  constructor(scene, hazeTexture, initialSide) {
-    const formPoints = new GrowingFormPoints(initialSide)
-    super(scene, hazeTexture, formPoints)
-  }
+const makeForm = (scene, hazeTexture, initialSide, FormPointsConstructor) => {
+  const formPoints = new FormPointsConstructor(initialSide)
+  return new FormCoordinator(scene, hazeTexture, formPoints)
 }
 
-export class ShrinkingForm extends Form {
-  constructor(scene, hazeTexture, initialSide) {
-    const formPoints = new ShrinkingFormPoints(initialSide)
-    super(scene, hazeTexture, formPoints)
-  }
-}
+export const makeGrowingForm = (scene, hazeTexture, initialSide) =>
+  makeForm(scene, hazeTexture, initialSide, GrowingFormPoints)
+
+export const makeShrinkingForm = (scene, hazeTexture, initialSide) =>
+  makeForm(scene, hazeTexture, initialSide, ShrinkingFormPoints)
