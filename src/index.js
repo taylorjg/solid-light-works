@@ -1,8 +1,7 @@
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
-import { makeGrowingForm, makeShrinkingForm, setSpeed } from './form'
+import { Form, setSpeed } from './form'
 // import { addSpotLights, toggleSpotLightHelpers } from './spotlights'
-import { addProjectorCasing } from './projector-casing'
 import * as U from './utils'
 import * as C from './constants'
 
@@ -69,13 +68,10 @@ const main = async () => {
   // addSpotLights(scene, 0, C.CENTRE_Q_Y, C.LOW_INTENSITY_SPOTLIGHT)
   // addSpotLights(scene, C.CENTRE_P_Y * 2, C.CENTRE_Q_Y, C.LOW_INTENSITY_SPOTLIGHT)
 
-  const projectorLensTexture = await U.loadTexture('projector-lens.png')
-  await addProjectorCasing(scene, projectorLensTexture, C.LEFT)
-  await addProjectorCasing(scene, projectorLensTexture, C.RIGHT)
-
   const hazeTexture = await U.loadTexture('haze.jpg')
-  const growingForm = makeGrowingForm(scene, hazeTexture, C.LEFT)
-  const shrinkingForm = makeShrinkingForm(scene, hazeTexture, C.RIGHT)
+  const projectorLensTexture = await U.loadTexture('projector-lens.png')
+  const leftForm = new Form(C.LEFT, scene, hazeTexture, projectorLensTexture)
+  const rightForm = new Form(C.RIGHT, scene, hazeTexture, projectorLensTexture)
 
   window.addEventListener('resize', () => {
     renderer.setSize(container.offsetWidth, container.offsetHeight)
@@ -83,9 +79,9 @@ const main = async () => {
     camera.updateProjectionMatrix()
   })
 
-  const onDocumentKeyDownHandler = ev => {
+  const onDocumentKeyDownHandler = e => {
 
-    if (ev.key === 'a') {
+    if (e.key === 'a') {
       if (axesHelper) {
         scene.remove(axesHelper)
         axesHelper = undefined
@@ -95,19 +91,19 @@ const main = async () => {
       }
     }
 
-    if (ev.key === 'c') {
+    if (e.key === 'c') {
       console.log(`camera.position: ${JSON.stringify(camera.position)}`)
       console.log(`controls.target: ${JSON.stringify(controls.target)}`)
     }
 
-    if (ev.key === 'p') {
+    if (e.key === 'p') {
       currentFavouritePositionIndex++
       currentFavouritePositionIndex %= FAVOURITE_POSITIONS.length
       camera.position.copy(FAVOURITE_POSITIONS[currentFavouritePositionIndex].cameraPosition)
       controls.target.copy(FAVOURITE_POSITIONS[currentFavouritePositionIndex].controlsTarget)
     }
 
-    if (ev.key === 'r') {
+    if (e.key === 'r') {
       controls.autoRotate = !controls.autoRotate
     }
 
@@ -115,47 +111,32 @@ const main = async () => {
     //   toggleSpotLightHelpers(scene)
     // }
 
-    if (ev.key === 'v') {
-      growingForm.toggleHelpers()
-      shrinkingForm.toggleHelpers()
+    if (e.key === 'v') {
+      leftForm.toggleHelpers()
+      rightForm.toggleHelpers()
     }
 
-    if (ev.key === '1') {
-      setSpeedAndReset(1)
+    if (e.key === '1') {
+      setSpeed(1)
     }
-    if (ev.key === '2') {
-      setSpeedAndReset(2)
+    if (e.key === '2') {
+      setSpeed(2)
     }
-    if (ev.key === '3') {
-      setSpeedAndReset(5)
+    if (e.key === '3') {
+      setSpeed(5)
     }
-    if (ev.key === '4') {
-      setSpeedAndReset(10)
+    if (e.key === '4') {
+      setSpeed(10)
     }
-  }
-
-  const setSpeedAndReset = multiplier => {
-    setSpeed(multiplier)
-    growingForm.reset()
-    shrinkingForm.reset()
-    tick = 1
   }
 
   document.addEventListener('keydown', onDocumentKeyDownHandler)
 
-  let tick = 1
-
   const render = () => {
-    growingForm.update(tick)
-    shrinkingForm.update(tick)
+    leftForm.update()
+    rightForm.update()
     controls.update()
     renderer.render(scene, camera)
-    tick++
-    if (growingForm.swapSidesTest()) {
-      tick = 1
-      growingForm.swapSides()
-      shrinkingForm.swapSides()
-    }
     requestAnimationFrame(render)
   }
 
