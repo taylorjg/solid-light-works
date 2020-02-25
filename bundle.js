@@ -52690,13 +52690,13 @@ VertexNormalsHelper.prototype.update = function () {
 /*!**************************!*\
   !*** ./src/constants.js ***!
   \**************************/
-/*! exports provided: LEFT_CENTRE_X, RIGHT_CENTRE_X, CENTRE_P_Y, CENTRE_Q_Y, MEMBRANE_LENGTH, PROJECTOR_BULB_RADIUS, LEFT, RIGHT, GROWING, SHRINKING, HIGH_INTENSITY_SPOTLIGHT, LOW_INTENSITY_SPOTLIGHT */
+/*! exports provided: LEFT_FORM_CENTRE_X, RIGHT_FORM_CENTRE_X, CENTRE_P_Y, CENTRE_Q_Y, MEMBRANE_LENGTH, PROJECTOR_BULB_RADIUS, LEFT, RIGHT, GROWING, SHRINKING, HIGH_INTENSITY_SPOTLIGHT, LOW_INTENSITY_SPOTLIGHT */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "LEFT_CENTRE_X", function() { return LEFT_CENTRE_X; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "RIGHT_CENTRE_X", function() { return RIGHT_CENTRE_X; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "LEFT_FORM_CENTRE_X", function() { return LEFT_FORM_CENTRE_X; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "RIGHT_FORM_CENTRE_X", function() { return RIGHT_FORM_CENTRE_X; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "CENTRE_P_Y", function() { return CENTRE_P_Y; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "CENTRE_Q_Y", function() { return CENTRE_Q_Y; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "MEMBRANE_LENGTH", function() { return MEMBRANE_LENGTH; });
@@ -52707,8 +52707,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "SHRINKING", function() { return SHRINKING; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "HIGH_INTENSITY_SPOTLIGHT", function() { return HIGH_INTENSITY_SPOTLIGHT; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "LOW_INTENSITY_SPOTLIGHT", function() { return LOW_INTENSITY_SPOTLIGHT; });
-const LEFT_CENTRE_X = -3.5
-const RIGHT_CENTRE_X = -LEFT_CENTRE_X
+const LEFT_FORM_CENTRE_X = -3.5
+const RIGHT_FORM_CENTRE_X = -LEFT_FORM_CENTRE_X
 const CENTRE_P_Y = 0.3
 const CENTRE_Q_Y = 2.6
 const MEMBRANE_LENGTH = 15
@@ -52727,14 +52727,13 @@ const LOW_INTENSITY_SPOTLIGHT = Symbol('LOW_INTENSITY_SPOTLIGHT')
 /*!*********************!*\
   !*** ./src/form.js ***!
   \*********************/
-/*! exports provided: setSpeed, makeGrowingForm, makeShrinkingForm */
+/*! exports provided: setSpeed, Form */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "setSpeed", function() { return setSpeed; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "makeGrowingForm", function() { return makeGrowingForm; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "makeShrinkingForm", function() { return makeShrinkingForm; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Form", function() { return Form; });
 /* harmony import */ var three__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
 /* harmony import */ var three_examples_jsm_helpers_VertexNormalsHelper_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! three/examples/jsm/helpers/VertexNormalsHelper.js */ "./node_modules/three/examples/jsm/helpers/VertexNormalsHelper.js");
 /* harmony import */ var three_line_2d__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! three-line-2d */ "./node_modules/three-line-2d/index.js");
@@ -52746,8 +52745,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _shaders_vertex_shader_glsl__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(_shaders_vertex_shader_glsl__WEBPACK_IMPORTED_MODULE_5__);
 /* harmony import */ var _shaders_fragment_shader_glsl__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./shaders/fragment-shader.glsl */ "./src/shaders/fragment-shader.glsl");
 /* harmony import */ var _shaders_fragment_shader_glsl__WEBPACK_IMPORTED_MODULE_6___default = /*#__PURE__*/__webpack_require__.n(_shaders_fragment_shader_glsl__WEBPACK_IMPORTED_MODULE_6__);
-/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./utils */ "./src/utils.js");
-/* harmony import */ var _constants__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./constants */ "./src/constants.js");
+/* harmony import */ var _projector_casing__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./projector-casing */ "./src/projector-casing.js");
+/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./utils */ "./src/utils.js");
+/* harmony import */ var _constants__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./constants */ "./src/constants.js");
 
 
 
@@ -52760,9 +52760,10 @@ const Line2dBasicShader = three_line_2d_shaders_basic__WEBPACK_IMPORTED_MODULE_3
 
 
 
+
 const PROJECTED_IMAGE_RADIUS_X = 2.8
 const PROJECTED_IMAGE_RADIUS_Y = 2
-const PROJECTED_IMAGE_LINE_THICKNESS = 0.08
+const PROJECTED_IMAGE_LINE_THICKNESS = 0.04
 const ELLIPSE_POINT_COUNT = 100
 const WIPE_POINT_COUNT = 50
 const MEMBRANE_SEGMENT_COUNT = 1
@@ -52770,95 +52771,91 @@ const ROTATION_DELTA = Math.PI / (180 * 60)
 const DELTA_ANGLE = 15 * Math.PI / 180
 const ANGLE_OFFSET_THRESHOLD = 45 * Math.PI / 180
 
+const TWO_PI = Math.PI * 2
+const HALF_PI = Math.PI / 2
+const REVOLUTION_START = -HALF_PI
+const REVOLUTION_END = REVOLUTION_START + TWO_PI
+
 let currentRotationDelta = ROTATION_DELTA
 
 const setSpeed = multiplier => {
   currentRotationDelta = ROTATION_DELTA * multiplier
 }
 
-class FormPointsBase {
+// Use our own code to calculate points on an elliptical curve because
+// THREE.EllipseCurve seems to interfere with negative start/end angles.
+class EllipseCurve {
 
-  constructor(initialSide) {
-
-    this.initialSide = initialSide
-
-    this.ellipseCurveP = new three__WEBPACK_IMPORTED_MODULE_0__["EllipseCurve"](
-      this.initialSide === _constants__WEBPACK_IMPORTED_MODULE_8__["LEFT"] ? _constants__WEBPACK_IMPORTED_MODULE_8__["LEFT_CENTRE_X"] : _constants__WEBPACK_IMPORTED_MODULE_8__["RIGHT_CENTRE_X"],
-      _constants__WEBPACK_IMPORTED_MODULE_8__["CENTRE_P_Y"],
-      _constants__WEBPACK_IMPORTED_MODULE_8__["PROJECTOR_BULB_RADIUS"],
-      _constants__WEBPACK_IMPORTED_MODULE_8__["PROJECTOR_BULB_RADIUS"],
-      this.getStartAngle(),
-      this.getEndAngle(),
-      this.getIsClockwise())
-
-    this.ellipseCurveQ = new three__WEBPACK_IMPORTED_MODULE_0__["EllipseCurve"](
-      this.initialSide === _constants__WEBPACK_IMPORTED_MODULE_8__["LEFT"] ? _constants__WEBPACK_IMPORTED_MODULE_8__["LEFT_CENTRE_X"] : _constants__WEBPACK_IMPORTED_MODULE_8__["RIGHT_CENTRE_X"],
-      _constants__WEBPACK_IMPORTED_MODULE_8__["CENTRE_Q_Y"],
-      PROJECTED_IMAGE_RADIUS_X,
-      PROJECTED_IMAGE_RADIUS_Y,
-      this.getStartAngle(),
-      this.getEndAngle(),
-      this.getIsClockwise())
-
-    this.wipeCurveP = new three__WEBPACK_IMPORTED_MODULE_0__["CubicBezierCurve"]()
-    this.wipeCurveQ = new three__WEBPACK_IMPORTED_MODULE_0__["CubicBezierCurve"]()
+  constructor(cx, cy, rx, ry) {
+    this.cx = cx
+    this.cy = cy
+    this.rx = rx
+    this.ry = ry
   }
 
-  getStartAngle() {
-    throw new Error('You have to override FormPointsBase#getStartAngle!')
+  getPoint(angle) {
+    const x = this.cx - this.rx * Math.cos(angle)
+    const y = this.cy + this.ry * Math.sin(angle)
+    return new three__WEBPACK_IMPORTED_MODULE_0__["Vector2"](x, y)
   }
 
-  getEndAngle() {
-    throw new Error('You have to override FormPointsBase#getEndAngle!')
+  getPoints(startAngle, endAngle, divisions) {
+    const deltaAngle = endAngle - startAngle
+    return _utils__WEBPACK_IMPORTED_MODULE_8__["range"](divisions + 1).map(index => {
+      const t = index / divisions
+      const angle = startAngle + t * deltaAngle
+      return this.getPoint(angle)
+    })
+  }
+}
+
+class FormPoints {
+
+  constructor(cx, cy, rx, ry, isInitiallyGrowing) {
+    this.cx = cx
+    this.cy = cy
+    this.rx = rx
+    this.ry = ry
+    this.reset(isInitiallyGrowing)
+    this.ellipseCurve = new EllipseCurve(cx, cy, rx, ry)
+    this.wipeCurve = new three__WEBPACK_IMPORTED_MODULE_0__["CubicBezierCurve"]()
   }
 
-  getIsClockwise() {
-    throw new Error('You have to override FormPointsBase#getIsClockwise!')
-  }
-
-  calculateSinusoidalDampingFactor(a) {
-    const dampingFactor = Math.pow(3 + (1 - Math.sin(a % Math.PI)) * 5, 2)
-    // console.log(`a: ${a}; dampingFactor: ${dampingFactor}`)
+  calculateSinusoidalDampingFactor(angle) {
+    const dampingFactor = Math.pow(3 + (1 - Math.sin(angle % Math.PI)) * 5, 2)
+    // console.log(`angle: ${angle}; dampingFactor: ${dampingFactor}`)
     return dampingFactor
   }
 
-  getCurrentAngle(tick) {
-    const baseAngle = this.getStartAngle() - (currentRotationDelta * tick)
-    const offsetFromStartAngle = Math.abs(baseAngle - this.getStartAngle())
-    const totalTicks = 2 * Math.PI / currentRotationDelta
+  getCurrentAngle() {
+    const offsetFromStartAngle = currentRotationDelta * this.tick
+    const baseAngle = REVOLUTION_START + offsetFromStartAngle
+    const totalTicks = TWO_PI / currentRotationDelta
     const sinWaveTicks = totalTicks / 48
-    const x = 2 * Math.PI * ((tick - 1) % sinWaveTicks) / sinWaveTicks
+    const x = TWO_PI * (this.tick % sinWaveTicks) / sinWaveTicks
     const sinx = Math.sin(x)
     const sinusoidalDampingFactor = this.calculateSinusoidalDampingFactor(offsetFromStartAngle)
     const sinusoidalOffset = sinx / sinusoidalDampingFactor
     const finalAngle = baseAngle - sinusoidalOffset
-    // console.log(`tick: ${tick}; offsetFromStartAngle: ${offsetFromStartAngle}; totalTicks: ${totalTicks}; sinWaveTicks: ${sinWaveTicks}; x: ${x}; sinx: ${sinx}; sinusoidalDampingFactor: ${sinusoidalDampingFactor}; sinusoidalOffset: ${sinusoidalOffset}; baseAngle: ${baseAngle}; finalAngle: ${finalAngle}`)
+    // console.log(`tick: ${this.tick}; offsetFromStartAngle: ${offsetFromStartAngle}; totalTicks: ${totalTicks}; sinWaveTicks: ${sinWaveTicks}; x: ${x}; sinx: ${sinx}; sinusoidalDampingFactor: ${sinusoidalDampingFactor}; sinusoidalOffset: ${sinusoidalOffset}; baseAngle: ${baseAngle}; finalAngle: ${finalAngle}`)
     return finalAngle
   }
 
-  getWipeControlPoints(e, currentAngle) {
-
-    const calculateEllipsePoint = theta => new three__WEBPACK_IMPORTED_MODULE_0__["Vector2"](
-      e.aX + e.xRadius * Math.cos(theta),
-      e.aY + e.yRadius * Math.sin(theta))
-
-    const startAngle = this.getStartAngle()
+  getWipeControlPoints(currentAngle) {
+    const startAngle = REVOLUTION_START
     const angleOffset = Math.abs(currentAngle - startAngle)
-    const angleOffset2 = angleOffset < Math.PI ? angleOffset : 2 * Math.PI - angleOffset
+    const angleOffset2 = angleOffset < Math.PI ? angleOffset : TWO_PI - angleOffset
     const normalisingFactor = 1 / ANGLE_OFFSET_THRESHOLD
     const alpha = angleOffset2 > ANGLE_OFFSET_THRESHOLD ? 1.0 : (angleOffset2 * normalisingFactor)
-    const deltaAngle1 = currentAngle + DELTA_ANGLE * alpha
-    const deltaAngle2 = currentAngle - DELTA_ANGLE * alpha
-    const centrePoint = new three__WEBPACK_IMPORTED_MODULE_0__["Vector2"](e.aX, e.aY)
-
-    const deltaPoint1 = calculateEllipsePoint(deltaAngle1)
-    const deltaPoint2 = calculateEllipsePoint(deltaAngle2)
-
-    const startingPoint = calculateEllipsePoint(currentAngle)
+    const deltaAngle1 = currentAngle - DELTA_ANGLE * alpha
+    const deltaAngle2 = currentAngle + DELTA_ANGLE * alpha
+    const centrePoint = new three__WEBPACK_IMPORTED_MODULE_0__["Vector2"](this.cx, this.cy)
+    const deltaPoint1 = this.ellipseCurve.getPoint(deltaAngle1)
+    const deltaPoint2 = this.ellipseCurve.getPoint(deltaAngle2)
+    const startingPoint = this.ellipseCurve.getPoint(currentAngle)
     const endingPoint = startingPoint.clone().lerp(centrePoint, alpha)
     const controlPoint1 = deltaPoint1.lerp(endingPoint, 0.25)
     const controlPoint2 = deltaPoint2.lerp(endingPoint, 0.75)
-
     return {
       startingPoint,
       controlPoint1,
@@ -52868,103 +52865,56 @@ class FormPointsBase {
   }
 
   combineEllipseAndWipe(ellipsePoints, wipePoints) {
-    return ellipsePoints.slice().reverse().concat(wipePoints.slice(1))
+    const wipePointsTail = wipePoints.slice(1)
+    return this.growing
+      ? ellipsePoints.concat(wipePointsTail)
+      : wipePointsTail.reverse().concat(ellipsePoints)
   }
 
-  getWipePoints(e, w, currentAngle, deltaAngle1, deltaAngle2, alpha) {
-
+  getWipePoints(currentAngle) {
     const {
       startingPoint,
       controlPoint1,
       controlPoint2,
       endingPoint
-    } = this.getWipeControlPoints(e, currentAngle, deltaAngle1, deltaAngle2, alpha)
-
-    w.v0.copy(startingPoint)
-    w.v1.copy(controlPoint1)
-    w.v2.copy(controlPoint2)
-    w.v3.copy(endingPoint)
-
-    return w.getPoints(WIPE_POINT_COUNT)
-  }
-
-  getUpdatedPoints(tick) {
-
-    const currentAngle = this.getCurrentAngle(tick)
-    this.ellipseCurveP.aStartAngle = currentAngle
-    this.ellipseCurveQ.aStartAngle = currentAngle
-
-    const psEllipseVec2 = this.ellipseCurveP.getPoints(ELLIPSE_POINT_COUNT)
-    const qsEllipseVec2 = this.ellipseCurveQ.getPoints(ELLIPSE_POINT_COUNT)
-
-    const psWipeVec2 = this.getWipePoints(this.ellipseCurveP, this.wipeCurveP, currentAngle)
-    const qsWipeVec2 = this.getWipePoints(this.ellipseCurveQ, this.wipeCurveQ, currentAngle)
-
-    const psCombinedVec2 = this.combineEllipseAndWipe(psEllipseVec2, psWipeVec2)
-    const qsCombinedVec2 = this.combineEllipseAndWipe(qsEllipseVec2, qsWipeVec2)
-
-    return {
-      screenPoints: qsCombinedVec2,
-      projectorPoints: psCombinedVec2
+    } = this.getWipeControlPoints(currentAngle)
+    if (controlPoint1.equals(controlPoint2)) {
+      return _utils__WEBPACK_IMPORTED_MODULE_8__["repeat"](WIPE_POINT_COUNT + 1, startingPoint)
     }
+    this.wipeCurve.v0.copy(startingPoint)
+    this.wipeCurve.v1.copy(controlPoint1)
+    this.wipeCurve.v2.copy(controlPoint2)
+    this.wipeCurve.v3.copy(endingPoint)
+    return this.wipeCurve.getPoints(WIPE_POINT_COUNT)
   }
 
-  swapSidesTest() {
-    const endAngleDelta = Math.abs(this.getEndAngle() - this.ellipseCurveQ.aStartAngle)
-    // console.log(`endAngleDelta: ${endAngleDelta}; currentRotationDelta: ${currentRotationDelta}`)
-    return endAngleDelta <= 2 * currentRotationDelta
+  getUpdatedPoints() {
+    const currentAngle = this.getCurrentAngle()
+    this.tick++
+    if (this.growing) {
+      this.endAngle = currentAngle
+    } else {
+      this.startAngle = currentAngle
+    }
+    const revolutionComplete = (this.growing ? this.endAngle : this.startAngle) > REVOLUTION_END
+    if (revolutionComplete) {
+      this.reset(!this.growing)
+    }
+    const ellipsePoints = this.ellipseCurve.getPoints(this.startAngle, this.endAngle, ELLIPSE_POINT_COUNT)
+    const wipePoints = this.getWipePoints(currentAngle)
+    return this.combineEllipseAndWipe(ellipsePoints, wipePoints)
   }
 
-  swapSides() {
-    this.ellipseCurveP.aX = this.ellipseCurveP.aX === _constants__WEBPACK_IMPORTED_MODULE_8__["RIGHT_CENTRE_X"] ? _constants__WEBPACK_IMPORTED_MODULE_8__["LEFT_CENTRE_X"] : _constants__WEBPACK_IMPORTED_MODULE_8__["RIGHT_CENTRE_X"]
-    this.ellipseCurveQ.aX = this.ellipseCurveQ.aX === _constants__WEBPACK_IMPORTED_MODULE_8__["RIGHT_CENTRE_X"] ? _constants__WEBPACK_IMPORTED_MODULE_8__["LEFT_CENTRE_X"] : _constants__WEBPACK_IMPORTED_MODULE_8__["RIGHT_CENTRE_X"]
-    this.ellipseCurveP.aStartAngle = this.getStartAngle()
-    this.ellipseCurveQ.aStartAngle = this.getStartAngle()
-  }
-
-  reset() {
-    this.ellipseCurveP.aX = this.initialSide === _constants__WEBPACK_IMPORTED_MODULE_8__["LEFT"] ? _constants__WEBPACK_IMPORTED_MODULE_8__["LEFT_CENTRE_X"] : _constants__WEBPACK_IMPORTED_MODULE_8__["RIGHT_CENTRE_X"]
-    this.ellipseCurveQ.aX = this.initialSide === _constants__WEBPACK_IMPORTED_MODULE_8__["LEFT"] ? _constants__WEBPACK_IMPORTED_MODULE_8__["LEFT_CENTRE_X"] : _constants__WEBPACK_IMPORTED_MODULE_8__["RIGHT_CENTRE_X"]
-    this.ellipseCurveP.aStartAngle = this.getStartAngle()
-    this.ellipseCurveQ.aStartAngle = this.getStartAngle()
-  }
-}
-
-class GrowingFormPoints extends FormPointsBase {
-
-  constructor(initialSide) {
-    super(initialSide)
-  }
-
-  getStartAngle() {
-    return 1.5 * Math.PI
-  }
-
-  getEndAngle() {
-    return -0.5 * Math.PI
-  }
-
-  getIsClockwise() {
-    return false
-  }
-}
-
-class ShrinkingFormPoints extends FormPointsBase {
-
-  constructor(initialSide) {
-    super(initialSide)
-  }
-
-  getStartAngle() {
-    return 3.5 * Math.PI
-  }
-
-  getEndAngle() {
-    return 1.5 * Math.PI
-  }
-
-  getIsClockwise() {
-    return true
+  reset(growing) {
+    this.growing = growing
+    if (this.growing) {
+      this.startAngle = REVOLUTION_START
+      this.endAngle = REVOLUTION_START
+    } else {
+      this.startAngle = REVOLUTION_START
+      this.endAngle = REVOLUTION_END
+    }
+    this.tick = 0
   }
 }
 
@@ -52982,14 +52932,15 @@ class ScreenImage {
     scene.add(this.lineMesh)
   }
 
-  update(screenPoints) {
-    this.lineGeometry.update(_utils__WEBPACK_IMPORTED_MODULE_7__["vectorsAsArrays"](screenPoints))
+  update(points) {
+    const path = _utils__WEBPACK_IMPORTED_MODULE_8__["vectorsAsArrays"](points)
+    this.lineGeometry.update(path)
   }
 }
 
 class ProjectionEffect {
 
-  constructor(scene, hazeTexture, isClockwise) {
+  constructor(scene, hazeTexture) {
     this.scene = scene
     this.membraneGeometry = new _membrane_geometry__WEBPACK_IMPORTED_MODULE_4__["MembraneBufferGeometry"]()
     const membraneMaterial = new three__WEBPACK_IMPORTED_MODULE_0__["ShaderMaterial"]({
@@ -53000,26 +52951,24 @@ class ProjectionEffect {
       },
       vertexShader: (_shaders_vertex_shader_glsl__WEBPACK_IMPORTED_MODULE_5___default()),
       fragmentShader: (_shaders_fragment_shader_glsl__WEBPACK_IMPORTED_MODULE_6___default()),
-      side: isClockwise ? three__WEBPACK_IMPORTED_MODULE_0__["FrontSide"] : three__WEBPACK_IMPORTED_MODULE_0__["BackSide"],
+      side: three__WEBPACK_IMPORTED_MODULE_0__["DoubleSide"],
       blending: three__WEBPACK_IMPORTED_MODULE_0__["AdditiveBlending"]
     })
     this.membraneMesh = new three__WEBPACK_IMPORTED_MODULE_0__["Mesh"](this.membraneGeometry, membraneMaterial)
     scene.add(this.membraneMesh)
   }
 
-  update(updatedPoints, isClockwise) {
+  update(vec2ProjectorPoints, vec2ScreenImagePoints) {
 
-    const screenPoints = _utils__WEBPACK_IMPORTED_MODULE_7__["vec2sToVec3s"](updatedPoints.screenPoints)
-    const projectorPoints = _utils__WEBPACK_IMPORTED_MODULE_7__["vec2sToVec3s"](updatedPoints.projectorPoints, _constants__WEBPACK_IMPORTED_MODULE_8__["MEMBRANE_LENGTH"])
+    const projectorPoints = _utils__WEBPACK_IMPORTED_MODULE_8__["vec2sToVec3s"](vec2ProjectorPoints, _constants__WEBPACK_IMPORTED_MODULE_9__["MEMBRANE_LENGTH"])
+    const screenImagePoints = _utils__WEBPACK_IMPORTED_MODULE_8__["vec2sToVec3s"](vec2ScreenImagePoints)
 
-    const tempMembraneGeometry = new _membrane_geometry__WEBPACK_IMPORTED_MODULE_4__["MembraneBufferGeometry"](projectorPoints, screenPoints, MEMBRANE_SEGMENT_COUNT)
+    const tempMembraneGeometry = new _membrane_geometry__WEBPACK_IMPORTED_MODULE_4__["MembraneBufferGeometry"](projectorPoints, screenImagePoints, MEMBRANE_SEGMENT_COUNT)
     tempMembraneGeometry.computeFaceNormals()
     tempMembraneGeometry.computeVertexNormals()
-    if (!isClockwise) {
-      const normalAttribute = tempMembraneGeometry.getAttribute('normal')
-      const array = normalAttribute.array
-      array.forEach((_, index) => array[index] *= -1)
-    }
+    const normalAttribute = tempMembraneGeometry.getAttribute('normal')
+    const array = normalAttribute.array
+    array.forEach((_, index) => array[index] *= -1)
     this.membraneGeometry.copy(tempMembraneGeometry)
     tempMembraneGeometry.dispose()
 
@@ -53040,47 +52989,36 @@ class ProjectionEffect {
   }
 }
 
-class FormCoordinator {
+class Form {
 
-  constructor(scene, hazeTexture, formPoints) {
-    this.formPoints = formPoints
+  constructor(side, scene, hazeTexture, projectorLensTexture) {
+    const isInitiallyGrowing = side === _constants__WEBPACK_IMPORTED_MODULE_9__["LEFT"]
+    const cx = side === _constants__WEBPACK_IMPORTED_MODULE_9__["LEFT"] ? _constants__WEBPACK_IMPORTED_MODULE_9__["LEFT_FORM_CENTRE_X"] : _constants__WEBPACK_IMPORTED_MODULE_9__["RIGHT_FORM_CENTRE_X"]
+    const pcy = _constants__WEBPACK_IMPORTED_MODULE_9__["CENTRE_P_Y"]
+    const prx = _constants__WEBPACK_IMPORTED_MODULE_9__["PROJECTOR_BULB_RADIUS"]
+    const pry = _constants__WEBPACK_IMPORTED_MODULE_9__["PROJECTOR_BULB_RADIUS"]
+    const qcy = _constants__WEBPACK_IMPORTED_MODULE_9__["CENTRE_Q_Y"]
+    const qrx = PROJECTED_IMAGE_RADIUS_X
+    const qry = PROJECTED_IMAGE_RADIUS_Y
+    this.projectorForm = new FormPoints(cx, pcy, prx, pry, isInitiallyGrowing)
+    this.screenImageForm = new FormPoints(cx, qcy, qrx, qry, isInitiallyGrowing)
     this.screenImage = new ScreenImage(scene)
-    this.projectionEffect = new ProjectionEffect(scene, hazeTexture, this.formPoints.getIsClockwise())
+    this.projectionEffect = new ProjectionEffect(scene, hazeTexture)
+    const projectorPosition = new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](cx, pcy, _constants__WEBPACK_IMPORTED_MODULE_9__["MEMBRANE_LENGTH"])
+    Object(_projector_casing__WEBPACK_IMPORTED_MODULE_7__["addProjectorCasing"])(scene, projectorLensTexture, projectorPosition)
   }
 
-  update(tick) {
-    const updatedPoints = this.formPoints.getUpdatedPoints(tick)
-    this.screenImage.update(updatedPoints.screenPoints)
-    this.projectionEffect.update(updatedPoints, this.formPoints.getIsClockwise())
-  }
-
-  swapSidesTest() {
-    return this.formPoints.swapSidesTest()
-  }
-
-  swapSides() {
-    this.formPoints.swapSides()
-  }
-
-  reset() {
-    this.formPoints.reset()
+  update() {
+    const screenImagePoints = this.screenImageForm.getUpdatedPoints()
+    const projectorPoints = this.projectorForm.getUpdatedPoints()
+    this.screenImage.update(screenImagePoints)
+    this.projectionEffect.update(projectorPoints, screenImagePoints)
   }
 
   toggleHelpers() {
     this.projectionEffect.toggleHelpers()
   }
 }
-
-const makeForm = (scene, hazeTexture, initialSide, FormPointsConstructor) => {
-  const formPoints = new FormPointsConstructor(initialSide)
-  return new FormCoordinator(scene, hazeTexture, formPoints)
-}
-
-const makeGrowingForm = (scene, hazeTexture, initialSide) =>
-  makeForm(scene, hazeTexture, initialSide, GrowingFormPoints)
-
-const makeShrinkingForm = (scene, hazeTexture, initialSide) =>
-  makeForm(scene, hazeTexture, initialSide, ShrinkingFormPoints)
 
 
 /***/ }),
@@ -53097,14 +53035,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var three__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
 /* harmony import */ var three_examples_jsm_controls_OrbitControls__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! three/examples/jsm/controls/OrbitControls */ "./node_modules/three/examples/jsm/controls/OrbitControls.js");
 /* harmony import */ var _form__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./form */ "./src/form.js");
-/* harmony import */ var _projector_casing__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./projector-casing */ "./src/projector-casing.js");
-/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./utils */ "./src/utils.js");
-/* harmony import */ var _constants__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./constants */ "./src/constants.js");
+/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./utils */ "./src/utils.js");
+/* harmony import */ var _constants__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./constants */ "./src/constants.js");
 
 
 
 // import { addSpotLights, toggleSpotLightHelpers } from './spotlights'
-
 
 
 
@@ -53171,13 +53107,10 @@ const main = async () => {
   // addSpotLights(scene, 0, C.CENTRE_Q_Y, C.LOW_INTENSITY_SPOTLIGHT)
   // addSpotLights(scene, C.CENTRE_P_Y * 2, C.CENTRE_Q_Y, C.LOW_INTENSITY_SPOTLIGHT)
 
-  const projectorLensTexture = await _utils__WEBPACK_IMPORTED_MODULE_4__["loadTexture"]('projector-lens.png')
-  await Object(_projector_casing__WEBPACK_IMPORTED_MODULE_3__["addProjectorCasing"])(scene, projectorLensTexture, _constants__WEBPACK_IMPORTED_MODULE_5__["LEFT"])
-  await Object(_projector_casing__WEBPACK_IMPORTED_MODULE_3__["addProjectorCasing"])(scene, projectorLensTexture, _constants__WEBPACK_IMPORTED_MODULE_5__["RIGHT"])
-
-  const hazeTexture = await _utils__WEBPACK_IMPORTED_MODULE_4__["loadTexture"]('haze.jpg')
-  const growingForm = Object(_form__WEBPACK_IMPORTED_MODULE_2__["makeGrowingForm"])(scene, hazeTexture, _constants__WEBPACK_IMPORTED_MODULE_5__["LEFT"])
-  const shrinkingForm = Object(_form__WEBPACK_IMPORTED_MODULE_2__["makeShrinkingForm"])(scene, hazeTexture, _constants__WEBPACK_IMPORTED_MODULE_5__["RIGHT"])
+  const hazeTexture = await _utils__WEBPACK_IMPORTED_MODULE_3__["loadTexture"]('haze.jpg')
+  const projectorLensTexture = await _utils__WEBPACK_IMPORTED_MODULE_3__["loadTexture"]('projector-lens.png')
+  const leftForm = new _form__WEBPACK_IMPORTED_MODULE_2__["Form"](_constants__WEBPACK_IMPORTED_MODULE_4__["LEFT"], scene, hazeTexture, projectorLensTexture)
+  const rightForm = new _form__WEBPACK_IMPORTED_MODULE_2__["Form"](_constants__WEBPACK_IMPORTED_MODULE_4__["RIGHT"], scene, hazeTexture, projectorLensTexture)
 
   window.addEventListener('resize', () => {
     renderer.setSize(container.offsetWidth, container.offsetHeight)
@@ -53185,9 +53118,9 @@ const main = async () => {
     camera.updateProjectionMatrix()
   })
 
-  const onDocumentKeyDownHandler = ev => {
+  const onDocumentKeyDownHandler = e => {
 
-    if (ev.key === 'a') {
+    if (e.key === 'a') {
       if (axesHelper) {
         scene.remove(axesHelper)
         axesHelper = undefined
@@ -53197,19 +53130,19 @@ const main = async () => {
       }
     }
 
-    if (ev.key === 'c') {
+    if (e.key === 'c') {
       console.log(`camera.position: ${JSON.stringify(camera.position)}`)
       console.log(`controls.target: ${JSON.stringify(controls.target)}`)
     }
 
-    if (ev.key === 'p') {
+    if (e.key === 'p') {
       currentFavouritePositionIndex++
       currentFavouritePositionIndex %= FAVOURITE_POSITIONS.length
       camera.position.copy(FAVOURITE_POSITIONS[currentFavouritePositionIndex].cameraPosition)
       controls.target.copy(FAVOURITE_POSITIONS[currentFavouritePositionIndex].controlsTarget)
     }
 
-    if (ev.key === 'r') {
+    if (e.key === 'r') {
       controls.autoRotate = !controls.autoRotate
     }
 
@@ -53217,47 +53150,32 @@ const main = async () => {
     //   toggleSpotLightHelpers(scene)
     // }
 
-    if (ev.key === 'v') {
-      growingForm.toggleHelpers()
-      shrinkingForm.toggleHelpers()
+    if (e.key === 'v') {
+      leftForm.toggleHelpers()
+      rightForm.toggleHelpers()
     }
 
-    if (ev.key === '1') {
-      setSpeedAndReset(1)
+    if (e.key === '1') {
+      Object(_form__WEBPACK_IMPORTED_MODULE_2__["setSpeed"])(1)
     }
-    if (ev.key === '2') {
-      setSpeedAndReset(2)
+    if (e.key === '2') {
+      Object(_form__WEBPACK_IMPORTED_MODULE_2__["setSpeed"])(2)
     }
-    if (ev.key === '3') {
-      setSpeedAndReset(5)
+    if (e.key === '3') {
+      Object(_form__WEBPACK_IMPORTED_MODULE_2__["setSpeed"])(5)
     }
-    if (ev.key === '4') {
-      setSpeedAndReset(10)
+    if (e.key === '4') {
+      Object(_form__WEBPACK_IMPORTED_MODULE_2__["setSpeed"])(10)
     }
-  }
-
-  const setSpeedAndReset = multiplier => {
-    Object(_form__WEBPACK_IMPORTED_MODULE_2__["setSpeed"])(multiplier)
-    growingForm.reset()
-    shrinkingForm.reset()
-    tick = 1
   }
 
   document.addEventListener('keydown', onDocumentKeyDownHandler)
 
-  let tick = 1
-
   const render = () => {
-    growingForm.update(tick)
-    shrinkingForm.update(tick)
+    leftForm.update()
+    rightForm.update()
     controls.update()
     renderer.render(scene, camera)
-    tick++
-    if (growingForm.swapSidesTest()) {
-      tick = 1
-      growingForm.swapSides()
-      shrinkingForm.swapSides()
-    }
     requestAnimationFrame(render)
   }
 
@@ -53409,34 +53327,32 @@ __webpack_require__.r(__webpack_exports__);
 const PROJECTOR_CASING_WIDTH = 1.2
 const PROJECTOR_CASING_HEIGHT = 0.6
 const PROJECTOR_CASING_DEPTH = 0.6
-const HALF_PROJECTOR_CASING_HEIGHT = PROJECTOR_CASING_HEIGHT / 2
-const HALF_PROJECTOR_CASING_DEPTH = PROJECTOR_CASING_DEPTH / 2
 
-const addProjectorCasing = async (scene, projectorLensTexture, side) => {
+const addProjectorCasing = (scene, texture, position) => {
 
-  const centreX = side === _constants__WEBPACK_IMPORTED_MODULE_1__["LEFT"] ? _constants__WEBPACK_IMPORTED_MODULE_1__["LEFT_CENTRE_X"] : _constants__WEBPACK_IMPORTED_MODULE_1__["RIGHT_CENTRE_X"]
+  const dimensions = [
+    PROJECTOR_CASING_WIDTH,
+    PROJECTOR_CASING_HEIGHT,
+    PROJECTOR_CASING_DEPTH
+  ]
 
-  const dimensions = [PROJECTOR_CASING_WIDTH, PROJECTOR_CASING_HEIGHT, PROJECTOR_CASING_DEPTH]
   const projectorCasingGeometry = new three__WEBPACK_IMPORTED_MODULE_0__["BoxBufferGeometry"](...dimensions)
   const projectorCasingMaterial = new three__WEBPACK_IMPORTED_MODULE_0__["MeshBasicMaterial"]({ color: 0x808080 })
   const projectorCasingMesh = new three__WEBPACK_IMPORTED_MODULE_0__["Mesh"](projectorCasingGeometry, projectorCasingMaterial)
-  projectorCasingMesh.position.setX(centreX)
-  projectorCasingMesh.position.setY(HALF_PROJECTOR_CASING_HEIGHT)
-  projectorCasingMesh.position.setZ(_constants__WEBPACK_IMPORTED_MODULE_1__["MEMBRANE_LENGTH"] + HALF_PROJECTOR_CASING_DEPTH)
+  projectorCasingMesh.position.copy(position)
+  projectorCasingMesh.position.add(new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](0, 0, PROJECTOR_CASING_DEPTH / 2))
   scene.add(projectorCasingMesh)
 
   const lensSize = _constants__WEBPACK_IMPORTED_MODULE_1__["PROJECTOR_BULB_RADIUS"] * 2
   const projectorLensGeometry = new three__WEBPACK_IMPORTED_MODULE_0__["PlaneBufferGeometry"](lensSize, lensSize)
   const projectorLensMaterial = new three__WEBPACK_IMPORTED_MODULE_0__["MeshBasicMaterial"]({
     color: 0xffffff,
-    map: projectorLensTexture,
+    map: texture,
     side: three__WEBPACK_IMPORTED_MODULE_0__["DoubleSide"],
     transparent: true
   })
   const projectorLensMesh = new three__WEBPACK_IMPORTED_MODULE_0__["Mesh"](projectorLensGeometry, projectorLensMaterial)
-  projectorLensMesh.position.setX(centreX)
-  projectorLensMesh.position.setY(HALF_PROJECTOR_CASING_HEIGHT)
-  projectorLensMesh.position.setZ(_constants__WEBPACK_IMPORTED_MODULE_1__["MEMBRANE_LENGTH"])
+  projectorLensMesh.position.copy(position)
   scene.add(projectorLensMesh)
 }
 
@@ -53469,16 +53385,24 @@ module.exports = "uniform sampler2D hazeTexture;\nvarying vec3 vPosition;\nvaryi
 /*!**********************!*\
   !*** ./src/utils.js ***!
   \**********************/
-/*! exports provided: vectorsAsArrays, vec2sToVec3s, loadTexture */
+/*! exports provided: range, repeat, vectorsAsArrays, vec2sToVec3s, loadTexture */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "range", function() { return range; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "repeat", function() { return repeat; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "vectorsAsArrays", function() { return vectorsAsArrays; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "vec2sToVec3s", function() { return vec2sToVec3s; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "loadTexture", function() { return loadTexture; });
 /* harmony import */ var three__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
 
+
+const range = n =>
+  Array.from(Array(n).keys())
+
+const repeat = (n, x) =>
+  range(n).map(() => x)
 
 const vectorsAsArrays = vectors =>
   vectors.map(vector => vector.toArray())
