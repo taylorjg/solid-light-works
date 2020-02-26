@@ -1,6 +1,8 @@
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
-import { Form, setSpeed } from './form'
+import { LeavingFormPoints, setSpeed } from './leaving-form-points'
+// import { AlternateFormPoints } from './alternate-form-points'
+import { Projector } from './projector'
 // import { addSpotLights, toggleSpotLightHelpers } from './spotlights'
 import * as U from './utils'
 import * as C from './constants'
@@ -70,8 +72,63 @@ const main = async () => {
 
   const hazeTexture = await U.loadTexture('haze.jpg')
   const projectorLensTexture = await U.loadTexture('projector-lens.png')
-  const leftForm = new Form(C.LEFT, scene, hazeTexture, projectorLensTexture)
-  const rightForm = new Form(C.RIGHT, scene, hazeTexture, projectorLensTexture)
+
+  const projectorFormPointsLeft = new LeavingFormPoints(
+    C.LEFT_FORM_CX,
+    C.PROJECTOR_CY,
+    C.PROJECTOR_R,
+    C.PROJECTOR_R,
+    true)
+
+  const screenFormPointsLeft = new LeavingFormPoints(
+    C.LEFT_FORM_CX,
+    C.SCREEN_IMAGE_CY,
+    C.SCREEN_IMAGE_RX,
+    C.SCREEN_IMAGE_RY,
+    true)
+
+  const projectorFormPointsRight = new LeavingFormPoints(
+    C.RIGHT_FORM_CX,
+    C.PROJECTOR_CY,
+    C.PROJECTOR_R,
+    C.PROJECTOR_R,
+    false)
+
+  const screenFormPointsRight = new LeavingFormPoints(
+    C.RIGHT_FORM_CX,
+    C.SCREEN_IMAGE_CY,
+    C.SCREEN_IMAGE_RX,
+    C.SCREEN_IMAGE_RY,
+    false)
+
+  const leftProjector = new Projector(
+    projectorFormPointsLeft,
+    screenFormPointsLeft,
+    scene,
+    hazeTexture,
+    projectorLensTexture)
+
+  const rightProjector = new Projector(
+    projectorFormPointsRight,
+    screenFormPointsRight,
+    scene,
+    hazeTexture,
+    projectorLensTexture)
+
+  // const projectorFormPointsAlt = new AlternateFormPoints(
+  //   C.PROJECTOR_CY,
+  //   C.PROJECTOR_CY,
+  //   C.PROJECTOR_CY,
+  //   C.PROJECTOR_CY)
+
+  // const screenFormPointsAlt = new AlternateFormPoints(1.5, 2.0, -1.5, 2.5)
+
+  // const altProjector = new Projector(
+  //   projectorFormPointsAlt,
+  //   screenFormPointsAlt,
+  //   scene,
+  //   hazeTexture,
+  //   projectorLensTexture)
 
   window.addEventListener('resize', () => {
     renderer.setSize(container.offsetWidth, container.offsetHeight)
@@ -112,8 +169,9 @@ const main = async () => {
     // }
 
     if (e.key === 'v') {
-      leftForm.toggleHelpers()
-      rightForm.toggleHelpers()
+      leftProjector.toggleHelpers()
+      rightProjector.toggleHelpers()
+      // altProjector.toggleHelpers()
     }
 
     if (e.key === '1') {
@@ -133,8 +191,9 @@ const main = async () => {
   document.addEventListener('keydown', onDocumentKeyDownHandler)
 
   const render = () => {
-    leftForm.update()
-    rightForm.update()
+    leftProjector.update()
+    rightProjector.update()
+    // altProjector.update()
     controls.update()
     renderer.render(scene, camera)
     requestAnimationFrame(render)
