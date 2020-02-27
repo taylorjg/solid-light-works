@@ -37,35 +37,29 @@ export const addProjectorCasing = (scene, texture, position) => {
 
 export class Projector {
 
-  // TODO: add options instead of current last 3 params
+  // TODO: move all the constructor params into an config object:
+  //   projectorFormPoints
+  //   screenFormPoints
   //   scene
   //   hazeTexture
   //   projectorLensTexture
   //   projectorPosition
-  //   projectorDirection ?
-  //   membraneLength ?
-  // TODO: add support for multiple membranes
-
-  // e.g. a straight line + a wave + an ellipse
-  // http://moussemagazine.it/app/uploads/180110_PW_McCall_001-e1518002087117.jpg
-
-  constructor(projectorFormPoints, screenFormPoints, scene, hazeTexture, projectorLensTexture) {
+  //   projectorDirection
+  //   membraneLength
+  //   meshCount
+  constructor(projectorFormPoints, screenFormPoints, scene, meshCount, hazeTexture, projectorLensTexture, projectorPosition) {
     this.projectorFormPoints = projectorFormPoints
     this.screenFormPoints = screenFormPoints
-    this.screenImage = new ScreenImage(scene)
-    this.projectionEffect = new ProjectionEffect(scene, hazeTexture)
-    const projectorPosition = new THREE.Vector3(
-      projectorFormPoints.cx,
-      projectorFormPoints.cy,
-      C.MEMBRANE_LENGTH)
+    this.screenImage = new ScreenImage(scene, meshCount)
+    this.projectionEffect = new ProjectionEffect(scene, meshCount, hazeTexture)
     addProjectorCasing(scene, projectorLensTexture, projectorPosition)
   }
 
   update() {
-    const projectorPoints = this.projectorFormPoints.getUpdatedPoints()
-    const screenPoints = this.screenFormPoints.getUpdatedPoints()
-    this.screenImage.update(screenPoints)
-    this.projectionEffect.update(projectorPoints, screenPoints)
+    const projectorPointsArray = this.projectorFormPoints.getUpdatedPoints()
+    const screenPointsArray = this.screenFormPoints.getUpdatedPoints()
+    this.screenImage.update(screenPointsArray)
+    this.projectionEffect.update(projectorPointsArray, screenPointsArray)
   }
 
   toggleHelpers() {

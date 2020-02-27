@@ -112,7 +112,7 @@ export class LeavingFormPoints {
     }
     const ellipsePoints = this.ellipseCurve.getPoints(this.startAngle, this.endAngle, ELLIPSE_POINT_COUNT)
     const wipePoints = this.getWipePoints(currentAngle)
-    return this.combineEllipseAndWipe(ellipsePoints, wipePoints)
+    return [this.combineEllipseAndWipe(ellipsePoints, wipePoints)]
   }
 
   reset(growing) {
