@@ -1,14 +1,14 @@
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
-import { LeavingFormPoints, setSpeed } from './leaving-form-points'
-import { AlternateFormPoints } from './alternate-form-points'
+import { LeavingForm, setSpeed } from './forms/leaving-form'
+import { FaceToFaceIIForm } from './forms/face-to-face-ii-form'
 import { Projector } from './projector'
 // import { addSpotLights, toggleSpotLightHelpers } from './spotlights'
 import * as U from './utils'
 import * as C from './constants'
 
 const leavingFormEnabled = true
-const altFormEnabled = false
+const faceToFaceIIFormEnabled = false
 
 const FAVOURITE_POSITIONS = [
   {
@@ -79,51 +79,51 @@ const main = async () => {
   const makeProjectorPosition = x =>
     new THREE.Vector3(x, C.PROJECTOR_CY, C.MEMBRANE_LENGTH)
 
-  let leftProjector
-  let rightProjector
-  let altProjector
+  let leavingProjectorLeft
+  let leavingProjectorRight
+  let faceToFaceIIProjector
 
   if (leavingFormEnabled) {
-    const projectorFormPointsLeft = new LeavingFormPoints(
+    const leavingProjectorFormLeft = new LeavingForm(
       C.LEFT_FORM_CX,
       C.PROJECTOR_CY,
       C.PROJECTOR_R,
       C.PROJECTOR_R,
       true)
 
-    const screenFormPointsLeft = new LeavingFormPoints(
+    const leavingScreenFormLeft = new LeavingForm(
       C.LEFT_FORM_CX,
       C.SCREEN_IMAGE_CY,
       C.SCREEN_IMAGE_RX,
       C.SCREEN_IMAGE_RY,
       true)
 
-    const projectorFormPointsRight = new LeavingFormPoints(
+    const leavingProjectorFormRight = new LeavingForm(
       C.RIGHT_FORM_CX,
       C.PROJECTOR_CY,
       C.PROJECTOR_R,
       C.PROJECTOR_R,
       false)
 
-    const screenFormPointsRight = new LeavingFormPoints(
+    const leavingScreenFormRight = new LeavingForm(
       C.RIGHT_FORM_CX,
       C.SCREEN_IMAGE_CY,
       C.SCREEN_IMAGE_RX,
       C.SCREEN_IMAGE_RY,
       false)
 
-    leftProjector = new Projector(
-      projectorFormPointsLeft,
-      screenFormPointsLeft,
+    leavingProjectorLeft = new Projector(
+      leavingProjectorFormLeft,
+      leavingScreenFormLeft,
       scene,
       1,
       hazeTexture,
       projectorLensTexture,
       makeProjectorPosition(C.LEFT_FORM_CX))
 
-    rightProjector = new Projector(
-      projectorFormPointsRight,
-      screenFormPointsRight,
+    leavingProjectorRight = new Projector(
+      leavingProjectorFormRight,
+      leavingScreenFormRight,
       scene,
       1,
       hazeTexture,
@@ -131,12 +131,12 @@ const main = async () => {
       makeProjectorPosition(C.RIGHT_FORM_CX))
   }
 
-  if (altFormEnabled) {
-    const projectorFormPointsAlt = new AlternateFormPoints(true)
-    const screenFormPointsAlt = new AlternateFormPoints(false)
-    altProjector = new Projector(
-      projectorFormPointsAlt,
-      screenFormPointsAlt,
+  if (faceToFaceIIFormEnabled) {
+    const faceToFaceIIProjectorForm = new FaceToFaceIIForm(true)
+    const faceToFaceIIScreenForm = new FaceToFaceIIForm(false)
+    faceToFaceIIProjector = new Projector(
+      faceToFaceIIProjectorForm,
+      faceToFaceIIScreenForm,
       scene,
       3,
       hazeTexture,
@@ -184,11 +184,11 @@ const main = async () => {
 
     if (e.key === 'v') {
       if (leavingFormEnabled) {
-        leftProjector.toggleHelpers()
-        rightProjector.toggleHelpers()
+        leavingProjectorLeft.toggleHelpers()
+        leavingProjectorRight.toggleHelpers()
       }
-      if (altFormEnabled) {
-        altProjector.toggleHelpers()
+      if (faceToFaceIIFormEnabled) {
+        faceToFaceIIProjector.toggleHelpers()
       }
     }
 
@@ -210,11 +210,11 @@ const main = async () => {
 
   const render = () => {
     if (leavingFormEnabled) {
-      leftProjector.update()
-      rightProjector.update()
+      leavingProjectorLeft.update()
+      leavingProjectorRight.update()
     }
-    if (altFormEnabled) {
-      altProjector.update()
+    if (faceToFaceIIFormEnabled) {
+      faceToFaceIIProjector.update()
     }
     controls.update()
     renderer.render(scene, camera)

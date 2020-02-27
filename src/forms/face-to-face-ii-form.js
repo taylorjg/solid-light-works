@@ -1,12 +1,12 @@
 import * as THREE from 'three'
-import { EllipseCurve } from './ellipse-curve'
-import * as U from './utils'
-import * as C from './constants'
+import { EllipseCurve } from '../ellipse-curve'
+import * as U from '../utils'
+import * as C from '../constants'
 
 const ELLIPSE_POINT_COUNT = 50
 const WAVE_POINT_COUNT = 50
 
-export class AlternateFormPoints {
+export class FaceToFaceIIForm {
 
   constructor(isProjector) {
     this.pointsArray = [

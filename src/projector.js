@@ -3,7 +3,7 @@ import { ProjectionEffect } from './projection-effect'
 import { ScreenImage } from './screen-image'
 import * as C from './constants'
 
-export const addProjectorCasing = (scene, texture, position) => {
+export const createProjectorCasing = (scene, texture, position) => {
 
   const PROJECTOR_CASING_WIDTH = 1.2
   const PROJECTOR_CASING_HEIGHT = 0.6
@@ -37,27 +37,24 @@ export const addProjectorCasing = (scene, texture, position) => {
 
 export class Projector {
 
-  // TODO: move all the constructor params into an config object:
-  //   projectorFormPoints
-  //   screenFormPoints
-  //   scene
-  //   hazeTexture
-  //   projectorLensTexture
-  //   projectorPosition
-  //   projectorDirection
-  //   membraneLength
-  //   meshCount
-  constructor(projectorFormPoints, screenFormPoints, scene, meshCount, hazeTexture, projectorLensTexture, projectorPosition) {
-    this.projectorFormPoints = projectorFormPoints
-    this.screenFormPoints = screenFormPoints
+  constructor(
+    projectorForm,
+    screenForm,
+    scene,
+    meshCount,
+    hazeTexture,
+    projectorLensTexture,
+    projectorPosition) {
+    this.projectorForm = projectorForm
+    this.screenForm = screenForm
     this.screenImage = new ScreenImage(scene, meshCount)
     this.projectionEffect = new ProjectionEffect(scene, meshCount, hazeTexture)
-    addProjectorCasing(scene, projectorLensTexture, projectorPosition)
+    createProjectorCasing(scene, projectorLensTexture, projectorPosition)
   }
 
   update() {
-    const projectorPointsArray = this.projectorFormPoints.getUpdatedPoints()
-    const screenPointsArray = this.screenFormPoints.getUpdatedPoints()
+    const projectorPointsArray = this.projectorForm.getUpdatedPoints()
+    const screenPointsArray = this.screenForm.getUpdatedPoints()
     this.screenImage.update(screenPointsArray)
     this.projectionEffect.update(projectorPointsArray, screenPointsArray)
   }

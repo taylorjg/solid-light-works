@@ -1,6 +1,6 @@
 import * as THREE from 'three'
-import { EllipseCurve } from './ellipse-curve'
-import * as U from './utils'
+import { EllipseCurve } from '../ellipse-curve'
+import * as U from '../utils'
 
 const ELLIPSE_POINT_COUNT = 100
 const WIPE_POINT_COUNT = 50
@@ -19,7 +19,7 @@ export const setSpeed = multiplier => {
   currentRotationDelta = ROTATION_DELTA * multiplier
 }
 
-export class LeavingFormPoints {
+export class LeavingForm {
 
   constructor(cx, cy, rx, ry, isInitiallyGrowing) {
     this.cx = cx
