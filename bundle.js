@@ -52686,6 +52686,77 @@ VertexNormalsHelper.prototype.update = function () {
 
 /***/ }),
 
+/***/ "./src/alternate-form-points.js":
+/*!**************************************!*\
+  !*** ./src/alternate-form-points.js ***!
+  \**************************************/
+/*! exports provided: AlternateFormPoints */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "AlternateFormPoints", function() { return AlternateFormPoints; });
+/* harmony import */ var three__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
+/* harmony import */ var _ellipse_curve__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./ellipse-curve */ "./src/ellipse-curve.js");
+/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./utils */ "./src/utils.js");
+/* harmony import */ var _constants__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./constants */ "./src/constants.js");
+
+
+
+
+
+const ELLIPSE_POINT_COUNT = 50
+const WAVE_POINT_COUNT = 50
+
+class AlternateFormPoints {
+
+  constructor(isProjector) {
+    this.pointsArray = [
+      this.createEllipse(isProjector),
+      this.createWave(isProjector),
+      this.createLine(isProjector)
+    ]
+  }
+
+  createEllipse(isProjector) {
+    if (isProjector) {
+      return _utils__WEBPACK_IMPORTED_MODULE_2__["repeat"](ELLIPSE_POINT_COUNT + 1, new three__WEBPACK_IMPORTED_MODULE_0__["Vector2"](0, _constants__WEBPACK_IMPORTED_MODULE_3__["PROJECTOR_CY"] * 4))
+    }
+    const ellipseCurve = new _ellipse_curve__WEBPACK_IMPORTED_MODULE_1__["EllipseCurve"](0, 2, 3.2, 2)
+    return ellipseCurve.getPoints(-Math.PI / 2, Math.PI / 2, ELLIPSE_POINT_COUNT)
+  }
+
+  createWave(isProjector) {
+    if (isProjector) {
+      return _utils__WEBPACK_IMPORTED_MODULE_2__["repeat"](WAVE_POINT_COUNT + 1, new three__WEBPACK_IMPORTED_MODULE_0__["Vector2"](0, _constants__WEBPACK_IMPORTED_MODULE_3__["PROJECTOR_CY"] * 4))
+    }
+    const startAngle = Math.PI / 180 * 20
+    const endAngle = Math.PI / 180 * 250
+    const dx = 6 / WAVE_POINT_COUNT
+    const deltaAngle = (endAngle - startAngle) / WAVE_POINT_COUNT
+    return _utils__WEBPACK_IMPORTED_MODULE_2__["range"](WAVE_POINT_COUNT + 1).map(n => {
+      return new three__WEBPACK_IMPORTED_MODULE_0__["Vector2"](0 + n * dx, 2.4 + Math.cos(startAngle + n * deltaAngle) * 2.4)
+    })
+  }
+
+  createLine(isProjector) {
+    if (isProjector) {
+      return _utils__WEBPACK_IMPORTED_MODULE_2__["repeat"](2, new three__WEBPACK_IMPORTED_MODULE_0__["Vector2"](0, _constants__WEBPACK_IMPORTED_MODULE_3__["PROJECTOR_CY"] * 4))
+    }
+    return [
+      new three__WEBPACK_IMPORTED_MODULE_0__["Vector2"](0, 1.4),
+      new three__WEBPACK_IMPORTED_MODULE_0__["Vector2"](6, 1.2)
+    ]
+  }
+
+  getUpdatedPoints() {
+    return this.pointsArray
+  }
+}
+
+
+/***/ }),
+
 /***/ "./src/constants.js":
 /*!**************************!*\
   !*** ./src/constants.js ***!
@@ -52788,17 +52859,21 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var three__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
 /* harmony import */ var three_examples_jsm_controls_OrbitControls__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! three/examples/jsm/controls/OrbitControls */ "./node_modules/three/examples/jsm/controls/OrbitControls.js");
 /* harmony import */ var _leaving_form_points__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./leaving-form-points */ "./src/leaving-form-points.js");
-/* harmony import */ var _projector__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./projector */ "./src/projector.js");
-/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./utils */ "./src/utils.js");
-/* harmony import */ var _constants__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./constants */ "./src/constants.js");
+/* harmony import */ var _alternate_form_points__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./alternate-form-points */ "./src/alternate-form-points.js");
+/* harmony import */ var _projector__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./projector */ "./src/projector.js");
+/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./utils */ "./src/utils.js");
+/* harmony import */ var _constants__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./constants */ "./src/constants.js");
 
 
 
-// import { AlternateFormPoints } from './alternate-form-points'
+
 
 // import { addSpotLights, toggleSpotLightHelpers } from './spotlights'
 
 
+
+const leavingFormEnabled = true
+const altFormEnabled = false
 
 const FAVOURITE_POSITIONS = [
   {
@@ -52863,65 +52938,76 @@ const main = async () => {
   // addSpotLights(scene, 0, C.CENTRE_Q_Y, C.LOW_INTENSITY_SPOTLIGHT)
   // addSpotLights(scene, C.CENTRE_P_Y * 2, C.CENTRE_Q_Y, C.LOW_INTENSITY_SPOTLIGHT)
 
-  const hazeTexture = await _utils__WEBPACK_IMPORTED_MODULE_4__["loadTexture"]('haze.jpg')
-  const projectorLensTexture = await _utils__WEBPACK_IMPORTED_MODULE_4__["loadTexture"]('projector-lens.png')
+  const hazeTexture = await _utils__WEBPACK_IMPORTED_MODULE_5__["loadTexture"]('haze.jpg')
+  const projectorLensTexture = await _utils__WEBPACK_IMPORTED_MODULE_5__["loadTexture"]('projector-lens.png')
 
-  const projectorFormPointsLeft = new _leaving_form_points__WEBPACK_IMPORTED_MODULE_2__["LeavingFormPoints"](
-    _constants__WEBPACK_IMPORTED_MODULE_5__["LEFT_FORM_CX"],
-    _constants__WEBPACK_IMPORTED_MODULE_5__["PROJECTOR_CY"],
-    _constants__WEBPACK_IMPORTED_MODULE_5__["PROJECTOR_R"],
-    _constants__WEBPACK_IMPORTED_MODULE_5__["PROJECTOR_R"],
-    true)
+  const makeProjectorPosition = x =>
+    new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](x, _constants__WEBPACK_IMPORTED_MODULE_6__["PROJECTOR_CY"], _constants__WEBPACK_IMPORTED_MODULE_6__["MEMBRANE_LENGTH"])
 
-  const screenFormPointsLeft = new _leaving_form_points__WEBPACK_IMPORTED_MODULE_2__["LeavingFormPoints"](
-    _constants__WEBPACK_IMPORTED_MODULE_5__["LEFT_FORM_CX"],
-    _constants__WEBPACK_IMPORTED_MODULE_5__["SCREEN_IMAGE_CY"],
-    _constants__WEBPACK_IMPORTED_MODULE_5__["SCREEN_IMAGE_RX"],
-    _constants__WEBPACK_IMPORTED_MODULE_5__["SCREEN_IMAGE_RY"],
-    true)
+  let leftProjector
+  let rightProjector
+  let altProjector
 
-  const projectorFormPointsRight = new _leaving_form_points__WEBPACK_IMPORTED_MODULE_2__["LeavingFormPoints"](
-    _constants__WEBPACK_IMPORTED_MODULE_5__["RIGHT_FORM_CX"],
-    _constants__WEBPACK_IMPORTED_MODULE_5__["PROJECTOR_CY"],
-    _constants__WEBPACK_IMPORTED_MODULE_5__["PROJECTOR_R"],
-    _constants__WEBPACK_IMPORTED_MODULE_5__["PROJECTOR_R"],
-    false)
+  if (leavingFormEnabled) {
+    const projectorFormPointsLeft = new _leaving_form_points__WEBPACK_IMPORTED_MODULE_2__["LeavingFormPoints"](
+      _constants__WEBPACK_IMPORTED_MODULE_6__["LEFT_FORM_CX"],
+      _constants__WEBPACK_IMPORTED_MODULE_6__["PROJECTOR_CY"],
+      _constants__WEBPACK_IMPORTED_MODULE_6__["PROJECTOR_R"],
+      _constants__WEBPACK_IMPORTED_MODULE_6__["PROJECTOR_R"],
+      true)
 
-  const screenFormPointsRight = new _leaving_form_points__WEBPACK_IMPORTED_MODULE_2__["LeavingFormPoints"](
-    _constants__WEBPACK_IMPORTED_MODULE_5__["RIGHT_FORM_CX"],
-    _constants__WEBPACK_IMPORTED_MODULE_5__["SCREEN_IMAGE_CY"],
-    _constants__WEBPACK_IMPORTED_MODULE_5__["SCREEN_IMAGE_RX"],
-    _constants__WEBPACK_IMPORTED_MODULE_5__["SCREEN_IMAGE_RY"],
-    false)
+    const screenFormPointsLeft = new _leaving_form_points__WEBPACK_IMPORTED_MODULE_2__["LeavingFormPoints"](
+      _constants__WEBPACK_IMPORTED_MODULE_6__["LEFT_FORM_CX"],
+      _constants__WEBPACK_IMPORTED_MODULE_6__["SCREEN_IMAGE_CY"],
+      _constants__WEBPACK_IMPORTED_MODULE_6__["SCREEN_IMAGE_RX"],
+      _constants__WEBPACK_IMPORTED_MODULE_6__["SCREEN_IMAGE_RY"],
+      true)
 
-  const leftProjector = new _projector__WEBPACK_IMPORTED_MODULE_3__["Projector"](
-    projectorFormPointsLeft,
-    screenFormPointsLeft,
-    scene,
-    hazeTexture,
-    projectorLensTexture)
+    const projectorFormPointsRight = new _leaving_form_points__WEBPACK_IMPORTED_MODULE_2__["LeavingFormPoints"](
+      _constants__WEBPACK_IMPORTED_MODULE_6__["RIGHT_FORM_CX"],
+      _constants__WEBPACK_IMPORTED_MODULE_6__["PROJECTOR_CY"],
+      _constants__WEBPACK_IMPORTED_MODULE_6__["PROJECTOR_R"],
+      _constants__WEBPACK_IMPORTED_MODULE_6__["PROJECTOR_R"],
+      false)
 
-  const rightProjector = new _projector__WEBPACK_IMPORTED_MODULE_3__["Projector"](
-    projectorFormPointsRight,
-    screenFormPointsRight,
-    scene,
-    hazeTexture,
-    projectorLensTexture)
+    const screenFormPointsRight = new _leaving_form_points__WEBPACK_IMPORTED_MODULE_2__["LeavingFormPoints"](
+      _constants__WEBPACK_IMPORTED_MODULE_6__["RIGHT_FORM_CX"],
+      _constants__WEBPACK_IMPORTED_MODULE_6__["SCREEN_IMAGE_CY"],
+      _constants__WEBPACK_IMPORTED_MODULE_6__["SCREEN_IMAGE_RX"],
+      _constants__WEBPACK_IMPORTED_MODULE_6__["SCREEN_IMAGE_RY"],
+      false)
 
-  // const projectorFormPointsAlt = new AlternateFormPoints(
-  //   C.PROJECTOR_CY,
-  //   C.PROJECTOR_CY,
-  //   C.PROJECTOR_CY,
-  //   C.PROJECTOR_CY)
+    leftProjector = new _projector__WEBPACK_IMPORTED_MODULE_4__["Projector"](
+      projectorFormPointsLeft,
+      screenFormPointsLeft,
+      scene,
+      1,
+      hazeTexture,
+      projectorLensTexture,
+      makeProjectorPosition(_constants__WEBPACK_IMPORTED_MODULE_6__["LEFT_FORM_CX"]))
 
-  // const screenFormPointsAlt = new AlternateFormPoints(1.5, 2.0, -1.5, 2.5)
+    rightProjector = new _projector__WEBPACK_IMPORTED_MODULE_4__["Projector"](
+      projectorFormPointsRight,
+      screenFormPointsRight,
+      scene,
+      1,
+      hazeTexture,
+      projectorLensTexture,
+      makeProjectorPosition(_constants__WEBPACK_IMPORTED_MODULE_6__["RIGHT_FORM_CX"]))
+  }
 
-  // const altProjector = new Projector(
-  //   projectorFormPointsAlt,
-  //   screenFormPointsAlt,
-  //   scene,
-  //   hazeTexture,
-  //   projectorLensTexture)
+  if (altFormEnabled) {
+    const projectorFormPointsAlt = new _alternate_form_points__WEBPACK_IMPORTED_MODULE_3__["AlternateFormPoints"](true)
+    const screenFormPointsAlt = new _alternate_form_points__WEBPACK_IMPORTED_MODULE_3__["AlternateFormPoints"](false)
+    altProjector = new _projector__WEBPACK_IMPORTED_MODULE_4__["Projector"](
+      projectorFormPointsAlt,
+      screenFormPointsAlt,
+      scene,
+      3,
+      hazeTexture,
+      projectorLensTexture,
+      new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](0, _constants__WEBPACK_IMPORTED_MODULE_6__["PROJECTOR_CY"] * 4, _constants__WEBPACK_IMPORTED_MODULE_6__["MEMBRANE_LENGTH"]))
+  }
 
   window.addEventListener('resize', () => {
     renderer.setSize(container.offsetWidth, container.offsetHeight)
@@ -52962,9 +53048,13 @@ const main = async () => {
     // }
 
     if (e.key === 'v') {
-      leftProjector.toggleHelpers()
-      rightProjector.toggleHelpers()
-      // altProjector.toggleHelpers()
+      if (leavingFormEnabled) {
+        leftProjector.toggleHelpers()
+        rightProjector.toggleHelpers()
+      }
+      if (altFormEnabled) {
+        altProjector.toggleHelpers()
+      }
     }
 
     if (e.key === '1') {
@@ -52984,9 +53074,13 @@ const main = async () => {
   document.addEventListener('keydown', onDocumentKeyDownHandler)
 
   const render = () => {
-    leftProjector.update()
-    rightProjector.update()
-    // altProjector.update()
+    if (leavingFormEnabled) {
+      leftProjector.update()
+      rightProjector.update()
+    }
+    if (altFormEnabled) {
+      altProjector.update()
+    }
     controls.update()
     renderer.render(scene, camera)
     requestAnimationFrame(render)
@@ -53128,7 +53222,7 @@ class LeavingFormPoints {
     }
     const ellipsePoints = this.ellipseCurve.getPoints(this.startAngle, this.endAngle, ELLIPSE_POINT_COUNT)
     const wipePoints = this.getWipePoints(currentAngle)
-    return this.combineEllipseAndWipe(ellipsePoints, wipePoints)
+    return [this.combineEllipseAndWipe(ellipsePoints, wipePoints)]
   }
 
   reset(growing) {
@@ -53300,51 +53394,54 @@ const MEMBRANE_SEGMENT_COUNT = 1
 
 class ProjectionEffect {
 
-  constructor(scene, hazeTexture) {
+  constructor(scene, meshCount, hazeTexture) {
     this.scene = scene
-    this.membraneGeometry = new _membrane_geometry__WEBPACK_IMPORTED_MODULE_1__["MembraneBufferGeometry"]()
-    const membraneMaterial = new three__WEBPACK_IMPORTED_MODULE_0__["ShaderMaterial"]({
-      uniforms: {
-        hazeTexture: {
-          value: hazeTexture
-        }
-      },
-      vertexShader: (_shaders_vertex_shader_glsl__WEBPACK_IMPORTED_MODULE_3___default()),
-      fragmentShader: (_shaders_fragment_shader_glsl__WEBPACK_IMPORTED_MODULE_4___default()),
-      side: three__WEBPACK_IMPORTED_MODULE_0__["DoubleSide"],
-      blending: three__WEBPACK_IMPORTED_MODULE_0__["AdditiveBlending"]
+    this.meshCount = meshCount
+    this.meshes = _utils__WEBPACK_IMPORTED_MODULE_5__["range"](meshCount).map(() => {
+      const membraneGeometry = new _membrane_geometry__WEBPACK_IMPORTED_MODULE_1__["MembraneBufferGeometry"]()
+      const membraneMaterial = new three__WEBPACK_IMPORTED_MODULE_0__["ShaderMaterial"]({
+        uniforms: {
+          hazeTexture: {
+            value: hazeTexture
+          }
+        },
+        vertexShader: (_shaders_vertex_shader_glsl__WEBPACK_IMPORTED_MODULE_3___default()),
+        fragmentShader: (_shaders_fragment_shader_glsl__WEBPACK_IMPORTED_MODULE_4___default()),
+        side: three__WEBPACK_IMPORTED_MODULE_0__["DoubleSide"],
+        blending: three__WEBPACK_IMPORTED_MODULE_0__["AdditiveBlending"]
+      })
+      const membraneMesh = new three__WEBPACK_IMPORTED_MODULE_0__["Mesh"](membraneGeometry, membraneMaterial)
+      scene.add(membraneMesh)
+      return membraneMesh
     })
-    this.membraneMesh = new three__WEBPACK_IMPORTED_MODULE_0__["Mesh"](this.membraneGeometry, membraneMaterial)
-    scene.add(this.membraneMesh)
+    this.meshHelpers = null
   }
 
-  update(vec2ProjectorPoints, vec2ScreenPoints) {
-
-    const projectorPoints = _utils__WEBPACK_IMPORTED_MODULE_5__["vec2sToVec3s"](vec2ProjectorPoints, _constants__WEBPACK_IMPORTED_MODULE_6__["MEMBRANE_LENGTH"])
-    const screenPoints = _utils__WEBPACK_IMPORTED_MODULE_5__["vec2sToVec3s"](vec2ScreenPoints)
-
-    const tempMembraneGeometry = new _membrane_geometry__WEBPACK_IMPORTED_MODULE_1__["MembraneBufferGeometry"](projectorPoints, screenPoints, MEMBRANE_SEGMENT_COUNT)
-    tempMembraneGeometry.computeFaceNormals()
-    tempMembraneGeometry.computeVertexNormals()
-    const normalAttribute = tempMembraneGeometry.getAttribute('normal')
-    const array = normalAttribute.array
-    array.forEach((_, index) => array[index] *= -1)
-    this.membraneGeometry.copy(tempMembraneGeometry)
-    tempMembraneGeometry.dispose()
-
-    if (this.membraneMeshHelper) {
-      this.membraneMeshHelper.update()
-    }
+  update(vec2ProjectorPointsArray, vec2ScreenPointsArray) {
+    _utils__WEBPACK_IMPORTED_MODULE_5__["range"](this.meshCount).forEach(meshIndex => {
+      const projectorPoints = _utils__WEBPACK_IMPORTED_MODULE_5__["vec2sToVec3s"](vec2ProjectorPointsArray[meshIndex], _constants__WEBPACK_IMPORTED_MODULE_6__["MEMBRANE_LENGTH"])
+      const screenPoints = _utils__WEBPACK_IMPORTED_MODULE_5__["vec2sToVec3s"](vec2ScreenPointsArray[meshIndex])
+      const tempMembraneGeometry = new _membrane_geometry__WEBPACK_IMPORTED_MODULE_1__["MembraneBufferGeometry"](projectorPoints, screenPoints, MEMBRANE_SEGMENT_COUNT)
+      tempMembraneGeometry.computeFaceNormals()
+      tempMembraneGeometry.computeVertexNormals()
+      const normalAttribute = tempMembraneGeometry.getAttribute('normal')
+      const array = normalAttribute.array
+      array.forEach((_, index) => array[index] *= -1)
+      this.meshes[meshIndex].geometry.copy(tempMembraneGeometry)
+      tempMembraneGeometry.dispose()
+      if (this.membraneMeshHelper) {
+        this.membraneMeshHelper.update()
+      }
+    })
   }
 
   toggleHelpers() {
-    if (this.membraneMeshHelper) {
-      this.scene.remove(this.membraneMeshHelper)
-      this.membraneMeshHelper = undefined
-    }
-    else {
-      this.membraneMeshHelper = new three_examples_jsm_helpers_VertexNormalsHelper_js__WEBPACK_IMPORTED_MODULE_2__["VertexNormalsHelper"](this.membraneMesh, 0.2, 0xffffff)
-      this.scene.add(this.membraneMeshHelper)
+    if (this.meshHelpers) {
+      this.meshHelpers.forEach(meshHelper => this.scene.remove(meshHelper))
+      this.meshHelpers = null
+    } else {
+      this.meshHelpers = this.meshes.map(mesh => new three_examples_jsm_helpers_VertexNormalsHelper_js__WEBPACK_IMPORTED_MODULE_2__["VertexNormalsHelper"](mesh, 0.2, 0xffffff))
+      this.meshHelpers.forEach(meshHelper => this.scene.add(meshHelper))
     }
   }
 }
@@ -53406,35 +53503,29 @@ const addProjectorCasing = (scene, texture, position) => {
 
 class Projector {
 
-  // TODO: add options instead of current last 3 params
+  // TODO: move all the constructor params into an config object:
+  //   projectorFormPoints
+  //   screenFormPoints
   //   scene
   //   hazeTexture
   //   projectorLensTexture
   //   projectorPosition
-  //   projectorDirection ?
-  //   membraneLength ?
-  // TODO: add support for multiple membranes
-
-  // e.g. a straight line + a wave + an ellipse
-  // http://moussemagazine.it/app/uploads/180110_PW_McCall_001-e1518002087117.jpg
-
-  constructor(projectorFormPoints, screenFormPoints, scene, hazeTexture, projectorLensTexture) {
+  //   projectorDirection
+  //   membraneLength
+  //   meshCount
+  constructor(projectorFormPoints, screenFormPoints, scene, meshCount, hazeTexture, projectorLensTexture, projectorPosition) {
     this.projectorFormPoints = projectorFormPoints
     this.screenFormPoints = screenFormPoints
-    this.screenImage = new _screen_image__WEBPACK_IMPORTED_MODULE_2__["ScreenImage"](scene)
-    this.projectionEffect = new _projection_effect__WEBPACK_IMPORTED_MODULE_1__["ProjectionEffect"](scene, hazeTexture)
-    const projectorPosition = new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](
-      projectorFormPoints.cx,
-      projectorFormPoints.cy,
-      _constants__WEBPACK_IMPORTED_MODULE_3__["MEMBRANE_LENGTH"])
+    this.screenImage = new _screen_image__WEBPACK_IMPORTED_MODULE_2__["ScreenImage"](scene, meshCount)
+    this.projectionEffect = new _projection_effect__WEBPACK_IMPORTED_MODULE_1__["ProjectionEffect"](scene, meshCount, hazeTexture)
     addProjectorCasing(scene, projectorLensTexture, projectorPosition)
   }
 
   update() {
-    const projectorPoints = this.projectorFormPoints.getUpdatedPoints()
-    const screenPoints = this.screenFormPoints.getUpdatedPoints()
-    this.screenImage.update(screenPoints)
-    this.projectionEffect.update(projectorPoints, screenPoints)
+    const projectorPointsArray = this.projectorFormPoints.getUpdatedPoints()
+    const screenPointsArray = this.screenFormPoints.getUpdatedPoints()
+    this.screenImage.update(screenPointsArray)
+    this.projectionEffect.update(projectorPointsArray, screenPointsArray)
   }
 
   toggleHelpers() {
@@ -53473,21 +53564,27 @@ const Line2dBasicShader = three_line_2d_shaders_basic__WEBPACK_IMPORTED_MODULE_2
 
 class ScreenImage {
 
-  constructor(scene) {
-    this.line2dGeometry = Line2d()
-    const line2dMaterial = new three__WEBPACK_IMPORTED_MODULE_0__["ShaderMaterial"](
-      Line2dBasicShader({
-        side: three__WEBPACK_IMPORTED_MODULE_0__["DoubleSide"],
-        diffuse: 0xffffff,
-        thickness: _constants__WEBPACK_IMPORTED_MODULE_4__["SCREEN_IMAGE_LINE_THICKNESS"]
-      }))
-    this.line2dMesh = new three__WEBPACK_IMPORTED_MODULE_0__["Mesh"](this.line2dGeometry, line2dMaterial)
-    scene.add(this.line2dMesh)
+  constructor(scene, meshCount) {
+    this.meshCount = meshCount
+    this.meshes = _utils__WEBPACK_IMPORTED_MODULE_3__["range"](meshCount).map(() => {
+      const lineGeometry = Line2d()
+      const lineMaterial = new three__WEBPACK_IMPORTED_MODULE_0__["ShaderMaterial"](
+        Line2dBasicShader({
+          side: three__WEBPACK_IMPORTED_MODULE_0__["DoubleSide"],
+          diffuse: 0xffffff,
+          thickness: _constants__WEBPACK_IMPORTED_MODULE_4__["SCREEN_IMAGE_LINE_THICKNESS"]
+        }))
+      const lineMesh = new three__WEBPACK_IMPORTED_MODULE_0__["Mesh"](lineGeometry, lineMaterial)
+      scene.add(lineMesh)
+      return lineMesh
+    })
   }
 
-  update(points) {
-    const path = _utils__WEBPACK_IMPORTED_MODULE_3__["vectorsAsArrays"](points)
-    this.line2dGeometry.update(path)
+  update(pointsArray) {
+    _utils__WEBPACK_IMPORTED_MODULE_3__["range"](this.meshCount).map(meshIndex => {
+      const path = _utils__WEBPACK_IMPORTED_MODULE_3__["vectorsAsArrays"](pointsArray[meshIndex])
+      this.meshes[meshIndex].geometry.update(path)
+    })
   }
 }
 
