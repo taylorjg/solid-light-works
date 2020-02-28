@@ -9,7 +9,7 @@ const Line2dBasicShader = Line2dBasicShaderInit(THREE)
 
 export class ScreenImage {
 
-  constructor(scene, meshCount) {
+  constructor(meshCount, scene) {
     this.meshCount = meshCount
     this.meshes = U.range(meshCount).map(() => {
       const lineGeometry = Line2d()

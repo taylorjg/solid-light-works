@@ -6,6 +6,9 @@ export const range = n =>
 export const repeat = (n, x) =>
   range(n).map(() => x)
 
+export const reverse = xs =>
+  xs.reverse()
+
 export const vectorsAsArrays = vectors =>
   vectors.map(vector => vector.toArray())
 

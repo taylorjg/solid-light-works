@@ -115,8 +115,8 @@ const main = async () => {
     leavingProjectorLeft = new Projector(
       leavingProjectorFormLeft,
       leavingScreenFormLeft,
-      scene,
       1,
+      scene,
       hazeTexture,
       projectorLensTexture,
       makeProjectorPosition(C.LEFT_FORM_CX))
@@ -124,8 +124,8 @@ const main = async () => {
     leavingProjectorRight = new Projector(
       leavingProjectorFormRight,
       leavingScreenFormRight,
-      scene,
       1,
+      scene,
       hazeTexture,
       projectorLensTexture,
       makeProjectorPosition(C.RIGHT_FORM_CX))
@@ -137,8 +137,8 @@ const main = async () => {
     faceToFaceIIProjector = new Projector(
       faceToFaceIIProjectorForm,
       faceToFaceIIScreenForm,
-      scene,
       3,
+      scene,
       hazeTexture,
       projectorLensTexture,
       new THREE.Vector3(0, C.PROJECTOR_CY * 4, C.MEMBRANE_LENGTH))

@@ -1,6 +1,7 @@
 import * as THREE from 'three'
 import { ProjectionEffect } from './projection-effect'
 import { ScreenImage } from './screen-image'
+import * as U from './utils'
 import * as C from './constants'
 
 export const createProjectorCasing = (scene, texture, position) => {
@@ -40,23 +41,23 @@ export class Projector {
   constructor(
     projectorForm,
     screenForm,
+    shapeCount,
     scene,
-    meshCount,
     hazeTexture,
     projectorLensTexture,
     projectorPosition) {
     this.projectorForm = projectorForm
     this.screenForm = screenForm
-    this.screenImage = new ScreenImage(scene, meshCount)
-    this.projectionEffect = new ProjectionEffect(scene, meshCount, hazeTexture)
+    this.screenImage = new ScreenImage(shapeCount, scene)
+    this.projectionEffect = new ProjectionEffect(shapeCount, scene, hazeTexture)
     createProjectorCasing(scene, projectorLensTexture, projectorPosition)
   }
 
   update() {
-    const projectorPointsArray = this.projectorForm.getUpdatedPoints()
-    const screenPointsArray = this.screenForm.getUpdatedPoints()
-    this.screenImage.update(screenPointsArray)
-    this.projectionEffect.update(projectorPointsArray, screenPointsArray)
+    const projectorShapes = this.projectorForm.getUpdatedPoints().map(U.reverse)
+    const screenShapes = this.screenForm.getUpdatedPoints().map(U.reverse)
+    this.screenImage.update(screenShapes)
+    this.projectionEffect.update(projectorShapes, screenShapes)
   }
 
   toggleHelpers() {
