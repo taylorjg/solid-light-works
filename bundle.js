@@ -53127,8 +53127,8 @@ const main = async () => {
     leavingProjectorLeft = new _projector__WEBPACK_IMPORTED_MODULE_4__["Projector"](
       leavingProjectorFormLeft,
       leavingScreenFormLeft,
-      scene,
       1,
+      scene,
       hazeTexture,
       projectorLensTexture,
       makeProjectorPosition(_constants__WEBPACK_IMPORTED_MODULE_6__["LEFT_FORM_CX"]))
@@ -53136,8 +53136,8 @@ const main = async () => {
     leavingProjectorRight = new _projector__WEBPACK_IMPORTED_MODULE_4__["Projector"](
       leavingProjectorFormRight,
       leavingScreenFormRight,
-      scene,
       1,
+      scene,
       hazeTexture,
       projectorLensTexture,
       makeProjectorPosition(_constants__WEBPACK_IMPORTED_MODULE_6__["RIGHT_FORM_CX"]))
@@ -53149,8 +53149,8 @@ const main = async () => {
     faceToFaceIIProjector = new _projector__WEBPACK_IMPORTED_MODULE_4__["Projector"](
       faceToFaceIIProjectorForm,
       faceToFaceIIScreenForm,
-      scene,
       3,
+      scene,
       hazeTexture,
       projectorLensTexture,
       new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](0, _constants__WEBPACK_IMPORTED_MODULE_6__["PROJECTOR_CY"] * 4, _constants__WEBPACK_IMPORTED_MODULE_6__["MEMBRANE_LENGTH"]))
@@ -53394,9 +53394,9 @@ const MEMBRANE_SEGMENT_COUNT = 1
 
 class ProjectionEffect {
 
-  constructor(scene, meshCount, hazeTexture) {
-    this.scene = scene
+  constructor(meshCount, scene, hazeTexture) {
     this.meshCount = meshCount
+    this.scene = scene
     this.meshes = _utils__WEBPACK_IMPORTED_MODULE_5__["range"](meshCount).map(() => {
       const membraneGeometry = new _membrane_geometry__WEBPACK_IMPORTED_MODULE_1__["MembraneBufferGeometry"]()
       const membraneMaterial = new three__WEBPACK_IMPORTED_MODULE_0__["ShaderMaterial"]({
@@ -53424,13 +53424,10 @@ class ProjectionEffect {
       const tempMembraneGeometry = new _membrane_geometry__WEBPACK_IMPORTED_MODULE_1__["MembraneBufferGeometry"](projectorPoints, screenPoints, MEMBRANE_SEGMENT_COUNT)
       tempMembraneGeometry.computeFaceNormals()
       tempMembraneGeometry.computeVertexNormals()
-      const normalAttribute = tempMembraneGeometry.getAttribute('normal')
-      const array = normalAttribute.array
-      array.forEach((_, index) => array[index] *= -1)
       this.meshes[meshIndex].geometry.copy(tempMembraneGeometry)
       tempMembraneGeometry.dispose()
-      if (this.membraneMeshHelper) {
-        this.membraneMeshHelper.update()
+      if (this.meshHelpers) {
+        this.meshHelpers.forEach(meshHelper => meshHelper.update())
       }
     })
   }
@@ -53463,7 +53460,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var three__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
 /* harmony import */ var _projection_effect__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./projection-effect */ "./src/projection-effect.js");
 /* harmony import */ var _screen_image__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./screen-image */ "./src/screen-image.js");
-/* harmony import */ var _constants__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./constants */ "./src/constants.js");
+/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./utils */ "./src/utils.js");
+/* harmony import */ var _constants__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./constants */ "./src/constants.js");
+
 
 
 
@@ -53488,7 +53487,7 @@ const createProjectorCasing = (scene, texture, position) => {
   projectorCasingMesh.position.add(new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](0, 0, PROJECTOR_CASING_DEPTH / 2))
   scene.add(projectorCasingMesh)
 
-  const lensSize = _constants__WEBPACK_IMPORTED_MODULE_3__["PROJECTOR_R"] * 2
+  const lensSize = _constants__WEBPACK_IMPORTED_MODULE_4__["PROJECTOR_R"] * 2
   const projectorLensGeometry = new three__WEBPACK_IMPORTED_MODULE_0__["PlaneBufferGeometry"](lensSize, lensSize)
   const projectorLensMaterial = new three__WEBPACK_IMPORTED_MODULE_0__["MeshBasicMaterial"]({
     color: 0xffffff,
@@ -53506,23 +53505,23 @@ class Projector {
   constructor(
     projectorForm,
     screenForm,
+    shapeCount,
     scene,
-    meshCount,
     hazeTexture,
     projectorLensTexture,
     projectorPosition) {
     this.projectorForm = projectorForm
     this.screenForm = screenForm
-    this.screenImage = new _screen_image__WEBPACK_IMPORTED_MODULE_2__["ScreenImage"](scene, meshCount)
-    this.projectionEffect = new _projection_effect__WEBPACK_IMPORTED_MODULE_1__["ProjectionEffect"](scene, meshCount, hazeTexture)
+    this.screenImage = new _screen_image__WEBPACK_IMPORTED_MODULE_2__["ScreenImage"](shapeCount, scene)
+    this.projectionEffect = new _projection_effect__WEBPACK_IMPORTED_MODULE_1__["ProjectionEffect"](shapeCount, scene, hazeTexture)
     createProjectorCasing(scene, projectorLensTexture, projectorPosition)
   }
 
   update() {
-    const projectorPointsArray = this.projectorForm.getUpdatedPoints()
-    const screenPointsArray = this.screenForm.getUpdatedPoints()
-    this.screenImage.update(screenPointsArray)
-    this.projectionEffect.update(projectorPointsArray, screenPointsArray)
+    const projectorShapes = this.projectorForm.getUpdatedPoints().map(_utils__WEBPACK_IMPORTED_MODULE_3__["reverse"])
+    const screenShapes = this.screenForm.getUpdatedPoints().map(_utils__WEBPACK_IMPORTED_MODULE_3__["reverse"])
+    this.screenImage.update(screenShapes)
+    this.projectionEffect.update(projectorShapes, screenShapes)
   }
 
   toggleHelpers() {
@@ -53561,7 +53560,7 @@ const Line2dBasicShader = three_line_2d_shaders_basic__WEBPACK_IMPORTED_MODULE_2
 
 class ScreenImage {
 
-  constructor(scene, meshCount) {
+  constructor(meshCount, scene) {
     this.meshCount = meshCount
     this.meshes = _utils__WEBPACK_IMPORTED_MODULE_3__["range"](meshCount).map(() => {
       const lineGeometry = Line2d()
@@ -53614,13 +53613,14 @@ module.exports = "uniform sampler2D hazeTexture;\nvarying vec3 vPosition;\nvaryi
 /*!**********************!*\
   !*** ./src/utils.js ***!
   \**********************/
-/*! exports provided: range, repeat, vectorsAsArrays, vec2sToVec3s, loadTexture */
+/*! exports provided: range, repeat, reverse, vectorsAsArrays, vec2sToVec3s, loadTexture */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "range", function() { return range; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "repeat", function() { return repeat; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "reverse", function() { return reverse; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "vectorsAsArrays", function() { return vectorsAsArrays; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "vec2sToVec3s", function() { return vec2sToVec3s; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "loadTexture", function() { return loadTexture; });
@@ -53632,6 +53632,9 @@ const range = n =>
 
 const repeat = (n, x) =>
   range(n).map(() => x)
+
+const reverse = xs =>
+  xs.reverse()
 
 const vectorsAsArrays = vectors =>
   vectors.map(vector => vector.toArray())
