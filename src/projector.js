@@ -7,7 +7,7 @@ import * as C from './constants'
 export const createProjectorCasing = (scene, texture, position) => {
 
   const PROJECTOR_CASING_WIDTH = 1.2
-  const PROJECTOR_CASING_HEIGHT = 0.6
+  const PROJECTOR_CASING_HEIGHT = position.y + (C.PROJECTOR_R * 2)
   const PROJECTOR_CASING_DEPTH = 0.6
 
   const dimensions = [
@@ -19,8 +19,9 @@ export const createProjectorCasing = (scene, texture, position) => {
   const projectorCasingGeometry = new THREE.BoxBufferGeometry(...dimensions)
   const projectorCasingMaterial = new THREE.MeshBasicMaterial({ color: 0x808080 })
   const projectorCasingMesh = new THREE.Mesh(projectorCasingGeometry, projectorCasingMaterial)
-  projectorCasingMesh.position.copy(position)
-  projectorCasingMesh.position.add(new THREE.Vector3(0, 0, PROJECTOR_CASING_DEPTH / 2))
+  projectorCasingMesh.position.setX(position.x)
+  projectorCasingMesh.position.setY(PROJECTOR_CASING_HEIGHT / 2)
+  projectorCasingMesh.position.setZ(position.z + PROJECTOR_CASING_DEPTH / 2)
   scene.add(projectorCasingMesh)
 
   const lensSize = C.PROJECTOR_R * 2
