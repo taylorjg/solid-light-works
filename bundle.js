@@ -53394,7 +53394,7 @@ const MEMBRANE_SEGMENT_COUNT = 1
 
 class ProjectionEffect {
 
-  constructor(meshCount, scene, hazeTexture) {
+  constructor(meshCount, scene, hazeTexture, projectorPosition) {
     this.meshCount = meshCount
     this.scene = scene
     this.meshes = _utils__WEBPACK_IMPORTED_MODULE_5__["range"](meshCount).map(() => {
@@ -53403,6 +53403,9 @@ class ProjectionEffect {
         uniforms: {
           hazeTexture: {
             value: hazeTexture
+          },
+          projectorPosition: {
+            value: projectorPosition
           }
         },
         vertexShader: (_shaders_vertex_shader_glsl__WEBPACK_IMPORTED_MODULE_3___default()),
@@ -53471,7 +53474,7 @@ __webpack_require__.r(__webpack_exports__);
 const createProjectorCasing = (scene, texture, position) => {
 
   const PROJECTOR_CASING_WIDTH = 1.2
-  const PROJECTOR_CASING_HEIGHT = 0.6
+  const PROJECTOR_CASING_HEIGHT = position.y + (_constants__WEBPACK_IMPORTED_MODULE_4__["PROJECTOR_R"] * 2)
   const PROJECTOR_CASING_DEPTH = 0.6
 
   const dimensions = [
@@ -53483,8 +53486,9 @@ const createProjectorCasing = (scene, texture, position) => {
   const projectorCasingGeometry = new three__WEBPACK_IMPORTED_MODULE_0__["BoxBufferGeometry"](...dimensions)
   const projectorCasingMaterial = new three__WEBPACK_IMPORTED_MODULE_0__["MeshBasicMaterial"]({ color: 0x808080 })
   const projectorCasingMesh = new three__WEBPACK_IMPORTED_MODULE_0__["Mesh"](projectorCasingGeometry, projectorCasingMaterial)
-  projectorCasingMesh.position.copy(position)
-  projectorCasingMesh.position.add(new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](0, 0, PROJECTOR_CASING_DEPTH / 2))
+  projectorCasingMesh.position.setX(position.x)
+  projectorCasingMesh.position.setY(PROJECTOR_CASING_HEIGHT / 2)
+  projectorCasingMesh.position.setZ(position.z + PROJECTOR_CASING_DEPTH / 2)
   scene.add(projectorCasingMesh)
 
   const lensSize = _constants__WEBPACK_IMPORTED_MODULE_4__["PROJECTOR_R"] * 2
@@ -53513,7 +53517,7 @@ class Projector {
     this.projectorForm = projectorForm
     this.screenForm = screenForm
     this.screenImage = new _screen_image__WEBPACK_IMPORTED_MODULE_2__["ScreenImage"](shapeCount, scene)
-    this.projectionEffect = new _projection_effect__WEBPACK_IMPORTED_MODULE_1__["ProjectionEffect"](shapeCount, scene, hazeTexture)
+    this.projectionEffect = new _projection_effect__WEBPACK_IMPORTED_MODULE_1__["ProjectionEffect"](shapeCount, scene, hazeTexture, projectorPosition)
     createProjectorCasing(scene, projectorLensTexture, projectorPosition)
   }
 
@@ -53594,7 +53598,7 @@ class ScreenImage {
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-module.exports = "uniform sampler2D hazeTexture;\nvarying vec3 vPosition;\nvarying vec3 vNormal;\nvarying vec2 vUv;\n\nconst vec4 WHITE = vec4(1.0);\n\nvoid main() {\n  vec3 v = normalize(vPosition - cameraPosition);\n  vec3 n = vNormal;\n  float weight = 1.0 - abs(dot(v, n));\n  vec4 hazeValue = texture2D(hazeTexture, vUv);\n  hazeValue.a = 0.1;\n  gl_FragColor = mix(hazeValue, WHITE, weight);\n}\n"
+module.exports = "uniform sampler2D hazeTexture;\nvarying vec3 vPosition;\nvarying vec3 vNormal;\nvarying vec2 vUv;\nvarying vec3 vProjectorPosition;\n\nvoid main() {\n  float d = distance(vPosition, vProjectorPosition);\n  float a = 1.0 - (d / 18.0);\n  vec3 v = normalize(vPosition - cameraPosition);\n  vec3 n = vNormal;\n  float weight = 1.0 - abs(dot(v, n));\n  vec4 hazeValue = texture2D(hazeTexture, vUv);\n  vec4 whiteValue = vec4(1.0);\n  gl_FragColor = mix(hazeValue, whiteValue, weight);\n  gl_FragColor.a = a;\n}\n"
 
 /***/ }),
 
@@ -53605,7 +53609,7 @@ module.exports = "uniform sampler2D hazeTexture;\nvarying vec3 vPosition;\nvaryi
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-module.exports = "uniform sampler2D hazeTexture;\nvarying vec3 vPosition;\nvarying vec3 vNormal;\nvarying vec2 vUv;\n\nvoid main() {\n  vPosition = (modelViewMatrix * vec4(position, 1.0)).xyz;\n  vNormal = normalize(normalMatrix * normal);\n  vUv = uv;\n  gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);\n}\n"
+module.exports = "uniform sampler2D hazeTexture;\nuniform vec3 projectorPosition;\nvarying vec3 vPosition;\nvarying vec3 vNormal;\nvarying vec2 vUv;\nvarying vec3 vProjectorPosition;\n\nvoid main() {\n  vPosition = (modelViewMatrix * vec4(position, 1.0)).xyz;\n  vNormal = normalize(normalMatrix * normal);\n  vUv = uv;\n  vProjectorPosition = (modelViewMatrix * vec4(projectorPosition, 1.0)).xyz;\n  gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);\n}\n"
 
 /***/ }),
 
