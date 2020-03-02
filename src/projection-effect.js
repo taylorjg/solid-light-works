@@ -10,7 +10,7 @@ const MEMBRANE_SEGMENT_COUNT = 1
 
 export class ProjectionEffect {
 
-  constructor(meshCount, scene, hazeTexture) {
+  constructor(meshCount, scene, hazeTexture, projectorPosition) {
     this.meshCount = meshCount
     this.scene = scene
     this.meshes = U.range(meshCount).map(() => {
@@ -19,6 +19,9 @@ export class ProjectionEffect {
         uniforms: {
           hazeTexture: {
             value: hazeTexture
+          },
+          projectorPosition: {
+            value: projectorPosition
           }
         },
         vertexShader,

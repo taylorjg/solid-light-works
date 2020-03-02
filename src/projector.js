@@ -50,7 +50,7 @@ export class Projector {
     this.projectorForm = projectorForm
     this.screenForm = screenForm
     this.screenImage = new ScreenImage(shapeCount, scene)
-    this.projectionEffect = new ProjectionEffect(shapeCount, scene, hazeTexture)
+    this.projectionEffect = new ProjectionEffect(shapeCount, scene, hazeTexture, projectorPosition)
     createProjectorCasing(scene, projectorLensTexture, projectorPosition)
   }
 
