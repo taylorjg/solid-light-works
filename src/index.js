@@ -2,15 +2,21 @@ import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import { LeavingForm, setSpeed } from './forms/leaving-form'
 import { FaceToFaceIIForm } from './forms/face-to-face-ii-form'
+import { CouplingForm } from './forms/coupling-form'
 import { Projector } from './projector'
 // import { addSpotLights, toggleSpotLightHelpers } from './spotlights'
 import * as U from './utils'
 import * as C from './constants'
 
-const leavingFormEnabled = true
+const leavingFormEnabled = false
 const faceToFaceIIFormEnabled = false
+const couplingFormEnabled = true
 
 const FAVOURITE_POSITIONS = [
+  {
+    cameraPosition: new THREE.Vector3(-0.515, 4.40, -5.93),
+    controlsTarget: new THREE.Vector3(-0.29, 2, 5.14)
+  },
   {
     cameraPosition: new THREE.Vector3(-18.39, 6.51, 13.86),
     controlsTarget: new THREE.Vector3(4.49, 2, 3.12)
@@ -82,6 +88,7 @@ const main = async () => {
   let leavingProjectorLeft
   let leavingProjectorRight
   let faceToFaceIIProjector
+  let couplingProjector
 
   if (leavingFormEnabled) {
     const leavingProjectorFormLeft = new LeavingForm(
@@ -144,6 +151,19 @@ const main = async () => {
       new THREE.Vector3(0, C.PROJECTOR_CY * 4, C.MEMBRANE_LENGTH))
   }
 
+  if (couplingFormEnabled) {
+    const couplingProjectorForm = new CouplingForm(true)
+    const couplingScreenForm = new CouplingForm(false)
+    couplingProjector = new Projector(
+      couplingProjectorForm,
+      couplingScreenForm,
+      2,
+      scene,
+      hazeTexture,
+      projectorLensTexture,
+      new THREE.Vector3(0, C.PROJECTOR_CY * 4, C.MEMBRANE_LENGTH))
+  }
+
   window.addEventListener('resize', () => {
     renderer.setSize(container.offsetWidth, container.offsetHeight)
     camera.aspect = container.offsetWidth / container.offsetHeight
@@ -190,6 +210,9 @@ const main = async () => {
       if (faceToFaceIIFormEnabled) {
         faceToFaceIIProjector.toggleHelpers()
       }
+      if (couplingProjector) {
+        couplingProjector.toggleHelpers()
+      }
     }
 
     if (e.key === '1') {
@@ -215,6 +238,9 @@ const main = async () => {
     }
     if (faceToFaceIIFormEnabled) {
       faceToFaceIIProjector.update()
+    }
+    if (couplingFormEnabled) {
+      couplingProjector.update()
     }
     controls.update()
     renderer.render(scene, camera)
