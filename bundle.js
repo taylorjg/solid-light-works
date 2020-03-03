@@ -52776,6 +52776,114 @@ class EllipseCurve {
 
 /***/ }),
 
+/***/ "./src/forms/coupling-form.js":
+/*!************************************!*\
+  !*** ./src/forms/coupling-form.js ***!
+  \************************************/
+/*! exports provided: CouplingForm */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "CouplingForm", function() { return CouplingForm; });
+/* harmony import */ var three__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
+/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../utils */ "./src/utils.js");
+/* harmony import */ var _constants__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../constants */ "./src/constants.js");
+
+
+
+
+const TWO_PI = Math.PI * 2
+const HALF_PI = Math.PI / 2
+
+// https://www.ericforman.com/anthony-mccall-solid-light#6
+// https://www.ericforman.com/anthony-mccall-solid-light#7
+// https://www.ericforman.com/blog/making-of-solid-light-for-anthony-mccall
+
+class CircleWave {
+
+  // R = distance from circle center to middle of wave; 0 ≤ R < ∞
+  // A = amplitude of circle wave; 0 < A < ∞
+  // F = number of wavelengths per circumference; F = 1, 2, 3, …
+  // S = speed of rotation of circle wave; 0 ≤ S < ∞
+  // f = frequency of circle wave oscillation; 0 ≤ f < ∞
+  // Φ = phase of circle wave rotation; 0 ≤ Φ < 2π
+  // φ = phase of circle wave oscillation; 0 ≤ φ < 2π
+  constructor(R, A, F, S, f, rotationPhase, oscillationPhase) {
+    this.R = R
+    this.A = A
+    this.F = F
+    this.S = S
+    this.f = f
+    this.rotationPhase = rotationPhase
+    this.oscillationPhase = oscillationPhase
+  }
+
+  // θ = radial angle to a point on the circle wave; 0 ≤ θ < ∞
+  // t = time; 0 ≤ t < ∞
+
+  // ω(θ, t) := A · sin(F · θ + S · t + Φ) · cos(f · t + φ)
+  omega(theta, t) {
+    return (
+      this.A *
+      Math.sin(this.F * theta + this.S * t + this.rotationPhase) *
+      Math.cos(this.f * t + this.oscillationPhase)
+    )
+  }
+
+  // Cx(θ, t) := (R + ω(θ, t)) · cos(θ)
+  // Cy(θ, t) := (R + ω(θ, t)) · sin(θ)
+  getPoint(theta, t) {
+    const adjustedR = this.R + this.omega(theta, t)
+    const cx = adjustedR * Math.cos(theta)
+    const cy = adjustedR * Math.sin(theta)
+    return new three__WEBPACK_IMPORTED_MODULE_0__["Vector2"](cx, 3 + cy)
+  }
+
+  getPoints(divisions, t) {
+    const deltaAngle = TWO_PI / divisions
+    return _utils__WEBPACK_IMPORTED_MODULE_1__["range"](divisions + 1).map(index => {
+      const theta = deltaAngle * index
+      return this.getPoint(theta, t)
+    })
+  }
+}
+
+const CIRCLE_WAVE_POINT_COUNT = 200
+
+class CouplingForm {
+
+  constructor(isProjector) {
+    this.isProjector = isProjector
+    if (isProjector) {
+      const point = new three__WEBPACK_IMPORTED_MODULE_0__["Vector2"](0, _constants__WEBPACK_IMPORTED_MODULE_2__["PROJECTOR_CY"] * 4)
+      this.points = [
+        _utils__WEBPACK_IMPORTED_MODULE_1__["repeat"](CIRCLE_WAVE_POINT_COUNT + 1, point),
+        _utils__WEBPACK_IMPORTED_MODULE_1__["repeat"](CIRCLE_WAVE_POINT_COUNT + 1, point)
+      ]
+    } else {
+      this.circleWaveOuter = new CircleWave(2, 0.4, 3.5, 0.01, 0.01, 0, 0)
+      this.circleWaveInner = new CircleWave(1, 0.4, 3.5, 0.01, 0.01, HALF_PI, 0)
+      this.tick = 0
+    }
+  }
+
+  getUpdatedPoints() {
+    if (this.isProjector) {
+      return this.points
+    }
+    const points = [
+      this.circleWaveOuter.getPoints(CIRCLE_WAVE_POINT_COUNT, this.tick),
+      this.circleWaveInner.getPoints(CIRCLE_WAVE_POINT_COUNT, this.tick)
+    ]
+    this.tick++
+    return points
+  }
+}
+
+
+/***/ }),
+
 /***/ "./src/forms/face-to-face-ii-form.js":
 /*!*******************************************!*\
   !*** ./src/forms/face-to-face-ii-form.js ***!
@@ -53007,9 +53115,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var three_examples_jsm_controls_OrbitControls__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! three/examples/jsm/controls/OrbitControls */ "./node_modules/three/examples/jsm/controls/OrbitControls.js");
 /* harmony import */ var _forms_leaving_form__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./forms/leaving-form */ "./src/forms/leaving-form.js");
 /* harmony import */ var _forms_face_to_face_ii_form__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./forms/face-to-face-ii-form */ "./src/forms/face-to-face-ii-form.js");
-/* harmony import */ var _projector__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./projector */ "./src/projector.js");
-/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./utils */ "./src/utils.js");
-/* harmony import */ var _constants__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./constants */ "./src/constants.js");
+/* harmony import */ var _forms_coupling_form__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./forms/coupling-form */ "./src/forms/coupling-form.js");
+/* harmony import */ var _projector__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./projector */ "./src/projector.js");
+/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./utils */ "./src/utils.js");
+/* harmony import */ var _constants__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./constants */ "./src/constants.js");
+
 
 
 
@@ -53019,10 +53129,15 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const leavingFormEnabled = true
+const leavingFormEnabled = false
 const faceToFaceIIFormEnabled = false
+const couplingFormEnabled = true
 
 const FAVOURITE_POSITIONS = [
+  {
+    cameraPosition: new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](-0.515, 4.40, -5.93),
+    controlsTarget: new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](-0.29, 2, 5.14)
+  },
   {
     cameraPosition: new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](-18.39, 6.51, 13.86),
     controlsTarget: new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](4.49, 2, 3.12)
@@ -53085,75 +53200,89 @@ const main = async () => {
   // addSpotLights(scene, 0, C.CENTRE_Q_Y, C.LOW_INTENSITY_SPOTLIGHT)
   // addSpotLights(scene, C.CENTRE_P_Y * 2, C.CENTRE_Q_Y, C.LOW_INTENSITY_SPOTLIGHT)
 
-  const hazeTexture = await _utils__WEBPACK_IMPORTED_MODULE_5__["loadTexture"]('haze.jpg')
-  const projectorLensTexture = await _utils__WEBPACK_IMPORTED_MODULE_5__["loadTexture"]('projector-lens.png')
+  const hazeTexture = await _utils__WEBPACK_IMPORTED_MODULE_6__["loadTexture"]('haze.jpg')
+  const projectorLensTexture = await _utils__WEBPACK_IMPORTED_MODULE_6__["loadTexture"]('projector-lens.png')
 
   const makeProjectorPosition = x =>
-    new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](x, _constants__WEBPACK_IMPORTED_MODULE_6__["PROJECTOR_CY"], _constants__WEBPACK_IMPORTED_MODULE_6__["MEMBRANE_LENGTH"])
+    new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](x, _constants__WEBPACK_IMPORTED_MODULE_7__["PROJECTOR_CY"], _constants__WEBPACK_IMPORTED_MODULE_7__["MEMBRANE_LENGTH"])
 
   let leavingProjectorLeft
   let leavingProjectorRight
   let faceToFaceIIProjector
+  let couplingProjector
 
   if (leavingFormEnabled) {
     const leavingProjectorFormLeft = new _forms_leaving_form__WEBPACK_IMPORTED_MODULE_2__["LeavingForm"](
-      _constants__WEBPACK_IMPORTED_MODULE_6__["LEFT_FORM_CX"],
-      _constants__WEBPACK_IMPORTED_MODULE_6__["PROJECTOR_CY"],
-      _constants__WEBPACK_IMPORTED_MODULE_6__["PROJECTOR_R"],
-      _constants__WEBPACK_IMPORTED_MODULE_6__["PROJECTOR_R"],
+      _constants__WEBPACK_IMPORTED_MODULE_7__["LEFT_FORM_CX"],
+      _constants__WEBPACK_IMPORTED_MODULE_7__["PROJECTOR_CY"],
+      _constants__WEBPACK_IMPORTED_MODULE_7__["PROJECTOR_R"],
+      _constants__WEBPACK_IMPORTED_MODULE_7__["PROJECTOR_R"],
       true)
 
     const leavingScreenFormLeft = new _forms_leaving_form__WEBPACK_IMPORTED_MODULE_2__["LeavingForm"](
-      _constants__WEBPACK_IMPORTED_MODULE_6__["LEFT_FORM_CX"],
-      _constants__WEBPACK_IMPORTED_MODULE_6__["SCREEN_IMAGE_CY"],
-      _constants__WEBPACK_IMPORTED_MODULE_6__["SCREEN_IMAGE_RX"],
-      _constants__WEBPACK_IMPORTED_MODULE_6__["SCREEN_IMAGE_RY"],
+      _constants__WEBPACK_IMPORTED_MODULE_7__["LEFT_FORM_CX"],
+      _constants__WEBPACK_IMPORTED_MODULE_7__["SCREEN_IMAGE_CY"],
+      _constants__WEBPACK_IMPORTED_MODULE_7__["SCREEN_IMAGE_RX"],
+      _constants__WEBPACK_IMPORTED_MODULE_7__["SCREEN_IMAGE_RY"],
       true)
 
     const leavingProjectorFormRight = new _forms_leaving_form__WEBPACK_IMPORTED_MODULE_2__["LeavingForm"](
-      _constants__WEBPACK_IMPORTED_MODULE_6__["RIGHT_FORM_CX"],
-      _constants__WEBPACK_IMPORTED_MODULE_6__["PROJECTOR_CY"],
-      _constants__WEBPACK_IMPORTED_MODULE_6__["PROJECTOR_R"],
-      _constants__WEBPACK_IMPORTED_MODULE_6__["PROJECTOR_R"],
+      _constants__WEBPACK_IMPORTED_MODULE_7__["RIGHT_FORM_CX"],
+      _constants__WEBPACK_IMPORTED_MODULE_7__["PROJECTOR_CY"],
+      _constants__WEBPACK_IMPORTED_MODULE_7__["PROJECTOR_R"],
+      _constants__WEBPACK_IMPORTED_MODULE_7__["PROJECTOR_R"],
       false)
 
     const leavingScreenFormRight = new _forms_leaving_form__WEBPACK_IMPORTED_MODULE_2__["LeavingForm"](
-      _constants__WEBPACK_IMPORTED_MODULE_6__["RIGHT_FORM_CX"],
-      _constants__WEBPACK_IMPORTED_MODULE_6__["SCREEN_IMAGE_CY"],
-      _constants__WEBPACK_IMPORTED_MODULE_6__["SCREEN_IMAGE_RX"],
-      _constants__WEBPACK_IMPORTED_MODULE_6__["SCREEN_IMAGE_RY"],
+      _constants__WEBPACK_IMPORTED_MODULE_7__["RIGHT_FORM_CX"],
+      _constants__WEBPACK_IMPORTED_MODULE_7__["SCREEN_IMAGE_CY"],
+      _constants__WEBPACK_IMPORTED_MODULE_7__["SCREEN_IMAGE_RX"],
+      _constants__WEBPACK_IMPORTED_MODULE_7__["SCREEN_IMAGE_RY"],
       false)
 
-    leavingProjectorLeft = new _projector__WEBPACK_IMPORTED_MODULE_4__["Projector"](
+    leavingProjectorLeft = new _projector__WEBPACK_IMPORTED_MODULE_5__["Projector"](
       leavingProjectorFormLeft,
       leavingScreenFormLeft,
       1,
       scene,
       hazeTexture,
       projectorLensTexture,
-      makeProjectorPosition(_constants__WEBPACK_IMPORTED_MODULE_6__["LEFT_FORM_CX"]))
+      makeProjectorPosition(_constants__WEBPACK_IMPORTED_MODULE_7__["LEFT_FORM_CX"]))
 
-    leavingProjectorRight = new _projector__WEBPACK_IMPORTED_MODULE_4__["Projector"](
+    leavingProjectorRight = new _projector__WEBPACK_IMPORTED_MODULE_5__["Projector"](
       leavingProjectorFormRight,
       leavingScreenFormRight,
       1,
       scene,
       hazeTexture,
       projectorLensTexture,
-      makeProjectorPosition(_constants__WEBPACK_IMPORTED_MODULE_6__["RIGHT_FORM_CX"]))
+      makeProjectorPosition(_constants__WEBPACK_IMPORTED_MODULE_7__["RIGHT_FORM_CX"]))
   }
 
   if (faceToFaceIIFormEnabled) {
     const faceToFaceIIProjectorForm = new _forms_face_to_face_ii_form__WEBPACK_IMPORTED_MODULE_3__["FaceToFaceIIForm"](true)
     const faceToFaceIIScreenForm = new _forms_face_to_face_ii_form__WEBPACK_IMPORTED_MODULE_3__["FaceToFaceIIForm"](false)
-    faceToFaceIIProjector = new _projector__WEBPACK_IMPORTED_MODULE_4__["Projector"](
+    faceToFaceIIProjector = new _projector__WEBPACK_IMPORTED_MODULE_5__["Projector"](
       faceToFaceIIProjectorForm,
       faceToFaceIIScreenForm,
       3,
       scene,
       hazeTexture,
       projectorLensTexture,
-      new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](0, _constants__WEBPACK_IMPORTED_MODULE_6__["PROJECTOR_CY"] * 4, _constants__WEBPACK_IMPORTED_MODULE_6__["MEMBRANE_LENGTH"]))
+      new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](0, _constants__WEBPACK_IMPORTED_MODULE_7__["PROJECTOR_CY"] * 4, _constants__WEBPACK_IMPORTED_MODULE_7__["MEMBRANE_LENGTH"]))
+  }
+
+  if (couplingFormEnabled) {
+    const couplingProjectorForm = new _forms_coupling_form__WEBPACK_IMPORTED_MODULE_4__["CouplingForm"](true)
+    const couplingScreenForm = new _forms_coupling_form__WEBPACK_IMPORTED_MODULE_4__["CouplingForm"](false)
+    couplingProjector = new _projector__WEBPACK_IMPORTED_MODULE_5__["Projector"](
+      couplingProjectorForm,
+      couplingScreenForm,
+      2,
+      scene,
+      hazeTexture,
+      projectorLensTexture,
+      new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](0, _constants__WEBPACK_IMPORTED_MODULE_7__["PROJECTOR_CY"] * 4, _constants__WEBPACK_IMPORTED_MODULE_7__["MEMBRANE_LENGTH"]))
   }
 
   window.addEventListener('resize', () => {
@@ -53202,6 +53331,9 @@ const main = async () => {
       if (faceToFaceIIFormEnabled) {
         faceToFaceIIProjector.toggleHelpers()
       }
+      if (couplingProjector) {
+        couplingProjector.toggleHelpers()
+      }
     }
 
     if (e.key === '1') {
@@ -53227,6 +53359,9 @@ const main = async () => {
     }
     if (faceToFaceIIFormEnabled) {
       faceToFaceIIProjector.update()
+    }
+    if (couplingFormEnabled) {
+      couplingProjector.update()
     }
     controls.update()
     renderer.render(scene, camera)
