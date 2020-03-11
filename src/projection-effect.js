@@ -27,7 +27,9 @@ export class ProjectionEffect {
         vertexShader,
         fragmentShader,
         side: THREE.DoubleSide,
-        blending: THREE.AdditiveBlending
+        // blending: THREE.AdditiveBlending,
+        transparent: true,
+        depthTest: false
       })
       const membraneMesh = new THREE.Mesh(membraneGeometry, membraneMaterial)
       scene.add(membraneMesh)
