@@ -52790,8 +52790,8 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const leavingFormEnabled = true
-const betweenYouAndIFormEnabled = true
+const leavingFormEnabled = false
+const betweenYouAndIFormEnabled = false
 const couplingFormEnabled = true
 
 const FAVOURITE_POSITIONS = [
