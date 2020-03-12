@@ -1,17 +1,15 @@
 import * as THREE from 'three'
-import { EllipseCurve } from '../ellipse-curve'
+import { Ellipse } from '../syntax/ellipse'
 import * as U from '../utils'
+import * as C from '../constants'
 
 const ELLIPSE_POINT_COUNT = 100
-const WIPE_POINT_COUNT = 50
-const ROTATION_DELTA = Math.PI / (180 * 60)
-const DELTA_ANGLE = 15 * Math.PI / 180
-const ANGLE_OFFSET_THRESHOLD = 45 * Math.PI / 180
-
-const TWO_PI = Math.PI * 2
-const HALF_PI = Math.PI / 2
-const REVOLUTION_START = -HALF_PI
-const REVOLUTION_END = REVOLUTION_START + TWO_PI
+const TRAVELLING_WAVE_POINT_COUNT = 50
+const ROTATION_DELTA = C.PI / (180 * 60)
+const DELTA_ANGLE = 15 * C.PI / 180
+const ANGLE_OFFSET_THRESHOLD = 45 * C.PI / 180
+const REVOLUTION_START = -C.HALF_PI
+const REVOLUTION_END = REVOLUTION_START + C.TWO_PI
 
 let currentRotationDelta = ROTATION_DELTA
 
@@ -27,12 +25,12 @@ export class LeavingForm {
     this.rx = rx
     this.ry = ry
     this.reset(isInitiallyGrowing)
-    this.ellipseCurve = new EllipseCurve(cx, cy, rx, ry)
-    this.wipeCurve = new THREE.CubicBezierCurve()
+    this.ellipse = new Ellipse(cx, cy, rx, ry)
+    this.travellingWave = new THREE.CubicBezierCurve()
   }
 
   calculateSinusoidalDampingFactor(angle) {
-    const dampingFactor = Math.pow(3 + (1 - Math.sin(angle % Math.PI)) * 5, 2)
+    const dampingFactor = Math.pow(3 + (1 - Math.sin(angle % C.PI)) * 5, 2)
     // console.log(`angle: ${angle}; dampingFactor: ${dampingFactor}`)
     return dampingFactor
   }
@@ -40,9 +38,9 @@ export class LeavingForm {
   getCurrentAngle() {
     const offsetFromStartAngle = currentRotationDelta * this.tick
     const baseAngle = REVOLUTION_START + offsetFromStartAngle
-    const totalTicks = TWO_PI / currentRotationDelta
+    const totalTicks = C.TWO_PI / currentRotationDelta
     const sinWaveTicks = totalTicks / 48
-    const x = TWO_PI * (this.tick % sinWaveTicks) / sinWaveTicks
+    const x = C.TWO_PI * (this.tick % sinWaveTicks) / sinWaveTicks
     const sinx = Math.sin(x)
     const sinusoidalDampingFactor = this.calculateSinusoidalDampingFactor(offsetFromStartAngle)
     const sinusoidalOffset = sinx / sinusoidalDampingFactor
@@ -51,18 +49,18 @@ export class LeavingForm {
     return finalAngle
   }
 
-  getWipeControlPoints(currentAngle) {
+  getTravellingWaveControlPoints(currentAngle) {
     const startAngle = REVOLUTION_START
     const angleOffset = Math.abs(currentAngle - startAngle)
-    const angleOffset2 = angleOffset < Math.PI ? angleOffset : TWO_PI - angleOffset
+    const angleOffset2 = angleOffset < C.PI ? angleOffset : C.TWO_PI - angleOffset
     const normalisingFactor = 1 / ANGLE_OFFSET_THRESHOLD
     const alpha = angleOffset2 > ANGLE_OFFSET_THRESHOLD ? 1.0 : (angleOffset2 * normalisingFactor)
     const deltaAngle1 = currentAngle - DELTA_ANGLE * alpha
     const deltaAngle2 = currentAngle + DELTA_ANGLE * alpha
     const centrePoint = new THREE.Vector2(this.cx, this.cy)
-    const deltaPoint1 = this.ellipseCurve.getPoint(deltaAngle1)
-    const deltaPoint2 = this.ellipseCurve.getPoint(deltaAngle2)
-    const startingPoint = this.ellipseCurve.getPoint(currentAngle)
+    const deltaPoint1 = this.ellipse.getPoint(deltaAngle1)
+    const deltaPoint2 = this.ellipse.getPoint(deltaAngle2)
+    const startingPoint = this.ellipse.getPoint(currentAngle)
     const endingPoint = startingPoint.clone().lerp(centrePoint, alpha)
     const controlPoint1 = deltaPoint1.lerp(endingPoint, 0.25)
     const controlPoint2 = deltaPoint2.lerp(endingPoint, 0.75)
@@ -74,28 +72,28 @@ export class LeavingForm {
     }
   }
 
-  combineEllipseAndWipe(ellipsePoints, wipePoints) {
-    const wipePointsTail = wipePoints.slice(1)
+  combineEllipseAndTravellingWave(ellipsePoints, travellingWavePoints) {
+    const travellingWavePointsTail = travellingWavePoints.slice(1)
     return this.growing
-      ? ellipsePoints.concat(wipePointsTail)
-      : wipePointsTail.reverse().concat(ellipsePoints)
+      ? ellipsePoints.concat(travellingWavePointsTail)
+      : travellingWavePointsTail.reverse().concat(ellipsePoints)
   }
 
-  getWipePoints(currentAngle) {
+  getTravellingWavePoints(currentAngle) {
     const {
       startingPoint,
       controlPoint1,
       controlPoint2,
       endingPoint
-    } = this.getWipeControlPoints(currentAngle)
+    } = this.getTravellingWaveControlPoints(currentAngle)
     if (controlPoint1.equals(controlPoint2)) {
-      return U.repeat(WIPE_POINT_COUNT + 1, startingPoint)
+      return U.repeat(TRAVELLING_WAVE_POINT_COUNT + 1, startingPoint)
     }
-    this.wipeCurve.v0.copy(startingPoint)
-    this.wipeCurve.v1.copy(controlPoint1)
-    this.wipeCurve.v2.copy(controlPoint2)
-    this.wipeCurve.v3.copy(endingPoint)
-    return this.wipeCurve.getPoints(WIPE_POINT_COUNT)
+    this.travellingWave.v0.copy(startingPoint)
+    this.travellingWave.v1.copy(controlPoint1)
+    this.travellingWave.v2.copy(controlPoint2)
+    this.travellingWave.v3.copy(endingPoint)
+    return this.travellingWave.getPoints(TRAVELLING_WAVE_POINT_COUNT)
   }
 
   getUpdatedPoints() {
@@ -110,9 +108,9 @@ export class LeavingForm {
     if (revolutionComplete) {
       this.reset(!this.growing)
     }
-    const ellipsePoints = this.ellipseCurve.getPoints(this.startAngle, this.endAngle, ELLIPSE_POINT_COUNT)
-    const wipePoints = this.getWipePoints(currentAngle)
-    return [this.combineEllipseAndWipe(ellipsePoints, wipePoints)]
+    const ellipsePoints = this.ellipse.getPoints(this.startAngle, this.endAngle, ELLIPSE_POINT_COUNT)
+    const travellingWavePoints = this.getTravellingWavePoints(currentAngle)
+    return [this.combineEllipseAndTravellingWave(ellipsePoints, travellingWavePoints)]
   }
 
   reset(growing) {

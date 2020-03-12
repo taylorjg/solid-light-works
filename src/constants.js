@@ -14,5 +14,6 @@ export const MEMBRANE_LENGTH = 12
 export const LEFT = Symbol('LEFT')
 export const RIGHT = Symbol('RIGHT')
 
-export const HIGH_INTENSITY_SPOTLIGHT = Symbol('HIGH_INTENSITY_SPOTLIGHT')
-export const LOW_INTENSITY_SPOTLIGHT = Symbol('LOW_INTENSITY_SPOTLIGHT')
+export const PI = Math.PI
+export const TWO_PI = PI * 2
+export const HALF_PI = PI / 2

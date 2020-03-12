@@ -1,10 +1,10 @@
 import * as THREE from 'three'
-import * as U from './utils'
+import * as U from '../utils'
 
 // I'm using my own code to calculate points on an elliptical curve that
 // assumes a clockwise direction. I found that I was having to fight against
 // THREE.EllipseCurve due to negative start/end angles etc.
-export class EllipseCurve {
+export class Ellipse {
 
   constructor(cx, cy, rx, ry) {
     this.cx = cx

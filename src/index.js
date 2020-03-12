@@ -1,15 +1,14 @@
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
-import { LeavingForm, setSpeed } from './forms/leaving-form'
-import { FaceToFaceIIForm } from './forms/face-to-face-ii-form'
-import { CouplingForm } from './forms/coupling-form'
+import { LeavingForm, setSpeed } from './forms/leaving'
+import { BetweenYouAndIForm } from './forms/between-you-and-i'
+import { CouplingForm } from './forms/coupling'
 import { Projector } from './projector'
-// import { addSpotLights, toggleSpotLightHelpers } from './spotlights'
 import * as U from './utils'
 import * as C from './constants'
 
 const leavingFormEnabled = false
-const faceToFaceIIFormEnabled = false
+const betweenYouAndIFormEnabled = false
 const couplingFormEnabled = true
 
 const FAVOURITE_POSITIONS = [
@@ -75,10 +74,6 @@ const main = async () => {
 
   let axesHelper = undefined
 
-  // addSpotLights(scene, C.CENTRE_P_Y, C.CENTRE_Q_Y, C.HIGH_INTENSITY_SPOTLIGHT)
-  // addSpotLights(scene, 0, C.CENTRE_Q_Y, C.LOW_INTENSITY_SPOTLIGHT)
-  // addSpotLights(scene, C.CENTRE_P_Y * 2, C.CENTRE_Q_Y, C.LOW_INTENSITY_SPOTLIGHT)
-
   const hazeTexture = await U.loadTexture('haze.jpg')
   const projectorLensTexture = await U.loadTexture('projector-lens.png')
 
@@ -87,7 +82,7 @@ const main = async () => {
 
   let leavingProjectorLeft
   let leavingProjectorRight
-  let faceToFaceIIProjector
+  let betweenYouAndIProjector
   let couplingProjector
 
   if (leavingFormEnabled) {
@@ -138,12 +133,12 @@ const main = async () => {
       makeProjectorPosition(C.RIGHT_FORM_CX))
   }
 
-  if (faceToFaceIIFormEnabled) {
-    const faceToFaceIIProjectorForm = new FaceToFaceIIForm(true)
-    const faceToFaceIIScreenForm = new FaceToFaceIIForm(false)
-    faceToFaceIIProjector = new Projector(
-      faceToFaceIIProjectorForm,
-      faceToFaceIIScreenForm,
+  if (betweenYouAndIFormEnabled) {
+    const betweenYouAndIProjectorForm = new BetweenYouAndIForm(true)
+    const betweenYouAndIScreenForm = new BetweenYouAndIForm(false)
+    betweenYouAndIProjector = new Projector(
+      betweenYouAndIProjectorForm,
+      betweenYouAndIScreenForm,
       3,
       scene,
       hazeTexture,
@@ -198,17 +193,13 @@ const main = async () => {
       controls.autoRotate = !controls.autoRotate
     }
 
-    // if (ev.key === 's') {
-    //   toggleSpotLightHelpers(scene)
-    // }
-
     if (e.key === 'v') {
       if (leavingFormEnabled) {
         leavingProjectorLeft.toggleHelpers()
         leavingProjectorRight.toggleHelpers()
       }
-      if (faceToFaceIIFormEnabled) {
-        faceToFaceIIProjector.toggleHelpers()
+      if (betweenYouAndIFormEnabled) {
+        betweenYouAndIProjector.toggleHelpers()
       }
       if (couplingProjector) {
         couplingProjector.toggleHelpers()
@@ -236,8 +227,8 @@ const main = async () => {
       leavingProjectorLeft.update()
       leavingProjectorRight.update()
     }
-    if (faceToFaceIIFormEnabled) {
-      faceToFaceIIProjector.update()
+    if (betweenYouAndIFormEnabled) {
+      betweenYouAndIProjector.update()
     }
     if (couplingFormEnabled) {
       couplingProjector.update()
