@@ -52444,7 +52444,7 @@ VertexNormalsHelper.prototype.update = function () {
 /*!**************************!*\
   !*** ./src/constants.js ***!
   \**************************/
-/*! exports provided: LEFT_FORM_CX, RIGHT_FORM_CX, PROJECTOR_CY, PROJECTOR_R, SCREEN_IMAGE_CY, SCREEN_IMAGE_RX, SCREEN_IMAGE_RY, SCREEN_IMAGE_LINE_THICKNESS, MEMBRANE_LENGTH, LEFT, RIGHT, HIGH_INTENSITY_SPOTLIGHT, LOW_INTENSITY_SPOTLIGHT */
+/*! exports provided: LEFT_FORM_CX, RIGHT_FORM_CX, PROJECTOR_CY, PROJECTOR_R, SCREEN_IMAGE_CY, SCREEN_IMAGE_RX, SCREEN_IMAGE_RY, SCREEN_IMAGE_LINE_THICKNESS, MEMBRANE_LENGTH, LEFT, RIGHT, PI, TWO_PI, HALF_PI */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -52460,8 +52460,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "MEMBRANE_LENGTH", function() { return MEMBRANE_LENGTH; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "LEFT", function() { return LEFT; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "RIGHT", function() { return RIGHT; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "HIGH_INTENSITY_SPOTLIGHT", function() { return HIGH_INTENSITY_SPOTLIGHT; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "LOW_INTENSITY_SPOTLIGHT", function() { return LOW_INTENSITY_SPOTLIGHT; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "PI", function() { return PI; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "TWO_PI", function() { return TWO_PI; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "HALF_PI", function() { return HALF_PI; });
 const LEFT_FORM_CX = -3.5
 const RIGHT_FORM_CX = -LEFT_FORM_CX
 
@@ -52478,178 +52479,25 @@ const MEMBRANE_LENGTH = 12
 const LEFT = Symbol('LEFT')
 const RIGHT = Symbol('RIGHT')
 
-const HIGH_INTENSITY_SPOTLIGHT = Symbol('HIGH_INTENSITY_SPOTLIGHT')
-const LOW_INTENSITY_SPOTLIGHT = Symbol('LOW_INTENSITY_SPOTLIGHT')
+const PI = Math.PI
+const TWO_PI = PI * 2
+const HALF_PI = PI / 2
 
 
 /***/ }),
 
-/***/ "./src/ellipse-curve.js":
-/*!******************************!*\
-  !*** ./src/ellipse-curve.js ***!
-  \******************************/
-/*! exports provided: EllipseCurve */
+/***/ "./src/forms/between-you-and-i.js":
+/*!****************************************!*\
+  !*** ./src/forms/between-you-and-i.js ***!
+  \****************************************/
+/*! exports provided: BetweenYouAndIForm */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "EllipseCurve", function() { return EllipseCurve; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "BetweenYouAndIForm", function() { return BetweenYouAndIForm; });
 /* harmony import */ var three__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
-/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./utils */ "./src/utils.js");
-
-
-
-// I'm using my own code to calculate points on an elliptical curve that
-// assumes a clockwise direction. I found that I was having to fight against
-// THREE.EllipseCurve due to negative start/end angles etc.
-class EllipseCurve {
-
-  constructor(cx, cy, rx, ry) {
-    this.cx = cx
-    this.cy = cy
-    this.rx = rx
-    this.ry = ry
-  }
-
-  getPoint(angle) {
-    const x = this.cx - this.rx * Math.cos(angle)
-    const y = this.cy + this.ry * Math.sin(angle)
-    return new three__WEBPACK_IMPORTED_MODULE_0__["Vector2"](x, y)
-  }
-
-  getPoints(startAngle, endAngle, divisions) {
-    const deltaAngle = endAngle - startAngle
-    return _utils__WEBPACK_IMPORTED_MODULE_1__["range"](divisions + 1).map(index => {
-      const t = index / divisions
-      const angle = startAngle + t * deltaAngle
-      return this.getPoint(angle)
-    })
-  }
-}
-
-
-/***/ }),
-
-/***/ "./src/forms/coupling-form.js":
-/*!************************************!*\
-  !*** ./src/forms/coupling-form.js ***!
-  \************************************/
-/*! exports provided: CouplingForm */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "CouplingForm", function() { return CouplingForm; });
-/* harmony import */ var three__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
-/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../utils */ "./src/utils.js");
-/* harmony import */ var _constants__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../constants */ "./src/constants.js");
-
-
-
-
-const TWO_PI = Math.PI * 2
-const HALF_PI = Math.PI / 2
-
-// https://www.ericforman.com/anthony-mccall-solid-light#6
-// https://www.ericforman.com/anthony-mccall-solid-light#7
-// https://www.ericforman.com/blog/making-of-solid-light-for-anthony-mccall
-
-class CircleWave {
-
-  // R = distance from circle center to middle of wave; 0 ≤ R < ∞
-  // A = amplitude of circle wave; 0 < A < ∞
-  // F = number of wavelengths per circumference; F = 1, 2, 3, …
-  // S = speed of rotation of circle wave; 0 ≤ S < ∞
-  // f = frequency of circle wave oscillation; 0 ≤ f < ∞
-  // Φ = phase of circle wave rotation; 0 ≤ Φ < 2π
-  // φ = phase of circle wave oscillation; 0 ≤ φ < 2π
-  constructor(R, A, F, S, f, rotationPhase, oscillationPhase) {
-    this.R = R
-    this.A = A
-    this.F = F
-    this.S = S
-    this.f = f
-    this.rotationPhase = rotationPhase
-    this.oscillationPhase = oscillationPhase
-  }
-
-  // θ = radial angle to a point on the circle wave; 0 ≤ θ < ∞
-  // t = time; 0 ≤ t < ∞
-
-  // ω(θ, t) := A · sin(F · θ + S · t + Φ) · cos(f · t + φ)
-  omega(theta, t) {
-    return (
-      this.A *
-      Math.sin(this.F * theta + this.S * t + this.rotationPhase) *
-      Math.cos(this.f * t + this.oscillationPhase)
-    )
-  }
-
-  // Cx(θ, t) := (R + ω(θ, t)) · cos(θ)
-  // Cy(θ, t) := (R + ω(θ, t)) · sin(θ)
-  getPoint(theta, t) {
-    const adjustedR = this.R + this.omega(theta, t)
-    const cx = adjustedR * Math.cos(theta)
-    const cy = adjustedR * Math.sin(theta)
-    return new three__WEBPACK_IMPORTED_MODULE_0__["Vector2"](cx, 3 + cy)
-  }
-
-  getPoints(divisions, t) {
-    const deltaAngle = TWO_PI / divisions
-    return _utils__WEBPACK_IMPORTED_MODULE_1__["range"](divisions + 1).map(index => {
-      const theta = deltaAngle * index
-      return this.getPoint(theta, t)
-    })
-  }
-}
-
-const CIRCLE_WAVE_POINT_COUNT = 200
-
-class CouplingForm {
-
-  constructor(isProjector) {
-    this.isProjector = isProjector
-    if (isProjector) {
-      const point = new three__WEBPACK_IMPORTED_MODULE_0__["Vector2"](0, _constants__WEBPACK_IMPORTED_MODULE_2__["PROJECTOR_CY"] * 4)
-      this.points = [
-        _utils__WEBPACK_IMPORTED_MODULE_1__["repeat"](CIRCLE_WAVE_POINT_COUNT + 1, point),
-        _utils__WEBPACK_IMPORTED_MODULE_1__["repeat"](CIRCLE_WAVE_POINT_COUNT + 1, point)
-      ]
-    } else {
-      this.circleWaveOuter = new CircleWave(2, 0.4, 3.5, 0.01, 0.01, 0, 0)
-      this.circleWaveInner = new CircleWave(1, 0.4, 3.5, 0.01, 0.01, HALF_PI, 0)
-      this.tick = 0
-    }
-  }
-
-  getUpdatedPoints() {
-    if (this.isProjector) {
-      return this.points
-    }
-    const points = [
-      this.circleWaveOuter.getPoints(CIRCLE_WAVE_POINT_COUNT, this.tick),
-      this.circleWaveInner.getPoints(CIRCLE_WAVE_POINT_COUNT, this.tick)
-    ]
-    this.tick++
-    return points
-  }
-}
-
-
-/***/ }),
-
-/***/ "./src/forms/face-to-face-ii-form.js":
-/*!*******************************************!*\
-  !*** ./src/forms/face-to-face-ii-form.js ***!
-  \*******************************************/
-/*! exports provided: FaceToFaceIIForm */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "FaceToFaceIIForm", function() { return FaceToFaceIIForm; });
-/* harmony import */ var three__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
-/* harmony import */ var _ellipse_curve__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../ellipse-curve */ "./src/ellipse-curve.js");
+/* harmony import */ var _syntax_ellipse_curve__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../syntax/ellipse-curve */ "./src/syntax/ellipse-curve.js");
 /* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../utils */ "./src/utils.js");
 /* harmony import */ var _constants__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../constants */ "./src/constants.js");
 
@@ -52660,7 +52508,7 @@ __webpack_require__.r(__webpack_exports__);
 const ELLIPSE_POINT_COUNT = 50
 const WAVE_POINT_COUNT = 50
 
-class FaceToFaceIIForm {
+class BetweenYouAndIForm {
 
   constructor(isProjector) {
     this.pointsArray = [
@@ -52674,16 +52522,16 @@ class FaceToFaceIIForm {
     if (isProjector) {
       return _utils__WEBPACK_IMPORTED_MODULE_2__["repeat"](ELLIPSE_POINT_COUNT + 1, new three__WEBPACK_IMPORTED_MODULE_0__["Vector2"](0, _constants__WEBPACK_IMPORTED_MODULE_3__["PROJECTOR_CY"] * 4))
     }
-    const ellipseCurve = new _ellipse_curve__WEBPACK_IMPORTED_MODULE_1__["EllipseCurve"](0, 2, 3.2, 2)
-    return ellipseCurve.getPoints(-Math.PI / 2, Math.PI / 2, ELLIPSE_POINT_COUNT)
+    const ellipseCurve = new _syntax_ellipse_curve__WEBPACK_IMPORTED_MODULE_1__["EllipseCurve"](0, 2, 3.2, 2)
+    return ellipseCurve.getPoints(-_constants__WEBPACK_IMPORTED_MODULE_3__["HALF_PI"], _constants__WEBPACK_IMPORTED_MODULE_3__["HALF_PI"], ELLIPSE_POINT_COUNT)
   }
 
   createWave(isProjector) {
     if (isProjector) {
       return _utils__WEBPACK_IMPORTED_MODULE_2__["repeat"](WAVE_POINT_COUNT + 1, new three__WEBPACK_IMPORTED_MODULE_0__["Vector2"](0, _constants__WEBPACK_IMPORTED_MODULE_3__["PROJECTOR_CY"] * 4))
     }
-    const startAngle = Math.PI / 180 * 20
-    const endAngle = Math.PI / 180 * 250
+    const startAngle = _constants__WEBPACK_IMPORTED_MODULE_3__["PI"] / 180 * 20
+    const endAngle = _constants__WEBPACK_IMPORTED_MODULE_3__["PI"] / 180 * 250
     const dx = 6 / WAVE_POINT_COUNT
     const deltaAngle = (endAngle - startAngle) / WAVE_POINT_COUNT
     return _utils__WEBPACK_IMPORTED_MODULE_2__["range"](WAVE_POINT_COUNT + 1).map(n => {
@@ -52709,10 +52557,68 @@ class FaceToFaceIIForm {
 
 /***/ }),
 
-/***/ "./src/forms/leaving-form.js":
-/*!***********************************!*\
-  !*** ./src/forms/leaving-form.js ***!
-  \***********************************/
+/***/ "./src/forms/coupling.js":
+/*!*******************************!*\
+  !*** ./src/forms/coupling.js ***!
+  \*******************************/
+/*! exports provided: CouplingForm */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "CouplingForm", function() { return CouplingForm; });
+/* harmony import */ var three__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
+/* harmony import */ var _syntax_circle_wave__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../syntax/circle-wave */ "./src/syntax/circle-wave.js");
+/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../utils */ "./src/utils.js");
+/* harmony import */ var _constants__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../constants */ "./src/constants.js");
+
+
+
+
+
+// https://www.ericforman.com/anthony-mccall-solid-light#6
+// https://www.ericforman.com/anthony-mccall-solid-light#7
+// https://www.ericforman.com/blog/making-of-solid-light-for-anthony-mccall
+
+const CIRCLE_WAVE_POINT_COUNT = 200
+
+class CouplingForm {
+
+  constructor(isProjector) {
+    this.isProjector = isProjector
+    if (isProjector) {
+      const point = new three__WEBPACK_IMPORTED_MODULE_0__["Vector2"](0, _constants__WEBPACK_IMPORTED_MODULE_3__["PROJECTOR_CY"] * 4)
+      this.points = [
+        _utils__WEBPACK_IMPORTED_MODULE_2__["repeat"](CIRCLE_WAVE_POINT_COUNT + 1, point),
+        _utils__WEBPACK_IMPORTED_MODULE_2__["repeat"](CIRCLE_WAVE_POINT_COUNT + 1, point)
+      ]
+    } else {
+      this.circleWaveOuter = new _syntax_circle_wave__WEBPACK_IMPORTED_MODULE_1__["CircleWave"](2, 0.4, 3.5, 0.01, 0.01, 0, 0)
+      this.circleWaveInner = new _syntax_circle_wave__WEBPACK_IMPORTED_MODULE_1__["CircleWave"](1, 0.4, 3.5, 0.01, 0.01, _constants__WEBPACK_IMPORTED_MODULE_3__["HALF_PI"], 0)
+      this.tick = 0
+    }
+  }
+
+  getUpdatedPoints() {
+    if (this.isProjector) {
+      return this.points
+    }
+    const points = [
+      this.circleWaveOuter.getPoints(CIRCLE_WAVE_POINT_COUNT, this.tick),
+      this.circleWaveInner.getPoints(CIRCLE_WAVE_POINT_COUNT, this.tick)
+    ]
+    this.tick++
+    return points
+  }
+}
+
+
+/***/ }),
+
+/***/ "./src/forms/leaving.js":
+/*!******************************!*\
+  !*** ./src/forms/leaving.js ***!
+  \******************************/
 /*! exports provided: setSpeed, LeavingForm */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
@@ -52721,22 +52627,21 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "setSpeed", function() { return setSpeed; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "LeavingForm", function() { return LeavingForm; });
 /* harmony import */ var three__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
-/* harmony import */ var _ellipse_curve__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../ellipse-curve */ "./src/ellipse-curve.js");
+/* harmony import */ var _syntax_ellipse_curve__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../syntax/ellipse-curve */ "./src/syntax/ellipse-curve.js");
 /* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../utils */ "./src/utils.js");
+/* harmony import */ var _constants__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../constants */ "./src/constants.js");
+
 
 
 
 
 const ELLIPSE_POINT_COUNT = 100
 const WIPE_POINT_COUNT = 50
-const ROTATION_DELTA = Math.PI / (180 * 60)
-const DELTA_ANGLE = 15 * Math.PI / 180
-const ANGLE_OFFSET_THRESHOLD = 45 * Math.PI / 180
-
-const TWO_PI = Math.PI * 2
-const HALF_PI = Math.PI / 2
-const REVOLUTION_START = -HALF_PI
-const REVOLUTION_END = REVOLUTION_START + TWO_PI
+const ROTATION_DELTA = _constants__WEBPACK_IMPORTED_MODULE_3__["PI"] / (180 * 60)
+const DELTA_ANGLE = 15 * _constants__WEBPACK_IMPORTED_MODULE_3__["PI"] / 180
+const ANGLE_OFFSET_THRESHOLD = 45 * _constants__WEBPACK_IMPORTED_MODULE_3__["PI"] / 180
+const REVOLUTION_START = -_constants__WEBPACK_IMPORTED_MODULE_3__["HALF_PI"]
+const REVOLUTION_END = REVOLUTION_START + _constants__WEBPACK_IMPORTED_MODULE_3__["TWO_PI"]
 
 let currentRotationDelta = ROTATION_DELTA
 
@@ -52752,12 +52657,12 @@ class LeavingForm {
     this.rx = rx
     this.ry = ry
     this.reset(isInitiallyGrowing)
-    this.ellipseCurve = new _ellipse_curve__WEBPACK_IMPORTED_MODULE_1__["EllipseCurve"](cx, cy, rx, ry)
+    this.ellipseCurve = new _syntax_ellipse_curve__WEBPACK_IMPORTED_MODULE_1__["EllipseCurve"](cx, cy, rx, ry)
     this.wipeCurve = new three__WEBPACK_IMPORTED_MODULE_0__["CubicBezierCurve"]()
   }
 
   calculateSinusoidalDampingFactor(angle) {
-    const dampingFactor = Math.pow(3 + (1 - Math.sin(angle % Math.PI)) * 5, 2)
+    const dampingFactor = Math.pow(3 + (1 - Math.sin(angle % _constants__WEBPACK_IMPORTED_MODULE_3__["PI"])) * 5, 2)
     // console.log(`angle: ${angle}; dampingFactor: ${dampingFactor}`)
     return dampingFactor
   }
@@ -52765,9 +52670,9 @@ class LeavingForm {
   getCurrentAngle() {
     const offsetFromStartAngle = currentRotationDelta * this.tick
     const baseAngle = REVOLUTION_START + offsetFromStartAngle
-    const totalTicks = TWO_PI / currentRotationDelta
+    const totalTicks = _constants__WEBPACK_IMPORTED_MODULE_3__["TWO_PI"] / currentRotationDelta
     const sinWaveTicks = totalTicks / 48
-    const x = TWO_PI * (this.tick % sinWaveTicks) / sinWaveTicks
+    const x = _constants__WEBPACK_IMPORTED_MODULE_3__["TWO_PI"] * (this.tick % sinWaveTicks) / sinWaveTicks
     const sinx = Math.sin(x)
     const sinusoidalDampingFactor = this.calculateSinusoidalDampingFactor(offsetFromStartAngle)
     const sinusoidalOffset = sinx / sinusoidalDampingFactor
@@ -52779,7 +52684,7 @@ class LeavingForm {
   getWipeControlPoints(currentAngle) {
     const startAngle = REVOLUTION_START
     const angleOffset = Math.abs(currentAngle - startAngle)
-    const angleOffset2 = angleOffset < Math.PI ? angleOffset : TWO_PI - angleOffset
+    const angleOffset2 = angleOffset < _constants__WEBPACK_IMPORTED_MODULE_3__["PI"] ? angleOffset : _constants__WEBPACK_IMPORTED_MODULE_3__["TWO_PI"] - angleOffset
     const normalisingFactor = 1 / ANGLE_OFFSET_THRESHOLD
     const alpha = angleOffset2 > ANGLE_OFFSET_THRESHOLD ? 1.0 : (angleOffset2 * normalisingFactor)
     const deltaAngle1 = currentAngle - DELTA_ANGLE * alpha
@@ -52867,9 +52772,9 @@ class LeavingForm {
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var three__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
 /* harmony import */ var three_examples_jsm_controls_OrbitControls__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! three/examples/jsm/controls/OrbitControls */ "./node_modules/three/examples/jsm/controls/OrbitControls.js");
-/* harmony import */ var _forms_leaving_form__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./forms/leaving-form */ "./src/forms/leaving-form.js");
-/* harmony import */ var _forms_face_to_face_ii_form__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./forms/face-to-face-ii-form */ "./src/forms/face-to-face-ii-form.js");
-/* harmony import */ var _forms_coupling_form__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./forms/coupling-form */ "./src/forms/coupling-form.js");
+/* harmony import */ var _forms_leaving__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./forms/leaving */ "./src/forms/leaving.js");
+/* harmony import */ var _forms_between_you_and_i__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./forms/between-you-and-i */ "./src/forms/between-you-and-i.js");
+/* harmony import */ var _forms_coupling__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./forms/coupling */ "./src/forms/coupling.js");
 /* harmony import */ var _projector__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./projector */ "./src/projector.js");
 /* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./utils */ "./src/utils.js");
 /* harmony import */ var _constants__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./constants */ "./src/constants.js");
@@ -52879,12 +52784,11 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-// import { addSpotLights, toggleSpotLightHelpers } from './spotlights'
 
 
 
 const leavingFormEnabled = false
-const faceToFaceIIFormEnabled = false
+const betweenYouAndIFormEnabled = false
 const couplingFormEnabled = true
 
 const FAVOURITE_POSITIONS = [
@@ -52950,10 +52854,6 @@ const main = async () => {
 
   let axesHelper = undefined
 
-  // addSpotLights(scene, C.CENTRE_P_Y, C.CENTRE_Q_Y, C.HIGH_INTENSITY_SPOTLIGHT)
-  // addSpotLights(scene, 0, C.CENTRE_Q_Y, C.LOW_INTENSITY_SPOTLIGHT)
-  // addSpotLights(scene, C.CENTRE_P_Y * 2, C.CENTRE_Q_Y, C.LOW_INTENSITY_SPOTLIGHT)
-
   const hazeTexture = await _utils__WEBPACK_IMPORTED_MODULE_6__["loadTexture"]('haze.jpg')
   const projectorLensTexture = await _utils__WEBPACK_IMPORTED_MODULE_6__["loadTexture"]('projector-lens.png')
 
@@ -52962,32 +52862,32 @@ const main = async () => {
 
   let leavingProjectorLeft
   let leavingProjectorRight
-  let faceToFaceIIProjector
+  let betweenYouAndIProjector
   let couplingProjector
 
   if (leavingFormEnabled) {
-    const leavingProjectorFormLeft = new _forms_leaving_form__WEBPACK_IMPORTED_MODULE_2__["LeavingForm"](
+    const leavingProjectorFormLeft = new _forms_leaving__WEBPACK_IMPORTED_MODULE_2__["LeavingForm"](
       _constants__WEBPACK_IMPORTED_MODULE_7__["LEFT_FORM_CX"],
       _constants__WEBPACK_IMPORTED_MODULE_7__["PROJECTOR_CY"],
       _constants__WEBPACK_IMPORTED_MODULE_7__["PROJECTOR_R"],
       _constants__WEBPACK_IMPORTED_MODULE_7__["PROJECTOR_R"],
       true)
 
-    const leavingScreenFormLeft = new _forms_leaving_form__WEBPACK_IMPORTED_MODULE_2__["LeavingForm"](
+    const leavingScreenFormLeft = new _forms_leaving__WEBPACK_IMPORTED_MODULE_2__["LeavingForm"](
       _constants__WEBPACK_IMPORTED_MODULE_7__["LEFT_FORM_CX"],
       _constants__WEBPACK_IMPORTED_MODULE_7__["SCREEN_IMAGE_CY"],
       _constants__WEBPACK_IMPORTED_MODULE_7__["SCREEN_IMAGE_RX"],
       _constants__WEBPACK_IMPORTED_MODULE_7__["SCREEN_IMAGE_RY"],
       true)
 
-    const leavingProjectorFormRight = new _forms_leaving_form__WEBPACK_IMPORTED_MODULE_2__["LeavingForm"](
+    const leavingProjectorFormRight = new _forms_leaving__WEBPACK_IMPORTED_MODULE_2__["LeavingForm"](
       _constants__WEBPACK_IMPORTED_MODULE_7__["RIGHT_FORM_CX"],
       _constants__WEBPACK_IMPORTED_MODULE_7__["PROJECTOR_CY"],
       _constants__WEBPACK_IMPORTED_MODULE_7__["PROJECTOR_R"],
       _constants__WEBPACK_IMPORTED_MODULE_7__["PROJECTOR_R"],
       false)
 
-    const leavingScreenFormRight = new _forms_leaving_form__WEBPACK_IMPORTED_MODULE_2__["LeavingForm"](
+    const leavingScreenFormRight = new _forms_leaving__WEBPACK_IMPORTED_MODULE_2__["LeavingForm"](
       _constants__WEBPACK_IMPORTED_MODULE_7__["RIGHT_FORM_CX"],
       _constants__WEBPACK_IMPORTED_MODULE_7__["SCREEN_IMAGE_CY"],
       _constants__WEBPACK_IMPORTED_MODULE_7__["SCREEN_IMAGE_RX"],
@@ -53013,12 +52913,12 @@ const main = async () => {
       makeProjectorPosition(_constants__WEBPACK_IMPORTED_MODULE_7__["RIGHT_FORM_CX"]))
   }
 
-  if (faceToFaceIIFormEnabled) {
-    const faceToFaceIIProjectorForm = new _forms_face_to_face_ii_form__WEBPACK_IMPORTED_MODULE_3__["FaceToFaceIIForm"](true)
-    const faceToFaceIIScreenForm = new _forms_face_to_face_ii_form__WEBPACK_IMPORTED_MODULE_3__["FaceToFaceIIForm"](false)
-    faceToFaceIIProjector = new _projector__WEBPACK_IMPORTED_MODULE_5__["Projector"](
-      faceToFaceIIProjectorForm,
-      faceToFaceIIScreenForm,
+  if (betweenYouAndIFormEnabled) {
+    const betweenYouAndIProjectorForm = new _forms_between_you_and_i__WEBPACK_IMPORTED_MODULE_3__["BetweenYouAndIForm"](true)
+    const betweenYouAndIScreenForm = new _forms_between_you_and_i__WEBPACK_IMPORTED_MODULE_3__["BetweenYouAndIForm"](false)
+    betweenYouAndIProjector = new _projector__WEBPACK_IMPORTED_MODULE_5__["Projector"](
+      betweenYouAndIProjectorForm,
+      betweenYouAndIScreenForm,
       3,
       scene,
       hazeTexture,
@@ -53027,8 +52927,8 @@ const main = async () => {
   }
 
   if (couplingFormEnabled) {
-    const couplingProjectorForm = new _forms_coupling_form__WEBPACK_IMPORTED_MODULE_4__["CouplingForm"](true)
-    const couplingScreenForm = new _forms_coupling_form__WEBPACK_IMPORTED_MODULE_4__["CouplingForm"](false)
+    const couplingProjectorForm = new _forms_coupling__WEBPACK_IMPORTED_MODULE_4__["CouplingForm"](true)
+    const couplingScreenForm = new _forms_coupling__WEBPACK_IMPORTED_MODULE_4__["CouplingForm"](false)
     couplingProjector = new _projector__WEBPACK_IMPORTED_MODULE_5__["Projector"](
       couplingProjectorForm,
       couplingScreenForm,
@@ -53073,17 +52973,13 @@ const main = async () => {
       controls.autoRotate = !controls.autoRotate
     }
 
-    // if (ev.key === 's') {
-    //   toggleSpotLightHelpers(scene)
-    // }
-
     if (e.key === 'v') {
       if (leavingFormEnabled) {
         leavingProjectorLeft.toggleHelpers()
         leavingProjectorRight.toggleHelpers()
       }
-      if (faceToFaceIIFormEnabled) {
-        faceToFaceIIProjector.toggleHelpers()
+      if (betweenYouAndIFormEnabled) {
+        betweenYouAndIProjector.toggleHelpers()
       }
       if (couplingProjector) {
         couplingProjector.toggleHelpers()
@@ -53091,16 +52987,16 @@ const main = async () => {
     }
 
     if (e.key === '1') {
-      Object(_forms_leaving_form__WEBPACK_IMPORTED_MODULE_2__["setSpeed"])(1)
+      Object(_forms_leaving__WEBPACK_IMPORTED_MODULE_2__["setSpeed"])(1)
     }
     if (e.key === '2') {
-      Object(_forms_leaving_form__WEBPACK_IMPORTED_MODULE_2__["setSpeed"])(2)
+      Object(_forms_leaving__WEBPACK_IMPORTED_MODULE_2__["setSpeed"])(2)
     }
     if (e.key === '3') {
-      Object(_forms_leaving_form__WEBPACK_IMPORTED_MODULE_2__["setSpeed"])(5)
+      Object(_forms_leaving__WEBPACK_IMPORTED_MODULE_2__["setSpeed"])(5)
     }
     if (e.key === '4') {
-      Object(_forms_leaving_form__WEBPACK_IMPORTED_MODULE_2__["setSpeed"])(10)
+      Object(_forms_leaving__WEBPACK_IMPORTED_MODULE_2__["setSpeed"])(10)
     }
   }
 
@@ -53111,8 +53007,8 @@ const main = async () => {
       leavingProjectorLeft.update()
       leavingProjectorRight.update()
     }
-    if (faceToFaceIIFormEnabled) {
-      faceToFaceIIProjector.update()
+    if (betweenYouAndIFormEnabled) {
+      betweenYouAndIProjector.update()
     }
     if (couplingFormEnabled) {
       couplingProjector.update()
@@ -53501,6 +53397,125 @@ module.exports = "uniform sampler2D hazeTexture;\nvarying vec3 vPosition;\nvaryi
 /***/ (function(module, exports) {
 
 module.exports = "uniform sampler2D hazeTexture;\nuniform vec3 projectorPosition;\nvarying vec3 vPosition;\nvarying vec3 vNormal;\nvarying vec2 vUv;\nvarying vec3 vProjectorPosition;\n\nvoid main() {\n  vPosition = (modelViewMatrix * vec4(position, 1.0)).xyz;\n  vNormal = normalize(normalMatrix * normal);\n  vUv = uv;\n  vProjectorPosition = (modelViewMatrix * vec4(projectorPosition, 1.0)).xyz;\n  gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);\n}\n"
+
+/***/ }),
+
+/***/ "./src/syntax/circle-wave.js":
+/*!***********************************!*\
+  !*** ./src/syntax/circle-wave.js ***!
+  \***********************************/
+/*! exports provided: CircleWave */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "CircleWave", function() { return CircleWave; });
+/* harmony import */ var three__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
+/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../utils */ "./src/utils.js");
+/* harmony import */ var _constants__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../constants */ "./src/constants.js");
+
+
+
+
+// https://www.ericforman.com/anthony-mccall-solid-light#6
+// https://www.ericforman.com/anthony-mccall-solid-light#7
+// https://www.ericforman.com/blog/making-of-solid-light-for-anthony-mccall
+
+class CircleWave {
+
+  // R = distance from circle center to middle of wave; 0 ≤ R < ∞
+  // A = amplitude of circle wave; 0 < A < ∞
+  // F = number of wavelengths per circumference; F = 1, 2, 3, …
+  // S = speed of rotation of circle wave; 0 ≤ S < ∞
+  // f = frequency of circle wave oscillation; 0 ≤ f < ∞
+  // Φ = phase of circle wave rotation; 0 ≤ Φ < 2π
+  // φ = phase of circle wave oscillation; 0 ≤ φ < 2π
+  constructor(R, A, F, S, f, rotationPhase, oscillationPhase) {
+    this.R = R
+    this.A = A
+    this.F = F
+    this.S = S
+    this.f = f
+    this.rotationPhase = rotationPhase
+    this.oscillationPhase = oscillationPhase
+  }
+
+  // θ = radial angle to a point on the circle wave; 0 ≤ θ < ∞
+  // t = time; 0 ≤ t < ∞
+
+  // ω(θ, t) := A · sin(F · θ + S · t + Φ) · cos(f · t + φ)
+  omega(theta, t) {
+    return (
+      this.A *
+      Math.sin(this.F * theta + this.S * t + this.rotationPhase) *
+      Math.cos(this.f * t + this.oscillationPhase)
+    )
+  }
+
+  // Cx(θ, t) := (R + ω(θ, t)) · cos(θ)
+  // Cy(θ, t) := (R + ω(θ, t)) · sin(θ)
+  getPoint(theta, t) {
+    const adjustedR = this.R + this.omega(theta, t)
+    const cx = adjustedR * Math.cos(theta)
+    const cy = adjustedR * Math.sin(theta)
+    return new three__WEBPACK_IMPORTED_MODULE_0__["Vector2"](cx, 3 + cy)
+  }
+
+  getPoints(divisions, t) {
+    const deltaAngle = _constants__WEBPACK_IMPORTED_MODULE_2__["TWO_PI"] / divisions
+    return _utils__WEBPACK_IMPORTED_MODULE_1__["range"](divisions + 1).map(index => {
+      const theta = deltaAngle * index
+      return this.getPoint(theta, t)
+    })
+  }
+}
+
+
+/***/ }),
+
+/***/ "./src/syntax/ellipse-curve.js":
+/*!*************************************!*\
+  !*** ./src/syntax/ellipse-curve.js ***!
+  \*************************************/
+/*! exports provided: EllipseCurve */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "EllipseCurve", function() { return EllipseCurve; });
+/* harmony import */ var three__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
+/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../utils */ "./src/utils.js");
+
+
+
+// I'm using my own code to calculate points on an elliptical curve that
+// assumes a clockwise direction. I found that I was having to fight against
+// THREE.EllipseCurve due to negative start/end angles etc.
+class EllipseCurve {
+
+  constructor(cx, cy, rx, ry) {
+    this.cx = cx
+    this.cy = cy
+    this.rx = rx
+    this.ry = ry
+  }
+
+  getPoint(angle) {
+    const x = this.cx - this.rx * Math.cos(angle)
+    const y = this.cy + this.ry * Math.sin(angle)
+    return new three__WEBPACK_IMPORTED_MODULE_0__["Vector2"](x, y)
+  }
+
+  getPoints(startAngle, endAngle, divisions) {
+    const deltaAngle = endAngle - startAngle
+    return _utils__WEBPACK_IMPORTED_MODULE_1__["range"](divisions + 1).map(index => {
+      const t = index / divisions
+      const angle = startAngle + t * deltaAngle
+      return this.getPoint(angle)
+    })
+  }
+}
+
 
 /***/ }),
 
