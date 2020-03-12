@@ -52497,56 +52497,59 @@ const HALF_PI = PI / 2
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "BetweenYouAndIForm", function() { return BetweenYouAndIForm; });
 /* harmony import */ var three__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
-/* harmony import */ var _syntax_ellipse_curve__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../syntax/ellipse-curve */ "./src/syntax/ellipse-curve.js");
-/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../utils */ "./src/utils.js");
-/* harmony import */ var _constants__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../constants */ "./src/constants.js");
+/* harmony import */ var _syntax_ellipse__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../syntax/ellipse */ "./src/syntax/ellipse.js");
+/* harmony import */ var _syntax_straight_line__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../syntax/straight-line */ "./src/syntax/straight-line.js");
+/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../utils */ "./src/utils.js");
+/* harmony import */ var _constants__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../constants */ "./src/constants.js");
+
 
 
 
 
 
 const ELLIPSE_POINT_COUNT = 50
-const WAVE_POINT_COUNT = 50
+const TRAVELLING_WAVE_POINT_COUNT = 50
 
 class BetweenYouAndIForm {
 
   constructor(isProjector) {
+    this.projectorCentre = new three__WEBPACK_IMPORTED_MODULE_0__["Vector2"](0, _constants__WEBPACK_IMPORTED_MODULE_4__["PROJECTOR_CY"] * 4)
     this.pointsArray = [
       this.createEllipse(isProjector),
-      this.createWave(isProjector),
-      this.createLine(isProjector)
+      this.createTravellingWave(isProjector),
+      this.createStraightLine(isProjector)
     ]
   }
 
   createEllipse(isProjector) {
     if (isProjector) {
-      return _utils__WEBPACK_IMPORTED_MODULE_2__["repeat"](ELLIPSE_POINT_COUNT + 1, new three__WEBPACK_IMPORTED_MODULE_0__["Vector2"](0, _constants__WEBPACK_IMPORTED_MODULE_3__["PROJECTOR_CY"] * 4))
+      return _utils__WEBPACK_IMPORTED_MODULE_3__["repeat"](ELLIPSE_POINT_COUNT + 1, this.projectorCentre)
     }
-    const ellipseCurve = new _syntax_ellipse_curve__WEBPACK_IMPORTED_MODULE_1__["EllipseCurve"](0, 2, 3.2, 2)
-    return ellipseCurve.getPoints(-_constants__WEBPACK_IMPORTED_MODULE_3__["HALF_PI"], _constants__WEBPACK_IMPORTED_MODULE_3__["HALF_PI"], ELLIPSE_POINT_COUNT)
+    const ellipse = new _syntax_ellipse__WEBPACK_IMPORTED_MODULE_1__["Ellipse"](0, 2, 3.2, 2)
+    return ellipse.getPoints(-_constants__WEBPACK_IMPORTED_MODULE_4__["HALF_PI"], _constants__WEBPACK_IMPORTED_MODULE_4__["HALF_PI"], ELLIPSE_POINT_COUNT)
   }
 
-  createWave(isProjector) {
+  createTravellingWave(isProjector) {
     if (isProjector) {
-      return _utils__WEBPACK_IMPORTED_MODULE_2__["repeat"](WAVE_POINT_COUNT + 1, new three__WEBPACK_IMPORTED_MODULE_0__["Vector2"](0, _constants__WEBPACK_IMPORTED_MODULE_3__["PROJECTOR_CY"] * 4))
+      return _utils__WEBPACK_IMPORTED_MODULE_3__["repeat"](TRAVELLING_WAVE_POINT_COUNT + 1, this.projectorCentre)
     }
-    const startAngle = _constants__WEBPACK_IMPORTED_MODULE_3__["PI"] / 180 * 20
-    const endAngle = _constants__WEBPACK_IMPORTED_MODULE_3__["PI"] / 180 * 250
-    const dx = 6 / WAVE_POINT_COUNT
-    const deltaAngle = (endAngle - startAngle) / WAVE_POINT_COUNT
-    return _utils__WEBPACK_IMPORTED_MODULE_2__["range"](WAVE_POINT_COUNT + 1).map(n => {
+    const startAngle = _constants__WEBPACK_IMPORTED_MODULE_4__["PI"] / 180 * 20
+    const endAngle = _constants__WEBPACK_IMPORTED_MODULE_4__["PI"] / 180 * 250
+    const dx = 6 / TRAVELLING_WAVE_POINT_COUNT
+    const deltaAngle = (endAngle - startAngle) / TRAVELLING_WAVE_POINT_COUNT
+    return _utils__WEBPACK_IMPORTED_MODULE_3__["range"](TRAVELLING_WAVE_POINT_COUNT + 1).map(n => {
       return new three__WEBPACK_IMPORTED_MODULE_0__["Vector2"](0 + n * dx, 2.4 + Math.cos(startAngle + n * deltaAngle) * 2.4)
     })
   }
 
-  createLine(isProjector) {
+  createStraightLine(isProjector) {
     if (isProjector) {
-      return _utils__WEBPACK_IMPORTED_MODULE_2__["repeat"](2, new three__WEBPACK_IMPORTED_MODULE_0__["Vector2"](0, _constants__WEBPACK_IMPORTED_MODULE_3__["PROJECTOR_CY"] * 4))
+      return _utils__WEBPACK_IMPORTED_MODULE_3__["repeat"](2, this.projectorCentre)
     }
-    return [
+    const straightLine = new _syntax_straight_line__WEBPACK_IMPORTED_MODULE_2__["StraightLine"](
       new three__WEBPACK_IMPORTED_MODULE_0__["Vector2"](0, 1.4),
-      new three__WEBPACK_IMPORTED_MODULE_0__["Vector2"](6, 1.2)
-    ]
+      new three__WEBPACK_IMPORTED_MODULE_0__["Vector2"](6, 1.2))
+    return straightLine.getPoints()
   }
 
   getUpdatedPoints() {
@@ -52587,10 +52590,10 @@ class CouplingForm {
   constructor(isProjector) {
     this.isProjector = isProjector
     if (isProjector) {
-      const point = new three__WEBPACK_IMPORTED_MODULE_0__["Vector2"](0, _constants__WEBPACK_IMPORTED_MODULE_3__["PROJECTOR_CY"] * 4)
+      const projectorCentre = new three__WEBPACK_IMPORTED_MODULE_0__["Vector2"](0, _constants__WEBPACK_IMPORTED_MODULE_3__["PROJECTOR_CY"] * 4)
       this.points = [
-        _utils__WEBPACK_IMPORTED_MODULE_2__["repeat"](CIRCLE_WAVE_POINT_COUNT + 1, point),
-        _utils__WEBPACK_IMPORTED_MODULE_2__["repeat"](CIRCLE_WAVE_POINT_COUNT + 1, point)
+        _utils__WEBPACK_IMPORTED_MODULE_2__["repeat"](CIRCLE_WAVE_POINT_COUNT + 1, projectorCentre),
+        _utils__WEBPACK_IMPORTED_MODULE_2__["repeat"](CIRCLE_WAVE_POINT_COUNT + 1, projectorCentre)
       ]
     } else {
       this.circleWaveOuter = new _syntax_circle_wave__WEBPACK_IMPORTED_MODULE_1__["CircleWave"](2, 0.4, 3.5, 0.01, 0.01, 0, 0)
@@ -52627,7 +52630,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "setSpeed", function() { return setSpeed; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "LeavingForm", function() { return LeavingForm; });
 /* harmony import */ var three__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
-/* harmony import */ var _syntax_ellipse_curve__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../syntax/ellipse-curve */ "./src/syntax/ellipse-curve.js");
+/* harmony import */ var _syntax_ellipse__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../syntax/ellipse */ "./src/syntax/ellipse.js");
 /* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../utils */ "./src/utils.js");
 /* harmony import */ var _constants__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../constants */ "./src/constants.js");
 
@@ -52636,7 +52639,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 const ELLIPSE_POINT_COUNT = 100
-const WIPE_POINT_COUNT = 50
+const TRAVELLING_WAVE_POINT_COUNT = 50
 const ROTATION_DELTA = _constants__WEBPACK_IMPORTED_MODULE_3__["PI"] / (180 * 60)
 const DELTA_ANGLE = 15 * _constants__WEBPACK_IMPORTED_MODULE_3__["PI"] / 180
 const ANGLE_OFFSET_THRESHOLD = 45 * _constants__WEBPACK_IMPORTED_MODULE_3__["PI"] / 180
@@ -52657,8 +52660,8 @@ class LeavingForm {
     this.rx = rx
     this.ry = ry
     this.reset(isInitiallyGrowing)
-    this.ellipseCurve = new _syntax_ellipse_curve__WEBPACK_IMPORTED_MODULE_1__["EllipseCurve"](cx, cy, rx, ry)
-    this.wipeCurve = new three__WEBPACK_IMPORTED_MODULE_0__["CubicBezierCurve"]()
+    this.ellipse = new _syntax_ellipse__WEBPACK_IMPORTED_MODULE_1__["Ellipse"](cx, cy, rx, ry)
+    this.travellingWave = new three__WEBPACK_IMPORTED_MODULE_0__["CubicBezierCurve"]()
   }
 
   calculateSinusoidalDampingFactor(angle) {
@@ -52681,7 +52684,7 @@ class LeavingForm {
     return finalAngle
   }
 
-  getWipeControlPoints(currentAngle) {
+  getTravellingWaveControlPoints(currentAngle) {
     const startAngle = REVOLUTION_START
     const angleOffset = Math.abs(currentAngle - startAngle)
     const angleOffset2 = angleOffset < _constants__WEBPACK_IMPORTED_MODULE_3__["PI"] ? angleOffset : _constants__WEBPACK_IMPORTED_MODULE_3__["TWO_PI"] - angleOffset
@@ -52690,9 +52693,9 @@ class LeavingForm {
     const deltaAngle1 = currentAngle - DELTA_ANGLE * alpha
     const deltaAngle2 = currentAngle + DELTA_ANGLE * alpha
     const centrePoint = new three__WEBPACK_IMPORTED_MODULE_0__["Vector2"](this.cx, this.cy)
-    const deltaPoint1 = this.ellipseCurve.getPoint(deltaAngle1)
-    const deltaPoint2 = this.ellipseCurve.getPoint(deltaAngle2)
-    const startingPoint = this.ellipseCurve.getPoint(currentAngle)
+    const deltaPoint1 = this.ellipse.getPoint(deltaAngle1)
+    const deltaPoint2 = this.ellipse.getPoint(deltaAngle2)
+    const startingPoint = this.ellipse.getPoint(currentAngle)
     const endingPoint = startingPoint.clone().lerp(centrePoint, alpha)
     const controlPoint1 = deltaPoint1.lerp(endingPoint, 0.25)
     const controlPoint2 = deltaPoint2.lerp(endingPoint, 0.75)
@@ -52704,28 +52707,28 @@ class LeavingForm {
     }
   }
 
-  combineEllipseAndWipe(ellipsePoints, wipePoints) {
-    const wipePointsTail = wipePoints.slice(1)
+  combineEllipseAndTravellingWave(ellipsePoints, travellingWavePoints) {
+    const travellingWavePointsTail = travellingWavePoints.slice(1)
     return this.growing
-      ? ellipsePoints.concat(wipePointsTail)
-      : wipePointsTail.reverse().concat(ellipsePoints)
+      ? ellipsePoints.concat(travellingWavePointsTail)
+      : travellingWavePointsTail.reverse().concat(ellipsePoints)
   }
 
-  getWipePoints(currentAngle) {
+  getTravellingWavePoints(currentAngle) {
     const {
       startingPoint,
       controlPoint1,
       controlPoint2,
       endingPoint
-    } = this.getWipeControlPoints(currentAngle)
+    } = this.getTravellingWaveControlPoints(currentAngle)
     if (controlPoint1.equals(controlPoint2)) {
-      return _utils__WEBPACK_IMPORTED_MODULE_2__["repeat"](WIPE_POINT_COUNT + 1, startingPoint)
+      return _utils__WEBPACK_IMPORTED_MODULE_2__["repeat"](TRAVELLING_WAVE_POINT_COUNT + 1, startingPoint)
     }
-    this.wipeCurve.v0.copy(startingPoint)
-    this.wipeCurve.v1.copy(controlPoint1)
-    this.wipeCurve.v2.copy(controlPoint2)
-    this.wipeCurve.v3.copy(endingPoint)
-    return this.wipeCurve.getPoints(WIPE_POINT_COUNT)
+    this.travellingWave.v0.copy(startingPoint)
+    this.travellingWave.v1.copy(controlPoint1)
+    this.travellingWave.v2.copy(controlPoint2)
+    this.travellingWave.v3.copy(endingPoint)
+    return this.travellingWave.getPoints(TRAVELLING_WAVE_POINT_COUNT)
   }
 
   getUpdatedPoints() {
@@ -52740,9 +52743,9 @@ class LeavingForm {
     if (revolutionComplete) {
       this.reset(!this.growing)
     }
-    const ellipsePoints = this.ellipseCurve.getPoints(this.startAngle, this.endAngle, ELLIPSE_POINT_COUNT)
-    const wipePoints = this.getWipePoints(currentAngle)
-    return [this.combineEllipseAndWipe(ellipsePoints, wipePoints)]
+    const ellipsePoints = this.ellipse.getPoints(this.startAngle, this.endAngle, ELLIPSE_POINT_COUNT)
+    const travellingWavePoints = this.getTravellingWavePoints(currentAngle)
+    return [this.combineEllipseAndTravellingWave(ellipsePoints, travellingWavePoints)]
   }
 
   reset(growing) {
@@ -52787,8 +52790,8 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const leavingFormEnabled = false
-const betweenYouAndIFormEnabled = false
+const leavingFormEnabled = true
+const betweenYouAndIFormEnabled = true
 const couplingFormEnabled = true
 
 const FAVOURITE_POSITIONS = [
@@ -53473,16 +53476,16 @@ class CircleWave {
 
 /***/ }),
 
-/***/ "./src/syntax/ellipse-curve.js":
-/*!*************************************!*\
-  !*** ./src/syntax/ellipse-curve.js ***!
-  \*************************************/
-/*! exports provided: EllipseCurve */
+/***/ "./src/syntax/ellipse.js":
+/*!*******************************!*\
+  !*** ./src/syntax/ellipse.js ***!
+  \*******************************/
+/*! exports provided: Ellipse */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "EllipseCurve", function() { return EllipseCurve; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Ellipse", function() { return Ellipse; });
 /* harmony import */ var three__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
 /* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../utils */ "./src/utils.js");
 
@@ -53491,7 +53494,7 @@ __webpack_require__.r(__webpack_exports__);
 // I'm using my own code to calculate points on an elliptical curve that
 // assumes a clockwise direction. I found that I was having to fight against
 // THREE.EllipseCurve due to negative start/end angles etc.
-class EllipseCurve {
+class Ellipse {
 
   constructor(cx, cy, rx, ry) {
     this.cx = cx
@@ -53513,6 +53516,34 @@ class EllipseCurve {
       const angle = startAngle + t * deltaAngle
       return this.getPoint(angle)
     })
+  }
+}
+
+
+/***/ }),
+
+/***/ "./src/syntax/straight-line.js":
+/*!*************************************!*\
+  !*** ./src/syntax/straight-line.js ***!
+  \*************************************/
+/*! exports provided: StraightLine */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "StraightLine", function() { return StraightLine; });
+class StraightLine {
+
+  constructor(point1, point2) {
+    this.point1 = point1
+    this.point2 = point2
+  }
+
+  getPoints() {
+    return [
+      this.point1,
+      this.point2
+    ]
   }
 }
 
