@@ -16,13 +16,13 @@ module.exports = {
   },
   plugins: [
     new CopyWebpackPlugin([
-      { context: '.', from: '*.html' },
-      { context: '.', from: '*.css' },
-      { context: './assets', from: '*.jpg' },
-      { context: './assets', from: '*.png' }
+      { context: './src', from: '*.html' },
+      { context: './src', from: '*.css' },
+      { context: './src/assets', from: '*.jpg' },
+      { context: './src/assets', from: '*.png' }
     ]),
     new HtmlWebpackPlugin({
-      template: 'index.html',
+      template: './src/index.html',
       version
     })
   ],
