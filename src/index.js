@@ -3,13 +3,15 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import { LeavingForm, setSpeed } from './forms/leaving'
 import { BetweenYouAndIForm } from './forms/between-you-and-i'
 import { CouplingForm } from './forms/coupling'
+import { DoublingBackForm } from './forms/doubling-back'
 import { Projector } from './projector'
 import * as U from './utils'
 import * as C from './constants'
 
 const leavingFormEnabled = false
 const betweenYouAndIFormEnabled = false
-const couplingFormEnabled = true
+const couplingFormEnabled = false
+const doublingBackFormEnabled = true
 
 const FAVOURITE_POSITIONS = [
   {
@@ -84,6 +86,7 @@ const main = async () => {
   let leavingProjectorRight
   let betweenYouAndIProjector
   let couplingProjector
+  let doublingBackProjector
 
   if (leavingFormEnabled) {
     const leavingProjectorFormLeft = new LeavingForm(
@@ -159,6 +162,19 @@ const main = async () => {
       new THREE.Vector3(0, C.PROJECTOR_CY * 4, C.MEMBRANE_LENGTH))
   }
 
+  if (doublingBackFormEnabled) {
+    const doublingBackProjectorForm = new DoublingBackForm(true)
+    const doublingBackScreenForm = new DoublingBackForm(false)
+    doublingBackProjector = new Projector(
+      doublingBackProjectorForm,
+      doublingBackScreenForm,
+      1,
+      scene,
+      hazeTexture,
+      projectorLensTexture,
+      new THREE.Vector3(0, C.PROJECTOR_CY * 4, C.MEMBRANE_LENGTH))
+  }
+
   window.addEventListener('resize', () => {
     renderer.setSize(container.offsetWidth, container.offsetHeight)
     camera.aspect = container.offsetWidth / container.offsetHeight
@@ -204,6 +220,9 @@ const main = async () => {
       if (couplingProjector) {
         couplingProjector.toggleHelpers()
       }
+      if (doublingBackFormEnabled) {
+        doublingBackProjector.toggleHelpers()
+      }
     }
 
     if (e.key === '1') {
@@ -232,6 +251,9 @@ const main = async () => {
     }
     if (couplingFormEnabled) {
       couplingProjector.update()
+    }
+    if (doublingBackFormEnabled) {
+      doublingBackProjector.update()
     }
     controls.update()
     renderer.render(scene, camera)
