@@ -12,23 +12,24 @@ export class ScreenImage {
   constructor(meshCount, scene) {
     this.meshCount = meshCount
     this.meshes = U.range(meshCount).map(() => {
-      const lineGeometry = Line2d()
-      const lineMaterial = new THREE.ShaderMaterial(
+      const geometry = new Line2d()
+      const material = new THREE.ShaderMaterial(
         Line2dBasicShader({
           side: THREE.DoubleSide,
           diffuse: 0xffffff,
           thickness: C.SCREEN_IMAGE_LINE_THICKNESS
         }))
-      const lineMesh = new THREE.Mesh(lineGeometry, lineMaterial)
-      scene.add(lineMesh)
-      return lineMesh
+      return new THREE.Mesh(geometry, material)
     })
+    this.meshes.forEach(mesh => scene.add(mesh))
   }
 
   update(pointsArray) {
     U.range(this.meshCount).map(meshIndex => {
-      const path = U.vectorsAsArrays(pointsArray[meshIndex])
-      this.meshes[meshIndex].geometry.update(path)
+      const points = pointsArray[meshIndex]
+      const path = U.vectorsAsArrays(points)
+      const mesh = this.meshes[meshIndex]
+      mesh.geometry.update(path)
     })
   }
 }

@@ -14,8 +14,8 @@ export class ProjectionEffect {
     this.meshCount = meshCount
     this.scene = scene
     this.meshes = U.range(meshCount).map(() => {
-      const membraneGeometry = new MembraneBufferGeometry()
-      const membraneMaterial = new THREE.ShaderMaterial({
+      const geometry = new MembraneBufferGeometry()
+      const material = new THREE.ShaderMaterial({
         uniforms: {
           hazeTexture: {
             value: hazeTexture
@@ -31,21 +31,23 @@ export class ProjectionEffect {
         transparent: true,
         depthTest: false
       })
-      const membraneMesh = new THREE.Mesh(membraneGeometry, membraneMaterial)
-      scene.add(membraneMesh)
-      return membraneMesh
+      return new THREE.Mesh(geometry, material)
     })
+    this.meshes.forEach(mesh => scene.add(mesh))
     this.meshHelpers = null
   }
 
   update(vec2ProjectorPointsArray, vec2ScreenPointsArray) {
     U.range(this.meshCount).forEach(meshIndex => {
-      const projectorPoints = U.vec2sToVec3s(vec2ProjectorPointsArray[meshIndex], C.MEMBRANE_LENGTH)
-      const screenPoints = U.vec2sToVec3s(vec2ScreenPointsArray[meshIndex])
+      const vec2ProjectorPoints = vec2ProjectorPointsArray[meshIndex]
+      const vec2ScreenPoints = vec2ScreenPointsArray[meshIndex]
+      const projectorPoints = U.vec2sToVec3s(vec2ProjectorPoints, C.MEMBRANE_LENGTH)
+      const screenPoints = U.vec2sToVec3s(vec2ScreenPoints)
       const tempMembraneGeometry = new MembraneBufferGeometry(projectorPoints, screenPoints, MEMBRANE_SEGMENT_COUNT)
       tempMembraneGeometry.computeFaceNormals()
       tempMembraneGeometry.computeVertexNormals()
-      this.meshes[meshIndex].geometry.copy(tempMembraneGeometry)
+      const mesh = this.meshes[meshIndex]
+      mesh.geometry.copy(tempMembraneGeometry)
       tempMembraneGeometry.dispose()
       if (this.meshHelpers) {
         this.meshHelpers.forEach(meshHelper => meshHelper.update())

@@ -168,7 +168,7 @@ const main = async () => {
     doublingBackProjector = new Projector(
       doublingBackProjectorForm,
       doublingBackScreenForm,
-      1,
+      2,
       scene,
       hazeTexture,
       projectorLensTexture,

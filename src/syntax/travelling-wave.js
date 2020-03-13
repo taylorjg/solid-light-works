@@ -1,5 +1,6 @@
 import * as THREE from 'three'
 import * as U from '../utils'
+import * as C from '../constants'
 
 // http://labman.phys.utk.edu/phys221core/modules/m11/traveling_waves.html
 
@@ -14,23 +15,25 @@ import * as U from '../utils'
 
 export class TravellingWave {
 
-  constructor(cx, cy, width, height) {
+  constructor(cx, cy, width, height, vertical) {
     this.cx = cx
     this.cy = cy
     this.width = width
     this.height = height
+    this.vertical = vertical
     this.k = 1 // k = 2π/λ
     this.omega = 1 // ω = 2π/T = 2πf
-    this.phase = 0 // phase constant
+    this.phase = vertical ? C.PI / 180 * 250 : C.PI // phase constant
   }
 
   getPoints(divisions, t) {
-    const left = this.cx - this.width / 2
     const dx = this.width / divisions
     return U.range(divisions + 1).map(index => {
       const x = dx * index
-      const y = this.height * Math.sin(this.k * x - this.omega * t / 500 + this.phase)
-      return new THREE.Vector2(left + x, this.cy + y)
+      const y = this.height / 2 * Math.sin(this.k * x - this.omega * t * 0.0005 + this.phase)
+      return this.vertical
+        ? new THREE.Vector2(this.cx + y, this.cy - this.height / 2 + x)
+        : new THREE.Vector2(this.cx - this.width / 2 + x, this.cy + y)
     })
   }
 }
