@@ -8,12 +8,175 @@ import { Projector } from './projector'
 import * as U from './utils'
 import * as C from './constants'
 
-const leavingFormEnabled = false
-const betweenYouAndIFormEnabled = false
-const couplingFormEnabled = false
-const doublingBackFormEnabled = true
+const makeProjectorPosition = x =>
+  new THREE.Vector3(x, C.PROJECTOR_CY, C.MEMBRANE_LENGTH)
 
-const FAVOURITE_POSITIONS = [
+class LeavingFormConfig {
+  constructor() {
+    this.leftProjectorForm = new LeavingForm(
+      C.LEFT_FORM_CX,
+      C.PROJECTOR_CY,
+      C.PROJECTOR_R,
+      C.PROJECTOR_R,
+      true)
+    this.leftScreenForm = new LeavingForm(
+      C.LEFT_FORM_CX,
+      C.SCREEN_IMAGE_CY,
+      C.SCREEN_IMAGE_RX,
+      C.SCREEN_IMAGE_RY,
+      true)
+    this.rightProjectorForm = new LeavingForm(
+      C.RIGHT_FORM_CX,
+      C.PROJECTOR_CY,
+      C.PROJECTOR_R,
+      C.PROJECTOR_R,
+      false)
+    this.rightScreenForm = new LeavingForm(
+      C.RIGHT_FORM_CX,
+      C.SCREEN_IMAGE_CY,
+      C.SCREEN_IMAGE_RX,
+      C.SCREEN_IMAGE_RY,
+      false)
+    this.leftProjector = null
+    this.rightProjector = null
+  }
+
+  create(scene, hazeTexture) {
+    this.leftProjector = new Projector(
+      this.leftProjectorForm,
+      this.leftScreenForm,
+      1,
+      scene,
+      hazeTexture,
+      makeProjectorPosition(C.LEFT_FORM_CX))
+    this.rightProjector = new Projector(
+      this.rightProjectorForm,
+      this.rightScreenForm,
+      1,
+      scene,
+      hazeTexture,
+      makeProjectorPosition(C.RIGHT_FORM_CX))
+  }
+
+  destroy() {
+    this.leftProjector && this.leftProjector.destroy()
+    this.rightProjector && this.rightProjector.destroy()
+    this.leftProjector = null
+    this.rightProjector = null
+  }
+
+  update() {
+    this.leftProjector && this.leftProjector.update()
+    this.rightProjector && this.rightProjector.update()
+  }
+
+  toggleVertexNormals() {
+    this.leftProjector && this.leftProjector.toggleVertexNormals()
+    this.rightProjector && this.rightProjector.toggleVertexNormals()
+  }
+}
+
+class BetweenYouAndIFormConfig {
+  constructor() {
+    this.projectorForm = new BetweenYouAndIForm(true)
+    this.screenForm = new BetweenYouAndIForm(false)
+    this.projector = null
+  }
+
+  create(scene, hazeTexture) {
+    this.projector = new Projector(
+      this.projectorForm,
+      this.screenForm,
+      3,
+      scene,
+      hazeTexture,
+      new THREE.Vector3(0, C.PROJECTOR_CY * 4, C.MEMBRANE_LENGTH))
+  }
+
+  destroy() {
+    this.projector && this.projector.destroy()
+    this.projector = null
+  }
+
+  update() {
+    this.projector && this.projector.update()
+  }
+
+  toggleVertexNormals() {
+    this.projector && this.projector.toggleVertexNormals()
+  }
+}
+
+class CouplingFormConfig {
+  constructor() {
+    this.projectorForm = new CouplingForm(true)
+    this.screenForm = new CouplingForm(false)
+    this.projector = null
+  }
+
+  create(scene, hazeTexture) {
+    this.projector = new Projector(
+      this.projectorForm,
+      this.screenForm,
+      2,
+      scene,
+      hazeTexture,
+      new THREE.Vector3(0, C.PROJECTOR_CY * 4, C.MEMBRANE_LENGTH))
+  }
+
+  destroy() {
+    this.projector && this.projector.destroy()
+    this.projector = null
+  }
+
+  update() {
+    this.projector && this.projector.update()
+  }
+
+  toggleVertexNormals() {
+    this.projector && this.projector.toggleVertexNormals()
+  }
+}
+
+class DoublingBackFormConfig {
+  constructor() {
+    this.projectorForm = new DoublingBackForm(true)
+    this.screenForm = new DoublingBackForm(false)
+    this.projector = null
+  }
+
+  create(scene, hazeTexture) {
+    this.projector = new Projector(
+      this.projectorForm,
+      this.screenForm,
+      2,
+      scene,
+      hazeTexture,
+      new THREE.Vector3(0, C.PROJECTOR_CY * 4, C.MEMBRANE_LENGTH))
+  }
+
+  destroy() {
+    this.projector && this.projector.destroy()
+    this.projector = null
+  }
+
+  toggleVertexNormals() {
+    this.projector && this.projector.toggleVertexNormals()
+  }
+
+  update() {
+    this.projector && this.projector.update()
+  }
+}
+
+const forms = [
+  new DoublingBackFormConfig(),
+  new CouplingFormConfig(),
+  new LeavingFormConfig(),
+  new BetweenYouAndIFormConfig()
+]
+
+const CAMERA_POSITIONS = [
   {
     cameraPosition: new THREE.Vector3(-0.515, 4.40, -5.93),
     controlsTarget: new THREE.Vector3(-0.29, 2, 5.14)
@@ -49,20 +212,23 @@ const main = async () => {
   renderer.setSize(w, h)
   container.appendChild(renderer.domElement)
 
-  let currentFavouritePositionIndex = 0
+  let currentFormIndex = 0
+  let currentCameraPositionIndex = 0
+  let axesHelper = undefined
 
   const scene = new THREE.Scene()
   const camera = new THREE.PerspectiveCamera(45, w / h, 0.1, 50)
-  camera.position.copy(FAVOURITE_POSITIONS[currentFavouritePositionIndex].cameraPosition)
+  camera.position.copy(CAMERA_POSITIONS[currentCameraPositionIndex].cameraPosition)
   scene.add(camera)
 
   const controls = new OrbitControls(camera, renderer.domElement)
-  controls.target.copy(FAVOURITE_POSITIONS[currentFavouritePositionIndex].controlsTarget)
+  controls.target.copy(CAMERA_POSITIONS[currentCameraPositionIndex].controlsTarget)
   controls.minDistance = 0
   controls.maxDistance = 50
   controls.enableDamping = true
   controls.dampingFactor = 0.9
   controls.autoRotate = false
+  controls.autoRotateSpeed = 0.5
 
   const projectionScreenGeometry = new THREE.PlaneGeometry(16, 6)
   projectionScreenGeometry.translate(0, 3, 0)
@@ -74,187 +240,74 @@ const main = async () => {
   const screen = new THREE.Mesh(projectionScreenGeometry, projectionScreenMaterial)
   scene.add(screen)
 
-  let axesHelper = undefined
-
   const hazeTexture = await U.loadTexture('haze.jpg')
-  const projectorLensTexture = await U.loadTexture('projector-lens.png')
 
-  const makeProjectorPosition = x =>
-    new THREE.Vector3(x, C.PROJECTOR_CY, C.MEMBRANE_LENGTH)
+  forms[currentFormIndex].create(scene, hazeTexture)
 
-  let leavingProjectorLeft
-  let leavingProjectorRight
-  let betweenYouAndIProjector
-  let couplingProjector
-  let doublingBackProjector
-
-  if (leavingFormEnabled) {
-    const leavingProjectorFormLeft = new LeavingForm(
-      C.LEFT_FORM_CX,
-      C.PROJECTOR_CY,
-      C.PROJECTOR_R,
-      C.PROJECTOR_R,
-      true)
-
-    const leavingScreenFormLeft = new LeavingForm(
-      C.LEFT_FORM_CX,
-      C.SCREEN_IMAGE_CY,
-      C.SCREEN_IMAGE_RX,
-      C.SCREEN_IMAGE_RY,
-      true)
-
-    const leavingProjectorFormRight = new LeavingForm(
-      C.RIGHT_FORM_CX,
-      C.PROJECTOR_CY,
-      C.PROJECTOR_R,
-      C.PROJECTOR_R,
-      false)
-
-    const leavingScreenFormRight = new LeavingForm(
-      C.RIGHT_FORM_CX,
-      C.SCREEN_IMAGE_CY,
-      C.SCREEN_IMAGE_RX,
-      C.SCREEN_IMAGE_RY,
-      false)
-
-    leavingProjectorLeft = new Projector(
-      leavingProjectorFormLeft,
-      leavingScreenFormLeft,
-      1,
-      scene,
-      hazeTexture,
-      projectorLensTexture,
-      makeProjectorPosition(C.LEFT_FORM_CX))
-
-    leavingProjectorRight = new Projector(
-      leavingProjectorFormRight,
-      leavingScreenFormRight,
-      1,
-      scene,
-      hazeTexture,
-      projectorLensTexture,
-      makeProjectorPosition(C.RIGHT_FORM_CX))
+  const toggleAxes = () => {
+    if (axesHelper) {
+      scene.remove(axesHelper)
+      axesHelper = undefined
+    } else {
+      axesHelper = new THREE.AxesHelper(15)
+      scene.add(axesHelper)
+    }
   }
 
-  if (betweenYouAndIFormEnabled) {
-    const betweenYouAndIProjectorForm = new BetweenYouAndIForm(true)
-    const betweenYouAndIScreenForm = new BetweenYouAndIForm(false)
-    betweenYouAndIProjector = new Projector(
-      betweenYouAndIProjectorForm,
-      betweenYouAndIScreenForm,
-      3,
-      scene,
-      hazeTexture,
-      projectorLensTexture,
-      new THREE.Vector3(0, C.PROJECTOR_CY * 4, C.MEMBRANE_LENGTH))
+  const reportCameraPosition = () => {
+    console.log(`camera.position: ${JSON.stringify(camera.position)}`)
+    console.log(`controls.target: ${JSON.stringify(controls.target)}`)
   }
 
-  if (couplingFormEnabled) {
-    const couplingProjectorForm = new CouplingForm(true)
-    const couplingScreenForm = new CouplingForm(false)
-    couplingProjector = new Projector(
-      couplingProjectorForm,
-      couplingScreenForm,
-      2,
-      scene,
-      hazeTexture,
-      projectorLensTexture,
-      new THREE.Vector3(0, C.PROJECTOR_CY * 4, C.MEMBRANE_LENGTH))
+  const switchForm = () => {
+    forms[currentFormIndex].destroy()
+    currentFormIndex++
+    currentFormIndex %= forms.length
+    forms[currentFormIndex].create(scene, hazeTexture)
   }
 
-  if (doublingBackFormEnabled) {
-    const doublingBackProjectorForm = new DoublingBackForm(true)
-    const doublingBackScreenForm = new DoublingBackForm(false)
-    doublingBackProjector = new Projector(
-      doublingBackProjectorForm,
-      doublingBackScreenForm,
-      2,
-      scene,
-      hazeTexture,
-      projectorLensTexture,
-      new THREE.Vector3(0, C.PROJECTOR_CY * 4, C.MEMBRANE_LENGTH))
+  const switchCameraPosition = () => {
+    currentCameraPositionIndex++
+    currentCameraPositionIndex %= CAMERA_POSITIONS.length
+    camera.position.copy(CAMERA_POSITIONS[currentCameraPositionIndex].cameraPosition)
+    controls.target.copy(CAMERA_POSITIONS[currentCameraPositionIndex].controlsTarget)
   }
 
-  window.addEventListener('resize', () => {
-    renderer.setSize(container.offsetWidth, container.offsetHeight)
-    camera.aspect = container.offsetWidth / container.offsetHeight
-    camera.updateProjectionMatrix()
-  })
+  const toggleAutoRotate = () => {
+    controls.autoRotate = !controls.autoRotate
+  }
+
+  const toggleVertexNormals = () => {
+    forms[currentFormIndex].toggleVertexNormals()
+  }
 
   const onDocumentKeyDownHandler = e => {
-
-    if (e.key === 'a') {
-      if (axesHelper) {
-        scene.remove(axesHelper)
-        axesHelper = undefined
-      } else {
-        axesHelper = new THREE.AxesHelper(15)
-        scene.add(axesHelper)
-      }
-    }
-
-    if (e.key === 'c') {
-      console.log(`camera.position: ${JSON.stringify(camera.position)}`)
-      console.log(`controls.target: ${JSON.stringify(controls.target)}`)
-    }
-
-    if (e.key === 'p') {
-      currentFavouritePositionIndex++
-      currentFavouritePositionIndex %= FAVOURITE_POSITIONS.length
-      camera.position.copy(FAVOURITE_POSITIONS[currentFavouritePositionIndex].cameraPosition)
-      controls.target.copy(FAVOURITE_POSITIONS[currentFavouritePositionIndex].controlsTarget)
-    }
-
-    if (e.key === 'r') {
-      controls.autoRotate = !controls.autoRotate
-    }
-
-    if (e.key === 'v') {
-      if (leavingFormEnabled) {
-        leavingProjectorLeft.toggleHelpers()
-        leavingProjectorRight.toggleHelpers()
-      }
-      if (betweenYouAndIFormEnabled) {
-        betweenYouAndIProjector.toggleHelpers()
-      }
-      if (couplingProjector) {
-        couplingProjector.toggleHelpers()
-      }
-      if (doublingBackFormEnabled) {
-        doublingBackProjector.toggleHelpers()
-      }
-    }
-
-    if (e.key === '1') {
-      setSpeed(1)
-    }
-    if (e.key === '2') {
-      setSpeed(2)
-    }
-    if (e.key === '3') {
-      setSpeed(5)
-    }
-    if (e.key === '4') {
-      setSpeed(10)
+    switch (e.key) {
+      case 'a': return toggleAxes()
+      case 'c': return reportCameraPosition()
+      case 'f': return switchForm()
+      case 'p': return switchCameraPosition()
+      case 'r': return toggleAutoRotate()
+      case 'v': return toggleVertexNormals()
+      case '1': return setSpeed(1)
+      case '2': return setSpeed(2)
+      case '3': return setSpeed(5)
+      case '4': return setSpeed(10)
     }
   }
 
   document.addEventListener('keydown', onDocumentKeyDownHandler)
 
+  const onWindowResizeHandler = () => {
+    renderer.setSize(container.offsetWidth, container.offsetHeight)
+    camera.aspect = container.offsetWidth / container.offsetHeight
+    camera.updateProjectionMatrix()
+  }
+
+  window.addEventListener('resize', onWindowResizeHandler)
+
   const render = () => {
-    if (leavingFormEnabled) {
-      leavingProjectorLeft.update()
-      leavingProjectorRight.update()
-    }
-    if (betweenYouAndIFormEnabled) {
-      betweenYouAndIProjector.update()
-    }
-    if (couplingFormEnabled) {
-      couplingProjector.update()
-    }
-    if (doublingBackFormEnabled) {
-      doublingBackProjector.update()
-    }
+    forms[currentFormIndex].update()
     controls.update()
     renderer.render(scene, camera)
     requestAnimationFrame(render)

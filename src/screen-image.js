@@ -11,6 +11,7 @@ export class ScreenImage {
 
   constructor(meshCount, scene) {
     this.meshCount = meshCount
+    this.scene = scene
     this.meshes = U.range(meshCount).map(() => {
       const geometry = new Line2d()
       const material = new THREE.ShaderMaterial(
@@ -30,6 +31,14 @@ export class ScreenImage {
       const path = U.vectorsAsArrays(points)
       const mesh = this.meshes[meshIndex]
       mesh.geometry.update(path)
+    })
+  }
+
+  destroy() {
+    this.meshes.forEach(mesh => {
+      this.scene.remove(mesh)
+      mesh.geometry.dispose()
+      mesh.material.dispose()
     })
   }
 }

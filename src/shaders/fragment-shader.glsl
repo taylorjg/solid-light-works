@@ -11,7 +11,8 @@ void main() {
   vec3 n = vNormal;
   float weight = 1.0 - abs(dot(v, n));
   vec4 hazeValue = texture2D(hazeTexture, vUv);
+  hazeValue.a = 0.05;
   vec4 whiteValue = vec4(1.0);
+  whiteValue.a = a;
   gl_FragColor = mix(hazeValue, whiteValue, weight);
-  gl_FragColor.a = a;
 }
