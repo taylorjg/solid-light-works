@@ -52512,8 +52512,8 @@ const TRAVELLING_WAVE_POINT_COUNT = 50
 
 class BetweenYouAndIForm {
 
-  constructor(isProjector) {
-    this.projectorCentre = new three__WEBPACK_IMPORTED_MODULE_0__["Vector2"](0, _constants__WEBPACK_IMPORTED_MODULE_4__["PROJECTOR_CY"] * 4)
+  constructor(projectorPosition, isProjector) {
+    this._projectorPosition = projectorPosition
     this.pointsArray = [
       this.createEllipse(isProjector),
       this.createTravellingWave(isProjector),
@@ -52521,34 +52521,42 @@ class BetweenYouAndIForm {
     ]
   }
 
+  get projectorPosition() {
+    return this._projectorPosition
+  }
+
+  get shapeCount() {
+    return 3
+  }
+
   createEllipse(isProjector) {
     if (isProjector) {
-      return _utils__WEBPACK_IMPORTED_MODULE_3__["repeat"](ELLIPSE_POINT_COUNT + 1, this.projectorCentre)
+      return _utils__WEBPACK_IMPORTED_MODULE_3__["repeat"](ELLIPSE_POINT_COUNT + 1, this.projectorPosition)
     }
-    const ellipse = new _syntax_ellipse__WEBPACK_IMPORTED_MODULE_1__["Ellipse"](0, 2, 3.2, 2)
+    const ellipse = new _syntax_ellipse__WEBPACK_IMPORTED_MODULE_1__["Ellipse"](0, 3, 3.2, 2)
     return ellipse.getPoints(-_constants__WEBPACK_IMPORTED_MODULE_4__["HALF_PI"], _constants__WEBPACK_IMPORTED_MODULE_4__["HALF_PI"], ELLIPSE_POINT_COUNT)
   }
 
   createTravellingWave(isProjector) {
     if (isProjector) {
-      return _utils__WEBPACK_IMPORTED_MODULE_3__["repeat"](TRAVELLING_WAVE_POINT_COUNT + 1, this.projectorCentre)
+      return _utils__WEBPACK_IMPORTED_MODULE_3__["repeat"](TRAVELLING_WAVE_POINT_COUNT + 1, this.projectorPosition)
     }
     const startAngle = _constants__WEBPACK_IMPORTED_MODULE_4__["PI"] / 180 * 20
     const endAngle = _constants__WEBPACK_IMPORTED_MODULE_4__["PI"] / 180 * 250
-    const dx = 6 / TRAVELLING_WAVE_POINT_COUNT
+    const dx = 4 / TRAVELLING_WAVE_POINT_COUNT
     const deltaAngle = (endAngle - startAngle) / TRAVELLING_WAVE_POINT_COUNT
     return _utils__WEBPACK_IMPORTED_MODULE_3__["range"](TRAVELLING_WAVE_POINT_COUNT + 1).map(n => {
-      return new three__WEBPACK_IMPORTED_MODULE_0__["Vector2"](0 + n * dx, 2.4 + Math.cos(startAngle + n * deltaAngle) * 2.4)
+      return new three__WEBPACK_IMPORTED_MODULE_0__["Vector2"](n * dx, 3.4 + Math.cos(startAngle + n * deltaAngle) * 2.4)
     })
   }
 
   createStraightLine(isProjector) {
     if (isProjector) {
-      return _utils__WEBPACK_IMPORTED_MODULE_3__["repeat"](2, this.projectorCentre)
+      return _utils__WEBPACK_IMPORTED_MODULE_3__["repeat"](2, this.projectorPosition)
     }
     const straightLine = new _syntax_straight_line__WEBPACK_IMPORTED_MODULE_2__["StraightLine"](
-      new three__WEBPACK_IMPORTED_MODULE_0__["Vector2"](0, 1.4),
-      new three__WEBPACK_IMPORTED_MODULE_0__["Vector2"](6, 1.2))
+      new three__WEBPACK_IMPORTED_MODULE_0__["Vector2"](0, 2.4),
+      new three__WEBPACK_IMPORTED_MODULE_0__["Vector2"](4, 2.2))
     return straightLine.getPoints()
   }
 
@@ -52587,19 +52595,27 @@ const CIRCLE_WAVE_POINT_COUNT = 200
 
 class CouplingForm {
 
-  constructor(isProjector) {
+  constructor(projectorPosition, isProjector) {
+    this._projectorPosition = projectorPosition
     this.isProjector = isProjector
     if (isProjector) {
-      const projectorCentre = new three__WEBPACK_IMPORTED_MODULE_0__["Vector2"](0, _constants__WEBPACK_IMPORTED_MODULE_3__["PROJECTOR_CY"] * 4)
       this.points = [
-        _utils__WEBPACK_IMPORTED_MODULE_2__["repeat"](CIRCLE_WAVE_POINT_COUNT + 1, projectorCentre),
-        _utils__WEBPACK_IMPORTED_MODULE_2__["repeat"](CIRCLE_WAVE_POINT_COUNT + 1, projectorCentre)
+        _utils__WEBPACK_IMPORTED_MODULE_2__["repeat"](CIRCLE_WAVE_POINT_COUNT + 1, this.projectorPosition),
+        _utils__WEBPACK_IMPORTED_MODULE_2__["repeat"](CIRCLE_WAVE_POINT_COUNT + 1, this.projectorPosition)
       ]
     } else {
-      this.circleWaveOuter = new _syntax_circle_wave__WEBPACK_IMPORTED_MODULE_1__["CircleWave"](2, 0.4, 3.5, 0.01, 0.01, 0, 0)
-      this.circleWaveInner = new _syntax_circle_wave__WEBPACK_IMPORTED_MODULE_1__["CircleWave"](1, 0.4, 3.5, 0.01, 0.01, _constants__WEBPACK_IMPORTED_MODULE_3__["HALF_PI"], 0)
+      this.circleWaveOuter = new _syntax_circle_wave__WEBPACK_IMPORTED_MODULE_1__["CircleWave"](2, 0.4, 3.5, 0.001, 0.001, 0, 0)
+      this.circleWaveInner = new _syntax_circle_wave__WEBPACK_IMPORTED_MODULE_1__["CircleWave"](1, 0.4, 3.5, 0.001, 0.001, _constants__WEBPACK_IMPORTED_MODULE_3__["HALF_PI"], 0)
       this.tick = 0
     }
+  }
+
+  get projectorPosition() {
+    return this._projectorPosition
+  }
+
+  get shapeCount() {
+    return 2
   }
 
   getUpdatedPoints() {
@@ -52642,19 +52658,27 @@ const TRAVELLING_WAVE_POINT_COUNT = 50
 // https://paddle8.com/work/anthony-mccall/156781-doubling-back/
 class DoublingBackForm {
 
-  constructor(isProjector) {
+  constructor(projectorPosition, isProjector) {
+    this._projectorPosition = projectorPosition
     this.isProjector = isProjector
     if (isProjector) {
-      const projectorCentre = new three__WEBPACK_IMPORTED_MODULE_0__["Vector2"](0, _constants__WEBPACK_IMPORTED_MODULE_3__["PROJECTOR_CY"] * 4)
       this.points = [
-        _utils__WEBPACK_IMPORTED_MODULE_2__["repeat"](TRAVELLING_WAVE_POINT_COUNT + 1, projectorCentre),
-        _utils__WEBPACK_IMPORTED_MODULE_2__["repeat"](TRAVELLING_WAVE_POINT_COUNT + 1, projectorCentre)
+        _utils__WEBPACK_IMPORTED_MODULE_2__["repeat"](TRAVELLING_WAVE_POINT_COUNT + 1, this.projectorPosition),
+        _utils__WEBPACK_IMPORTED_MODULE_2__["repeat"](TRAVELLING_WAVE_POINT_COUNT + 1, this.projectorPosition)
       ]
     } else {
       this.travellingWaveLeftToRight = new _syntax_travelling_wave__WEBPACK_IMPORTED_MODULE_1__["TravellingWave"](0, 3, 4, 4, false)
       this.travellingWaveBottomToTop = new _syntax_travelling_wave__WEBPACK_IMPORTED_MODULE_1__["TravellingWave"](0, 3, 4, 4, true)
       this.tick = 0
     }
+  }
+
+  get projectorPosition() {
+    return this._projectorPosition
+  }
+
+  get shapeCount() {
+    return 2
   }
 
   getUpdatedPoints() {
@@ -52709,7 +52733,8 @@ const setSpeed = multiplier => {
 
 class LeavingForm {
 
-  constructor(cx, cy, rx, ry, isInitiallyGrowing) {
+  constructor(projectorPosition, cx, cy, rx, ry, isInitiallyGrowing) {
+    this._projectorPosition = projectorPosition
     this.cx = cx
     this.cy = cy
     this.rx = rx
@@ -52717,6 +52742,14 @@ class LeavingForm {
     this.reset(isInitiallyGrowing)
     this.ellipse = new _syntax_ellipse__WEBPACK_IMPORTED_MODULE_1__["Ellipse"](cx, cy, rx, ry)
     this.travellingWave = new three__WEBPACK_IMPORTED_MODULE_0__["CubicBezierCurve"]()
+  }
+
+  get projectorPosition() {
+    return this._projectorPosition
+  }
+
+  get shapeCount() {
+    return 1
   }
 
   calculateSinusoidalDampingFactor(angle) {
@@ -52847,30 +52880,33 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const makeProjectorPosition = x =>
-  new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](x, _constants__WEBPACK_IMPORTED_MODULE_8__["PROJECTOR_CY"], _constants__WEBPACK_IMPORTED_MODULE_8__["MEMBRANE_LENGTH"])
-
 class LeavingFormConfig {
   constructor() {
+    const leftProjectorPosition = new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](_constants__WEBPACK_IMPORTED_MODULE_8__["LEFT_FORM_CX"], _constants__WEBPACK_IMPORTED_MODULE_8__["PROJECTOR_CY"], _constants__WEBPACK_IMPORTED_MODULE_8__["MEMBRANE_LENGTH"])
+    const rightProjectorPosition = new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](_constants__WEBPACK_IMPORTED_MODULE_8__["RIGHT_FORM_CX"], _constants__WEBPACK_IMPORTED_MODULE_8__["PROJECTOR_CY"], _constants__WEBPACK_IMPORTED_MODULE_8__["MEMBRANE_LENGTH"])
     this.leftProjectorForm = new _forms_leaving__WEBPACK_IMPORTED_MODULE_2__["LeavingForm"](
+      leftProjectorPosition,
       _constants__WEBPACK_IMPORTED_MODULE_8__["LEFT_FORM_CX"],
       _constants__WEBPACK_IMPORTED_MODULE_8__["PROJECTOR_CY"],
       _constants__WEBPACK_IMPORTED_MODULE_8__["PROJECTOR_R"],
       _constants__WEBPACK_IMPORTED_MODULE_8__["PROJECTOR_R"],
       true)
     this.leftScreenForm = new _forms_leaving__WEBPACK_IMPORTED_MODULE_2__["LeavingForm"](
+      leftProjectorPosition,
       _constants__WEBPACK_IMPORTED_MODULE_8__["LEFT_FORM_CX"],
       _constants__WEBPACK_IMPORTED_MODULE_8__["SCREEN_IMAGE_CY"],
       _constants__WEBPACK_IMPORTED_MODULE_8__["SCREEN_IMAGE_RX"],
       _constants__WEBPACK_IMPORTED_MODULE_8__["SCREEN_IMAGE_RY"],
       true)
     this.rightProjectorForm = new _forms_leaving__WEBPACK_IMPORTED_MODULE_2__["LeavingForm"](
+      rightProjectorPosition,
       _constants__WEBPACK_IMPORTED_MODULE_8__["RIGHT_FORM_CX"],
       _constants__WEBPACK_IMPORTED_MODULE_8__["PROJECTOR_CY"],
       _constants__WEBPACK_IMPORTED_MODULE_8__["PROJECTOR_R"],
       _constants__WEBPACK_IMPORTED_MODULE_8__["PROJECTOR_R"],
       false)
     this.rightScreenForm = new _forms_leaving__WEBPACK_IMPORTED_MODULE_2__["LeavingForm"](
+      rightProjectorPosition,
       _constants__WEBPACK_IMPORTED_MODULE_8__["RIGHT_FORM_CX"],
       _constants__WEBPACK_IMPORTED_MODULE_8__["SCREEN_IMAGE_CY"],
       _constants__WEBPACK_IMPORTED_MODULE_8__["SCREEN_IMAGE_RX"],
@@ -52884,17 +52920,13 @@ class LeavingFormConfig {
     this.leftProjector = new _projector__WEBPACK_IMPORTED_MODULE_6__["Projector"](
       this.leftProjectorForm,
       this.leftScreenForm,
-      1,
       scene,
-      hazeTexture,
-      makeProjectorPosition(_constants__WEBPACK_IMPORTED_MODULE_8__["LEFT_FORM_CX"]))
+      hazeTexture)
     this.rightProjector = new _projector__WEBPACK_IMPORTED_MODULE_6__["Projector"](
       this.rightProjectorForm,
       this.rightScreenForm,
-      1,
       scene,
-      hazeTexture,
-      makeProjectorPosition(_constants__WEBPACK_IMPORTED_MODULE_8__["RIGHT_FORM_CX"]))
+      hazeTexture)
   }
 
   destroy() {
@@ -52917,8 +52949,9 @@ class LeavingFormConfig {
 
 class BetweenYouAndIFormConfig {
   constructor() {
-    this.projectorForm = new _forms_between_you_and_i__WEBPACK_IMPORTED_MODULE_3__["BetweenYouAndIForm"](true)
-    this.screenForm = new _forms_between_you_and_i__WEBPACK_IMPORTED_MODULE_3__["BetweenYouAndIForm"](false)
+    const projectorPosition = new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](0, _constants__WEBPACK_IMPORTED_MODULE_8__["PROJECTOR_CY"] * 4, _constants__WEBPACK_IMPORTED_MODULE_8__["MEMBRANE_LENGTH"])
+    this.projectorForm = new _forms_between_you_and_i__WEBPACK_IMPORTED_MODULE_3__["BetweenYouAndIForm"](projectorPosition, true)
+    this.screenForm = new _forms_between_you_and_i__WEBPACK_IMPORTED_MODULE_3__["BetweenYouAndIForm"](projectorPosition, false)
     this.projector = null
   }
 
@@ -52926,10 +52959,8 @@ class BetweenYouAndIFormConfig {
     this.projector = new _projector__WEBPACK_IMPORTED_MODULE_6__["Projector"](
       this.projectorForm,
       this.screenForm,
-      3,
       scene,
-      hazeTexture,
-      new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](0, _constants__WEBPACK_IMPORTED_MODULE_8__["PROJECTOR_CY"] * 4, _constants__WEBPACK_IMPORTED_MODULE_8__["MEMBRANE_LENGTH"]))
+      hazeTexture)
   }
 
   destroy() {
@@ -52948,8 +52979,9 @@ class BetweenYouAndIFormConfig {
 
 class CouplingFormConfig {
   constructor() {
-    this.projectorForm = new _forms_coupling__WEBPACK_IMPORTED_MODULE_4__["CouplingForm"](true)
-    this.screenForm = new _forms_coupling__WEBPACK_IMPORTED_MODULE_4__["CouplingForm"](false)
+    const projectorPosition = new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](0, _constants__WEBPACK_IMPORTED_MODULE_8__["PROJECTOR_CY"] * 4, _constants__WEBPACK_IMPORTED_MODULE_8__["MEMBRANE_LENGTH"])
+    this.projectorForm = new _forms_coupling__WEBPACK_IMPORTED_MODULE_4__["CouplingForm"](projectorPosition, true)
+    this.screenForm = new _forms_coupling__WEBPACK_IMPORTED_MODULE_4__["CouplingForm"](projectorPosition, false)
     this.projector = null
   }
 
@@ -52957,10 +52989,8 @@ class CouplingFormConfig {
     this.projector = new _projector__WEBPACK_IMPORTED_MODULE_6__["Projector"](
       this.projectorForm,
       this.screenForm,
-      2,
       scene,
-      hazeTexture,
-      new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](0, _constants__WEBPACK_IMPORTED_MODULE_8__["PROJECTOR_CY"] * 4, _constants__WEBPACK_IMPORTED_MODULE_8__["MEMBRANE_LENGTH"]))
+      hazeTexture)
   }
 
   destroy() {
@@ -52979,8 +53009,9 @@ class CouplingFormConfig {
 
 class DoublingBackFormConfig {
   constructor() {
-    this.projectorForm = new _forms_doubling_back__WEBPACK_IMPORTED_MODULE_5__["DoublingBackForm"](true)
-    this.screenForm = new _forms_doubling_back__WEBPACK_IMPORTED_MODULE_5__["DoublingBackForm"](false)
+    const projectorPosition = new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](-2, 0, _constants__WEBPACK_IMPORTED_MODULE_8__["MEMBRANE_LENGTH"])
+    this.projectorForm = new _forms_doubling_back__WEBPACK_IMPORTED_MODULE_5__["DoublingBackForm"](projectorPosition, true)
+    this.screenForm = new _forms_doubling_back__WEBPACK_IMPORTED_MODULE_5__["DoublingBackForm"](projectorPosition, false)
     this.projector = null
   }
 
@@ -52988,10 +53019,8 @@ class DoublingBackFormConfig {
     this.projector = new _projector__WEBPACK_IMPORTED_MODULE_6__["Projector"](
       this.projectorForm,
       this.screenForm,
-      2,
       scene,
-      hazeTexture,
-      new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](0, _constants__WEBPACK_IMPORTED_MODULE_8__["PROJECTOR_CY"] * 4, _constants__WEBPACK_IMPORTED_MODULE_8__["MEMBRANE_LENGTH"]))
+      hazeTexture)
   }
 
   destroy() {
@@ -53402,13 +53431,9 @@ __webpack_require__.r(__webpack_exports__);
 
 class Projector {
 
-  constructor(
-    projectorForm,
-    screenForm,
-    shapeCount,
-    scene,
-    hazeTexture,
-    projectorPosition) {
+  constructor(projectorForm, screenForm, scene, hazeTexture) {
+    const shapeCount = screenForm.shapeCount
+    const projectorPosition = screenForm.projectorPosition
     this.projectorForm = projectorForm
     this.screenForm = screenForm
     this.screenImage = new _screen_image__WEBPACK_IMPORTED_MODULE_1__["ScreenImage"](shapeCount, scene)
