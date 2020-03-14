@@ -4,13 +4,9 @@ import * as U from './utils'
 
 export class Projector {
 
-  constructor(
-    projectorForm,
-    screenForm,
-    shapeCount,
-    scene,
-    hazeTexture,
-    projectorPosition) {
+  constructor(projectorForm, screenForm, scene, hazeTexture) {
+    const shapeCount = screenForm.shapeCount
+    const projectorPosition = screenForm.projectorPosition
     this.projectorForm = projectorForm
     this.screenForm = screenForm
     this.screenImage = new ScreenImage(shapeCount, scene)

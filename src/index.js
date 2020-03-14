@@ -8,30 +8,33 @@ import { Projector } from './projector'
 import * as U from './utils'
 import * as C from './constants'
 
-const makeProjectorPosition = x =>
-  new THREE.Vector3(x, C.PROJECTOR_CY, C.MEMBRANE_LENGTH)
-
 class LeavingFormConfig {
   constructor() {
+    const leftProjectorPosition = new THREE.Vector3(C.LEFT_FORM_CX, C.PROJECTOR_CY, C.MEMBRANE_LENGTH)
+    const rightProjectorPosition = new THREE.Vector3(C.RIGHT_FORM_CX, C.PROJECTOR_CY, C.MEMBRANE_LENGTH)
     this.leftProjectorForm = new LeavingForm(
+      leftProjectorPosition,
       C.LEFT_FORM_CX,
       C.PROJECTOR_CY,
       C.PROJECTOR_R,
       C.PROJECTOR_R,
       true)
     this.leftScreenForm = new LeavingForm(
+      leftProjectorPosition,
       C.LEFT_FORM_CX,
       C.SCREEN_IMAGE_CY,
       C.SCREEN_IMAGE_RX,
       C.SCREEN_IMAGE_RY,
       true)
     this.rightProjectorForm = new LeavingForm(
+      rightProjectorPosition,
       C.RIGHT_FORM_CX,
       C.PROJECTOR_CY,
       C.PROJECTOR_R,
       C.PROJECTOR_R,
       false)
     this.rightScreenForm = new LeavingForm(
+      rightProjectorPosition,
       C.RIGHT_FORM_CX,
       C.SCREEN_IMAGE_CY,
       C.SCREEN_IMAGE_RX,
@@ -45,17 +48,13 @@ class LeavingFormConfig {
     this.leftProjector = new Projector(
       this.leftProjectorForm,
       this.leftScreenForm,
-      1,
       scene,
-      hazeTexture,
-      makeProjectorPosition(C.LEFT_FORM_CX))
+      hazeTexture)
     this.rightProjector = new Projector(
       this.rightProjectorForm,
       this.rightScreenForm,
-      1,
       scene,
-      hazeTexture,
-      makeProjectorPosition(C.RIGHT_FORM_CX))
+      hazeTexture)
   }
 
   destroy() {
@@ -78,8 +77,9 @@ class LeavingFormConfig {
 
 class BetweenYouAndIFormConfig {
   constructor() {
-    this.projectorForm = new BetweenYouAndIForm(true)
-    this.screenForm = new BetweenYouAndIForm(false)
+    const projectorPosition = new THREE.Vector3(0, C.PROJECTOR_CY * 4, C.MEMBRANE_LENGTH)
+    this.projectorForm = new BetweenYouAndIForm(projectorPosition, true)
+    this.screenForm = new BetweenYouAndIForm(projectorPosition, false)
     this.projector = null
   }
 
@@ -87,10 +87,8 @@ class BetweenYouAndIFormConfig {
     this.projector = new Projector(
       this.projectorForm,
       this.screenForm,
-      3,
       scene,
-      hazeTexture,
-      new THREE.Vector3(0, C.PROJECTOR_CY * 4, C.MEMBRANE_LENGTH))
+      hazeTexture)
   }
 
   destroy() {
@@ -109,8 +107,9 @@ class BetweenYouAndIFormConfig {
 
 class CouplingFormConfig {
   constructor() {
-    this.projectorForm = new CouplingForm(true)
-    this.screenForm = new CouplingForm(false)
+    const projectorPosition = new THREE.Vector3(0, C.PROJECTOR_CY * 4, C.MEMBRANE_LENGTH)
+    this.projectorForm = new CouplingForm(projectorPosition, true)
+    this.screenForm = new CouplingForm(projectorPosition, false)
     this.projector = null
   }
 
@@ -118,10 +117,8 @@ class CouplingFormConfig {
     this.projector = new Projector(
       this.projectorForm,
       this.screenForm,
-      2,
       scene,
-      hazeTexture,
-      new THREE.Vector3(0, C.PROJECTOR_CY * 4, C.MEMBRANE_LENGTH))
+      hazeTexture)
   }
 
   destroy() {
@@ -140,8 +137,9 @@ class CouplingFormConfig {
 
 class DoublingBackFormConfig {
   constructor() {
-    this.projectorForm = new DoublingBackForm(true)
-    this.screenForm = new DoublingBackForm(false)
+    const projectorPosition = new THREE.Vector3(-2, 0, C.MEMBRANE_LENGTH)
+    this.projectorForm = new DoublingBackForm(projectorPosition, true)
+    this.screenForm = new DoublingBackForm(projectorPosition, false)
     this.projector = null
   }
 
@@ -149,10 +147,8 @@ class DoublingBackFormConfig {
     this.projector = new Projector(
       this.projectorForm,
       this.screenForm,
-      2,
       scene,
-      hazeTexture,
-      new THREE.Vector3(0, C.PROJECTOR_CY * 4, C.MEMBRANE_LENGTH))
+      hazeTexture)
   }
 
   destroy() {

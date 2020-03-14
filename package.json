@@ -1,7 +1,7 @@
 {
-  "name": "leaving",
-  "version": "0.0.40",
-  "description": "three.js rendering of Anthony McCall's \"Leaving (With Two-Minute Silence)\"",
+  "name": "solid-light-works",
+  "version": "0.0.41",
+  "description": "Attempt to render some of Anthony McCall's solid light works using three.js and WebGL",
   "author": "Jonathan Taylor",
   "license": "MIT",
   "dependencies": {

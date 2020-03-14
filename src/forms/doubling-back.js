@@ -8,19 +8,27 @@ const TRAVELLING_WAVE_POINT_COUNT = 50
 // https://paddle8.com/work/anthony-mccall/156781-doubling-back/
 export class DoublingBackForm {
 
-  constructor(isProjector) {
+  constructor(projectorPosition, isProjector) {
+    this._projectorPosition = projectorPosition
     this.isProjector = isProjector
     if (isProjector) {
-      const projectorCentre = new THREE.Vector2(0, C.PROJECTOR_CY * 4)
       this.points = [
-        U.repeat(TRAVELLING_WAVE_POINT_COUNT + 1, projectorCentre),
-        U.repeat(TRAVELLING_WAVE_POINT_COUNT + 1, projectorCentre)
+        U.repeat(TRAVELLING_WAVE_POINT_COUNT + 1, this.projectorPosition),
+        U.repeat(TRAVELLING_WAVE_POINT_COUNT + 1, this.projectorPosition)
       ]
     } else {
       this.travellingWaveLeftToRight = new TravellingWave(0, 3, 4, 4, false)
       this.travellingWaveBottomToTop = new TravellingWave(0, 3, 4, 4, true)
       this.tick = 0
     }
+  }
+
+  get projectorPosition() {
+    return this._projectorPosition
+  }
+
+  get shapeCount() {
+    return 2
   }
 
   getUpdatedPoints() {

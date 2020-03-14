@@ -11,19 +11,27 @@ const CIRCLE_WAVE_POINT_COUNT = 200
 
 export class CouplingForm {
 
-  constructor(isProjector) {
+  constructor(projectorPosition, isProjector) {
+    this._projectorPosition = projectorPosition
     this.isProjector = isProjector
     if (isProjector) {
-      const projectorCentre = new THREE.Vector2(0, C.PROJECTOR_CY * 4)
       this.points = [
-        U.repeat(CIRCLE_WAVE_POINT_COUNT + 1, projectorCentre),
-        U.repeat(CIRCLE_WAVE_POINT_COUNT + 1, projectorCentre)
+        U.repeat(CIRCLE_WAVE_POINT_COUNT + 1, this.projectorPosition),
+        U.repeat(CIRCLE_WAVE_POINT_COUNT + 1, this.projectorPosition)
       ]
     } else {
-      this.circleWaveOuter = new CircleWave(2, 0.4, 3.5, 0.01, 0.01, 0, 0)
-      this.circleWaveInner = new CircleWave(1, 0.4, 3.5, 0.01, 0.01, C.HALF_PI, 0)
+      this.circleWaveOuter = new CircleWave(2, 0.4, 3.5, 0.001, 0.001, 0, 0)
+      this.circleWaveInner = new CircleWave(1, 0.4, 3.5, 0.001, 0.001, C.HALF_PI, 0)
       this.tick = 0
     }
+  }
+
+  get projectorPosition() {
+    return this._projectorPosition
+  }
+
+  get shapeCount() {
+    return 2
   }
 
   getUpdatedPoints() {

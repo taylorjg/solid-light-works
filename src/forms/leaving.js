@@ -19,7 +19,8 @@ export const setSpeed = multiplier => {
 
 export class LeavingForm {
 
-  constructor(cx, cy, rx, ry, isInitiallyGrowing) {
+  constructor(projectorPosition, cx, cy, rx, ry, isInitiallyGrowing) {
+    this._projectorPosition = projectorPosition
     this.cx = cx
     this.cy = cy
     this.rx = rx
@@ -27,6 +28,14 @@ export class LeavingForm {
     this.reset(isInitiallyGrowing)
     this.ellipse = new Ellipse(cx, cy, rx, ry)
     this.travellingWave = new THREE.CubicBezierCurve()
+  }
+
+  get projectorPosition() {
+    return this._projectorPosition
+  }
+
+  get shapeCount() {
+    return 1
   }
 
   calculateSinusoidalDampingFactor(angle) {
