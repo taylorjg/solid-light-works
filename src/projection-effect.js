@@ -59,11 +59,7 @@ export class ProjectionEffect {
     if (this.meshHelpers) {
       this.meshHelpers.forEach(meshHelper => this.scene.remove(meshHelper))
     }
-    this.meshes.forEach(mesh => {
-      this.scene.remove(mesh)
-      mesh.geometry.dispose()
-      mesh.material.dispose()
-    })
+    this.meshes.forEach(mesh => U.disposeMesh(this.scene, mesh))
   }
 
   toggleVertexNormals() {

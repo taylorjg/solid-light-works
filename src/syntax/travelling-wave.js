@@ -26,14 +26,27 @@ export class TravellingWave {
     this.phase = vertical ? C.PI / 180 * 250 : C.PI // phase constant
   }
 
-  getPoints(divisions, t) {
+  getPointsHorizontal(divisions, t) {
     const dx = this.width / divisions
     return U.range(divisions + 1).map(index => {
       const x = dx * index
       const y = this.height / 2 * Math.sin(this.k * x - this.omega * t * 0.0005 + this.phase)
-      return this.vertical
-        ? new THREE.Vector2(this.cx + y, this.cy - this.height / 2 + x)
-        : new THREE.Vector2(this.cx - this.width / 2 + x, this.cy + y)
+      return new THREE.Vector2(this.cx - this.width / 2 + x, this.cy + y)
     })
+  }
+
+  getPointsVertical(divisions, t) {
+    const dx = this.height / divisions
+    return U.range(divisions + 1).map(index => {
+      const x = dx * index
+      const y = this.width / 2 * Math.sin(this.k * x - this.omega * t * 0.0005 + this.phase)
+      return new THREE.Vector2(this.cx + y, this.cy - this.height / 2 + x)
+    })
+  }
+
+  getPoints(divisions, t) {
+    return this.vertical
+      ? this.getPointsVertical(divisions, t)
+      : this.getPointsHorizontal(divisions, t)
   }
 }

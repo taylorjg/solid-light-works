@@ -1,9 +1,7 @@
-import * as THREE from 'three'
 import { TravellingWave } from '../syntax/travelling-wave'
 import * as U from '../utils'
-import * as C from '../constants'
 
-const TRAVELLING_WAVE_POINT_COUNT = 50
+const TRAVELLING_WAVE_POINT_COUNT = 100
 
 // https://paddle8.com/work/anthony-mccall/156781-doubling-back/
 export class DoublingBackForm {
@@ -17,8 +15,8 @@ export class DoublingBackForm {
         U.repeat(TRAVELLING_WAVE_POINT_COUNT + 1, this.projectorPosition)
       ]
     } else {
-      this.travellingWaveLeftToRight = new TravellingWave(0, 3, 4, 4, false)
-      this.travellingWaveBottomToTop = new TravellingWave(0, 3, 4, 4, true)
+      this.travellingWaveLeftToRight = new TravellingWave(0, 2, 6, 4, false)
+      this.travellingWaveBottomToTop = new TravellingWave(0, 2, 6, 4, true)
       this.tick = 0
     }
   }

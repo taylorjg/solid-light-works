@@ -63,16 +63,16 @@ Bits of descrption garnered from the above video:
 ## Keyboard controls
 
 * a
-   * toggle axes helper
-   * <font color="red">x-axis</font>, <font color="green">y-axis</font>, <font color="blue">z-axis</font>
+  * toggle axes helper
+  * <font color="red">x-axis</font>, <font color="green">y-axis</font>, <font color="blue">z-axis</font>
+* f
+  * cycle through different Solid Light forms
 * p
-    * cycle through favourite camera positions
+  * cycle through different camera positions
 * r
-    * toggle autorotate    
+  * toggle autorotate    
 * v
   * toggle vertex normals helper for the membranes
-  * outward normals: blue
-  * inward normals: green
 
 See also:
 

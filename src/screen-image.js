@@ -35,10 +35,6 @@ export class ScreenImage {
   }
 
   destroy() {
-    this.meshes.forEach(mesh => {
-      this.scene.remove(mesh)
-      mesh.geometry.dispose()
-      mesh.material.dispose()
-    })
+    this.meshes.forEach(mesh => U.disposeMesh(this.scene, mesh))
   }
 }

@@ -20,3 +20,9 @@ export const loadTexture = url =>
     const textureLoader = new THREE.TextureLoader()
     textureLoader.load(url, resolve, reject)
   })
+
+export const disposeMesh = (scene, mesh) => {
+  scene.remove(mesh)
+  mesh.geometry.dispose()
+  mesh.material.dispose()
+}
