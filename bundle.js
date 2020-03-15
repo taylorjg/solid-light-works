@@ -52854,11 +52854,11 @@ class LeavingForm {
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var three__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
 /* harmony import */ var three_examples_jsm_controls_OrbitControls__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! three/examples/jsm/controls/OrbitControls */ "./node_modules/three/examples/jsm/controls/OrbitControls.js");
-/* harmony import */ var _forms_leaving__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./forms/leaving */ "./src/forms/leaving.js");
-/* harmony import */ var _forms_between_you_and_i__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./forms/between-you-and-i */ "./src/forms/between-you-and-i.js");
-/* harmony import */ var _forms_coupling__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./forms/coupling */ "./src/forms/coupling.js");
-/* harmony import */ var _forms_doubling_back__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./forms/doubling-back */ "./src/forms/doubling-back.js");
-/* harmony import */ var _projector__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./projector */ "./src/projector.js");
+/* harmony import */ var _installations_doubling_back__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./installations/doubling-back */ "./src/installations/doubling-back.js");
+/* harmony import */ var _installations_coupling__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./installations/coupling */ "./src/installations/coupling.js");
+/* harmony import */ var _installations_leaving__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./installations/leaving */ "./src/installations/leaving.js");
+/* harmony import */ var _installations_between_you_and_i__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./installations/between-you-and-i */ "./src/installations/between-you-and-i.js");
+/* harmony import */ var _forms_leaving__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./forms/leaving */ "./src/forms/leaving.js");
 /* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./utils */ "./src/utils.js");
 /* harmony import */ var _constants__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./constants */ "./src/constants.js");
 
@@ -52871,233 +52871,11 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-class LeavingFormConfig {
-  constructor() {
-    this.screen = {
-      width: 16,
-      height: 6
-    }
-    this.cameraPositions = [
-      {
-        cameraPosition: new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](-13.13, 2.42, 9.03),
-        controlsTarget: new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](-0.75, 2, 4.43)
-      },
-      {
-        cameraPosition: new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](-2.79, 4.2, -9.53),
-        controlsTarget: new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](0.58, 2, 5.34)
-      }
-    ]
-    const leftProjectorPosition = new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](_constants__WEBPACK_IMPORTED_MODULE_8__["LEFT_FORM_CX"], _constants__WEBPACK_IMPORTED_MODULE_8__["PROJECTOR_CY"], _constants__WEBPACK_IMPORTED_MODULE_8__["MEMBRANE_LENGTH"])
-    const rightProjectorPosition = new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](_constants__WEBPACK_IMPORTED_MODULE_8__["RIGHT_FORM_CX"], _constants__WEBPACK_IMPORTED_MODULE_8__["PROJECTOR_CY"], _constants__WEBPACK_IMPORTED_MODULE_8__["MEMBRANE_LENGTH"])
-    this.leftProjectorForm = new _forms_leaving__WEBPACK_IMPORTED_MODULE_2__["LeavingForm"](
-      leftProjectorPosition,
-      _constants__WEBPACK_IMPORTED_MODULE_8__["LEFT_FORM_CX"],
-      _constants__WEBPACK_IMPORTED_MODULE_8__["PROJECTOR_CY"],
-      _constants__WEBPACK_IMPORTED_MODULE_8__["PROJECTOR_R"],
-      _constants__WEBPACK_IMPORTED_MODULE_8__["PROJECTOR_R"],
-      true)
-    this.leftScreenForm = new _forms_leaving__WEBPACK_IMPORTED_MODULE_2__["LeavingForm"](
-      leftProjectorPosition,
-      _constants__WEBPACK_IMPORTED_MODULE_8__["LEFT_FORM_CX"],
-      _constants__WEBPACK_IMPORTED_MODULE_8__["SCREEN_IMAGE_CY"],
-      _constants__WEBPACK_IMPORTED_MODULE_8__["SCREEN_IMAGE_RX"],
-      _constants__WEBPACK_IMPORTED_MODULE_8__["SCREEN_IMAGE_RY"],
-      true)
-    this.rightProjectorForm = new _forms_leaving__WEBPACK_IMPORTED_MODULE_2__["LeavingForm"](
-      rightProjectorPosition,
-      _constants__WEBPACK_IMPORTED_MODULE_8__["RIGHT_FORM_CX"],
-      _constants__WEBPACK_IMPORTED_MODULE_8__["PROJECTOR_CY"],
-      _constants__WEBPACK_IMPORTED_MODULE_8__["PROJECTOR_R"],
-      _constants__WEBPACK_IMPORTED_MODULE_8__["PROJECTOR_R"],
-      false)
-    this.rightScreenForm = new _forms_leaving__WEBPACK_IMPORTED_MODULE_2__["LeavingForm"](
-      rightProjectorPosition,
-      _constants__WEBPACK_IMPORTED_MODULE_8__["RIGHT_FORM_CX"],
-      _constants__WEBPACK_IMPORTED_MODULE_8__["SCREEN_IMAGE_CY"],
-      _constants__WEBPACK_IMPORTED_MODULE_8__["SCREEN_IMAGE_RX"],
-      _constants__WEBPACK_IMPORTED_MODULE_8__["SCREEN_IMAGE_RY"],
-      false)
-    this.leftProjector = null
-    this.rightProjector = null
-  }
-
-  create(scene, hazeTexture) {
-    this.leftProjector = new _projector__WEBPACK_IMPORTED_MODULE_6__["Projector"](
-      this.leftProjectorForm,
-      this.leftScreenForm,
-      scene,
-      hazeTexture)
-    this.rightProjector = new _projector__WEBPACK_IMPORTED_MODULE_6__["Projector"](
-      this.rightProjectorForm,
-      this.rightScreenForm,
-      scene,
-      hazeTexture)
-  }
-
-  destroy() {
-    this.leftProjector && this.leftProjector.destroy()
-    this.rightProjector && this.rightProjector.destroy()
-    this.leftProjector = null
-    this.rightProjector = null
-  }
-
-  update() {
-    this.leftProjector && this.leftProjector.update()
-    this.rightProjector && this.rightProjector.update()
-  }
-
-  toggleVertexNormals() {
-    this.leftProjector && this.leftProjector.toggleVertexNormals()
-    this.rightProjector && this.rightProjector.toggleVertexNormals()
-  }
-}
-
-class BetweenYouAndIFormConfig {
-  constructor() {
-    this.screen = {
-      width: 16,
-      height: 6
-    }
-    this.cameraPositions = [
-      {
-        cameraPosition: new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](5.45, 4.04, 14.21),
-        controlsTarget: new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](1.06, 2, 3.31)
-      },
-      {
-        cameraPosition: new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](-5.69, 6.67, -5.35),
-        controlsTarget: new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](1.06, 2, 3.31)
-      }
-    ]
-    const projectorPosition = new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](0, _constants__WEBPACK_IMPORTED_MODULE_8__["PROJECTOR_CY"] * 4, _constants__WEBPACK_IMPORTED_MODULE_8__["MEMBRANE_LENGTH"])
-    this.projectorForm = new _forms_between_you_and_i__WEBPACK_IMPORTED_MODULE_3__["BetweenYouAndIForm"](projectorPosition, true)
-    this.screenForm = new _forms_between_you_and_i__WEBPACK_IMPORTED_MODULE_3__["BetweenYouAndIForm"](projectorPosition, false)
-    this.projector = null
-  }
-
-  create(scene, hazeTexture) {
-    this.projector = new _projector__WEBPACK_IMPORTED_MODULE_6__["Projector"](
-      this.projectorForm,
-      this.screenForm,
-      scene,
-      hazeTexture)
-  }
-
-  destroy() {
-    this.projector && this.projector.destroy()
-    this.projector = null
-  }
-
-  update() {
-    this.projector && this.projector.update()
-  }
-
-  toggleVertexNormals() {
-    this.projector && this.projector.toggleVertexNormals()
-  }
-}
-
-class CouplingFormConfig {
-  constructor() {
-    this.screen = {
-      width: 10,
-      height: 6
-    }
-    this.cameraPositions = [
-      {
-        cameraPosition: new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](5.88, 4.12, 12.26),
-        controlsTarget: new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](-0.81, 2, 2.62)
-      },
-      {
-        cameraPosition: new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](0.81, 5.01, -6.45),
-        controlsTarget: new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](-0.27, 2, 3.83)
-      }
-    ]
-    const projectorPosition = new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](0, _constants__WEBPACK_IMPORTED_MODULE_8__["PROJECTOR_CY"] * 4, _constants__WEBPACK_IMPORTED_MODULE_8__["MEMBRANE_LENGTH"])
-    this.projectorForm = new _forms_coupling__WEBPACK_IMPORTED_MODULE_4__["CouplingForm"](projectorPosition, true)
-    this.screenForm = new _forms_coupling__WEBPACK_IMPORTED_MODULE_4__["CouplingForm"](projectorPosition, false)
-    this.projector = null
-  }
-
-  create(scene, hazeTexture) {
-    this.projector = new _projector__WEBPACK_IMPORTED_MODULE_6__["Projector"](
-      this.projectorForm,
-      this.screenForm,
-      scene,
-      hazeTexture)
-  }
-
-  destroy() {
-    this.projector && this.projector.destroy()
-    this.projector = null
-  }
-
-  update() {
-    this.projector && this.projector.update()
-  }
-
-  toggleVertexNormals() {
-    this.projector && this.projector.toggleVertexNormals()
-  }
-}
-
-class DoublingBackFormConfig {
-  constructor() {
-    this.screen = {
-      width: 6.4,
-      height: 4.4
-    }
-    this.leftWall = {
-      width: _constants__WEBPACK_IMPORTED_MODULE_8__["MEMBRANE_LENGTH"],
-      height: 4.4,
-      x: -3.2
-    }
-    this.cameraPositions = [
-      {
-        cameraPosition: new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](4.18, 4.64, 12.76),
-        controlsTarget: new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](-0.88, 2, 5.51)
-      },
-      {
-        cameraPosition: new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](1.52, 2.75, -6.79),
-        controlsTarget: new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](-0.88, 2, 5.51)
-      },
-      {
-        cameraPosition: new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](-9.02, 1.68, 9.85),
-        controlsTarget: new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](-0.88, 2, 5.51)
-      }
-    ]
-    const projectorPosition = new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](-3.05, 0.1, _constants__WEBPACK_IMPORTED_MODULE_8__["MEMBRANE_LENGTH"])
-    this.projectorForm = new _forms_doubling_back__WEBPACK_IMPORTED_MODULE_5__["DoublingBackForm"](projectorPosition, true)
-    this.screenForm = new _forms_doubling_back__WEBPACK_IMPORTED_MODULE_5__["DoublingBackForm"](projectorPosition, false)
-    this.projector = null
-  }
-
-  create(scene, hazeTexture) {
-    this.projector = new _projector__WEBPACK_IMPORTED_MODULE_6__["Projector"](
-      this.projectorForm,
-      this.screenForm,
-      scene,
-      hazeTexture)
-  }
-
-  destroy() {
-    this.projector && this.projector.destroy()
-    this.projector = null
-  }
-
-  toggleVertexNormals() {
-    this.projector && this.projector.toggleVertexNormals()
-  }
-
-  update() {
-    this.projector && this.projector.update()
-  }
-}
-
-const forms = [
-  new DoublingBackFormConfig(),
-  new CouplingFormConfig(),
-  new LeavingFormConfig(),
-  new BetweenYouAndIFormConfig()
+const installations = [
+  new _installations_doubling_back__WEBPACK_IMPORTED_MODULE_2__["DoublingBackInstallation"](),
+  new _installations_coupling__WEBPACK_IMPORTED_MODULE_3__["CouplingInstallation"](),
+  new _installations_leaving__WEBPACK_IMPORTED_MODULE_4__["LeavingInstallation"](),
+  new _installations_between_you_and_i__WEBPACK_IMPORTED_MODULE_5__["BetweenYouAndIInstallation"]()
 ]
 
 const main = async () => {
@@ -53109,7 +52887,7 @@ const main = async () => {
   renderer.setSize(w, h)
   container.appendChild(renderer.domElement)
 
-  let currentFormIndex = 0
+  let currentInstallationIndex = 0
   let currentCameraPositionIndex = 0
   let axesHelper = null
   let surfaces = []
@@ -53126,9 +52904,9 @@ const main = async () => {
   controls.autoRotate = false
   controls.autoRotateSpeed = 0.5
 
-  const createSurfaces = form => {
-    if (form.screen) {
-      const s = form.screen
+  const createSurfaces = installation => {
+    if (installation.screen) {
+      const s = installation.screen
       const screenGeometry = new three__WEBPACK_IMPORTED_MODULE_0__["PlaneGeometry"](s.width, s.height)
       screenGeometry.translate(0, s.height / 2, 0)
       const screenMaterial = new three__WEBPACK_IMPORTED_MODULE_0__["MeshBasicMaterial"]({
@@ -53141,8 +52919,8 @@ const main = async () => {
       surfaces.push(screen)
     }
 
-    if (form.leftWall) {
-      const lw = form.leftWall
+    if (installation.leftWall) {
+      const lw = installation.leftWall
       const leftWallGeometry = new three__WEBPACK_IMPORTED_MODULE_0__["PlaneGeometry"](lw.width, lw.height)
       leftWallGeometry.rotateY(_constants__WEBPACK_IMPORTED_MODULE_8__["HALF_PI"])
       leftWallGeometry.translate(lw.x, lw.height / 2, lw.width / 2)
@@ -53182,30 +52960,30 @@ const main = async () => {
     console.log(`controlsTarget: new THREE.Vector3(${prec2(t.x)}, ${prec2(t.y)}, ${prec2(t.z)})`)
   }
 
-  const switchForm = (reset) => {
+  const switchInstallation = reset => {
     if (reset) {
-      currentFormIndex = 0
+      currentInstallationIndex = 0
     } else {
       destroySurfaces()
-      forms[currentFormIndex].destroy()
-      currentFormIndex++
-      currentFormIndex %= forms.length
+      installations[currentInstallationIndex].destroy()
+      currentInstallationIndex++
+      currentInstallationIndex %= installations.length
     }
-    createSurfaces(forms[currentFormIndex])
-    forms[currentFormIndex].create(scene, hazeTexture)
+    createSurfaces(installations[currentInstallationIndex])
+    installations[currentInstallationIndex].create(scene, hazeTexture)
     switchCameraPosition(true)
   }
 
-  const switchCameraPosition = (reset) => {
-    const form = forms[currentFormIndex]
+  const switchCameraPosition = reset => {
+    const installation = installations[currentInstallationIndex]
     if (reset) {
       currentCameraPositionIndex = 0
     } else {
       currentCameraPositionIndex++
-      currentCameraPositionIndex %= form.cameraPositions.length
+      currentCameraPositionIndex %= installation.cameraPositions.length
     }
-    camera.position.copy(form.cameraPositions[currentCameraPositionIndex].cameraPosition)
-    controls.target.copy(form.cameraPositions[currentCameraPositionIndex].controlsTarget)
+    camera.position.copy(installation.cameraPositions[currentCameraPositionIndex].cameraPosition)
+    controls.target.copy(installation.cameraPositions[currentCameraPositionIndex].controlsTarget)
   }
 
   const toggleAutoRotate = () => {
@@ -53213,7 +52991,7 @@ const main = async () => {
   }
 
   const toggleVertexNormals = () => {
-    forms[currentFormIndex].toggleVertexNormals()
+    installations[currentInstallationIndex].toggleVertexNormals()
   }
 
   const onDocumentKeyDownHandler = e => {
@@ -53221,14 +52999,14 @@ const main = async () => {
     switch (e.key) {
       case 'a': return toggleAxes()
       case 'c': return reportCameraPosition()
-      case 'f': return switchForm()
+      case 'f': return switchInstallation()
       case 'p': return switchCameraPosition()
       case 'r': return toggleAutoRotate()
       case 'v': return toggleVertexNormals()
-      case '1': return Object(_forms_leaving__WEBPACK_IMPORTED_MODULE_2__["setSpeed"])(1)
-      case '2': return Object(_forms_leaving__WEBPACK_IMPORTED_MODULE_2__["setSpeed"])(2)
-      case '3': return Object(_forms_leaving__WEBPACK_IMPORTED_MODULE_2__["setSpeed"])(5)
-      case '4': return Object(_forms_leaving__WEBPACK_IMPORTED_MODULE_2__["setSpeed"])(10)
+      case '1': return Object(_forms_leaving__WEBPACK_IMPORTED_MODULE_6__["setSpeed"])(1)
+      case '2': return Object(_forms_leaving__WEBPACK_IMPORTED_MODULE_6__["setSpeed"])(2)
+      case '3': return Object(_forms_leaving__WEBPACK_IMPORTED_MODULE_6__["setSpeed"])(5)
+      case '4': return Object(_forms_leaving__WEBPACK_IMPORTED_MODULE_6__["setSpeed"])(10)
     }
   }
 
@@ -53242,10 +53020,10 @@ const main = async () => {
 
   window.addEventListener('resize', onWindowResizeHandler)
 
-  switchForm(true)
+  switchInstallation(true)
 
   const render = () => {
-    forms[currentFormIndex].update()
+    installations[currentInstallationIndex].update()
     controls.update()
     renderer.render(scene, camera)
     requestAnimationFrame(render)
@@ -53255,6 +53033,342 @@ const main = async () => {
 }
 
 main()
+
+
+/***/ }),
+
+/***/ "./src/installations/between-you-and-i.js":
+/*!************************************************!*\
+  !*** ./src/installations/between-you-and-i.js ***!
+  \************************************************/
+/*! exports provided: BetweenYouAndIInstallation */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "BetweenYouAndIInstallation", function() { return BetweenYouAndIInstallation; });
+/* harmony import */ var three__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
+/* harmony import */ var _forms_between_you_and_i__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../forms/between-you-and-i */ "./src/forms/between-you-and-i.js");
+/* harmony import */ var _projector__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../projector */ "./src/projector.js");
+/* harmony import */ var _constants__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../constants */ "./src/constants.js");
+
+
+
+
+
+class BetweenYouAndIInstallation {
+
+  constructor() {
+
+    this.screen = {
+      width: 16,
+      height: 6
+    }
+
+    this.cameraPositions = [
+      {
+        cameraPosition: new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](5.45, 4.04, 14.21),
+        controlsTarget: new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](1.06, 2, 3.31)
+      },
+      {
+        cameraPosition: new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](-5.69, 6.67, -5.35),
+        controlsTarget: new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](1.06, 2, 3.31)
+      }
+    ]
+
+    const projectorPosition = new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](0, _constants__WEBPACK_IMPORTED_MODULE_3__["PROJECTOR_CY"] * 4, _constants__WEBPACK_IMPORTED_MODULE_3__["MEMBRANE_LENGTH"])
+
+    this.projectorForm = new _forms_between_you_and_i__WEBPACK_IMPORTED_MODULE_1__["BetweenYouAndIForm"](projectorPosition, true)
+    this.screenForm = new _forms_between_you_and_i__WEBPACK_IMPORTED_MODULE_1__["BetweenYouAndIForm"](projectorPosition, false)
+
+    this.projector = null
+  }
+
+  create(scene, hazeTexture) {
+    this.projector = new _projector__WEBPACK_IMPORTED_MODULE_2__["Projector"](
+      this.projectorForm,
+      this.screenForm,
+      scene,
+      hazeTexture)
+  }
+
+  destroy() {
+    this.projector && this.projector.destroy()
+    this.projector = null
+  }
+
+  update() {
+    this.projector && this.projector.update()
+  }
+
+  toggleVertexNormals() {
+    this.projector && this.projector.toggleVertexNormals()
+  }
+}
+
+
+/***/ }),
+
+/***/ "./src/installations/coupling.js":
+/*!***************************************!*\
+  !*** ./src/installations/coupling.js ***!
+  \***************************************/
+/*! exports provided: CouplingInstallation */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "CouplingInstallation", function() { return CouplingInstallation; });
+/* harmony import */ var three__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
+/* harmony import */ var _forms_coupling__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../forms/coupling */ "./src/forms/coupling.js");
+/* harmony import */ var _projector__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../projector */ "./src/projector.js");
+/* harmony import */ var _constants__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../constants */ "./src/constants.js");
+
+
+
+
+
+class CouplingInstallation {
+
+  constructor() {
+
+    this.screen = {
+      width: 10,
+      height: 6
+    }
+
+    this.cameraPositions = [
+      {
+        cameraPosition: new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](5.88, 4.12, 12.26),
+        controlsTarget: new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](-0.81, 2, 2.62)
+      },
+      {
+        cameraPosition: new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](0.81, 5.01, -6.45),
+        controlsTarget: new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](-0.27, 2, 3.83)
+      }
+    ]
+
+    const projectorPosition = new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](0, _constants__WEBPACK_IMPORTED_MODULE_3__["PROJECTOR_CY"] * 4, _constants__WEBPACK_IMPORTED_MODULE_3__["MEMBRANE_LENGTH"])
+
+    this.projectorForm = new _forms_coupling__WEBPACK_IMPORTED_MODULE_1__["CouplingForm"](projectorPosition, true)
+    this.screenForm = new _forms_coupling__WEBPACK_IMPORTED_MODULE_1__["CouplingForm"](projectorPosition, false)
+
+    this.projector = null
+  }
+
+  create(scene, hazeTexture) {
+    this.projector = new _projector__WEBPACK_IMPORTED_MODULE_2__["Projector"](
+      this.projectorForm,
+      this.screenForm,
+      scene,
+      hazeTexture)
+  }
+
+  destroy() {
+    this.projector && this.projector.destroy()
+    this.projector = null
+  }
+
+  update() {
+    this.projector && this.projector.update()
+  }
+
+  toggleVertexNormals() {
+    this.projector && this.projector.toggleVertexNormals()
+  }
+}
+
+
+/***/ }),
+
+/***/ "./src/installations/doubling-back.js":
+/*!********************************************!*\
+  !*** ./src/installations/doubling-back.js ***!
+  \********************************************/
+/*! exports provided: DoublingBackInstallation */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "DoublingBackInstallation", function() { return DoublingBackInstallation; });
+/* harmony import */ var three__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
+/* harmony import */ var _forms_doubling_back__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../forms/doubling-back */ "./src/forms/doubling-back.js");
+/* harmony import */ var _projector__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../projector */ "./src/projector.js");
+/* harmony import */ var _constants__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../constants */ "./src/constants.js");
+
+
+
+
+
+class DoublingBackInstallation {
+
+  constructor() {
+
+    this.screen = {
+      width: 6.4,
+      height: 4.4
+    }
+
+    this.leftWall = {
+      width: _constants__WEBPACK_IMPORTED_MODULE_3__["MEMBRANE_LENGTH"],
+      height: 4.4,
+      x: -3.2
+    }
+
+    this.cameraPositions = [
+      {
+        cameraPosition: new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](4.18, 4.64, 12.76),
+        controlsTarget: new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](-0.88, 2, 5.51)
+      },
+      {
+        cameraPosition: new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](1.52, 2.75, -6.79),
+        controlsTarget: new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](-0.88, 2, 5.51)
+      },
+      {
+        cameraPosition: new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](-9.02, 1.68, 9.85),
+        controlsTarget: new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](-0.88, 2, 5.51)
+      }
+    ]
+
+    const projectorPosition = new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](-3.05, 0.1, _constants__WEBPACK_IMPORTED_MODULE_3__["MEMBRANE_LENGTH"])
+
+    this.projectorForm = new _forms_doubling_back__WEBPACK_IMPORTED_MODULE_1__["DoublingBackForm"](projectorPosition, true)
+    this.screenForm = new _forms_doubling_back__WEBPACK_IMPORTED_MODULE_1__["DoublingBackForm"](projectorPosition, false)
+
+    this.projector = null
+  }
+
+  create(scene, hazeTexture) {
+    this.projector = new _projector__WEBPACK_IMPORTED_MODULE_2__["Projector"](
+      this.projectorForm,
+      this.screenForm,
+      scene,
+      hazeTexture)
+  }
+
+  destroy() {
+    this.projector && this.projector.destroy()
+    this.projector = null
+  }
+
+  update() {
+    this.projector && this.projector.update()
+  }
+
+  toggleVertexNormals() {
+    this.projector && this.projector.toggleVertexNormals()
+  }
+}
+
+
+/***/ }),
+
+/***/ "./src/installations/leaving.js":
+/*!**************************************!*\
+  !*** ./src/installations/leaving.js ***!
+  \**************************************/
+/*! exports provided: LeavingInstallation */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "LeavingInstallation", function() { return LeavingInstallation; });
+/* harmony import */ var three__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
+/* harmony import */ var _forms_leaving__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../forms/leaving */ "./src/forms/leaving.js");
+/* harmony import */ var _projector__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../projector */ "./src/projector.js");
+/* harmony import */ var _constants__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../constants */ "./src/constants.js");
+
+
+
+
+
+class LeavingInstallation {
+
+  constructor() {
+
+    this.screen = {
+      width: 16,
+      height: 6
+    }
+
+    this.cameraPositions = [
+      {
+        cameraPosition: new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](-13.13, 2.42, 9.03),
+        controlsTarget: new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](-0.75, 2, 4.43)
+      },
+      {
+        cameraPosition: new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](-2.79, 4.2, -9.53),
+        controlsTarget: new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](0.58, 2, 5.34)
+      }
+    ]
+
+    const leftProjectorPosition = new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](_constants__WEBPACK_IMPORTED_MODULE_3__["LEFT_FORM_CX"], _constants__WEBPACK_IMPORTED_MODULE_3__["PROJECTOR_CY"], _constants__WEBPACK_IMPORTED_MODULE_3__["MEMBRANE_LENGTH"])
+    const rightProjectorPosition = new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](_constants__WEBPACK_IMPORTED_MODULE_3__["RIGHT_FORM_CX"], _constants__WEBPACK_IMPORTED_MODULE_3__["PROJECTOR_CY"], _constants__WEBPACK_IMPORTED_MODULE_3__["MEMBRANE_LENGTH"])
+
+    this.leftProjectorForm = new _forms_leaving__WEBPACK_IMPORTED_MODULE_1__["LeavingForm"](
+      leftProjectorPosition,
+      _constants__WEBPACK_IMPORTED_MODULE_3__["LEFT_FORM_CX"],
+      _constants__WEBPACK_IMPORTED_MODULE_3__["PROJECTOR_CY"],
+      _constants__WEBPACK_IMPORTED_MODULE_3__["PROJECTOR_R"],
+      _constants__WEBPACK_IMPORTED_MODULE_3__["PROJECTOR_R"],
+      true)
+    this.leftScreenForm = new _forms_leaving__WEBPACK_IMPORTED_MODULE_1__["LeavingForm"](
+      leftProjectorPosition,
+      _constants__WEBPACK_IMPORTED_MODULE_3__["LEFT_FORM_CX"],
+      _constants__WEBPACK_IMPORTED_MODULE_3__["SCREEN_IMAGE_CY"],
+      _constants__WEBPACK_IMPORTED_MODULE_3__["SCREEN_IMAGE_RX"],
+      _constants__WEBPACK_IMPORTED_MODULE_3__["SCREEN_IMAGE_RY"],
+      true)
+
+    this.rightProjectorForm = new _forms_leaving__WEBPACK_IMPORTED_MODULE_1__["LeavingForm"](
+      rightProjectorPosition,
+      _constants__WEBPACK_IMPORTED_MODULE_3__["RIGHT_FORM_CX"],
+      _constants__WEBPACK_IMPORTED_MODULE_3__["PROJECTOR_CY"],
+      _constants__WEBPACK_IMPORTED_MODULE_3__["PROJECTOR_R"],
+      _constants__WEBPACK_IMPORTED_MODULE_3__["PROJECTOR_R"],
+      false)
+    this.rightScreenForm = new _forms_leaving__WEBPACK_IMPORTED_MODULE_1__["LeavingForm"](
+      rightProjectorPosition,
+      _constants__WEBPACK_IMPORTED_MODULE_3__["RIGHT_FORM_CX"],
+      _constants__WEBPACK_IMPORTED_MODULE_3__["SCREEN_IMAGE_CY"],
+      _constants__WEBPACK_IMPORTED_MODULE_3__["SCREEN_IMAGE_RX"],
+      _constants__WEBPACK_IMPORTED_MODULE_3__["SCREEN_IMAGE_RY"],
+      false)
+
+    this.leftProjector = null
+    this.rightProjector = null
+  }
+
+  create(scene, hazeTexture) {
+    this.leftProjector = new _projector__WEBPACK_IMPORTED_MODULE_2__["Projector"](
+      this.leftProjectorForm,
+      this.leftScreenForm,
+      scene,
+      hazeTexture)
+    this.rightProjector = new _projector__WEBPACK_IMPORTED_MODULE_2__["Projector"](
+      this.rightProjectorForm,
+      this.rightScreenForm,
+      scene,
+      hazeTexture)
+  }
+
+  destroy() {
+    this.leftProjector && this.leftProjector.destroy()
+    this.rightProjector && this.rightProjector.destroy()
+    this.leftProjector = null
+    this.rightProjector = null
+  }
+
+  update() {
+    this.leftProjector && this.leftProjector.update()
+    this.rightProjector && this.rightProjector.update()
+  }
+
+  toggleVertexNormals() {
+    this.leftProjector && this.leftProjector.toggleVertexNormals()
+    this.rightProjector && this.rightProjector.toggleVertexNormals()
+  }
+}
 
 
 /***/ }),
