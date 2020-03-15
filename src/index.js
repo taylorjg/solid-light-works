@@ -1,240 +1,18 @@
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
-import { LeavingForm, setSpeed } from './forms/leaving'
-import { BetweenYouAndIForm } from './forms/between-you-and-i'
-import { CouplingForm } from './forms/coupling'
-import { DoublingBackForm } from './forms/doubling-back'
-import { Projector } from './projector'
+import { DoublingBackInstallation } from './installations/doubling-back'
+import { CouplingInstallation } from './installations/coupling'
+import { LeavingInstallation } from './installations/leaving'
+import { BetweenYouAndIInstallation } from './installations/between-you-and-i'
+import { setSpeed } from './forms/leaving'
 import * as U from './utils'
 import * as C from './constants'
 
-class LeavingFormConfig {
-  constructor() {
-    this.screen = {
-      width: 16,
-      height: 6
-    }
-    this.cameraPositions = [
-      {
-        cameraPosition: new THREE.Vector3(-13.13, 2.42, 9.03),
-        controlsTarget: new THREE.Vector3(-0.75, 2, 4.43)
-      },
-      {
-        cameraPosition: new THREE.Vector3(-2.79, 4.2, -9.53),
-        controlsTarget: new THREE.Vector3(0.58, 2, 5.34)
-      }
-    ]
-    const leftProjectorPosition = new THREE.Vector3(C.LEFT_FORM_CX, C.PROJECTOR_CY, C.MEMBRANE_LENGTH)
-    const rightProjectorPosition = new THREE.Vector3(C.RIGHT_FORM_CX, C.PROJECTOR_CY, C.MEMBRANE_LENGTH)
-    this.leftProjectorForm = new LeavingForm(
-      leftProjectorPosition,
-      C.LEFT_FORM_CX,
-      C.PROJECTOR_CY,
-      C.PROJECTOR_R,
-      C.PROJECTOR_R,
-      true)
-    this.leftScreenForm = new LeavingForm(
-      leftProjectorPosition,
-      C.LEFT_FORM_CX,
-      C.SCREEN_IMAGE_CY,
-      C.SCREEN_IMAGE_RX,
-      C.SCREEN_IMAGE_RY,
-      true)
-    this.rightProjectorForm = new LeavingForm(
-      rightProjectorPosition,
-      C.RIGHT_FORM_CX,
-      C.PROJECTOR_CY,
-      C.PROJECTOR_R,
-      C.PROJECTOR_R,
-      false)
-    this.rightScreenForm = new LeavingForm(
-      rightProjectorPosition,
-      C.RIGHT_FORM_CX,
-      C.SCREEN_IMAGE_CY,
-      C.SCREEN_IMAGE_RX,
-      C.SCREEN_IMAGE_RY,
-      false)
-    this.leftProjector = null
-    this.rightProjector = null
-  }
-
-  create(scene, hazeTexture) {
-    this.leftProjector = new Projector(
-      this.leftProjectorForm,
-      this.leftScreenForm,
-      scene,
-      hazeTexture)
-    this.rightProjector = new Projector(
-      this.rightProjectorForm,
-      this.rightScreenForm,
-      scene,
-      hazeTexture)
-  }
-
-  destroy() {
-    this.leftProjector && this.leftProjector.destroy()
-    this.rightProjector && this.rightProjector.destroy()
-    this.leftProjector = null
-    this.rightProjector = null
-  }
-
-  update() {
-    this.leftProjector && this.leftProjector.update()
-    this.rightProjector && this.rightProjector.update()
-  }
-
-  toggleVertexNormals() {
-    this.leftProjector && this.leftProjector.toggleVertexNormals()
-    this.rightProjector && this.rightProjector.toggleVertexNormals()
-  }
-}
-
-class BetweenYouAndIFormConfig {
-  constructor() {
-    this.screen = {
-      width: 16,
-      height: 6
-    }
-    this.cameraPositions = [
-      {
-        cameraPosition: new THREE.Vector3(5.45, 4.04, 14.21),
-        controlsTarget: new THREE.Vector3(1.06, 2, 3.31)
-      },
-      {
-        cameraPosition: new THREE.Vector3(-5.69, 6.67, -5.35),
-        controlsTarget: new THREE.Vector3(1.06, 2, 3.31)
-      }
-    ]
-    const projectorPosition = new THREE.Vector3(0, C.PROJECTOR_CY * 4, C.MEMBRANE_LENGTH)
-    this.projectorForm = new BetweenYouAndIForm(projectorPosition, true)
-    this.screenForm = new BetweenYouAndIForm(projectorPosition, false)
-    this.projector = null
-  }
-
-  create(scene, hazeTexture) {
-    this.projector = new Projector(
-      this.projectorForm,
-      this.screenForm,
-      scene,
-      hazeTexture)
-  }
-
-  destroy() {
-    this.projector && this.projector.destroy()
-    this.projector = null
-  }
-
-  update() {
-    this.projector && this.projector.update()
-  }
-
-  toggleVertexNormals() {
-    this.projector && this.projector.toggleVertexNormals()
-  }
-}
-
-class CouplingFormConfig {
-  constructor() {
-    this.screen = {
-      width: 10,
-      height: 6
-    }
-    this.cameraPositions = [
-      {
-        cameraPosition: new THREE.Vector3(5.88, 4.12, 12.26),
-        controlsTarget: new THREE.Vector3(-0.81, 2, 2.62)
-      },
-      {
-        cameraPosition: new THREE.Vector3(0.81, 5.01, -6.45),
-        controlsTarget: new THREE.Vector3(-0.27, 2, 3.83)
-      }
-    ]
-    const projectorPosition = new THREE.Vector3(0, C.PROJECTOR_CY * 4, C.MEMBRANE_LENGTH)
-    this.projectorForm = new CouplingForm(projectorPosition, true)
-    this.screenForm = new CouplingForm(projectorPosition, false)
-    this.projector = null
-  }
-
-  create(scene, hazeTexture) {
-    this.projector = new Projector(
-      this.projectorForm,
-      this.screenForm,
-      scene,
-      hazeTexture)
-  }
-
-  destroy() {
-    this.projector && this.projector.destroy()
-    this.projector = null
-  }
-
-  update() {
-    this.projector && this.projector.update()
-  }
-
-  toggleVertexNormals() {
-    this.projector && this.projector.toggleVertexNormals()
-  }
-}
-
-class DoublingBackFormConfig {
-  constructor() {
-    this.screen = {
-      width: 6.4,
-      height: 4.4
-    }
-    this.leftWall = {
-      width: C.MEMBRANE_LENGTH,
-      height: 4.4,
-      x: -3.2
-    }
-    this.cameraPositions = [
-      {
-        cameraPosition: new THREE.Vector3(4.18, 4.64, 12.76),
-        controlsTarget: new THREE.Vector3(-0.88, 2, 5.51)
-      },
-      {
-        cameraPosition: new THREE.Vector3(1.52, 2.75, -6.79),
-        controlsTarget: new THREE.Vector3(-0.88, 2, 5.51)
-      },
-      {
-        cameraPosition: new THREE.Vector3(-9.02, 1.68, 9.85),
-        controlsTarget: new THREE.Vector3(-0.88, 2, 5.51)
-      }
-    ]
-    const projectorPosition = new THREE.Vector3(-3.05, 0.1, C.MEMBRANE_LENGTH)
-    this.projectorForm = new DoublingBackForm(projectorPosition, true)
-    this.screenForm = new DoublingBackForm(projectorPosition, false)
-    this.projector = null
-  }
-
-  create(scene, hazeTexture) {
-    this.projector = new Projector(
-      this.projectorForm,
-      this.screenForm,
-      scene,
-      hazeTexture)
-  }
-
-  destroy() {
-    this.projector && this.projector.destroy()
-    this.projector = null
-  }
-
-  toggleVertexNormals() {
-    this.projector && this.projector.toggleVertexNormals()
-  }
-
-  update() {
-    this.projector && this.projector.update()
-  }
-}
-
-const forms = [
-  new DoublingBackFormConfig(),
-  new CouplingFormConfig(),
-  new LeavingFormConfig(),
-  new BetweenYouAndIFormConfig()
+const installations = [
+  new DoublingBackInstallation(),
+  new CouplingInstallation(),
+  new LeavingInstallation(),
+  new BetweenYouAndIInstallation()
 ]
 
 const main = async () => {
@@ -246,7 +24,7 @@ const main = async () => {
   renderer.setSize(w, h)
   container.appendChild(renderer.domElement)
 
-  let currentFormIndex = 0
+  let currentInstallationIndex = 0
   let currentCameraPositionIndex = 0
   let axesHelper = null
   let surfaces = []
@@ -263,9 +41,9 @@ const main = async () => {
   controls.autoRotate = false
   controls.autoRotateSpeed = 0.5
 
-  const createSurfaces = form => {
-    if (form.screen) {
-      const s = form.screen
+  const createSurfaces = installation => {
+    if (installation.screen) {
+      const s = installation.screen
       const screenGeometry = new THREE.PlaneGeometry(s.width, s.height)
       screenGeometry.translate(0, s.height / 2, 0)
       const screenMaterial = new THREE.MeshBasicMaterial({
@@ -278,8 +56,8 @@ const main = async () => {
       surfaces.push(screen)
     }
 
-    if (form.leftWall) {
-      const lw = form.leftWall
+    if (installation.leftWall) {
+      const lw = installation.leftWall
       const leftWallGeometry = new THREE.PlaneGeometry(lw.width, lw.height)
       leftWallGeometry.rotateY(C.HALF_PI)
       leftWallGeometry.translate(lw.x, lw.height / 2, lw.width / 2)
@@ -319,30 +97,30 @@ const main = async () => {
     console.log(`controlsTarget: new THREE.Vector3(${prec2(t.x)}, ${prec2(t.y)}, ${prec2(t.z)})`)
   }
 
-  const switchForm = (reset) => {
+  const switchInstallation = reset => {
     if (reset) {
-      currentFormIndex = 0
+      currentInstallationIndex = 0
     } else {
       destroySurfaces()
-      forms[currentFormIndex].destroy()
-      currentFormIndex++
-      currentFormIndex %= forms.length
+      installations[currentInstallationIndex].destroy()
+      currentInstallationIndex++
+      currentInstallationIndex %= installations.length
     }
-    createSurfaces(forms[currentFormIndex])
-    forms[currentFormIndex].create(scene, hazeTexture)
+    createSurfaces(installations[currentInstallationIndex])
+    installations[currentInstallationIndex].create(scene, hazeTexture)
     switchCameraPosition(true)
   }
 
-  const switchCameraPosition = (reset) => {
-    const form = forms[currentFormIndex]
+  const switchCameraPosition = reset => {
+    const installation = installations[currentInstallationIndex]
     if (reset) {
       currentCameraPositionIndex = 0
     } else {
       currentCameraPositionIndex++
-      currentCameraPositionIndex %= form.cameraPositions.length
+      currentCameraPositionIndex %= installation.cameraPositions.length
     }
-    camera.position.copy(form.cameraPositions[currentCameraPositionIndex].cameraPosition)
-    controls.target.copy(form.cameraPositions[currentCameraPositionIndex].controlsTarget)
+    camera.position.copy(installation.cameraPositions[currentCameraPositionIndex].cameraPosition)
+    controls.target.copy(installation.cameraPositions[currentCameraPositionIndex].controlsTarget)
   }
 
   const toggleAutoRotate = () => {
@@ -350,7 +128,7 @@ const main = async () => {
   }
 
   const toggleVertexNormals = () => {
-    forms[currentFormIndex].toggleVertexNormals()
+    installations[currentInstallationIndex].toggleVertexNormals()
   }
 
   const onDocumentKeyDownHandler = e => {
@@ -358,7 +136,7 @@ const main = async () => {
     switch (e.key) {
       case 'a': return toggleAxes()
       case 'c': return reportCameraPosition()
-      case 'f': return switchForm()
+      case 'f': return switchInstallation()
       case 'p': return switchCameraPosition()
       case 'r': return toggleAutoRotate()
       case 'v': return toggleVertexNormals()
@@ -379,10 +157,10 @@ const main = async () => {
 
   window.addEventListener('resize', onWindowResizeHandler)
 
-  switchForm(true)
+  switchInstallation(true)
 
   const render = () => {
-    forms[currentFormIndex].update()
+    installations[currentInstallationIndex].update()
     controls.update()
     renderer.render(scene, camera)
     requestAnimationFrame(render)
