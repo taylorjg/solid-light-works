@@ -52444,7 +52444,7 @@ VertexNormalsHelper.prototype.update = function () {
 /*!**************************!*\
   !*** ./src/constants.js ***!
   \**************************/
-/*! exports provided: LEFT_FORM_CX, RIGHT_FORM_CX, PROJECTOR_CY, PROJECTOR_R, SCREEN_IMAGE_CY, SCREEN_IMAGE_RX, SCREEN_IMAGE_RY, SCREEN_IMAGE_LINE_THICKNESS, MEMBRANE_LENGTH, LEFT, RIGHT, PI, TWO_PI, HALF_PI */
+/*! exports provided: LEFT_FORM_CX, RIGHT_FORM_CX, PROJECTOR_CY, PROJECTOR_R, SCREEN_IMAGE_CY, SCREEN_IMAGE_RX, SCREEN_IMAGE_RY, SCREEN_IMAGE_LINE_THICKNESS, MEMBRANE_LENGTH, PI, TWO_PI, HALF_PI */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -52458,8 +52458,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "SCREEN_IMAGE_RY", function() { return SCREEN_IMAGE_RY; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "SCREEN_IMAGE_LINE_THICKNESS", function() { return SCREEN_IMAGE_LINE_THICKNESS; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "MEMBRANE_LENGTH", function() { return MEMBRANE_LENGTH; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "LEFT", function() { return LEFT; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "RIGHT", function() { return RIGHT; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "PI", function() { return PI; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "TWO_PI", function() { return TWO_PI; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "HALF_PI", function() { return HALF_PI; });
@@ -52472,12 +52470,9 @@ const PROJECTOR_R = 0.1
 const SCREEN_IMAGE_CY = 2.6
 const SCREEN_IMAGE_RX = 2.8
 const SCREEN_IMAGE_RY = 2
-const SCREEN_IMAGE_LINE_THICKNESS = 0.04
+const SCREEN_IMAGE_LINE_THICKNESS = 0.06
 
 const MEMBRANE_LENGTH = 10
-
-const LEFT = Symbol('LEFT')
-const RIGHT = Symbol('RIGHT')
 
 const PI = Math.PI
 const TWO_PI = PI * 2
@@ -52644,16 +52639,12 @@ class CouplingForm {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "DoublingBackForm", function() { return DoublingBackForm; });
-/* harmony import */ var three__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
-/* harmony import */ var _syntax_travelling_wave__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../syntax/travelling-wave */ "./src/syntax/travelling-wave.js");
-/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../utils */ "./src/utils.js");
-/* harmony import */ var _constants__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../constants */ "./src/constants.js");
+/* harmony import */ var _syntax_travelling_wave__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../syntax/travelling-wave */ "./src/syntax/travelling-wave.js");
+/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../utils */ "./src/utils.js");
 
 
 
-
-
-const TRAVELLING_WAVE_POINT_COUNT = 50
+const TRAVELLING_WAVE_POINT_COUNT = 100
 
 // https://paddle8.com/work/anthony-mccall/156781-doubling-back/
 class DoublingBackForm {
@@ -52663,12 +52654,12 @@ class DoublingBackForm {
     this.isProjector = isProjector
     if (isProjector) {
       this.points = [
-        _utils__WEBPACK_IMPORTED_MODULE_2__["repeat"](TRAVELLING_WAVE_POINT_COUNT + 1, this.projectorPosition),
-        _utils__WEBPACK_IMPORTED_MODULE_2__["repeat"](TRAVELLING_WAVE_POINT_COUNT + 1, this.projectorPosition)
+        _utils__WEBPACK_IMPORTED_MODULE_1__["repeat"](TRAVELLING_WAVE_POINT_COUNT + 1, this.projectorPosition),
+        _utils__WEBPACK_IMPORTED_MODULE_1__["repeat"](TRAVELLING_WAVE_POINT_COUNT + 1, this.projectorPosition)
       ]
     } else {
-      this.travellingWaveLeftToRight = new _syntax_travelling_wave__WEBPACK_IMPORTED_MODULE_1__["TravellingWave"](0, 3, 4, 4, false)
-      this.travellingWaveBottomToTop = new _syntax_travelling_wave__WEBPACK_IMPORTED_MODULE_1__["TravellingWave"](0, 3, 4, 4, true)
+      this.travellingWaveLeftToRight = new _syntax_travelling_wave__WEBPACK_IMPORTED_MODULE_0__["TravellingWave"](0, 2, 6, 4, false)
+      this.travellingWaveBottomToTop = new _syntax_travelling_wave__WEBPACK_IMPORTED_MODULE_0__["TravellingWave"](0, 2, 6, 4, true)
       this.tick = 0
     }
   }
@@ -52882,6 +52873,20 @@ __webpack_require__.r(__webpack_exports__);
 
 class LeavingFormConfig {
   constructor() {
+    this.screen = {
+      width: 16,
+      height: 6
+    }
+    this.cameraPositions = [
+      {
+        cameraPosition: new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](-13.13, 2.42, 9.03),
+        controlsTarget: new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](-0.75, 2, 4.43)
+      },
+      {
+        cameraPosition: new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](-2.79, 4.2, -9.53),
+        controlsTarget: new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](0.58, 2, 5.34)
+      }
+    ]
     const leftProjectorPosition = new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](_constants__WEBPACK_IMPORTED_MODULE_8__["LEFT_FORM_CX"], _constants__WEBPACK_IMPORTED_MODULE_8__["PROJECTOR_CY"], _constants__WEBPACK_IMPORTED_MODULE_8__["MEMBRANE_LENGTH"])
     const rightProjectorPosition = new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](_constants__WEBPACK_IMPORTED_MODULE_8__["RIGHT_FORM_CX"], _constants__WEBPACK_IMPORTED_MODULE_8__["PROJECTOR_CY"], _constants__WEBPACK_IMPORTED_MODULE_8__["MEMBRANE_LENGTH"])
     this.leftProjectorForm = new _forms_leaving__WEBPACK_IMPORTED_MODULE_2__["LeavingForm"](
@@ -52949,6 +52954,20 @@ class LeavingFormConfig {
 
 class BetweenYouAndIFormConfig {
   constructor() {
+    this.screen = {
+      width: 16,
+      height: 6
+    }
+    this.cameraPositions = [
+      {
+        cameraPosition: new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](5.45, 4.04, 14.21),
+        controlsTarget: new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](1.06, 2, 3.31)
+      },
+      {
+        cameraPosition: new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](-5.69, 6.67, -5.35),
+        controlsTarget: new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](1.06, 2, 3.31)
+      }
+    ]
     const projectorPosition = new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](0, _constants__WEBPACK_IMPORTED_MODULE_8__["PROJECTOR_CY"] * 4, _constants__WEBPACK_IMPORTED_MODULE_8__["MEMBRANE_LENGTH"])
     this.projectorForm = new _forms_between_you_and_i__WEBPACK_IMPORTED_MODULE_3__["BetweenYouAndIForm"](projectorPosition, true)
     this.screenForm = new _forms_between_you_and_i__WEBPACK_IMPORTED_MODULE_3__["BetweenYouAndIForm"](projectorPosition, false)
@@ -52979,6 +52998,20 @@ class BetweenYouAndIFormConfig {
 
 class CouplingFormConfig {
   constructor() {
+    this.screen = {
+      width: 10,
+      height: 6
+    }
+    this.cameraPositions = [
+      {
+        cameraPosition: new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](5.88, 4.12, 12.26),
+        controlsTarget: new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](-0.81, 2, 2.62)
+      },
+      {
+        cameraPosition: new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](0.81, 5.01, -6.45),
+        controlsTarget: new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](-0.27, 2, 3.83)
+      }
+    ]
     const projectorPosition = new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](0, _constants__WEBPACK_IMPORTED_MODULE_8__["PROJECTOR_CY"] * 4, _constants__WEBPACK_IMPORTED_MODULE_8__["MEMBRANE_LENGTH"])
     this.projectorForm = new _forms_coupling__WEBPACK_IMPORTED_MODULE_4__["CouplingForm"](projectorPosition, true)
     this.screenForm = new _forms_coupling__WEBPACK_IMPORTED_MODULE_4__["CouplingForm"](projectorPosition, false)
@@ -53009,7 +53042,30 @@ class CouplingFormConfig {
 
 class DoublingBackFormConfig {
   constructor() {
-    const projectorPosition = new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](-2, 0, _constants__WEBPACK_IMPORTED_MODULE_8__["MEMBRANE_LENGTH"])
+    this.screen = {
+      width: 6.4,
+      height: 4.4
+    }
+    this.leftWall = {
+      width: _constants__WEBPACK_IMPORTED_MODULE_8__["MEMBRANE_LENGTH"],
+      height: 4.4,
+      x: -3.2
+    }
+    this.cameraPositions = [
+      {
+        cameraPosition: new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](4.18, 4.64, 12.76),
+        controlsTarget: new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](-0.88, 2, 5.51)
+      },
+      {
+        cameraPosition: new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](1.52, 2.75, -6.79),
+        controlsTarget: new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](-0.88, 2, 5.51)
+      },
+      {
+        cameraPosition: new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](-9.02, 1.68, 9.85),
+        controlsTarget: new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](-0.88, 2, 5.51)
+      }
+    ]
+    const projectorPosition = new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](-3.05, 0.1, _constants__WEBPACK_IMPORTED_MODULE_8__["MEMBRANE_LENGTH"])
     this.projectorForm = new _forms_doubling_back__WEBPACK_IMPORTED_MODULE_5__["DoublingBackForm"](projectorPosition, true)
     this.screenForm = new _forms_doubling_back__WEBPACK_IMPORTED_MODULE_5__["DoublingBackForm"](projectorPosition, false)
     this.projector = null
@@ -53044,33 +53100,6 @@ const forms = [
   new BetweenYouAndIFormConfig()
 ]
 
-const CAMERA_POSITIONS = [
-  {
-    cameraPosition: new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](-0.515, 4.40, -5.93),
-    controlsTarget: new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](-0.29, 2, 5.14)
-  },
-  {
-    cameraPosition: new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](-18.39, 6.51, 13.86),
-    controlsTarget: new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](4.49, 2, 3.12)
-  },
-  {
-    cameraPosition: new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](0.95, 2.12, 12.46),
-    controlsTarget: new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](0.95, 2.00, 9.63)
-  },
-  {
-    cameraPosition: new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](2.15, 4.05, -8.75),
-    controlsTarget: new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](-0.93, 2.00, 8.79)
-  },
-  {
-    cameraPosition: new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](-21.88, 9.81, 14.97),
-    controlsTarget: new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](1.85, 2.00, 9.08)
-  },
-  {
-    cameraPosition: new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](0.94, 3.05, 27.52),
-    controlsTarget: new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](0.95, 2.00, 9.63)
-  }
-]
-
 const main = async () => {
 
   const container = document.getElementById('container')
@@ -53082,15 +53111,14 @@ const main = async () => {
 
   let currentFormIndex = 0
   let currentCameraPositionIndex = 0
-  let axesHelper = undefined
+  let axesHelper = null
+  let surfaces = []
 
   const scene = new three__WEBPACK_IMPORTED_MODULE_0__["Scene"]()
   const camera = new three__WEBPACK_IMPORTED_MODULE_0__["PerspectiveCamera"](45, w / h, 0.1, 50)
-  camera.position.copy(CAMERA_POSITIONS[currentCameraPositionIndex].cameraPosition)
   scene.add(camera)
 
   const controls = new three_examples_jsm_controls_OrbitControls__WEBPACK_IMPORTED_MODULE_1__["OrbitControls"](camera, renderer.domElement)
-  controls.target.copy(CAMERA_POSITIONS[currentCameraPositionIndex].controlsTarget)
   controls.minDistance = 0
   controls.maxDistance = 50
   controls.enableDamping = true
@@ -53098,47 +53126,86 @@ const main = async () => {
   controls.autoRotate = false
   controls.autoRotateSpeed = 0.5
 
-  const projectionScreenGeometry = new three__WEBPACK_IMPORTED_MODULE_0__["PlaneGeometry"](16, 6)
-  projectionScreenGeometry.translate(0, 3, 0)
-  const projectionScreenMaterial = new three__WEBPACK_IMPORTED_MODULE_0__["MeshBasicMaterial"]({
-    color: 0xA0A0A0,
-    transparent: true,
-    opacity: 0.2
-  })
-  const screen = new three__WEBPACK_IMPORTED_MODULE_0__["Mesh"](projectionScreenGeometry, projectionScreenMaterial)
-  scene.add(screen)
+  const createSurfaces = form => {
+    if (form.screen) {
+      const s = form.screen
+      const screenGeometry = new three__WEBPACK_IMPORTED_MODULE_0__["PlaneGeometry"](s.width, s.height)
+      screenGeometry.translate(0, s.height / 2, 0)
+      const screenMaterial = new three__WEBPACK_IMPORTED_MODULE_0__["MeshBasicMaterial"]({
+        color: 0xC0C0C0,
+        transparent: true,
+        opacity: 0.2
+      })
+      const screen = new three__WEBPACK_IMPORTED_MODULE_0__["Mesh"](screenGeometry, screenMaterial)
+      scene.add(screen)
+      surfaces.push(screen)
+    }
+
+    if (form.leftWall) {
+      const lw = form.leftWall
+      const leftWallGeometry = new three__WEBPACK_IMPORTED_MODULE_0__["PlaneGeometry"](lw.width, lw.height)
+      leftWallGeometry.rotateY(_constants__WEBPACK_IMPORTED_MODULE_8__["HALF_PI"])
+      leftWallGeometry.translate(lw.x, lw.height / 2, lw.width / 2)
+      const leftWallMaterial = new three__WEBPACK_IMPORTED_MODULE_0__["MeshBasicMaterial"]({
+        color: 0xA0A0A0,
+        transparent: true,
+        opacity: 0.2
+      })
+      const leftWall = new three__WEBPACK_IMPORTED_MODULE_0__["Mesh"](leftWallGeometry, leftWallMaterial)
+      scene.add(leftWall)
+      surfaces.push(leftWall)
+    }
+  }
+
+  const destroySurfaces = () => {
+    surfaces.forEach(surface => _utils__WEBPACK_IMPORTED_MODULE_7__["disposeMesh"](scene, surface))
+    surfaces = []
+  }
 
   const hazeTexture = await _utils__WEBPACK_IMPORTED_MODULE_7__["loadTexture"]('haze.jpg')
-
-  forms[currentFormIndex].create(scene, hazeTexture)
 
   const toggleAxes = () => {
     if (axesHelper) {
       scene.remove(axesHelper)
       axesHelper = undefined
     } else {
-      axesHelper = new three__WEBPACK_IMPORTED_MODULE_0__["AxesHelper"](15)
+      axesHelper = new three__WEBPACK_IMPORTED_MODULE_0__["AxesHelper"](_constants__WEBPACK_IMPORTED_MODULE_8__["MEMBRANE_LENGTH"])
       scene.add(axesHelper)
     }
   }
 
   const reportCameraPosition = () => {
-    console.log(`camera.position: ${JSON.stringify(camera.position)}`)
-    console.log(`controls.target: ${JSON.stringify(controls.target)}`)
+    const prec2 = f => Number(f.toFixed(2))
+    const p = camera.position
+    const t = controls.target
+    console.log(`cameraPosition: new THREE.Vector3(${prec2(p.x)}, ${prec2(p.y)}, ${prec2(p.z)}),`)
+    console.log(`controlsTarget: new THREE.Vector3(${prec2(t.x)}, ${prec2(t.y)}, ${prec2(t.z)})`)
   }
 
-  const switchForm = () => {
-    forms[currentFormIndex].destroy()
-    currentFormIndex++
-    currentFormIndex %= forms.length
+  const switchForm = (reset) => {
+    if (reset) {
+      currentFormIndex = 0
+    } else {
+      destroySurfaces()
+      forms[currentFormIndex].destroy()
+      currentFormIndex++
+      currentFormIndex %= forms.length
+    }
+    createSurfaces(forms[currentFormIndex])
     forms[currentFormIndex].create(scene, hazeTexture)
+    switchCameraPosition(true)
   }
 
-  const switchCameraPosition = () => {
-    currentCameraPositionIndex++
-    currentCameraPositionIndex %= CAMERA_POSITIONS.length
-    camera.position.copy(CAMERA_POSITIONS[currentCameraPositionIndex].cameraPosition)
-    controls.target.copy(CAMERA_POSITIONS[currentCameraPositionIndex].controlsTarget)
+  const switchCameraPosition = (reset) => {
+    const form = forms[currentFormIndex]
+    if (reset) {
+      currentCameraPositionIndex = 0
+    } else {
+      currentCameraPositionIndex++
+      currentCameraPositionIndex %= form.cameraPositions.length
+    }
+    camera.position.copy(form.cameraPositions[currentCameraPositionIndex].cameraPosition)
+    controls.target.copy(form.cameraPositions[currentCameraPositionIndex].controlsTarget)
   }
 
   const toggleAutoRotate = () => {
@@ -53150,6 +53217,7 @@ const main = async () => {
   }
 
   const onDocumentKeyDownHandler = e => {
+    if (e.altKey || e.ctrlKey || e.shiftKey || e.metaKey) return
     switch (e.key) {
       case 'a': return toggleAxes()
       case 'c': return reportCameraPosition()
@@ -53173,6 +53241,8 @@ const main = async () => {
   }
 
   window.addEventListener('resize', onWindowResizeHandler)
+
+  switchForm(true)
 
   const render = () => {
     forms[currentFormIndex].update()
@@ -53391,11 +53461,7 @@ class ProjectionEffect {
     if (this.meshHelpers) {
       this.meshHelpers.forEach(meshHelper => this.scene.remove(meshHelper))
     }
-    this.meshes.forEach(mesh => {
-      this.scene.remove(mesh)
-      mesh.geometry.dispose()
-      mesh.material.dispose()
-    })
+    this.meshes.forEach(mesh => _utils__WEBPACK_IMPORTED_MODULE_5__["disposeMesh"](this.scene, mesh))
   }
 
   toggleVertexNormals() {
@@ -53514,11 +53580,7 @@ class ScreenImage {
   }
 
   destroy() {
-    this.meshes.forEach(mesh => {
-      this.scene.remove(mesh)
-      mesh.geometry.dispose()
-      mesh.material.dispose()
-    })
+    this.meshes.forEach(mesh => _utils__WEBPACK_IMPORTED_MODULE_3__["disposeMesh"](this.scene, mesh))
   }
 }
 
@@ -53735,15 +53797,28 @@ class TravellingWave {
     this.phase = vertical ? _constants__WEBPACK_IMPORTED_MODULE_2__["PI"] / 180 * 250 : _constants__WEBPACK_IMPORTED_MODULE_2__["PI"] // phase constant
   }
 
-  getPoints(divisions, t) {
+  getPointsHorizontal(divisions, t) {
     const dx = this.width / divisions
     return _utils__WEBPACK_IMPORTED_MODULE_1__["range"](divisions + 1).map(index => {
       const x = dx * index
       const y = this.height / 2 * Math.sin(this.k * x - this.omega * t * 0.0005 + this.phase)
-      return this.vertical
-        ? new three__WEBPACK_IMPORTED_MODULE_0__["Vector2"](this.cx + y, this.cy - this.height / 2 + x)
-        : new three__WEBPACK_IMPORTED_MODULE_0__["Vector2"](this.cx - this.width / 2 + x, this.cy + y)
+      return new three__WEBPACK_IMPORTED_MODULE_0__["Vector2"](this.cx - this.width / 2 + x, this.cy + y)
     })
+  }
+
+  getPointsVertical(divisions, t) {
+    const dx = this.height / divisions
+    return _utils__WEBPACK_IMPORTED_MODULE_1__["range"](divisions + 1).map(index => {
+      const x = dx * index
+      const y = this.width / 2 * Math.sin(this.k * x - this.omega * t * 0.0005 + this.phase)
+      return new three__WEBPACK_IMPORTED_MODULE_0__["Vector2"](this.cx + y, this.cy - this.height / 2 + x)
+    })
+  }
+
+  getPoints(divisions, t) {
+    return this.vertical
+      ? this.getPointsVertical(divisions, t)
+      : this.getPointsHorizontal(divisions, t)
   }
 }
 
@@ -53754,7 +53829,7 @@ class TravellingWave {
 /*!**********************!*\
   !*** ./src/utils.js ***!
   \**********************/
-/*! exports provided: range, repeat, reverse, vectorsAsArrays, vec2sToVec3s, loadTexture */
+/*! exports provided: range, repeat, reverse, vectorsAsArrays, vec2sToVec3s, loadTexture, disposeMesh */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -53765,6 +53840,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "vectorsAsArrays", function() { return vectorsAsArrays; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "vec2sToVec3s", function() { return vec2sToVec3s; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "loadTexture", function() { return loadTexture; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "disposeMesh", function() { return disposeMesh; });
 /* harmony import */ var three__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
 
 
@@ -53788,6 +53864,12 @@ const loadTexture = url =>
     const textureLoader = new three__WEBPACK_IMPORTED_MODULE_0__["TextureLoader"]()
     textureLoader.load(url, resolve, reject)
   })
+
+const disposeMesh = (scene, mesh) => {
+  scene.remove(mesh)
+  mesh.geometry.dispose()
+  mesh.material.dispose()
+}
 
 
 /***/ })
