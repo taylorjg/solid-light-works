@@ -1,6 +1,6 @@
 {
   "name": "solid-light-works",
-  "version": "0.0.43",
+  "version": "0.0.44",
   "description": "Attempt to render some of Anthony McCall's solid light works using three.js and WebGL",
   "author": "Jonathan Taylor",
   "license": "MIT",
@@ -15,7 +15,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/taylorjg/leaving.git"
+    "url": "https://github.com/taylorjg/solid-light-works.git"
   },
   "devDependencies": {
     "copy-webpack-plugin": "^5.1.1",

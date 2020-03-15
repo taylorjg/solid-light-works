@@ -1,4 +1,3 @@
-import * as THREE from 'three'
 import { CircleWave } from '../syntax/circle-wave'
 import * as U from '../utils'
 import * as C from '../constants'

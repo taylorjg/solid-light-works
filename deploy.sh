@@ -6,7 +6,7 @@ DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
 (cd "$DIR" && npx webpack)
 
-GH_PAGES_DIR=$DIR/../leaving-gh-pages
+GH_PAGES_DIR=$DIR/../solid-light-works-gh-pages
 
 cd "$GH_PAGES_DIR"
 
