@@ -224,24 +224,28 @@ function subtract(out, a, b) {
 if (typeof Object.create === 'function') {
   // implementation from standard node.js 'util' module
   module.exports = function inherits(ctor, superCtor) {
-    ctor.super_ = superCtor
-    ctor.prototype = Object.create(superCtor.prototype, {
-      constructor: {
-        value: ctor,
-        enumerable: false,
-        writable: true,
-        configurable: true
-      }
-    });
+    if (superCtor) {
+      ctor.super_ = superCtor
+      ctor.prototype = Object.create(superCtor.prototype, {
+        constructor: {
+          value: ctor,
+          enumerable: false,
+          writable: true,
+          configurable: true
+        }
+      })
+    }
   };
 } else {
   // old school shim for old browsers
   module.exports = function inherits(ctor, superCtor) {
-    ctor.super_ = superCtor
-    var TempCtor = function () {}
-    TempCtor.prototype = superCtor.prototype
-    ctor.prototype = new TempCtor()
-    ctor.prototype.constructor = ctor
+    if (superCtor) {
+      ctor.super_ = superCtor
+      var TempCtor = function () {}
+      TempCtor.prototype = superCtor.prototype
+      ctor.prototype = new TempCtor()
+      ctor.prototype.constructor = ctor
+    }
   }
 }
 
@@ -52573,11 +52577,9 @@ class BetweenYouAndIForm {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "CouplingForm", function() { return CouplingForm; });
-/* harmony import */ var three__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
-/* harmony import */ var _syntax_circle_wave__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../syntax/circle-wave */ "./src/syntax/circle-wave.js");
-/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../utils */ "./src/utils.js");
-/* harmony import */ var _constants__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../constants */ "./src/constants.js");
-
+/* harmony import */ var _syntax_circle_wave__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../syntax/circle-wave */ "./src/syntax/circle-wave.js");
+/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../utils */ "./src/utils.js");
+/* harmony import */ var _constants__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../constants */ "./src/constants.js");
 
 
 
@@ -52595,12 +52597,12 @@ class CouplingForm {
     this.isProjector = isProjector
     if (isProjector) {
       this.points = [
-        _utils__WEBPACK_IMPORTED_MODULE_2__["repeat"](CIRCLE_WAVE_POINT_COUNT + 1, this.projectorPosition),
-        _utils__WEBPACK_IMPORTED_MODULE_2__["repeat"](CIRCLE_WAVE_POINT_COUNT + 1, this.projectorPosition)
+        _utils__WEBPACK_IMPORTED_MODULE_1__["repeat"](CIRCLE_WAVE_POINT_COUNT + 1, this.projectorPosition),
+        _utils__WEBPACK_IMPORTED_MODULE_1__["repeat"](CIRCLE_WAVE_POINT_COUNT + 1, this.projectorPosition)
       ]
     } else {
-      this.circleWaveOuter = new _syntax_circle_wave__WEBPACK_IMPORTED_MODULE_1__["CircleWave"](2, 0.4, 3.5, 0.001, 0.001, 0, 0)
-      this.circleWaveInner = new _syntax_circle_wave__WEBPACK_IMPORTED_MODULE_1__["CircleWave"](1, 0.4, 3.5, 0.001, 0.001, _constants__WEBPACK_IMPORTED_MODULE_3__["HALF_PI"], 0)
+      this.circleWaveOuter = new _syntax_circle_wave__WEBPACK_IMPORTED_MODULE_0__["CircleWave"](2, 0.4, 3.5, 0.001, 0.001, 0, 0)
+      this.circleWaveInner = new _syntax_circle_wave__WEBPACK_IMPORTED_MODULE_0__["CircleWave"](1, 0.4, 3.5, 0.001, 0.001, _constants__WEBPACK_IMPORTED_MODULE_2__["HALF_PI"], 0)
       this.tick = 0
     }
   }
@@ -53924,7 +53926,7 @@ class TravellingWave {
     const dx = this.height / divisions
     return _utils__WEBPACK_IMPORTED_MODULE_1__["range"](divisions + 1).map(index => {
       const x = dx * index
-      const y = this.width / 2 * Math.sin(this.k * x - this.omega * t * 0.0005 + this.phase)
+      const y = this.height / 2 * Math.sin(this.k * x - this.omega * t * 0.0005 + this.phase)
       return new three__WEBPACK_IMPORTED_MODULE_0__["Vector2"](this.cx + y, this.cy - this.height / 2 + x)
     })
   }
