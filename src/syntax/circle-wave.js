@@ -43,7 +43,7 @@ export class CircleWave {
     const adjustedR = this.R + this.omega(theta, t)
     const cx = adjustedR * Math.cos(theta)
     const cy = adjustedR * Math.sin(theta)
-    return new THREE.Vector2(cx, 3 + cy)
+    return new THREE.Vector2(cx, 4 + cy)
   }
 
   getPoints(divisions, t) {

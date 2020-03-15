@@ -11,6 +11,9 @@ export const SCREEN_IMAGE_LINE_THICKNESS = 0.06
 
 export const MEMBRANE_LENGTH = 10
 
+export const ORIENTATION_HORIZONTAL = Symbol('ORIENTATION_HORIZONTAL')
+export const ORIENTATION_VERTICAL = Symbol('ORIENTATION_VERTICAL')
+
 export const PI = Math.PI
 export const TWO_PI = PI * 2
 export const HALF_PI = PI / 2

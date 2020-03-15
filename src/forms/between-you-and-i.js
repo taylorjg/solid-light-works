@@ -11,6 +11,7 @@ export class BetweenYouAndIForm {
 
   constructor(projectorPosition, isProjector) {
     this._projectorPosition = projectorPosition
+    this.vec2ProjectorPosition = new THREE.Vector2(projectorPosition.x, projectorPosition.z)
     this.pointsArray = [
       this.createEllipse(isProjector),
       this.createTravellingWave(isProjector),
@@ -28,32 +29,32 @@ export class BetweenYouAndIForm {
 
   createEllipse(isProjector) {
     if (isProjector) {
-      return U.repeat(ELLIPSE_POINT_COUNT + 1, this.projectorPosition)
+      return U.repeat(ELLIPSE_POINT_COUNT + 1, this.vec2ProjectorPosition)
     }
-    const ellipse = new Ellipse(0, 3, 3.2, 2)
+    const ellipse = new Ellipse(0, 2, 1.4, 0.8)
     return ellipse.getPoints(-C.HALF_PI, C.HALF_PI, ELLIPSE_POINT_COUNT)
   }
 
   createTravellingWave(isProjector) {
     if (isProjector) {
-      return U.repeat(TRAVELLING_WAVE_POINT_COUNT + 1, this.projectorPosition)
+      return U.repeat(TRAVELLING_WAVE_POINT_COUNT + 1, this.vec2ProjectorPosition)
     }
     const startAngle = C.PI / 180 * 20
     const endAngle = C.PI / 180 * 250
-    const dx = 4 / TRAVELLING_WAVE_POINT_COUNT
+    const dx = 2 / TRAVELLING_WAVE_POINT_COUNT
     const deltaAngle = (endAngle - startAngle) / TRAVELLING_WAVE_POINT_COUNT
     return U.range(TRAVELLING_WAVE_POINT_COUNT + 1).map(n => {
-      return new THREE.Vector2(n * dx, 3.4 + Math.cos(startAngle + n * deltaAngle) * 2.4)
+      return new THREE.Vector2(n * dx, 2 + Math.cos(startAngle + n * deltaAngle) * 1.2)
     })
   }
 
   createStraightLine(isProjector) {
     if (isProjector) {
-      return U.repeat(2, this.projectorPosition)
+      return U.repeat(2, this.vec2ProjectorPosition)
     }
     const straightLine = new StraightLine(
       new THREE.Vector2(0, 2.4),
-      new THREE.Vector2(4, 2.2))
+      new THREE.Vector2(2, 2.2))
     return straightLine.getPoints()
   }
 

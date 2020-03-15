@@ -43,6 +43,7 @@ export class DoublingBackInstallation {
 
   create(scene, hazeTexture) {
     this.projector = new Projector(
+      C.ORIENTATION_HORIZONTAL,
       this.projectorForm,
       this.screenForm,
       scene,

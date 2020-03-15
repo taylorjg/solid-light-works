@@ -7,9 +7,9 @@ export class BetweenYouAndIInstallation {
 
   constructor() {
 
-    this.screen = {
-      width: 16,
-      height: 6
+    this.floor = {
+      width: 10,
+      depth: 6
     }
 
     this.cameraPositions = [
@@ -23,7 +23,7 @@ export class BetweenYouAndIInstallation {
       }
     ]
 
-    const projectorPosition = new THREE.Vector3(0, C.PROJECTOR_CY * 4, C.MEMBRANE_LENGTH)
+    const projectorPosition = new THREE.Vector3(0, C.MEMBRANE_LENGTH, 3)
 
     this.projectorForm = new BetweenYouAndIForm(projectorPosition, true)
     this.screenForm = new BetweenYouAndIForm(projectorPosition, false)
@@ -33,6 +33,7 @@ export class BetweenYouAndIInstallation {
 
   create(scene, hazeTexture) {
     this.projector = new Projector(
+      C.ORIENTATION_VERTICAL,
       this.projectorForm,
       this.screenForm,
       scene,

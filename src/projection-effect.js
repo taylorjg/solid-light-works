@@ -10,7 +10,8 @@ const MEMBRANE_SEGMENT_COUNT = 1
 
 export class ProjectionEffect {
 
-  constructor(meshCount, scene, hazeTexture, projectorPosition) {
+  constructor(orientation, meshCount, scene, hazeTexture, projectorPosition) {
+    this.orientation = orientation
     this.meshCount = meshCount
     this.scene = scene
     this.meshes = U.range(meshCount).map(() => {
@@ -41,8 +42,11 @@ export class ProjectionEffect {
     U.range(this.meshCount).forEach(meshIndex => {
       const vec2ProjectorPoints = vec2ProjectorPointsArray[meshIndex]
       const vec2ScreenPoints = vec2ScreenPointsArray[meshIndex]
-      const projectorPoints = U.vec2sToVec3s(vec2ProjectorPoints, C.MEMBRANE_LENGTH)
-      const screenPoints = U.vec2sToVec3s(vec2ScreenPoints)
+      const vec2sToVec3s = this.orientation === C.ORIENTATION_HORIZONTAL
+        ? U.vec2sToVec3sHorizontal
+        : U.vec2sToVec3sVertical
+      const projectorPoints = vec2sToVec3s(vec2ProjectorPoints, C.MEMBRANE_LENGTH)
+      const screenPoints = vec2sToVec3s(vec2ScreenPoints)
       const tempMembraneGeometry = new MembraneBufferGeometry(projectorPoints, screenPoints, MEMBRANE_SEGMENT_COUNT)
       tempMembraneGeometry.computeFaceNormals()
       tempMembraneGeometry.computeVertexNormals()

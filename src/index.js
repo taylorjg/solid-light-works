@@ -3,7 +3,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import { DoublingBackInstallation } from './installations/doubling-back'
 import { CouplingInstallation } from './installations/coupling'
 import { LeavingInstallation } from './installations/leaving'
-import { BetweenYouAndIInstallation } from './installations/between-you-and-i'
+// import { BetweenYouAndIInstallation } from './installations/between-you-and-i'
 import { setSpeed } from './forms/leaving'
 import * as U from './utils'
 import * as C from './constants'
@@ -11,8 +11,8 @@ import * as C from './constants'
 const installations = [
   new DoublingBackInstallation(),
   new CouplingInstallation(),
-  new LeavingInstallation(),
-  new BetweenYouAndIInstallation()
+  new LeavingInstallation()
+  // new BetweenYouAndIInstallation()
 ]
 
 const main = async () => {
@@ -69,6 +69,21 @@ const main = async () => {
       const leftWall = new THREE.Mesh(leftWallGeometry, leftWallMaterial)
       scene.add(leftWall)
       surfaces.push(leftWall)
+    }
+
+    if (installation.floor) {
+      const f = installation.floor
+      const floorGeometry = new THREE.PlaneGeometry(f.width, f.depth)
+      floorGeometry.rotateX(-C.HALF_PI)
+      floorGeometry.translate(0, 0, f.depth / 2)
+      const floorMaterial = new THREE.MeshBasicMaterial({
+        color: 0xD0D0D0,
+        transparent: true,
+        opacity: 0.2
+      })
+      const floor = new THREE.Mesh(floorGeometry, floorMaterial)
+      scene.add(floor)
+      surfaces.push(floor)
     }
   }
 

@@ -62,11 +62,13 @@ export class LeavingInstallation {
 
   create(scene, hazeTexture) {
     this.leftProjector = new Projector(
+      C.ORIENTATION_HORIZONTAL,
       this.leftProjectorForm,
       this.leftScreenForm,
       scene,
       hazeTexture)
     this.rightProjector = new Projector(
+      C.ORIENTATION_HORIZONTAL,
       this.rightProjectorForm,
       this.rightScreenForm,
       scene,

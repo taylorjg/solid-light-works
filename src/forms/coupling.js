@@ -1,3 +1,4 @@
+import * as THREE from 'three'
 import { CircleWave } from '../syntax/circle-wave'
 import * as U from '../utils'
 import * as C from '../constants'
@@ -14,9 +15,10 @@ export class CouplingForm {
     this._projectorPosition = projectorPosition
     this.isProjector = isProjector
     if (isProjector) {
+      const vec2ProjectorPosition = new THREE.Vector2(projectorPosition.x, projectorPosition.z)
       this.points = [
-        U.repeat(CIRCLE_WAVE_POINT_COUNT + 1, this.projectorPosition),
-        U.repeat(CIRCLE_WAVE_POINT_COUNT + 1, this.projectorPosition)
+        U.repeat(CIRCLE_WAVE_POINT_COUNT + 1, vec2ProjectorPosition),
+        U.repeat(CIRCLE_WAVE_POINT_COUNT + 1, vec2ProjectorPosition)
       ]
     } else {
       this.circleWaveOuter = new CircleWave(2, 0.4, 3.5, 0.001, 0.001, 0, 0)
