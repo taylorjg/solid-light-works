@@ -3,7 +3,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import { DoublingBackInstallation } from './installations/doubling-back'
 import { CouplingInstallation } from './installations/coupling'
 import { LeavingInstallation } from './installations/leaving'
-// import { BetweenYouAndIInstallation } from './installations/between-you-and-i'
+import { BetweenYouAndIInstallation } from './installations/between-you-and-i'
 import { setSpeed } from './forms/leaving'
 import * as U from './utils'
 import * as C from './constants'
@@ -11,8 +11,8 @@ import * as C from './constants'
 const installations = [
   new DoublingBackInstallation(),
   new CouplingInstallation(),
-  new LeavingInstallation()
-  // new BetweenYouAndIInstallation()
+  new LeavingInstallation(),
+  new BetweenYouAndIInstallation()
 ]
 
 const main = async () => {

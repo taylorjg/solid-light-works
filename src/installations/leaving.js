@@ -21,7 +21,7 @@ export class LeavingInstallation {
         controlsTarget: new THREE.Vector3(-0.75, 2, 4.43)
       },
       {
-        cameraPosition: new THREE.Vector3(-2.79, 4.2, -9.53),
+        cameraPosition: new THREE.Vector3(1.02, 3.02, -10.02),
         controlsTarget: new THREE.Vector3(0.58, 2, 5.34)
       }
     ]

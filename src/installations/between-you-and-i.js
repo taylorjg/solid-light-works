@@ -9,48 +9,68 @@ export class BetweenYouAndIInstallation {
 
     this.floor = {
       width: 10,
-      depth: 6
+      depth: 19
     }
 
     this.cameraPositions = [
       {
-        cameraPosition: new THREE.Vector3(5.45, 4.04, 14.21),
-        controlsTarget: new THREE.Vector3(1.06, 2, 3.31)
+        cameraPosition: new THREE.Vector3(-4.6, 9.03, 30.78),
+        controlsTarget: new THREE.Vector3(1.2, 2, 9.48)
       },
       {
-        cameraPosition: new THREE.Vector3(-5.69, 6.67, -5.35),
-        controlsTarget: new THREE.Vector3(1.06, 2, 3.31)
+        cameraPosition: new THREE.Vector3(4.27, 2.76, 23.73),
+        controlsTarget: new THREE.Vector3(1.2, 2, 9.48)
+      },
+      {
+        cameraPosition: new THREE.Vector3(-0.16, -8.18, 9.26),
+        controlsTarget: new THREE.Vector3(0.45, 2, 9.25)
       }
     ]
 
-    this.projectorPosition = new THREE.Vector3(0, C.MEMBRANE_LENGTH, 3)
+    this.frontProjectorPosition = new THREE.Vector3(0, C.MEMBRANE_LENGTH, 12)
+    this.backProjectorPosition = new THREE.Vector3(0, C.MEMBRANE_LENGTH, 7)
 
-    this.projectorForm = new BetweenYouAndIForm(this.projectorPosition, true)
-    this.screenForm = new BetweenYouAndIForm(this.projectorPosition, false)
+    this.frontProjectorForm = new BetweenYouAndIForm(this.frontProjectorPosition, true, true, 12)
+    this.frontScreenForm = new BetweenYouAndIForm(this.frontProjectorPosition, false, true, 12)
 
-    this.projector = null
+    this.backProjectorForm = new BetweenYouAndIForm(this.backProjectorPosition, true, false, 7)
+    this.backScreenForm = new BetweenYouAndIForm(this.backProjectorPosition, false, false, 7)
+
+    this.frontProjector = null
+    this.backProjector = null
   }
 
   create(scene, hazeTexture) {
-    this.projector = new Projector(
-      this.projectorPosition,
+    this.frontProjector = new Projector(
+      this.frontProjectorPosition,
       C.ORIENTATION_VERTICAL,
-      this.projectorForm,
-      this.screenForm,
+      this.frontProjectorForm,
+      this.frontScreenForm,
+      scene,
+      hazeTexture)
+    this.backProjector = new Projector(
+      this.backProjectorPosition,
+      C.ORIENTATION_VERTICAL,
+      this.backProjectorForm,
+      this.backScreenForm,
       scene,
       hazeTexture)
   }
 
   destroy() {
-    this.projector && this.projector.destroy()
-    this.projector = null
+    this.frontProjector && this.frontProjector.destroy()
+    this.backProjector && this.backProjector.destroy()
+    this.frontProjector = null
+    this.backProjector = null
   }
 
   update() {
-    this.projector && this.projector.update()
+    this.frontProjector && this.frontProjector.update()
+    this.backProjector && this.backProjector.update()
   }
 
   toggleVertexNormals() {
-    this.projector && this.projector.toggleVertexNormals()
+    this.frontProjector && this.frontProjector.toggleVertexNormals()
+    this.backProjector && this.backProjector.toggleVertexNormals()
   }
 }
