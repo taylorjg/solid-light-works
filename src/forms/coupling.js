@@ -12,7 +12,6 @@ const CIRCLE_WAVE_POINT_COUNT = 200
 export class CouplingForm {
 
   constructor(projectorPosition, isProjector) {
-    this._projectorPosition = projectorPosition
     this.isProjector = isProjector
     if (isProjector) {
       const vec2ProjectorPosition = new THREE.Vector2(projectorPosition.x, projectorPosition.z)
@@ -25,10 +24,6 @@ export class CouplingForm {
       this.circleWaveInner = new CircleWave(1, 0.4, 3.5, 0.001, 0.001, C.HALF_PI, 0)
       this.tick = 0
     }
-  }
-
-  get projectorPosition() {
-    return this._projectorPosition
   }
 
   get shapeCount() {

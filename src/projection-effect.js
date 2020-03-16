@@ -10,7 +10,7 @@ const MEMBRANE_SEGMENT_COUNT = 1
 
 export class ProjectionEffect {
 
-  constructor(orientation, meshCount, scene, hazeTexture, projectorPosition) {
+  constructor(projectorPosition, orientation, meshCount, scene, hazeTexture) {
     this.orientation = orientation
     this.meshCount = meshCount
     this.scene = scene

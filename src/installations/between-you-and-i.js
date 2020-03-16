@@ -23,16 +23,17 @@ export class BetweenYouAndIInstallation {
       }
     ]
 
-    const projectorPosition = new THREE.Vector3(0, C.MEMBRANE_LENGTH, 3)
+    this.projectorPosition = new THREE.Vector3(0, C.MEMBRANE_LENGTH, 3)
 
-    this.projectorForm = new BetweenYouAndIForm(projectorPosition, true)
-    this.screenForm = new BetweenYouAndIForm(projectorPosition, false)
+    this.projectorForm = new BetweenYouAndIForm(this.projectorPosition, true)
+    this.screenForm = new BetweenYouAndIForm(this.projectorPosition, false)
 
     this.projector = null
   }
 
   create(scene, hazeTexture) {
     this.projector = new Projector(
+      this.projectorPosition,
       C.ORIENTATION_VERTICAL,
       this.projectorForm,
       this.screenForm,

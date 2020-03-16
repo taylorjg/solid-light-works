@@ -7,22 +7,17 @@ const TRAVELLING_WAVE_POINT_COUNT = 100
 export class DoublingBackForm {
 
   constructor(projectorPosition, isProjector) {
-    this._projectorPosition = projectorPosition
     this.isProjector = isProjector
     if (isProjector) {
       this.points = [
-        U.repeat(TRAVELLING_WAVE_POINT_COUNT + 1, this.projectorPosition),
-        U.repeat(TRAVELLING_WAVE_POINT_COUNT + 1, this.projectorPosition)
+        U.repeat(TRAVELLING_WAVE_POINT_COUNT + 1, projectorPosition),
+        U.repeat(TRAVELLING_WAVE_POINT_COUNT + 1, projectorPosition)
       ]
     } else {
       this.travellingWaveLeftToRight = new TravellingWave(0, 2, 6, 4, false)
       this.travellingWaveBottomToTop = new TravellingWave(0, 2, 6, 4, true)
       this.tick = 0
     }
-  }
-
-  get projectorPosition() {
-    return this._projectorPosition
   }
 
   get shapeCount() {

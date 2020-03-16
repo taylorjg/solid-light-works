@@ -33,16 +33,17 @@ export class DoublingBackInstallation {
       }
     ]
 
-    const projectorPosition = new THREE.Vector3(-3.05, 0.1, C.MEMBRANE_LENGTH)
+    this.projectorPosition = new THREE.Vector3(-3.05, 0.1, C.MEMBRANE_LENGTH)
 
-    this.projectorForm = new DoublingBackForm(projectorPosition, true)
-    this.screenForm = new DoublingBackForm(projectorPosition, false)
+    this.projectorForm = new DoublingBackForm(this.projectorPosition, true)
+    this.screenForm = new DoublingBackForm(this.projectorPosition, false)
 
     this.projector = null
   }
 
   create(scene, hazeTexture) {
     this.projector = new Projector(
+      this.projectorPosition,
       C.ORIENTATION_HORIZONTAL,
       this.projectorForm,
       this.screenForm,

@@ -1,6 +1,3 @@
-export const LEFT_FORM_CX = -3.5
-export const RIGHT_FORM_CX = -LEFT_FORM_CX
-
 export const PROJECTOR_CY = 0.3
 export const PROJECTOR_R = 0.1
 

@@ -10,17 +10,12 @@ const TRAVELLING_WAVE_POINT_COUNT = 50
 export class BetweenYouAndIForm {
 
   constructor(projectorPosition, isProjector) {
-    this._projectorPosition = projectorPosition
     this.vec2ProjectorPosition = new THREE.Vector2(projectorPosition.x, projectorPosition.z)
     this.pointsArray = [
       this.createEllipse(isProjector),
       this.createTravellingWave(isProjector),
       this.createStraightLine(isProjector)
     ]
-  }
-
-  get projectorPosition() {
-    return this._projectorPosition
   }
 
   get shapeCount() {

@@ -3,6 +3,9 @@ import { LeavingForm } from '../forms/leaving'
 import { Projector } from '../projector'
 import * as C from '../constants'
 
+const LEFT_FORM_CX = -3.5
+const RIGHT_FORM_CX = -LEFT_FORM_CX
+
 export class LeavingInstallation {
 
   constructor() {
@@ -23,34 +26,34 @@ export class LeavingInstallation {
       }
     ]
 
-    const leftProjectorPosition = new THREE.Vector3(C.LEFT_FORM_CX, C.PROJECTOR_CY, C.MEMBRANE_LENGTH)
-    const rightProjectorPosition = new THREE.Vector3(C.RIGHT_FORM_CX, C.PROJECTOR_CY, C.MEMBRANE_LENGTH)
+    this.leftProjectorPosition = new THREE.Vector3(LEFT_FORM_CX, C.PROJECTOR_CY, C.MEMBRANE_LENGTH)
+    this.rightProjectorPosition = new THREE.Vector3(RIGHT_FORM_CX, C.PROJECTOR_CY, C.MEMBRANE_LENGTH)
 
     this.leftProjectorForm = new LeavingForm(
-      leftProjectorPosition,
-      C.LEFT_FORM_CX,
+      this.leftProjectorPosition,
+      LEFT_FORM_CX,
       C.PROJECTOR_CY,
       C.PROJECTOR_R,
       C.PROJECTOR_R,
       true)
     this.leftScreenForm = new LeavingForm(
-      leftProjectorPosition,
-      C.LEFT_FORM_CX,
+      this.leftProjectorPosition,
+      LEFT_FORM_CX,
       C.SCREEN_IMAGE_CY,
       C.SCREEN_IMAGE_RX,
       C.SCREEN_IMAGE_RY,
       true)
 
     this.rightProjectorForm = new LeavingForm(
-      rightProjectorPosition,
-      C.RIGHT_FORM_CX,
+      this.rightProjectorPosition,
+      RIGHT_FORM_CX,
       C.PROJECTOR_CY,
       C.PROJECTOR_R,
       C.PROJECTOR_R,
       false)
     this.rightScreenForm = new LeavingForm(
-      rightProjectorPosition,
-      C.RIGHT_FORM_CX,
+      this.rightProjectorPosition,
+      RIGHT_FORM_CX,
       C.SCREEN_IMAGE_CY,
       C.SCREEN_IMAGE_RX,
       C.SCREEN_IMAGE_RY,
@@ -62,12 +65,14 @@ export class LeavingInstallation {
 
   create(scene, hazeTexture) {
     this.leftProjector = new Projector(
+      this.leftProjectorPosition,
       C.ORIENTATION_HORIZONTAL,
       this.leftProjectorForm,
       this.leftScreenForm,
       scene,
       hazeTexture)
     this.rightProjector = new Projector(
+      this.rightProjectorPosition,
       C.ORIENTATION_HORIZONTAL,
       this.rightProjectorForm,
       this.rightScreenForm,
