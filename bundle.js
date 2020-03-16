@@ -52448,7 +52448,7 @@ VertexNormalsHelper.prototype.update = function () {
 /*!**************************!*\
   !*** ./src/constants.js ***!
   \**************************/
-/*! exports provided: PROJECTOR_CY, PROJECTOR_R, SCREEN_IMAGE_CY, SCREEN_IMAGE_RX, SCREEN_IMAGE_RY, SCREEN_IMAGE_LINE_THICKNESS, MEMBRANE_LENGTH, ORIENTATION_HORIZONTAL, ORIENTATION_VERTICAL, PI, TWO_PI, HALF_PI */
+/*! exports provided: PROJECTOR_CY, PROJECTOR_R, SCREEN_IMAGE_CY, SCREEN_IMAGE_RX, SCREEN_IMAGE_RY, SCREEN_IMAGE_LINE_THICKNESS, MEMBRANE_LENGTH, ORIENTATION_HORIZONTAL, ORIENTATION_VERTICAL, PI, TWO_PI, HALF_PI, QUARTER_PI */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -52465,6 +52465,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "PI", function() { return PI; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "TWO_PI", function() { return TWO_PI; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "HALF_PI", function() { return HALF_PI; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "QUARTER_PI", function() { return QUARTER_PI; });
 const PROJECTOR_CY = 0.3
 const PROJECTOR_R = 0.1
 
@@ -52481,6 +52482,92 @@ const ORIENTATION_VERTICAL = Symbol('ORIENTATION_VERTICAL')
 const PI = Math.PI
 const TWO_PI = PI * 2
 const HALF_PI = PI / 2
+const QUARTER_PI = PI / 4
+
+
+/***/ }),
+
+/***/ "./src/forms/between-you-and-i.js":
+/*!****************************************!*\
+  !*** ./src/forms/between-you-and-i.js ***!
+  \****************************************/
+/*! exports provided: BetweenYouAndIForm */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "BetweenYouAndIForm", function() { return BetweenYouAndIForm; });
+/* harmony import */ var three__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
+/* harmony import */ var _syntax_ellipse__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../syntax/ellipse */ "./src/syntax/ellipse.js");
+/* harmony import */ var _syntax_straight_line__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../syntax/straight-line */ "./src/syntax/straight-line.js");
+/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../utils */ "./src/utils.js");
+/* harmony import */ var _constants__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../constants */ "./src/constants.js");
+
+
+
+
+
+
+const ELLIPSE_POINT_COUNT = 50
+const TRAVELLING_WAVE_POINT_COUNT = 50
+const R = 2
+
+class BetweenYouAndIForm {
+
+  constructor(projectorPosition, isProjector, isFront, depth) {
+    this.vec2ProjectorPosition = new three__WEBPACK_IMPORTED_MODULE_0__["Vector2"](projectorPosition.x, projectorPosition.z)
+    this.isFront = isFront
+    this.depth = depth
+    this.pointsArray = [
+      this.createEllipse(isProjector),
+      this.createTravellingWave(isProjector),
+      this.createStraightLine(isProjector)
+    ]
+  }
+
+  get shapeCount() {
+    return 3
+  }
+
+  createEllipse(isProjector) {
+    if (this.isFront) return []
+    if (isProjector) {
+      return _utils__WEBPACK_IMPORTED_MODULE_3__["repeat"](ELLIPSE_POINT_COUNT + 1, this.vec2ProjectorPosition)
+    }
+    const ellipse = new _syntax_ellipse__WEBPACK_IMPORTED_MODULE_1__["Ellipse"](0, this.depth, R, R)
+    return ellipse.getPoints(0, _constants__WEBPACK_IMPORTED_MODULE_4__["TWO_PI"], ELLIPSE_POINT_COUNT)
+  }
+
+  createTravellingWave(isProjector) {
+    if (!this.isFront) return []
+    if (isProjector) {
+      return _utils__WEBPACK_IMPORTED_MODULE_3__["repeat"](TRAVELLING_WAVE_POINT_COUNT + 1, this.vec2ProjectorPosition)
+    }
+    const startAngle = 0
+    const endAngle = _constants__WEBPACK_IMPORTED_MODULE_4__["TWO_PI"]
+    const dy = 2 * R / TRAVELLING_WAVE_POINT_COUNT
+    const deltaAngle = (endAngle - startAngle) / TRAVELLING_WAVE_POINT_COUNT
+    return _utils__WEBPACK_IMPORTED_MODULE_3__["range"](TRAVELLING_WAVE_POINT_COUNT + 1).map(n => {
+      return new three__WEBPACK_IMPORTED_MODULE_0__["Vector2"](R * Math.sin(startAngle - n * deltaAngle), this.depth - R + n * dy)
+    })
+  }
+
+  createStraightLine(isProjector) {
+    if (!this.isFront) return []
+    if (isProjector) {
+      return _utils__WEBPACK_IMPORTED_MODULE_3__["repeat"](2, this.vec2ProjectorPosition)
+    }
+    const v = R * Math.sin(_constants__WEBPACK_IMPORTED_MODULE_4__["QUARTER_PI"])
+    const straightLine = new _syntax_straight_line__WEBPACK_IMPORTED_MODULE_2__["StraightLine"](
+      new three__WEBPACK_IMPORTED_MODULE_0__["Vector2"](v, this.depth - v),
+      new three__WEBPACK_IMPORTED_MODULE_0__["Vector2"](-v, this.depth + v))
+    return straightLine.getPoints()
+  }
+
+  getUpdatedPoints() {
+    return this.pointsArray
+  }
+}
 
 
 /***/ }),
@@ -52765,15 +52852,16 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _installations_doubling_back__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./installations/doubling-back */ "./src/installations/doubling-back.js");
 /* harmony import */ var _installations_coupling__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./installations/coupling */ "./src/installations/coupling.js");
 /* harmony import */ var _installations_leaving__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./installations/leaving */ "./src/installations/leaving.js");
-/* harmony import */ var _forms_leaving__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./forms/leaving */ "./src/forms/leaving.js");
-/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./utils */ "./src/utils.js");
-/* harmony import */ var _constants__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./constants */ "./src/constants.js");
+/* harmony import */ var _installations_between_you_and_i__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./installations/between-you-and-i */ "./src/installations/between-you-and-i.js");
+/* harmony import */ var _forms_leaving__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./forms/leaving */ "./src/forms/leaving.js");
+/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./utils */ "./src/utils.js");
+/* harmony import */ var _constants__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./constants */ "./src/constants.js");
 
 
 
 
 
-// import { BetweenYouAndIInstallation } from './installations/between-you-and-i'
+
 
 
 
@@ -52781,8 +52869,8 @@ __webpack_require__.r(__webpack_exports__);
 const installations = [
   new _installations_doubling_back__WEBPACK_IMPORTED_MODULE_2__["DoublingBackInstallation"](),
   new _installations_coupling__WEBPACK_IMPORTED_MODULE_3__["CouplingInstallation"](),
-  new _installations_leaving__WEBPACK_IMPORTED_MODULE_4__["LeavingInstallation"]()
-  // new BetweenYouAndIInstallation()
+  new _installations_leaving__WEBPACK_IMPORTED_MODULE_4__["LeavingInstallation"](),
+  new _installations_between_you_and_i__WEBPACK_IMPORTED_MODULE_5__["BetweenYouAndIInstallation"]()
 ]
 
 const main = async () => {
@@ -52829,7 +52917,7 @@ const main = async () => {
     if (installation.leftWall) {
       const lw = installation.leftWall
       const leftWallGeometry = new three__WEBPACK_IMPORTED_MODULE_0__["PlaneGeometry"](lw.width, lw.height)
-      leftWallGeometry.rotateY(_constants__WEBPACK_IMPORTED_MODULE_7__["HALF_PI"])
+      leftWallGeometry.rotateY(_constants__WEBPACK_IMPORTED_MODULE_8__["HALF_PI"])
       leftWallGeometry.translate(lw.x, lw.height / 2, lw.width / 2)
       const leftWallMaterial = new three__WEBPACK_IMPORTED_MODULE_0__["MeshBasicMaterial"]({
         color: 0xA0A0A0,
@@ -52844,7 +52932,7 @@ const main = async () => {
     if (installation.floor) {
       const f = installation.floor
       const floorGeometry = new three__WEBPACK_IMPORTED_MODULE_0__["PlaneGeometry"](f.width, f.depth)
-      floorGeometry.rotateX(-_constants__WEBPACK_IMPORTED_MODULE_7__["HALF_PI"])
+      floorGeometry.rotateX(-_constants__WEBPACK_IMPORTED_MODULE_8__["HALF_PI"])
       floorGeometry.translate(0, 0, f.depth / 2)
       const floorMaterial = new three__WEBPACK_IMPORTED_MODULE_0__["MeshBasicMaterial"]({
         color: 0xD0D0D0,
@@ -52858,18 +52946,18 @@ const main = async () => {
   }
 
   const destroySurfaces = () => {
-    surfaces.forEach(surface => _utils__WEBPACK_IMPORTED_MODULE_6__["disposeMesh"](scene, surface))
+    surfaces.forEach(surface => _utils__WEBPACK_IMPORTED_MODULE_7__["disposeMesh"](scene, surface))
     surfaces = []
   }
 
-  const hazeTexture = await _utils__WEBPACK_IMPORTED_MODULE_6__["loadTexture"]('haze.jpg')
+  const hazeTexture = await _utils__WEBPACK_IMPORTED_MODULE_7__["loadTexture"]('haze.jpg')
 
   const toggleAxes = () => {
     if (axesHelper) {
       scene.remove(axesHelper)
       axesHelper = undefined
     } else {
-      axesHelper = new three__WEBPACK_IMPORTED_MODULE_0__["AxesHelper"](_constants__WEBPACK_IMPORTED_MODULE_7__["MEMBRANE_LENGTH"])
+      axesHelper = new three__WEBPACK_IMPORTED_MODULE_0__["AxesHelper"](_constants__WEBPACK_IMPORTED_MODULE_8__["MEMBRANE_LENGTH"])
       scene.add(axesHelper)
     }
   }
@@ -52925,10 +53013,10 @@ const main = async () => {
       case 'p': return switchCameraPosition()
       case 'r': return toggleAutoRotate()
       case 'v': return toggleVertexNormals()
-      case '1': return Object(_forms_leaving__WEBPACK_IMPORTED_MODULE_5__["setSpeed"])(1)
-      case '2': return Object(_forms_leaving__WEBPACK_IMPORTED_MODULE_5__["setSpeed"])(2)
-      case '3': return Object(_forms_leaving__WEBPACK_IMPORTED_MODULE_5__["setSpeed"])(5)
-      case '4': return Object(_forms_leaving__WEBPACK_IMPORTED_MODULE_5__["setSpeed"])(10)
+      case '1': return Object(_forms_leaving__WEBPACK_IMPORTED_MODULE_6__["setSpeed"])(1)
+      case '2': return Object(_forms_leaving__WEBPACK_IMPORTED_MODULE_6__["setSpeed"])(2)
+      case '3': return Object(_forms_leaving__WEBPACK_IMPORTED_MODULE_6__["setSpeed"])(5)
+      case '4': return Object(_forms_leaving__WEBPACK_IMPORTED_MODULE_6__["setSpeed"])(10)
     }
   }
 
@@ -52955,6 +53043,100 @@ const main = async () => {
 }
 
 main()
+
+
+/***/ }),
+
+/***/ "./src/installations/between-you-and-i.js":
+/*!************************************************!*\
+  !*** ./src/installations/between-you-and-i.js ***!
+  \************************************************/
+/*! exports provided: BetweenYouAndIInstallation */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "BetweenYouAndIInstallation", function() { return BetweenYouAndIInstallation; });
+/* harmony import */ var three__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
+/* harmony import */ var _forms_between_you_and_i__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../forms/between-you-and-i */ "./src/forms/between-you-and-i.js");
+/* harmony import */ var _projector__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../projector */ "./src/projector.js");
+/* harmony import */ var _constants__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../constants */ "./src/constants.js");
+
+
+
+
+
+class BetweenYouAndIInstallation {
+
+  constructor() {
+
+    this.floor = {
+      width: 10,
+      depth: 19
+    }
+
+    this.cameraPositions = [
+      {
+        cameraPosition: new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](-4.6, 9.03, 30.78),
+        controlsTarget: new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](1.2, 2, 9.48)
+      },
+      {
+        cameraPosition: new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](4.27, 2.76, 23.73),
+        controlsTarget: new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](1.2, 2, 9.48)
+      },
+      {
+        cameraPosition: new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](-0.16, -8.18, 9.26),
+        controlsTarget: new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](0.45, 2, 9.25)
+      }
+    ]
+
+    this.frontProjectorPosition = new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](0, _constants__WEBPACK_IMPORTED_MODULE_3__["MEMBRANE_LENGTH"], 12)
+    this.backProjectorPosition = new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](0, _constants__WEBPACK_IMPORTED_MODULE_3__["MEMBRANE_LENGTH"], 7)
+
+    this.frontProjectorForm = new _forms_between_you_and_i__WEBPACK_IMPORTED_MODULE_1__["BetweenYouAndIForm"](this.frontProjectorPosition, true, true, 12)
+    this.frontScreenForm = new _forms_between_you_and_i__WEBPACK_IMPORTED_MODULE_1__["BetweenYouAndIForm"](this.frontProjectorPosition, false, true, 12)
+
+    this.backProjectorForm = new _forms_between_you_and_i__WEBPACK_IMPORTED_MODULE_1__["BetweenYouAndIForm"](this.backProjectorPosition, true, false, 7)
+    this.backScreenForm = new _forms_between_you_and_i__WEBPACK_IMPORTED_MODULE_1__["BetweenYouAndIForm"](this.backProjectorPosition, false, false, 7)
+
+    this.frontProjector = null
+    this.backProjector = null
+  }
+
+  create(scene, hazeTexture) {
+    this.frontProjector = new _projector__WEBPACK_IMPORTED_MODULE_2__["Projector"](
+      this.frontProjectorPosition,
+      _constants__WEBPACK_IMPORTED_MODULE_3__["ORIENTATION_VERTICAL"],
+      this.frontProjectorForm,
+      this.frontScreenForm,
+      scene,
+      hazeTexture)
+    this.backProjector = new _projector__WEBPACK_IMPORTED_MODULE_2__["Projector"](
+      this.backProjectorPosition,
+      _constants__WEBPACK_IMPORTED_MODULE_3__["ORIENTATION_VERTICAL"],
+      this.backProjectorForm,
+      this.backScreenForm,
+      scene,
+      hazeTexture)
+  }
+
+  destroy() {
+    this.frontProjector && this.frontProjector.destroy()
+    this.backProjector && this.backProjector.destroy()
+    this.frontProjector = null
+    this.backProjector = null
+  }
+
+  update() {
+    this.frontProjector && this.frontProjector.update()
+    this.backProjector && this.backProjector.update()
+  }
+
+  toggleVertexNormals() {
+    this.frontProjector && this.frontProjector.toggleVertexNormals()
+    this.backProjector && this.backProjector.toggleVertexNormals()
+  }
+}
 
 
 /***/ }),
@@ -53154,7 +53336,7 @@ class LeavingInstallation {
         controlsTarget: new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](-0.75, 2, 4.43)
       },
       {
-        cameraPosition: new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](-2.79, 4.2, -9.53),
+        cameraPosition: new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](1.02, 3.02, -10.02),
         controlsTarget: new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](0.58, 2, 5.34)
       }
     ]
@@ -53705,6 +53887,34 @@ class Ellipse {
       const angle = startAngle + t * deltaAngle
       return this.getPoint(angle)
     })
+  }
+}
+
+
+/***/ }),
+
+/***/ "./src/syntax/straight-line.js":
+/*!*************************************!*\
+  !*** ./src/syntax/straight-line.js ***!
+  \*************************************/
+/*! exports provided: StraightLine */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "StraightLine", function() { return StraightLine; });
+class StraightLine {
+
+  constructor(point1, point2) {
+    this.point1 = point1
+    this.point2 = point2
+  }
+
+  getPoints() {
+    return [
+      this.point1,
+      this.point2
+    ]
   }
 }
 
