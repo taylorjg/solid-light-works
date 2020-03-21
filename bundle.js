@@ -252,6 +252,142 @@ if (typeof Object.create === 'function') {
 
 /***/ }),
 
+/***/ "./node_modules/lineclip/index.js":
+/*!****************************************!*\
+  !*** ./node_modules/lineclip/index.js ***!
+  \****************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+module.exports = lineclip;
+
+lineclip.polyline = lineclip;
+lineclip.polygon = polygonclip;
+
+
+// Cohen-Sutherland line clippign algorithm, adapted to efficiently
+// handle polylines rather than just segments
+
+function lineclip(points, bbox, result) {
+
+    var len = points.length,
+        codeA = bitCode(points[0], bbox),
+        part = [],
+        i, a, b, codeB, lastCode;
+
+    if (!result) result = [];
+
+    for (i = 1; i < len; i++) {
+        a = points[i - 1];
+        b = points[i];
+        codeB = lastCode = bitCode(b, bbox);
+
+        while (true) {
+
+            if (!(codeA | codeB)) { // accept
+                part.push(a);
+
+                if (codeB !== lastCode) { // segment went outside
+                    part.push(b);
+
+                    if (i < len - 1) { // start a new line
+                        result.push(part);
+                        part = [];
+                    }
+                } else if (i === len - 1) {
+                    part.push(b);
+                }
+                break;
+
+            } else if (codeA & codeB) { // trivial reject
+                break;
+
+            } else if (codeA) { // a outside, intersect with clip edge
+                a = intersect(a, b, codeA, bbox);
+                codeA = bitCode(a, bbox);
+
+            } else { // b outside
+                b = intersect(a, b, codeB, bbox);
+                codeB = bitCode(b, bbox);
+            }
+        }
+
+        codeA = lastCode;
+    }
+
+    if (part.length) result.push(part);
+
+    return result;
+}
+
+// Sutherland-Hodgeman polygon clipping algorithm
+
+function polygonclip(points, bbox) {
+
+    var result, edge, prev, prevInside, i, p, inside;
+
+    // clip against each side of the clip rectangle
+    for (edge = 1; edge <= 8; edge *= 2) {
+        result = [];
+        prev = points[points.length - 1];
+        prevInside = !(bitCode(prev, bbox) & edge);
+
+        for (i = 0; i < points.length; i++) {
+            p = points[i];
+            inside = !(bitCode(p, bbox) & edge);
+
+            // if segment goes through the clip window, add an intersection
+            if (inside !== prevInside) result.push(intersect(prev, p, edge, bbox));
+
+            if (inside) result.push(p); // add a point if it's inside
+
+            prev = p;
+            prevInside = inside;
+        }
+
+        points = result;
+
+        if (!points.length) break;
+    }
+
+    return result;
+}
+
+// intersect a segment against one of the 4 lines that make up the bbox
+
+function intersect(a, b, edge, bbox) {
+    return edge & 8 ? [a[0] + (b[0] - a[0]) * (bbox[3] - a[1]) / (b[1] - a[1]), bbox[3]] : // top
+           edge & 4 ? [a[0] + (b[0] - a[0]) * (bbox[1] - a[1]) / (b[1] - a[1]), bbox[1]] : // bottom
+           edge & 2 ? [bbox[2], a[1] + (b[1] - a[1]) * (bbox[2] - a[0]) / (b[0] - a[0])] : // right
+           edge & 1 ? [bbox[0], a[1] + (b[1] - a[1]) * (bbox[0] - a[0]) / (b[0] - a[0])] : // left
+           null;
+}
+
+// bit code reflects the point position relative to the bbox:
+
+//         left  mid  right
+//    top  1001  1000  1010
+//    mid  0001  0000  0010
+// bottom  0101  0100  0110
+
+function bitCode(p, bbox) {
+    var code = 0;
+
+    if (p[0] < bbox[0]) code |= 1; // left
+    else if (p[0] > bbox[2]) code |= 2; // right
+
+    if (p[1] < bbox[1]) code |= 4; // bottom
+    else if (p[1] > bbox[3]) code |= 8; // top
+
+    return code;
+}
+
+
+/***/ }),
+
 /***/ "./node_modules/object-assign/index.js":
 /*!*********************************************!*\
   !*** ./node_modules/object-assign/index.js ***!
@@ -52498,9 +52634,12 @@ const QUARTER_PI = PI / 4
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "BetweenYouAndIForm", function() { return BetweenYouAndIForm; });
 /* harmony import */ var three__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
-/* harmony import */ var _syntax_ellipse__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../syntax/ellipse */ "./src/syntax/ellipse.js");
-/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../utils */ "./src/utils.js");
-/* harmony import */ var _constants__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../constants */ "./src/constants.js");
+/* harmony import */ var lineclip__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! lineclip */ "./node_modules/lineclip/index.js");
+/* harmony import */ var lineclip__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(lineclip__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var _syntax_ellipse__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../syntax/ellipse */ "./src/syntax/ellipse.js");
+/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../utils */ "./src/utils.js");
+/* harmony import */ var _constants__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../constants */ "./src/constants.js");
+
 
 
 
@@ -52511,18 +52650,6 @@ const TRAVELLING_WAVE_POINT_COUNT = 100
 const RX = 1.5
 const RY = 2
 const MAX_TICKS = 10000
-
-const findIntersectionPoint1 = (aabb, cx, cy, theta) => {
-  const y = three__WEBPACK_IMPORTED_MODULE_0__["MathUtils"].clamp(cy + RY * Math.sin(theta), aabb.minY, aabb.maxY)
-  const x = three__WEBPACK_IMPORTED_MODULE_0__["MathUtils"].clamp(cx + ((y - cy) / Math.tan(theta)), aabb.minX, aabb.maxX)
-  return new three__WEBPACK_IMPORTED_MODULE_0__["Vector2"](x, y)
-}
-
-const findIntersectionPoint2 = (aabb, cx, cy, theta) => {
-  const y = three__WEBPACK_IMPORTED_MODULE_0__["MathUtils"].clamp(cy - RY * Math.sin(theta), aabb.minY, aabb.maxY)
-  const x = three__WEBPACK_IMPORTED_MODULE_0__["MathUtils"].clamp(cx - ((cy - y) / Math.tan(theta)), aabb.minX, aabb.maxX)
-  return new three__WEBPACK_IMPORTED_MODULE_0__["Vector2"](x, y)
-}
 
 class BetweenYouAndIForm {
 
@@ -52540,34 +52667,32 @@ class BetweenYouAndIForm {
 
   getEllipsePoints(wipeExtent) {
     if (this.isProjector) {
-      return _utils__WEBPACK_IMPORTED_MODULE_2__["repeat"](ELLIPSE_POINT_COUNT + 1, this.vec2ProjectorPosition)
+      return _utils__WEBPACK_IMPORTED_MODULE_3__["repeat"](ELLIPSE_POINT_COUNT + 1, this.vec2ProjectorPosition)
     }
 
-    // TODO: currently, each tick moves by the same delta y distance.
-    // This gives the appearance of speeding up as the arc get smaller.
-    // It would be nice to be linear in delta angle rather than delta y.
     const y = RY - wipeExtent
     const theta = Math.acos(y / RY)
 
     const startAngle = this.wipingInEllipse
-      ? _constants__WEBPACK_IMPORTED_MODULE_3__["HALF_PI"] + theta
-      : _constants__WEBPACK_IMPORTED_MODULE_3__["HALF_PI"] - theta
+      ? _constants__WEBPACK_IMPORTED_MODULE_4__["HALF_PI"] + theta
+      : _constants__WEBPACK_IMPORTED_MODULE_4__["HALF_PI"] - theta
 
     const endAngle = this.wipingInEllipse
-      ? _constants__WEBPACK_IMPORTED_MODULE_3__["HALF_PI"] - theta
-      : _constants__WEBPACK_IMPORTED_MODULE_3__["HALF_PI"] - (_constants__WEBPACK_IMPORTED_MODULE_3__["TWO_PI"] - theta)
+      ? _constants__WEBPACK_IMPORTED_MODULE_4__["HALF_PI"] - theta
+      : _constants__WEBPACK_IMPORTED_MODULE_4__["HALF_PI"] - (_constants__WEBPACK_IMPORTED_MODULE_4__["TWO_PI"] - theta)
 
-    const rx = RX - (1 * Math.sin(_constants__WEBPACK_IMPORTED_MODULE_3__["PI"] * this.tick / MAX_TICKS))
+    const rx = RX - (1 * Math.sin(_constants__WEBPACK_IMPORTED_MODULE_4__["PI"] * this.tick / MAX_TICKS))
 
-    const ellipse = new _syntax_ellipse__WEBPACK_IMPORTED_MODULE_1__["Ellipse"](0, this.distance, rx, RY)
+    const ellipse = new _syntax_ellipse__WEBPACK_IMPORTED_MODULE_2__["Ellipse"](0, this.distance, rx, RY)
     return ellipse.getPoints(startAngle, endAngle, ELLIPSE_POINT_COUNT)
   }
 
   getTravellingWavePoints(wipeExtent) {
     if (this.isProjector) {
-      return _utils__WEBPACK_IMPORTED_MODULE_2__["repeat"](TRAVELLING_WAVE_POINT_COUNT + 1, this.vec2ProjectorPosition)
+      return _utils__WEBPACK_IMPORTED_MODULE_3__["repeat"](TRAVELLING_WAVE_POINT_COUNT + 1, this.vec2ProjectorPosition)
     }
 
+    // http://labman.phys.utk.edu/phys221core/modules/m11/traveling_waves.html
     // y(x,t) = A sin(kx - ωt + φ)
     // Here k is the wave number, k = 2π/λ,
     // and ω = 2π/T = 2πf is the angular frequency of the wave.
@@ -52575,21 +52700,21 @@ class BetweenYouAndIForm {
 
     const thresholdY = this.distance + RY - wipeExtent
     const lambda = 2 * RY
-    const k = _constants__WEBPACK_IMPORTED_MODULE_3__["TWO_PI"] / lambda
+    const k = _constants__WEBPACK_IMPORTED_MODULE_4__["TWO_PI"] / lambda
     const f = 2
-    const omega = _constants__WEBPACK_IMPORTED_MODULE_3__["TWO_PI"] * f
+    const omega = _constants__WEBPACK_IMPORTED_MODULE_4__["TWO_PI"] * f
     const t = this.tick / MAX_TICKS
 
     if (this.wipingInEllipse) {
       const dy = (2 * RY - wipeExtent) / TRAVELLING_WAVE_POINT_COUNT
-      return _utils__WEBPACK_IMPORTED_MODULE_2__["range"](TRAVELLING_WAVE_POINT_COUNT + 1).map(n => {
+      return _utils__WEBPACK_IMPORTED_MODULE_3__["range"](TRAVELLING_WAVE_POINT_COUNT + 1).map(n => {
         const y = n * dy
         const x = RX * Math.sin(k * y + omega * t)
         return new three__WEBPACK_IMPORTED_MODULE_0__["Vector2"](x, thresholdY - y)
       })
     } else {
       const dy = wipeExtent / TRAVELLING_WAVE_POINT_COUNT
-      return _utils__WEBPACK_IMPORTED_MODULE_2__["range"](TRAVELLING_WAVE_POINT_COUNT + 1).map(n => {
+      return _utils__WEBPACK_IMPORTED_MODULE_3__["range"](TRAVELLING_WAVE_POINT_COUNT + 1).map(n => {
         const y = n * dy
         const x = RX * Math.sin(k * -y + omega * t)
         return new three__WEBPACK_IMPORTED_MODULE_0__["Vector2"](x, thresholdY + y)
@@ -52599,13 +52724,13 @@ class BetweenYouAndIForm {
 
   getStraightLinePoints(wipeExtent) {
     if (this.isProjector) {
-      return _utils__WEBPACK_IMPORTED_MODULE_2__["repeat"](2, this.vec2ProjectorPosition)
+      return _utils__WEBPACK_IMPORTED_MODULE_3__["repeat"](2, this.vec2ProjectorPosition)
     }
 
     const cx = 0
     const cy = this.distance
     const thresholdY = this.distance + RY - wipeExtent
-    const theta = -_constants__WEBPACK_IMPORTED_MODULE_3__["QUARTER_PI"] + (_constants__WEBPACK_IMPORTED_MODULE_3__["PI"] * this.tick / MAX_TICKS)
+    const theta = -_constants__WEBPACK_IMPORTED_MODULE_4__["QUARTER_PI"] + (_constants__WEBPACK_IMPORTED_MODULE_4__["PI"] * this.tick / MAX_TICKS)
 
     const aabb = {
       minX: -RX,
@@ -52614,10 +52739,24 @@ class BetweenYouAndIForm {
       maxY: this.wipingInEllipse ? thresholdY : this.distance + RY
     }
 
-    const point1 = findIntersectionPoint1(aabb, cx, cy, theta)
-    const point2 = findIntersectionPoint2(aabb, cx, cy, theta)
+    const p1x = cx + 2 * RX * Math.cos(theta)
+    const p1y = cy + 2 * RY * Math.sin(theta)
 
-    return [point1, point2]
+    const p2x = cx - 2 * RX * Math.cos(theta)
+    const p2y = cy - 2 * RY * Math.sin(theta)
+
+    const clippedLines = lineclip__WEBPACK_IMPORTED_MODULE_1___default()(
+      [[p1x, p1y], [p2x, p2y]],
+      [aabb.minX, aabb.minY, aabb.maxX, aabb.maxY])
+
+    if (clippedLines.length === 0) {
+      return _utils__WEBPACK_IMPORTED_MODULE_3__["repeat"](2, this.vec2ProjectorPosition)
+    }
+
+    return [
+      new three__WEBPACK_IMPORTED_MODULE_0__["Vector2"]().fromArray(clippedLines[0][0]),
+      new three__WEBPACK_IMPORTED_MODULE_0__["Vector2"]().fromArray(clippedLines[0][1])
+    ]
   }
 
   getUpdatedPoints() {
