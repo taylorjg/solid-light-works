@@ -9,6 +9,18 @@ const RX = 1.5
 const RY = 2
 const MAX_TICKS = 10000
 
+const findIntersectionPoint1 = (bb, cx, cy, theta) => {
+  const y = THREE.MathUtils.clamp(cy + RY * Math.sin(theta), bb.minY, bb.maxY)
+  const x = THREE.MathUtils.clamp(cx + ((y - cy) / Math.tan(theta)), bb.minX, bb.maxX)
+  return new THREE.Vector2(x, y)
+}
+
+const findIntersectionPoint2 = (bb, cx, cy, theta) => {
+  const y = THREE.MathUtils.clamp(cy - RY * Math.sin(theta), bb.minY, bb.maxY)
+  const x = THREE.MathUtils.clamp(cx - ((cy - y) / Math.tan(theta)), bb.minX, bb.maxX)
+  return new THREE.Vector2(x, y)
+}
+
 export class BetweenYouAndIForm {
 
   constructor(projectorPosition, isProjector, isFront, distance) {
@@ -58,13 +70,14 @@ export class BetweenYouAndIForm {
     // and ω = 2π/T = 2πf is the angular frequency of the wave.
     // φ is called the phase constant.
 
+    const lambda = 2 * RY
+    const k = C.TWO_PI / lambda
+    const f = 2
+    const omega = C.TWO_PI * f
+    const t = this.tick / MAX_TICKS
+
     if (this.wipingInEllipse) {
       const dy = (2 * RY - wipeExtent) / TRAVELLING_WAVE_POINT_COUNT
-      const lambda = 2 * RY
-      const k = C.TWO_PI / lambda
-      const f = 2
-      const omega = C.TWO_PI * f
-      const t = this.tick / MAX_TICKS
       return U.range(TRAVELLING_WAVE_POINT_COUNT + 1).map(n => {
         const y = n * dy
         const x = RX * Math.sin(k * y + omega * t)
@@ -72,11 +85,6 @@ export class BetweenYouAndIForm {
       })
     } else {
       const dy = wipeExtent / TRAVELLING_WAVE_POINT_COUNT
-      const lambda = 2 * RY
-      const k = C.TWO_PI / lambda
-      const f = 2
-      const omega = C.TWO_PI * f
-      const t = this.tick / MAX_TICKS
       return U.range(TRAVELLING_WAVE_POINT_COUNT + 1).map(n => {
         const y = n * dy
         const x = RX * Math.sin(k * y + omega * t)
@@ -92,17 +100,20 @@ export class BetweenYouAndIForm {
 
     const cx = 0
     const cy = this.distance
-    const theta = -C.QUARTER_PI + (C.PI * this.tick / MAX_TICKS)
     const thresholdY = this.distance + RY - wipeExtent
-    const f = this.wipingInEllipse ? Math.min : Math.max
-    const p1y = f(cy + RY * Math.sin(theta), thresholdY)
-    const p2y = f(cy - RY * Math.sin(theta), thresholdY)
-    const p1x = cx + ((p1y - cy) / Math.tan(theta))
-    const p2x = cx - ((cy - p2y) / Math.tan(theta))
-    return [
-      new THREE.Vector2(p1x, p1y),
-      new THREE.Vector2(p2x, p2y)
-    ]
+    const theta = -C.QUARTER_PI + (C.PI * this.tick / MAX_TICKS)
+
+    const bb = {
+      minX: -RX,
+      maxX: RX,
+      minY: this.wipingInEllipse ? this.distance - RY : thresholdY,
+      maxY: this.wipingInEllipse ? thresholdY : this.distance + RY
+    }
+
+    const point1 = findIntersectionPoint1(bb, cx, cy, theta)
+    const point2 = findIntersectionPoint2(bb, cx, cy, theta)
+
+    return [point1, point2]
   }
 
   getUpdatedPoints() {
