@@ -52499,73 +52499,146 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "BetweenYouAndIForm", function() { return BetweenYouAndIForm; });
 /* harmony import */ var three__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
 /* harmony import */ var _syntax_ellipse__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../syntax/ellipse */ "./src/syntax/ellipse.js");
-/* harmony import */ var _syntax_straight_line__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../syntax/straight-line */ "./src/syntax/straight-line.js");
-/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../utils */ "./src/utils.js");
-/* harmony import */ var _constants__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../constants */ "./src/constants.js");
+/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../utils */ "./src/utils.js");
+/* harmony import */ var _constants__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../constants */ "./src/constants.js");
 
 
 
 
 
+const ELLIPSE_POINT_COUNT = 100
+const TRAVELLING_WAVE_POINT_COUNT = 100
+const RX = 1.5
+const RY = 2
+const MAX_TICKS = 10000
 
-const ELLIPSE_POINT_COUNT = 50
-const TRAVELLING_WAVE_POINT_COUNT = 50
-const R = 2
+const findIntersectionPoint1 = (aabb, cx, cy, theta) => {
+  const y = three__WEBPACK_IMPORTED_MODULE_0__["MathUtils"].clamp(cy + RY * Math.sin(theta), aabb.minY, aabb.maxY)
+  const x = three__WEBPACK_IMPORTED_MODULE_0__["MathUtils"].clamp(cx + ((y - cy) / Math.tan(theta)), aabb.minX, aabb.maxX)
+  return new three__WEBPACK_IMPORTED_MODULE_0__["Vector2"](x, y)
+}
+
+const findIntersectionPoint2 = (aabb, cx, cy, theta) => {
+  const y = three__WEBPACK_IMPORTED_MODULE_0__["MathUtils"].clamp(cy - RY * Math.sin(theta), aabb.minY, aabb.maxY)
+  const x = three__WEBPACK_IMPORTED_MODULE_0__["MathUtils"].clamp(cx - ((cy - y) / Math.tan(theta)), aabb.minX, aabb.maxX)
+  return new three__WEBPACK_IMPORTED_MODULE_0__["Vector2"](x, y)
+}
 
 class BetweenYouAndIForm {
 
-  constructor(projectorPosition, isProjector, isFront, depth) {
+  constructor(projectorPosition, isProjector, isFront, distance) {
     this.vec2ProjectorPosition = new three__WEBPACK_IMPORTED_MODULE_0__["Vector2"](projectorPosition.x, projectorPosition.z)
+    this.isProjector = isProjector
     this.isFront = isFront
-    this.depth = depth
-    this.pointsArray = [
-      this.createEllipse(isProjector),
-      this.createTravellingWave(isProjector),
-      this.createStraightLine(isProjector)
-    ]
+    this.distance = distance
+    this.reset(isFront)
   }
 
   get shapeCount() {
     return 3
   }
 
-  createEllipse(isProjector) {
-    if (this.isFront) return []
-    if (isProjector) {
-      return _utils__WEBPACK_IMPORTED_MODULE_3__["repeat"](ELLIPSE_POINT_COUNT + 1, this.vec2ProjectorPosition)
+  getEllipsePoints(wipeExtent) {
+    if (this.isProjector) {
+      return _utils__WEBPACK_IMPORTED_MODULE_2__["repeat"](ELLIPSE_POINT_COUNT + 1, this.vec2ProjectorPosition)
     }
-    const ellipse = new _syntax_ellipse__WEBPACK_IMPORTED_MODULE_1__["Ellipse"](0, this.depth, R, R)
-    return ellipse.getPoints(0, _constants__WEBPACK_IMPORTED_MODULE_4__["TWO_PI"], ELLIPSE_POINT_COUNT)
+
+    // TODO: currently, each tick moves by the same delta y distance.
+    // This gives the appearance of speeding up as the arc get smaller.
+    // It would be nice to be linear in delta angle rather than delta y.
+    const y = RY - wipeExtent
+    const theta = Math.acos(y / RY)
+
+    const startAngle = this.wipingInEllipse
+      ? _constants__WEBPACK_IMPORTED_MODULE_3__["HALF_PI"] + theta
+      : _constants__WEBPACK_IMPORTED_MODULE_3__["HALF_PI"] - theta
+
+    const endAngle = this.wipingInEllipse
+      ? _constants__WEBPACK_IMPORTED_MODULE_3__["HALF_PI"] - theta
+      : _constants__WEBPACK_IMPORTED_MODULE_3__["HALF_PI"] - (_constants__WEBPACK_IMPORTED_MODULE_3__["TWO_PI"] - theta)
+
+    const rx = RX - (1 * Math.sin(_constants__WEBPACK_IMPORTED_MODULE_3__["PI"] * this.tick / MAX_TICKS))
+
+    const ellipse = new _syntax_ellipse__WEBPACK_IMPORTED_MODULE_1__["Ellipse"](0, this.distance, rx, RY)
+    return ellipse.getPoints(startAngle, endAngle, ELLIPSE_POINT_COUNT)
   }
 
-  createTravellingWave(isProjector) {
-    if (!this.isFront) return []
-    if (isProjector) {
-      return _utils__WEBPACK_IMPORTED_MODULE_3__["repeat"](TRAVELLING_WAVE_POINT_COUNT + 1, this.vec2ProjectorPosition)
+  getTravellingWavePoints(wipeExtent) {
+    if (this.isProjector) {
+      return _utils__WEBPACK_IMPORTED_MODULE_2__["repeat"](TRAVELLING_WAVE_POINT_COUNT + 1, this.vec2ProjectorPosition)
     }
-    const startAngle = 0
-    const endAngle = _constants__WEBPACK_IMPORTED_MODULE_4__["TWO_PI"]
-    const dy = 2 * R / TRAVELLING_WAVE_POINT_COUNT
-    const deltaAngle = (endAngle - startAngle) / TRAVELLING_WAVE_POINT_COUNT
-    return _utils__WEBPACK_IMPORTED_MODULE_3__["range"](TRAVELLING_WAVE_POINT_COUNT + 1).map(n => {
-      return new three__WEBPACK_IMPORTED_MODULE_0__["Vector2"](R * Math.sin(startAngle - n * deltaAngle), this.depth - R + n * dy)
-    })
+
+    // y(x,t) = A sin(kx - ωt + φ)
+    // Here k is the wave number, k = 2π/λ,
+    // and ω = 2π/T = 2πf is the angular frequency of the wave.
+    // φ is called the phase constant.
+
+    const thresholdY = this.distance + RY - wipeExtent
+    const lambda = 2 * RY
+    const k = _constants__WEBPACK_IMPORTED_MODULE_3__["TWO_PI"] / lambda
+    const f = 2
+    const omega = _constants__WEBPACK_IMPORTED_MODULE_3__["TWO_PI"] * f
+    const t = this.tick / MAX_TICKS
+
+    if (this.wipingInEllipse) {
+      const dy = (2 * RY - wipeExtent) / TRAVELLING_WAVE_POINT_COUNT
+      return _utils__WEBPACK_IMPORTED_MODULE_2__["range"](TRAVELLING_WAVE_POINT_COUNT + 1).map(n => {
+        const y = n * dy
+        const x = RX * Math.sin(k * y + omega * t)
+        return new three__WEBPACK_IMPORTED_MODULE_0__["Vector2"](x, thresholdY - y)
+      })
+    } else {
+      const dy = wipeExtent / TRAVELLING_WAVE_POINT_COUNT
+      return _utils__WEBPACK_IMPORTED_MODULE_2__["range"](TRAVELLING_WAVE_POINT_COUNT + 1).map(n => {
+        const y = n * dy
+        const x = RX * Math.sin(k * -y + omega * t)
+        return new three__WEBPACK_IMPORTED_MODULE_0__["Vector2"](x, thresholdY + y)
+      })
+    }
   }
 
-  createStraightLine(isProjector) {
-    if (!this.isFront) return []
-    if (isProjector) {
-      return _utils__WEBPACK_IMPORTED_MODULE_3__["repeat"](2, this.vec2ProjectorPosition)
+  getStraightLinePoints(wipeExtent) {
+    if (this.isProjector) {
+      return _utils__WEBPACK_IMPORTED_MODULE_2__["repeat"](2, this.vec2ProjectorPosition)
     }
-    const v = R * Math.sin(_constants__WEBPACK_IMPORTED_MODULE_4__["QUARTER_PI"])
-    const straightLine = new _syntax_straight_line__WEBPACK_IMPORTED_MODULE_2__["StraightLine"](
-      new three__WEBPACK_IMPORTED_MODULE_0__["Vector2"](v, this.depth - v),
-      new three__WEBPACK_IMPORTED_MODULE_0__["Vector2"](-v, this.depth + v))
-    return straightLine.getPoints()
+
+    const cx = 0
+    const cy = this.distance
+    const thresholdY = this.distance + RY - wipeExtent
+    const theta = -_constants__WEBPACK_IMPORTED_MODULE_3__["QUARTER_PI"] + (_constants__WEBPACK_IMPORTED_MODULE_3__["PI"] * this.tick / MAX_TICKS)
+
+    const aabb = {
+      minX: -RX,
+      maxX: RX,
+      minY: this.wipingInEllipse ? this.distance - RY : thresholdY,
+      maxY: this.wipingInEllipse ? thresholdY : this.distance + RY
+    }
+
+    const point1 = findIntersectionPoint1(aabb, cx, cy, theta)
+    const point2 = findIntersectionPoint2(aabb, cx, cy, theta)
+
+    return [point1, point2]
   }
 
   getUpdatedPoints() {
-    return this.pointsArray
+    const min = this.distance - RY
+    const max = this.distance + RY
+    const wipeExtent = (max - min) * this.tick / MAX_TICKS
+    const points = [
+      this.getEllipsePoints(wipeExtent),
+      this.getTravellingWavePoints(wipeExtent),
+      this.getStraightLinePoints(wipeExtent)
+    ]
+    this.tick++
+    if (this.tick > MAX_TICKS) {
+      this.reset(!this.wipingInEllipse)
+    }
+    return points
+  }
+
+  reset(wipingInEllipse) {
+    this.tick = 0
+    this.wipingInEllipse = wipingInEllipse
   }
 }
 
@@ -53887,34 +53960,6 @@ class Ellipse {
       const angle = startAngle + t * deltaAngle
       return this.getPoint(angle)
     })
-  }
-}
-
-
-/***/ }),
-
-/***/ "./src/syntax/straight-line.js":
-/*!*************************************!*\
-  !*** ./src/syntax/straight-line.js ***!
-  \*************************************/
-/*! exports provided: StraightLine */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "StraightLine", function() { return StraightLine; });
-class StraightLine {
-
-  constructor(point1, point2) {
-    this.point1 = point1
-    this.point2 = point2
-  }
-
-  getPoints() {
-    return [
-      this.point1,
-      this.point2
-    ]
   }
 }
 
