@@ -1,4 +1,5 @@
 import * as THREE from 'three'
+import lineclip from 'lineclip'
 import { Ellipse } from '../syntax/ellipse'
 import * as U from '../utils'
 import * as C from '../constants'
@@ -8,18 +9,6 @@ const TRAVELLING_WAVE_POINT_COUNT = 100
 const RX = 1.5
 const RY = 2
 const MAX_TICKS = 10000
-
-const findIntersectionPoint1 = (aabb, cx, cy, theta) => {
-  const y = THREE.MathUtils.clamp(cy + RY * Math.sin(theta), aabb.minY, aabb.maxY)
-  const x = THREE.MathUtils.clamp(cx + ((y - cy) / Math.tan(theta)), aabb.minX, aabb.maxX)
-  return new THREE.Vector2(x, y)
-}
-
-const findIntersectionPoint2 = (aabb, cx, cy, theta) => {
-  const y = THREE.MathUtils.clamp(cy - RY * Math.sin(theta), aabb.minY, aabb.maxY)
-  const x = THREE.MathUtils.clamp(cx - ((cy - y) / Math.tan(theta)), aabb.minX, aabb.maxX)
-  return new THREE.Vector2(x, y)
-}
 
 export class BetweenYouAndIForm {
 
@@ -40,9 +29,6 @@ export class BetweenYouAndIForm {
       return U.repeat(ELLIPSE_POINT_COUNT + 1, this.vec2ProjectorPosition)
     }
 
-    // TODO: currently, each tick moves by the same delta y distance.
-    // This gives the appearance of speeding up as the arc get smaller.
-    // It would be nice to be linear in delta angle rather than delta y.
     const y = RY - wipeExtent
     const theta = Math.acos(y / RY)
 
@@ -65,6 +51,7 @@ export class BetweenYouAndIForm {
       return U.repeat(TRAVELLING_WAVE_POINT_COUNT + 1, this.vec2ProjectorPosition)
     }
 
+    // http://labman.phys.utk.edu/phys221core/modules/m11/traveling_waves.html
     // y(x,t) = A sin(kx - ωt + φ)
     // Here k is the wave number, k = 2π/λ,
     // and ω = 2π/T = 2πf is the angular frequency of the wave.
@@ -111,10 +98,24 @@ export class BetweenYouAndIForm {
       maxY: this.wipingInEllipse ? thresholdY : this.distance + RY
     }
 
-    const point1 = findIntersectionPoint1(aabb, cx, cy, theta)
-    const point2 = findIntersectionPoint2(aabb, cx, cy, theta)
+    const p1x = cx + 2 * RX * Math.cos(theta)
+    const p1y = cy + 2 * RY * Math.sin(theta)
 
-    return [point1, point2]
+    const p2x = cx - 2 * RX * Math.cos(theta)
+    const p2y = cy - 2 * RY * Math.sin(theta)
+
+    const clippedLines = lineclip(
+      [[p1x, p1y], [p2x, p2y]],
+      [aabb.minX, aabb.minY, aabb.maxX, aabb.maxY])
+
+    if (clippedLines.length === 0) {
+      return U.repeat(2, this.vec2ProjectorPosition)
+    }
+
+    return [
+      new THREE.Vector2().fromArray(clippedLines[0][0]),
+      new THREE.Vector2().fromArray(clippedLines[0][1])
+    ]
   }
 
   getUpdatedPoints() {
