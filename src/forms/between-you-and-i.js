@@ -9,15 +9,15 @@ const RX = 1.5
 const RY = 2
 const MAX_TICKS = 10000
 
-const findIntersectionPoint1 = (bb, cx, cy, theta) => {
-  const y = THREE.MathUtils.clamp(cy + RY * Math.sin(theta), bb.minY, bb.maxY)
-  const x = THREE.MathUtils.clamp(cx + ((y - cy) / Math.tan(theta)), bb.minX, bb.maxX)
+const findIntersectionPoint1 = (aabb, cx, cy, theta) => {
+  const y = THREE.MathUtils.clamp(cy + RY * Math.sin(theta), aabb.minY, aabb.maxY)
+  const x = THREE.MathUtils.clamp(cx + ((y - cy) / Math.tan(theta)), aabb.minX, aabb.maxX)
   return new THREE.Vector2(x, y)
 }
 
-const findIntersectionPoint2 = (bb, cx, cy, theta) => {
-  const y = THREE.MathUtils.clamp(cy - RY * Math.sin(theta), bb.minY, bb.maxY)
-  const x = THREE.MathUtils.clamp(cx - ((cy - y) / Math.tan(theta)), bb.minX, bb.maxX)
+const findIntersectionPoint2 = (aabb, cx, cy, theta) => {
+  const y = THREE.MathUtils.clamp(cy - RY * Math.sin(theta), aabb.minY, aabb.maxY)
+  const x = THREE.MathUtils.clamp(cx - ((cy - y) / Math.tan(theta)), aabb.minX, aabb.maxX)
   return new THREE.Vector2(x, y)
 }
 
@@ -70,6 +70,7 @@ export class BetweenYouAndIForm {
     // and ω = 2π/T = 2πf is the angular frequency of the wave.
     // φ is called the phase constant.
 
+    const thresholdY = this.distance + RY - wipeExtent
     const lambda = 2 * RY
     const k = C.TWO_PI / lambda
     const f = 2
@@ -81,14 +82,14 @@ export class BetweenYouAndIForm {
       return U.range(TRAVELLING_WAVE_POINT_COUNT + 1).map(n => {
         const y = n * dy
         const x = RX * Math.sin(k * y + omega * t)
-        return new THREE.Vector2(x, this.distance + RY - wipeExtent - y)
+        return new THREE.Vector2(x, thresholdY - y)
       })
     } else {
       const dy = wipeExtent / TRAVELLING_WAVE_POINT_COUNT
       return U.range(TRAVELLING_WAVE_POINT_COUNT + 1).map(n => {
         const y = n * dy
-        const x = RX * Math.sin(k * y + omega * t)
-        return new THREE.Vector2(x, this.distance + RY - y)
+        const x = RX * Math.sin(k * -y + omega * t)
+        return new THREE.Vector2(x, thresholdY + y)
       })
     }
   }
@@ -103,15 +104,15 @@ export class BetweenYouAndIForm {
     const thresholdY = this.distance + RY - wipeExtent
     const theta = -C.QUARTER_PI + (C.PI * this.tick / MAX_TICKS)
 
-    const bb = {
+    const aabb = {
       minX: -RX,
       maxX: RX,
       minY: this.wipingInEllipse ? this.distance - RY : thresholdY,
       maxY: this.wipingInEllipse ? thresholdY : this.distance + RY
     }
 
-    const point1 = findIntersectionPoint1(bb, cx, cy, theta)
-    const point2 = findIntersectionPoint2(bb, cx, cy, theta)
+    const point1 = findIntersectionPoint1(aabb, cx, cy, theta)
+    const point2 = findIntersectionPoint2(aabb, cx, cy, theta)
 
     return [point1, point2]
   }
