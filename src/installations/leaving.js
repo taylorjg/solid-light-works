@@ -3,7 +3,7 @@ import { LeavingForm } from '../forms/leaving'
 import { Projector } from '../projector'
 import * as C from '../constants'
 
-const LEFT_FORM_CX = -3.5
+const LEFT_FORM_CX = -3.0
 const RIGHT_FORM_CX = -LEFT_FORM_CX
 
 export class LeavingInstallation {
@@ -31,6 +31,7 @@ export class LeavingInstallation {
 
     this.leftProjectorForm = new LeavingForm(
       this.leftProjectorPosition,
+      true,
       LEFT_FORM_CX,
       C.PROJECTOR_CY,
       C.PROJECTOR_R,
@@ -38,6 +39,7 @@ export class LeavingInstallation {
       true)
     this.leftScreenForm = new LeavingForm(
       this.leftProjectorPosition,
+      false,
       LEFT_FORM_CX,
       C.SCREEN_IMAGE_CY,
       C.SCREEN_IMAGE_RX,
@@ -46,6 +48,7 @@ export class LeavingInstallation {
 
     this.rightProjectorForm = new LeavingForm(
       this.rightProjectorPosition,
+      true,
       RIGHT_FORM_CX,
       C.PROJECTOR_CY,
       C.PROJECTOR_R,
@@ -53,6 +56,7 @@ export class LeavingInstallation {
       false)
     this.rightScreenForm = new LeavingForm(
       this.rightProjectorPosition,
+      false,
       RIGHT_FORM_CX,
       C.SCREEN_IMAGE_CY,
       C.SCREEN_IMAGE_RX,

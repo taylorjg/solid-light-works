@@ -3,118 +3,107 @@ import { Ellipse } from '../syntax/ellipse'
 import * as U from '../utils'
 import * as C from '../constants'
 
+const MAX_TICKS = 10000
 const ELLIPSE_POINT_COUNT = 100
 const TRAVELLING_WAVE_POINT_COUNT = 50
-const ROTATION_DELTA = C.PI / (180 * 60)
-const DELTA_ANGLE = 15 * C.PI / 180
-const ANGLE_OFFSET_THRESHOLD = 45 * C.PI / 180
 const REVOLUTION_START = -C.HALF_PI
 const REVOLUTION_END = REVOLUTION_START + C.TWO_PI
 
-let currentRotationDelta = ROTATION_DELTA
-
-export const setSpeed = multiplier => {
-  currentRotationDelta = ROTATION_DELTA * multiplier
+export const setSpeed = (/* multiplier */) => {
 }
 
 export class LeavingForm {
 
-  constructor(projectorPosition, cx, cy, rx, ry, isInitiallyGrowing) {
+  constructor(projectorPosition, isProjector, cx, cy, rx, ry, isInitiallyGrowing) {
+    this.projectorPosition = projectorPosition
+    this.isProjector = isProjector
     this.cx = cx
     this.cy = cy
     this.rx = rx
     this.ry = ry
-    this.reset(isInitiallyGrowing)
     this.ellipse = new Ellipse(cx, cy, rx, ry)
-    this.travellingWave = new THREE.CubicBezierCurve()
+    this.reset(isInitiallyGrowing)
   }
 
   get shapeCount() {
     return 1
   }
 
-  calculateSinusoidalDampingFactor(angle) {
-    const dampingFactor = Math.pow(3 + (1 - Math.sin(angle % C.PI)) * 5, 2)
-    // console.log(`angle: ${angle}; dampingFactor: ${dampingFactor}`)
-    return dampingFactor
-  }
-
-  getCurrentAngle() {
-    const offsetFromStartAngle = currentRotationDelta * this.tick
-    const baseAngle = REVOLUTION_START + offsetFromStartAngle
-    const totalTicks = C.TWO_PI / currentRotationDelta
-    const sinWaveTicks = totalTicks / 48
-    const x = C.TWO_PI * (this.tick % sinWaveTicks) / sinWaveTicks
-    const sinx = Math.sin(x)
-    const sinusoidalDampingFactor = this.calculateSinusoidalDampingFactor(offsetFromStartAngle)
-    const sinusoidalOffset = sinx / sinusoidalDampingFactor
-    const finalAngle = baseAngle - sinusoidalOffset
-    // console.log(`tick: ${this.tick}; offsetFromStartAngle: ${offsetFromStartAngle}; totalTicks: ${totalTicks}; sinWaveTicks: ${sinWaveTicks}; x: ${x}; sinx: ${sinx}; sinusoidalDampingFactor: ${sinusoidalDampingFactor}; sinusoidalOffset: ${sinusoidalOffset}; baseAngle: ${baseAngle}; finalAngle: ${finalAngle}`)
-    return finalAngle
-  }
-
-  getTravellingWaveControlPoints(currentAngle) {
-    const startAngle = REVOLUTION_START
-    const angleOffset = Math.abs(currentAngle - startAngle)
-    const angleOffset2 = angleOffset < C.PI ? angleOffset : C.TWO_PI - angleOffset
-    const normalisingFactor = 1 / ANGLE_OFFSET_THRESHOLD
-    const alpha = angleOffset2 > ANGLE_OFFSET_THRESHOLD ? 1.0 : (angleOffset2 * normalisingFactor)
-    const deltaAngle1 = currentAngle - DELTA_ANGLE * alpha
-    const deltaAngle2 = currentAngle + DELTA_ANGLE * alpha
-    const centrePoint = new THREE.Vector2(this.cx, this.cy)
-    const deltaPoint1 = this.ellipse.getPoint(deltaAngle1)
-    const deltaPoint2 = this.ellipse.getPoint(deltaAngle2)
-    const startingPoint = this.ellipse.getPoint(currentAngle)
-    const endingPoint = startingPoint.clone().lerp(centrePoint, alpha)
-    const controlPoint1 = deltaPoint1.lerp(endingPoint, 0.25)
-    const controlPoint2 = deltaPoint2.lerp(endingPoint, 0.75)
-    return {
-      startingPoint,
-      controlPoint1,
-      controlPoint2,
-      endingPoint
-    }
-  }
-
-  combineEllipseAndTravellingWave(ellipsePoints, travellingWavePoints) {
+  combineEllipseAndTravellingWavePoints(ellipsePoints, travellingWavePoints) {
     const travellingWavePointsTail = travellingWavePoints.slice(1)
     return this.growing
       ? ellipsePoints.concat(travellingWavePointsTail)
       : travellingWavePointsTail.reverse().concat(ellipsePoints)
   }
 
-  getTravellingWavePoints(currentAngle) {
-    const {
-      startingPoint,
-      controlPoint1,
-      controlPoint2,
-      endingPoint
-    } = this.getTravellingWaveControlPoints(currentAngle)
-    if (controlPoint1.equals(controlPoint2)) {
-      return U.repeat(TRAVELLING_WAVE_POINT_COUNT + 1, startingPoint)
-    }
-    this.travellingWave.v0.copy(startingPoint)
-    this.travellingWave.v1.copy(controlPoint1)
-    this.travellingWave.v2.copy(controlPoint2)
-    this.travellingWave.v3.copy(endingPoint)
-    return this.travellingWave.getPoints(TRAVELLING_WAVE_POINT_COUNT)
-  }
-
   getUpdatedPoints() {
-    const currentAngle = this.getCurrentAngle()
-    this.tick++
-    if (this.growing) {
-      this.endAngle = currentAngle
-    } else {
-      this.startAngle = currentAngle
+
+    if (this.isProjector) {
+      return [U.repeat(ELLIPSE_POINT_COUNT + TRAVELLING_WAVE_POINT_COUNT + 1, this.projectorPosition)]
     }
+
+    const deltaAngle = C.TWO_PI / MAX_TICKS
+    this.tick++
+
+    let theta
+    if (this.growing) {
+      this.endAngle += deltaAngle
+      theta = this.endAngle
+    } else {
+      this.startAngle += deltaAngle
+      theta = this.startAngle
+    }
+
+    const sinPiFactor = Math.sin(C.PI * this.tick / MAX_TICKS)
+    const sinTwoPiFactor = Math.sin(C.TWO_PI * this.tick / MAX_TICKS)
+
+    const movingPoint = this.ellipse.getPoint(theta)
+    const centrePoint = new THREE.Vector2(this.cx, this.cy)
+    const r = movingPoint.distanceTo(centrePoint)
+    const rVarying = r * sinPiFactor
+
+    // http://labman.phys.utk.edu/phys221core/modules/m11/traveling_waves.html
+    // y(x,t) = A sin(kx - ωt + φ)
+    // Here k is the wave number, k = 2π/λ,
+    // and ω = 2π/T = 2πf is the angular frequency of the wave.
+    // φ is called the phase constant.
+
+    // const A = 0.2 * Math.abs(sinTwoPiFactor)
+    const A = 0.25 * sinTwoPiFactor * sinTwoPiFactor
+    // const lambda = rVarying * (4 - 3 * Math.abs(Math.sin(C.TWO_PI * this.tick / MAX_TICKS)))
+    // const lambda = rVarying * (4 - 3 * Math.abs(sinTwoPiFactor))
+    // const lambda = 2 // rVarying * (4 - 3.2 * sinTwoPiFactor * sinTwoPiFactor)
+    // const lambda = this.ry * 0.9 // rVarying * (4 - 3.2 * sinTwoPiFactor * sinTwoPiFactor)
+    // const lambda = this.r - this.r * 0.1 * sinTwoPiFactor * sinTwoPiFactor
+    const lambda = this.ry - 0.5 * sinTwoPiFactor * sinTwoPiFactor
+    const k = C.TWO_PI / lambda
+    const f = 10
+    const omega = C.TWO_PI * f
+    const t = this.tick / MAX_TICKS
+    const dx = rVarying / TRAVELLING_WAVE_POINT_COUNT
+    const travellingWavePoints = U.range(TRAVELLING_WAVE_POINT_COUNT + 1).map(n => {
+      const x = n * dx
+      const y = A * Math.sin(k * x + omega * t)
+      return new THREE.Vector2(x, y)
+    })
+
+    const translationToMovingPoint = new THREE.Vector2().subVectors(movingPoint, travellingWavePoints[0])
+    const transformedTravellingWavePoints = travellingWavePoints.map(pt =>
+      pt.add(translationToMovingPoint).rotateAround(movingPoint, -theta))
+
+    const ellipsePoints = this.ellipse.getPoints(this.startAngle, this.endAngle, ELLIPSE_POINT_COUNT)
+
+    const combinedPoints = this.combineEllipseAndTravellingWavePoints(
+      ellipsePoints,
+      transformedTravellingWavePoints
+    )
+
     const revolutionComplete = (this.growing ? this.endAngle : this.startAngle) > REVOLUTION_END
     if (revolutionComplete) {
       this.reset(!this.growing)
     }
-    const ellipsePoints = this.ellipse.getPoints(this.startAngle, this.endAngle, ELLIPSE_POINT_COUNT)
-    const travellingWavePoints = this.getTravellingWavePoints(currentAngle)
-    return [this.combineEllipseAndTravellingWave(ellipsePoints, travellingWavePoints)]
+
+    return [combinedPoints]
   }
 
   reset(growing) {
