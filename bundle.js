@@ -52606,7 +52606,7 @@ const PROJECTOR_CY = 0.3
 const PROJECTOR_R = 0.1
 
 const SCREEN_IMAGE_CY = 2.6
-const SCREEN_IMAGE_RX = 2.8
+const SCREEN_IMAGE_RX = 2.6
 const SCREEN_IMAGE_RY = 2
 const SCREEN_IMAGE_LINE_THICKNESS = 0.06
 
@@ -52920,128 +52920,120 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
+const MAX_TICKS = 10000
 const ELLIPSE_POINT_COUNT = 100
 const TRAVELLING_WAVE_POINT_COUNT = 50
-const ROTATION_DELTA = _constants__WEBPACK_IMPORTED_MODULE_3__["PI"] / (180 * 60)
-const DELTA_ANGLE = 15 * _constants__WEBPACK_IMPORTED_MODULE_3__["PI"] / 180
-const ANGLE_OFFSET_THRESHOLD = 45 * _constants__WEBPACK_IMPORTED_MODULE_3__["PI"] / 180
-const REVOLUTION_START = -_constants__WEBPACK_IMPORTED_MODULE_3__["HALF_PI"]
-const REVOLUTION_END = REVOLUTION_START + _constants__WEBPACK_IMPORTED_MODULE_3__["TWO_PI"]
 
-let currentRotationDelta = ROTATION_DELTA
-
-const setSpeed = multiplier => {
-  currentRotationDelta = ROTATION_DELTA * multiplier
+const setSpeed = (/* multiplier */) => {
 }
 
 class LeavingForm {
 
-  constructor(projectorPosition, cx, cy, rx, ry, isInitiallyGrowing) {
+  constructor(projectorPosition, isProjector, cx, cy, rx, ry, isInitiallyGrowing) {
+    this.projectorPosition = projectorPosition
+    this.isProjector = isProjector
     this.cx = cx
     this.cy = cy
     this.rx = rx
     this.ry = ry
-    this.reset(isInitiallyGrowing)
     this.ellipse = new _syntax_ellipse__WEBPACK_IMPORTED_MODULE_1__["Ellipse"](cx, cy, rx, ry)
-    this.travellingWave = new three__WEBPACK_IMPORTED_MODULE_0__["CubicBezierCurve"]()
+    this.reset(isInitiallyGrowing)
   }
 
   get shapeCount() {
     return 1
   }
 
-  calculateSinusoidalDampingFactor(angle) {
-    const dampingFactor = Math.pow(3 + (1 - Math.sin(angle % _constants__WEBPACK_IMPORTED_MODULE_3__["PI"])) * 5, 2)
-    // console.log(`angle: ${angle}; dampingFactor: ${dampingFactor}`)
-    return dampingFactor
-  }
-
-  getCurrentAngle() {
-    const offsetFromStartAngle = currentRotationDelta * this.tick
-    const baseAngle = REVOLUTION_START + offsetFromStartAngle
-    const totalTicks = _constants__WEBPACK_IMPORTED_MODULE_3__["TWO_PI"] / currentRotationDelta
-    const sinWaveTicks = totalTicks / 48
-    const x = _constants__WEBPACK_IMPORTED_MODULE_3__["TWO_PI"] * (this.tick % sinWaveTicks) / sinWaveTicks
-    const sinx = Math.sin(x)
-    const sinusoidalDampingFactor = this.calculateSinusoidalDampingFactor(offsetFromStartAngle)
-    const sinusoidalOffset = sinx / sinusoidalDampingFactor
-    const finalAngle = baseAngle - sinusoidalOffset
-    // console.log(`tick: ${this.tick}; offsetFromStartAngle: ${offsetFromStartAngle}; totalTicks: ${totalTicks}; sinWaveTicks: ${sinWaveTicks}; x: ${x}; sinx: ${sinx}; sinusoidalDampingFactor: ${sinusoidalDampingFactor}; sinusoidalOffset: ${sinusoidalOffset}; baseAngle: ${baseAngle}; finalAngle: ${finalAngle}`)
-    return finalAngle
-  }
-
-  getTravellingWaveControlPoints(currentAngle) {
-    const startAngle = REVOLUTION_START
-    const angleOffset = Math.abs(currentAngle - startAngle)
-    const angleOffset2 = angleOffset < _constants__WEBPACK_IMPORTED_MODULE_3__["PI"] ? angleOffset : _constants__WEBPACK_IMPORTED_MODULE_3__["TWO_PI"] - angleOffset
-    const normalisingFactor = 1 / ANGLE_OFFSET_THRESHOLD
-    const alpha = angleOffset2 > ANGLE_OFFSET_THRESHOLD ? 1.0 : (angleOffset2 * normalisingFactor)
-    const deltaAngle1 = currentAngle - DELTA_ANGLE * alpha
-    const deltaAngle2 = currentAngle + DELTA_ANGLE * alpha
-    const centrePoint = new three__WEBPACK_IMPORTED_MODULE_0__["Vector2"](this.cx, this.cy)
-    const deltaPoint1 = this.ellipse.getPoint(deltaAngle1)
-    const deltaPoint2 = this.ellipse.getPoint(deltaAngle2)
-    const startingPoint = this.ellipse.getPoint(currentAngle)
-    const endingPoint = startingPoint.clone().lerp(centrePoint, alpha)
-    const controlPoint1 = deltaPoint1.lerp(endingPoint, 0.25)
-    const controlPoint2 = deltaPoint2.lerp(endingPoint, 0.75)
-    return {
-      startingPoint,
-      controlPoint1,
-      controlPoint2,
-      endingPoint
-    }
-  }
-
-  combineEllipseAndTravellingWave(ellipsePoints, travellingWavePoints) {
+  combineEllipseAndTravellingWavePoints(ellipsePoints, travellingWavePoints) {
     const travellingWavePointsTail = travellingWavePoints.slice(1)
     return this.growing
       ? ellipsePoints.concat(travellingWavePointsTail)
       : travellingWavePointsTail.reverse().concat(ellipsePoints)
   }
 
-  getTravellingWavePoints(currentAngle) {
-    const {
-      startingPoint,
-      controlPoint1,
-      controlPoint2,
-      endingPoint
-    } = this.getTravellingWaveControlPoints(currentAngle)
-    if (controlPoint1.equals(controlPoint2)) {
-      return _utils__WEBPACK_IMPORTED_MODULE_2__["repeat"](TRAVELLING_WAVE_POINT_COUNT + 1, startingPoint)
-    }
-    this.travellingWave.v0.copy(startingPoint)
-    this.travellingWave.v1.copy(controlPoint1)
-    this.travellingWave.v2.copy(controlPoint2)
-    this.travellingWave.v3.copy(endingPoint)
-    return this.travellingWave.getPoints(TRAVELLING_WAVE_POINT_COUNT)
-  }
-
   getUpdatedPoints() {
-    const currentAngle = this.getCurrentAngle()
-    this.tick++
-    if (this.growing) {
-      this.endAngle = currentAngle
-    } else {
-      this.startAngle = currentAngle
+
+    if (this.isProjector) {
+      return [_utils__WEBPACK_IMPORTED_MODULE_2__["repeat"](ELLIPSE_POINT_COUNT + TRAVELLING_WAVE_POINT_COUNT + 1, this.projectorPosition)]
     }
-    const revolutionComplete = (this.growing ? this.endAngle : this.startAngle) > REVOLUTION_END
-    if (revolutionComplete) {
+
+    const deltaAngle = _constants__WEBPACK_IMPORTED_MODULE_3__["TWO_PI"] / MAX_TICKS
+    this.tick++
+
+    let theta
+    if (this.growing) {
+      this.endAngle -= deltaAngle
+      theta = this.endAngle
+    } else {
+      this.startAngle -= deltaAngle
+      theta = this.startAngle
+    }
+
+    const sinPiFactor = Math.sin(_constants__WEBPACK_IMPORTED_MODULE_3__["PI"] * this.tick / MAX_TICKS)
+    const sinTwoPiFactor = Math.sin(_constants__WEBPACK_IMPORTED_MODULE_3__["TWO_PI"] * this.tick / MAX_TICKS)
+
+    const movingPoint = this.ellipse.getPoint(theta)
+    const centrePoint = new three__WEBPACK_IMPORTED_MODULE_0__["Vector2"](this.cx, this.cy)
+    const r = movingPoint.distanceTo(centrePoint)
+    const rVarying = r * sinPiFactor
+
+    // http://labman.phys.utk.edu/phys221core/modules/m11/traveling_waves.html
+    // y(x,t) = A sin(kx - ωt + φ)
+    // Here k is the wave number, k = 2π/λ,
+    // and ω = 2π/T = 2πf is the angular frequency of the wave.
+    // φ is called the phase constant.
+
+    // const A = 0.2 * Math.abs(sinTwoPiFactor)
+    const A = 0.25 * sinTwoPiFactor * sinTwoPiFactor
+    // const lambda = rVarying * (4 - 3 * Math.abs(Math.sin(C.TWO_PI * this.tick / MAX_TICKS)))
+    // const lambda = rVarying * (4 - 3 * Math.abs(sinTwoPiFactor))
+    // const lambda = 2 // rVarying * (4 - 3.2 * sinTwoPiFactor * sinTwoPiFactor)
+    // const lambda = this.ry * 0.9 // rVarying * (4 - 3.2 * sinTwoPiFactor * sinTwoPiFactor)
+    // const lambda = this.r - this.r * 0.1 * sinTwoPiFactor * sinTwoPiFactor
+    const lambda = this.ry - 0.5 * sinTwoPiFactor * sinTwoPiFactor
+    const k = _constants__WEBPACK_IMPORTED_MODULE_3__["TWO_PI"] / lambda
+    const f = 10
+    const omega = _constants__WEBPACK_IMPORTED_MODULE_3__["TWO_PI"] * f
+    const t = this.tick / MAX_TICKS
+    const dx = rVarying / TRAVELLING_WAVE_POINT_COUNT
+    const travellingWavePoints = _utils__WEBPACK_IMPORTED_MODULE_2__["range"](TRAVELLING_WAVE_POINT_COUNT + 1).map(n => {
+      const x = n * dx
+      const y = A * Math.sin(k * x + omega * t)
+      return new three__WEBPACK_IMPORTED_MODULE_0__["Vector2"](x, y)
+    })
+
+    const translationToMovingPoint = new three__WEBPACK_IMPORTED_MODULE_0__["Vector2"]().subVectors(movingPoint, travellingWavePoints[0])
+    const transformedTravellingWavePoints = travellingWavePoints.map(pt =>
+      pt.add(translationToMovingPoint).rotateAround(movingPoint, _constants__WEBPACK_IMPORTED_MODULE_3__["PI"] + theta))
+
+    const ellipsePoints = this.ellipse.getPoints(this.startAngle, this.endAngle, ELLIPSE_POINT_COUNT)
+
+    const combinedPoints = this.combineEllipseAndTravellingWavePoints(
+      ellipsePoints,
+      transformedTravellingWavePoints
+    )
+
+    // growing: this.endAngle goes from -90 to -450
+    // shrinking: this.startAngle goes from 270 to -90
+    const cycleComplete = this.growing
+      ? this.endAngle < three__WEBPACK_IMPORTED_MODULE_0__["MathUtils"].degToRad(-450)
+      : this.startAngle < three__WEBPACK_IMPORTED_MODULE_0__["MathUtils"].degToRad(-90)
+
+    if (cycleComplete) {
       this.reset(!this.growing)
     }
-    const ellipsePoints = this.ellipse.getPoints(this.startAngle, this.endAngle, ELLIPSE_POINT_COUNT)
-    const travellingWavePoints = this.getTravellingWavePoints(currentAngle)
-    return [this.combineEllipseAndTravellingWave(ellipsePoints, travellingWavePoints)]
+
+    return [combinedPoints]
   }
 
   reset(growing) {
     this.growing = growing
     if (this.growing) {
-      this.startAngle = REVOLUTION_START
-      this.endAngle = REVOLUTION_START
+      this.startAngle = three__WEBPACK_IMPORTED_MODULE_0__["MathUtils"].degToRad(-90)
+      this.endAngle = three__WEBPACK_IMPORTED_MODULE_0__["MathUtils"].degToRad(-90)
     } else {
-      this.startAngle = REVOLUTION_START
-      this.endAngle = REVOLUTION_END
+      this.startAngle = three__WEBPACK_IMPORTED_MODULE_0__["MathUtils"].degToRad(270)
+      this.endAngle = three__WEBPACK_IMPORTED_MODULE_0__["MathUtils"].degToRad(-90)
     }
     this.tick = 0
   }
@@ -53530,7 +53522,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const LEFT_FORM_CX = -3.5
+const LEFT_FORM_CX = -3.0
 const RIGHT_FORM_CX = -LEFT_FORM_CX
 
 class LeavingInstallation {
@@ -53558,6 +53550,7 @@ class LeavingInstallation {
 
     this.leftProjectorForm = new _forms_leaving__WEBPACK_IMPORTED_MODULE_1__["LeavingForm"](
       this.leftProjectorPosition,
+      true,
       LEFT_FORM_CX,
       _constants__WEBPACK_IMPORTED_MODULE_3__["PROJECTOR_CY"],
       _constants__WEBPACK_IMPORTED_MODULE_3__["PROJECTOR_R"],
@@ -53565,6 +53558,7 @@ class LeavingInstallation {
       true)
     this.leftScreenForm = new _forms_leaving__WEBPACK_IMPORTED_MODULE_1__["LeavingForm"](
       this.leftProjectorPosition,
+      false,
       LEFT_FORM_CX,
       _constants__WEBPACK_IMPORTED_MODULE_3__["SCREEN_IMAGE_CY"],
       _constants__WEBPACK_IMPORTED_MODULE_3__["SCREEN_IMAGE_RX"],
@@ -53573,6 +53567,7 @@ class LeavingInstallation {
 
     this.rightProjectorForm = new _forms_leaving__WEBPACK_IMPORTED_MODULE_1__["LeavingForm"](
       this.rightProjectorPosition,
+      true,
       RIGHT_FORM_CX,
       _constants__WEBPACK_IMPORTED_MODULE_3__["PROJECTOR_CY"],
       _constants__WEBPACK_IMPORTED_MODULE_3__["PROJECTOR_R"],
@@ -53580,6 +53575,7 @@ class LeavingInstallation {
       false)
     this.rightScreenForm = new _forms_leaving__WEBPACK_IMPORTED_MODULE_1__["LeavingForm"](
       this.rightProjectorPosition,
+      false,
       RIGHT_FORM_CX,
       _constants__WEBPACK_IMPORTED_MODULE_3__["SCREEN_IMAGE_CY"],
       _constants__WEBPACK_IMPORTED_MODULE_3__["SCREEN_IMAGE_RX"],
@@ -54074,9 +54070,6 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-// I'm using my own code to calculate points on an elliptical curve that
-// assumes a clockwise direction. I found that I was having to fight against
-// THREE.EllipseCurve due to negative start/end angles etc.
 class Ellipse {
 
   constructor(cx, cy, rx, ry) {
@@ -54087,16 +54080,16 @@ class Ellipse {
   }
 
   getPoint(angle) {
-    const x = this.cx - this.rx * Math.cos(angle)
+    const x = this.cx + this.rx * Math.cos(angle)
     const y = this.cy + this.ry * Math.sin(angle)
     return new three__WEBPACK_IMPORTED_MODULE_0__["Vector2"](x, y)
   }
 
   getPoints(startAngle, endAngle, divisions) {
-    const deltaAngle = endAngle - startAngle
-    return _utils__WEBPACK_IMPORTED_MODULE_1__["range"](divisions + 1).map(index => {
-      const t = index / divisions
-      const angle = startAngle + t * deltaAngle
+    const diffAngle = endAngle - startAngle
+    return _utils__WEBPACK_IMPORTED_MODULE_1__["range"](divisions + 1).map(n => {
+      const t = n / divisions
+      const angle = startAngle + t * diffAngle
       return this.getPoint(angle)
     })
   }
