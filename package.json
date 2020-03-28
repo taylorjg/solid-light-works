@@ -1,6 +1,6 @@
 {
   "name": "solid-light-works",
-  "version": "0.0.49",
+  "version": "0.0.50",
   "description": "Attempt to render some of Anthony McCall's solid light works using three.js and WebGL",
   "author": "Jonathan Taylor",
   "license": "MIT",

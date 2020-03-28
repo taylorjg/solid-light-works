@@ -6,8 +6,6 @@ import * as C from '../constants'
 const MAX_TICKS = 10000
 const ELLIPSE_POINT_COUNT = 100
 const TRAVELLING_WAVE_POINT_COUNT = 50
-const REVOLUTION_START = -C.HALF_PI
-const REVOLUTION_END = REVOLUTION_START + C.TWO_PI
 
 export const setSpeed = (/* multiplier */) => {
 }
@@ -47,10 +45,10 @@ export class LeavingForm {
 
     let theta
     if (this.growing) {
-      this.endAngle += deltaAngle
+      this.endAngle -= deltaAngle
       theta = this.endAngle
     } else {
-      this.startAngle += deltaAngle
+      this.startAngle -= deltaAngle
       theta = this.startAngle
     }
 
@@ -89,7 +87,7 @@ export class LeavingForm {
 
     const translationToMovingPoint = new THREE.Vector2().subVectors(movingPoint, travellingWavePoints[0])
     const transformedTravellingWavePoints = travellingWavePoints.map(pt =>
-      pt.add(translationToMovingPoint).rotateAround(movingPoint, -theta))
+      pt.add(translationToMovingPoint).rotateAround(movingPoint, C.PI + theta))
 
     const ellipsePoints = this.ellipse.getPoints(this.startAngle, this.endAngle, ELLIPSE_POINT_COUNT)
 
@@ -98,8 +96,13 @@ export class LeavingForm {
       transformedTravellingWavePoints
     )
 
-    const revolutionComplete = (this.growing ? this.endAngle : this.startAngle) > REVOLUTION_END
-    if (revolutionComplete) {
+    // growing: this.endAngle goes from -90 to -450
+    // shrinking: this.startAngle goes from 270 to -90
+    const cycleComplete = this.growing
+      ? this.endAngle < THREE.MathUtils.degToRad(-450)
+      : this.startAngle < THREE.MathUtils.degToRad(-90)
+
+    if (cycleComplete) {
       this.reset(!this.growing)
     }
 
@@ -109,11 +112,11 @@ export class LeavingForm {
   reset(growing) {
     this.growing = growing
     if (this.growing) {
-      this.startAngle = REVOLUTION_START
-      this.endAngle = REVOLUTION_START
+      this.startAngle = THREE.MathUtils.degToRad(-90)
+      this.endAngle = THREE.MathUtils.degToRad(-90)
     } else {
-      this.startAngle = REVOLUTION_START
-      this.endAngle = REVOLUTION_END
+      this.startAngle = THREE.MathUtils.degToRad(270)
+      this.endAngle = THREE.MathUtils.degToRad(-90)
     }
     this.tick = 0
   }
