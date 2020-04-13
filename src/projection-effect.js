@@ -6,11 +6,10 @@ import fragmentShader from './shaders/fragment-shader.glsl'
 import * as U from './utils'
 import * as C from './constants'
 
-const MEMBRANE_SEGMENT_COUNT = 1
-
 export class ProjectionEffect {
 
   constructor(projectorPosition, orientation, meshCount, scene, hazeTexture) {
+    this.projectorPosition = projectorPosition
     this.orientation = orientation
     this.meshCount = meshCount
     this.scene = scene
@@ -38,16 +37,16 @@ export class ProjectionEffect {
     this.meshHelpers = null
   }
 
-  update(vec2ProjectorPointsArray, vec2ScreenPointsArray) {
+  update(vec2ScreenPointsArray) {
     U.range(this.meshCount).forEach(meshIndex => {
-      const vec2ProjectorPoints = vec2ProjectorPointsArray[meshIndex]
       const vec2ScreenPoints = vec2ScreenPointsArray[meshIndex]
       const vec2sToVec3s = this.orientation === C.ORIENTATION_HORIZONTAL
         ? U.vec2sToVec3sHorizontal
         : U.vec2sToVec3sVertical
-      const projectorPoints = vec2sToVec3s(vec2ProjectorPoints, C.MEMBRANE_LENGTH)
+      const numPoints = vec2ScreenPoints.length
+      const projectorPoints = U.repeat(numPoints, this.projectorPosition)
       const screenPoints = vec2sToVec3s(vec2ScreenPoints)
-      const tempMembraneGeometry = new MembraneBufferGeometry(projectorPoints, screenPoints, MEMBRANE_SEGMENT_COUNT)
+      const tempMembraneGeometry = new MembraneBufferGeometry(projectorPoints, screenPoints)
       tempMembraneGeometry.computeFaceNormals()
       tempMembraneGeometry.computeVertexNormals()
       const mesh = this.meshes[meshIndex]

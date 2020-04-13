@@ -34,10 +34,7 @@ export class DoublingBackInstallation {
     ]
 
     this.projectorPosition = new THREE.Vector3(-3.05, 0.1, C.MEMBRANE_LENGTH)
-
-    this.projectorForm = new DoublingBackForm(this.projectorPosition, true)
-    this.screenForm = new DoublingBackForm(this.projectorPosition, false)
-
+    this.screenForm = new DoublingBackForm()
     this.projector = null
   }
 
@@ -45,7 +42,6 @@ export class DoublingBackInstallation {
     this.projector = new Projector(
       this.projectorPosition,
       C.ORIENTATION_HORIZONTAL,
-      this.projectorForm,
       this.screenForm,
       scene,
       hazeTexture)

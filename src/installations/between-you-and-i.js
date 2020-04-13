@@ -30,11 +30,8 @@ export class BetweenYouAndIInstallation {
     this.frontProjectorPosition = new THREE.Vector3(0, C.MEMBRANE_LENGTH, 12)
     this.backProjectorPosition = new THREE.Vector3(0, C.MEMBRANE_LENGTH, 7)
 
-    this.frontProjectorForm = new BetweenYouAndIForm(this.frontProjectorPosition, true, true, 12)
-    this.frontScreenForm = new BetweenYouAndIForm(this.frontProjectorPosition, false, true, 12)
-
-    this.backProjectorForm = new BetweenYouAndIForm(this.backProjectorPosition, true, false, 7)
-    this.backScreenForm = new BetweenYouAndIForm(this.backProjectorPosition, false, false, 7)
+    this.frontScreenForm = new BetweenYouAndIForm(true, 12)
+    this.backScreenForm = new BetweenYouAndIForm(false, 7)
 
     this.frontProjector = null
     this.backProjector = null
@@ -44,14 +41,13 @@ export class BetweenYouAndIInstallation {
     this.frontProjector = new Projector(
       this.frontProjectorPosition,
       C.ORIENTATION_VERTICAL,
-      this.frontProjectorForm,
       this.frontScreenForm,
       scene,
       hazeTexture)
+
     this.backProjector = new Projector(
       this.backProjectorPosition,
       C.ORIENTATION_VERTICAL,
-      this.backProjectorForm,
       this.backScreenForm,
       scene,
       hazeTexture)

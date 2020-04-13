@@ -24,10 +24,7 @@ export class CouplingInstallation {
     ]
 
     this.projectorPosition = new THREE.Vector3(0, C.MEMBRANE_LENGTH, 4)
-
-    this.projectorForm = new CouplingForm(this.projectorPosition, true)
-    this.screenForm = new CouplingForm(this.projectorPosition, false)
-
+    this.screenForm = new CouplingForm()
     this.projector = null
   }
 
@@ -35,7 +32,6 @@ export class CouplingInstallation {
     this.projector = new Projector(
       this.projectorPosition,
       C.ORIENTATION_VERTICAL,
-      this.projectorForm,
       this.screenForm,
       scene,
       hazeTexture)

@@ -29,30 +29,14 @@ export class LeavingInstallation {
     this.leftProjectorPosition = new THREE.Vector3(LEFT_FORM_CX, C.PROJECTOR_CY, C.MEMBRANE_LENGTH)
     this.rightProjectorPosition = new THREE.Vector3(RIGHT_FORM_CX, C.PROJECTOR_CY, C.MEMBRANE_LENGTH)
 
-    this.leftProjectorForm = new LeavingForm(
-      this.leftProjectorPosition,
-      LEFT_FORM_CX,
-      C.PROJECTOR_CY,
-      C.PROJECTOR_R,
-      C.PROJECTOR_R,
-      true)
     this.leftScreenForm = new LeavingForm(
-      this.leftProjectorPosition,
       LEFT_FORM_CX,
       C.SCREEN_IMAGE_CY,
       C.SCREEN_IMAGE_RX,
       C.SCREEN_IMAGE_RY,
       true)
 
-    this.rightProjectorForm = new LeavingForm(
-      this.rightProjectorPosition,
-      RIGHT_FORM_CX,
-      C.PROJECTOR_CY,
-      C.PROJECTOR_R,
-      C.PROJECTOR_R,
-      false)
     this.rightScreenForm = new LeavingForm(
-      this.rightProjectorPosition,
       RIGHT_FORM_CX,
       C.SCREEN_IMAGE_CY,
       C.SCREEN_IMAGE_RX,
@@ -67,14 +51,13 @@ export class LeavingInstallation {
     this.leftProjector = new Projector(
       this.leftProjectorPosition,
       C.ORIENTATION_HORIZONTAL,
-      this.leftProjectorForm,
       this.leftScreenForm,
       scene,
       hazeTexture)
+
     this.rightProjector = new Projector(
       this.rightProjectorPosition,
       C.ORIENTATION_HORIZONTAL,
-      this.rightProjectorForm,
       this.rightScreenForm,
       scene,
       hazeTexture)

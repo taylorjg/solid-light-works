@@ -19,7 +19,7 @@ export const setSpeed = multiplier => {
 
 export class LeavingForm {
 
-  constructor(projectorPosition, cx, cy, rx, ry, isInitiallyGrowing) {
+  constructor(cx, cy, rx, ry, isInitiallyGrowing) {
     this.cx = cx
     this.cy = cy
     this.rx = rx

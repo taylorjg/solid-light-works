@@ -12,12 +12,9 @@ const MAX_TICKS = 10000
 
 export class BetweenYouAndIForm {
 
-  constructor(projectorPosition, isProjector, isFront, distance) {
-    this.vec2ProjectorPosition = new THREE.Vector2(projectorPosition.x, projectorPosition.z)
-    this.isProjector = isProjector
-    this.isFront = isFront
+  constructor(initiallyWipingInEllipse, distance) {
     this.distance = distance
-    this.reset(isFront)
+    this.reset(initiallyWipingInEllipse)
   }
 
   get shapeCount() {
@@ -25,10 +22,6 @@ export class BetweenYouAndIForm {
   }
 
   getEllipsePoints(wipeExtent) {
-    if (this.isProjector) {
-      return U.repeat(ELLIPSE_POINT_COUNT + 1, this.vec2ProjectorPosition)
-    }
-
     const y = RY - wipeExtent
     const theta = Math.acos(y / RY)
 
@@ -47,10 +40,6 @@ export class BetweenYouAndIForm {
   }
 
   getTravellingWavePoints(wipeExtent) {
-    if (this.isProjector) {
-      return U.repeat(TRAVELLING_WAVE_POINT_COUNT + 1, this.vec2ProjectorPosition)
-    }
-
     // http://labman.phys.utk.edu/phys221core/modules/m11/traveling_waves.html
     // y(x,t) = A sin(kx - ωt + φ)
     // Here k is the wave number, k = 2π/λ,
@@ -82,10 +71,6 @@ export class BetweenYouAndIForm {
   }
 
   getStraightLinePoints(wipeExtent) {
-    if (this.isProjector) {
-      return U.repeat(2, this.vec2ProjectorPosition)
-    }
-
     const cx = 0
     const cy = this.distance
     const thresholdY = this.distance + RY - wipeExtent
@@ -109,7 +94,7 @@ export class BetweenYouAndIForm {
       [aabb.minX, aabb.minY, aabb.maxX, aabb.maxY])
 
     if (clippedLines.length === 0) {
-      return U.repeat(2, this.vec2ProjectorPosition)
+      return U.repeat(2, new THREE.Vector2())
     }
 
     return [
