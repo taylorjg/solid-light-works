@@ -6,14 +6,13 @@ import * as C from '../constants'
 
 const ELLIPSE_POINT_COUNT = 100
 const TRAVELLING_WAVE_POINT_COUNT = 100
-const RX = 1.5
-const RY = 2
 const MAX_TICKS = 10000
 
 export class BetweenYouAndIForm {
 
-  constructor(initiallyWipingInEllipse, distance) {
-    this.distance = distance
+  constructor(rx, ry, initiallyWipingInEllipse) {
+    this.rx = rx
+    this.ry = ry
     this.reset(initiallyWipingInEllipse)
   }
 
@@ -22,8 +21,8 @@ export class BetweenYouAndIForm {
   }
 
   getEllipsePoints(wipeExtent) {
-    const y = RY - wipeExtent
-    const theta = Math.acos(y / RY)
+    const y = this.ry - wipeExtent
+    const theta = Math.acos(y / this.ry)
 
     const startAngle = this.wipingInEllipse
       ? C.HALF_PI + theta
@@ -33,9 +32,9 @@ export class BetweenYouAndIForm {
       ? C.HALF_PI - theta
       : C.HALF_PI - (C.TWO_PI - theta)
 
-    const rx = RX - (1 * Math.sin(C.PI * this.tick / MAX_TICKS))
+    const rx = this.rx - Math.sin(C.PI * this.tick / MAX_TICKS)
 
-    const ellipse = new Ellipse(0, this.distance, rx, RY)
+    const ellipse = new Ellipse(0, 0, rx, this.ry)
     return ellipse.getPoints(startAngle, endAngle, ELLIPSE_POINT_COUNT)
   }
 
@@ -46,48 +45,46 @@ export class BetweenYouAndIForm {
     // and ω = 2π/T = 2πf is the angular frequency of the wave.
     // φ is called the phase constant.
 
-    const thresholdY = this.distance + RY - wipeExtent
-    const lambda = 2 * RY
+    const thresholdY = this.ry - wipeExtent
+    const lambda = 2 * this.ry
     const k = C.TWO_PI / lambda
     const f = 2
     const omega = C.TWO_PI * f
     const t = this.tick / MAX_TICKS
 
     if (this.wipingInEllipse) {
-      const dy = (2 * RY - wipeExtent) / TRAVELLING_WAVE_POINT_COUNT
+      const dy = (2 * this.ry - wipeExtent) / TRAVELLING_WAVE_POINT_COUNT
       return U.range(TRAVELLING_WAVE_POINT_COUNT + 1).map(n => {
         const y = n * dy
-        const x = RX * Math.sin(k * y + omega * t)
+        const x = this.rx * Math.sin(k * y + omega * t)
         return new THREE.Vector2(x, thresholdY - y)
       })
     } else {
       const dy = wipeExtent / TRAVELLING_WAVE_POINT_COUNT
       return U.range(TRAVELLING_WAVE_POINT_COUNT + 1).map(n => {
         const y = n * dy
-        const x = RX * Math.sin(k * -y + omega * t)
+        const x = this.rx * Math.sin(k * -y + omega * t)
         return new THREE.Vector2(x, thresholdY + y)
       })
     }
   }
 
   getStraightLinePoints(wipeExtent) {
-    const cx = 0
-    const cy = this.distance
-    const thresholdY = this.distance + RY - wipeExtent
+    const thresholdY = this.ry - wipeExtent
     const theta = -C.QUARTER_PI + (C.PI * this.tick / MAX_TICKS)
 
     const aabb = {
-      minX: -RX,
-      maxX: RX,
-      minY: this.wipingInEllipse ? this.distance - RY : thresholdY,
-      maxY: this.wipingInEllipse ? thresholdY : this.distance + RY
+      minX: -this.rx,
+      maxX: this.rx,
+      minY: this.wipingInEllipse ? -this.ry : thresholdY,
+      maxY: this.wipingInEllipse ? thresholdY : this.ry
     }
 
-    const p1x = cx + 2 * RX * Math.cos(theta)
-    const p1y = cy + 2 * RY * Math.sin(theta)
+    const p1x = 2 * this.rx * Math.cos(theta)
+    const p1y = 2 * this.ry * Math.sin(theta)
 
-    const p2x = cx - 2 * RX * Math.cos(theta)
-    const p2y = cy - 2 * RY * Math.sin(theta)
+    const p2x = -2 * this.rx * Math.cos(theta)
+    const p2y = -2 * this.ry * Math.sin(theta)
 
     const clippedLines = lineclip(
       [[p1x, p1y], [p2x, p2y]],
@@ -104,8 +101,8 @@ export class BetweenYouAndIForm {
   }
 
   getUpdatedPoints() {
-    const min = this.distance - RY
-    const max = this.distance + RY
+    const min = -this.ry
+    const max = this.ry
     const wipeExtent = (max - min) * this.tick / MAX_TICKS
     const points = [
       this.getEllipsePoints(wipeExtent),

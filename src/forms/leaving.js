@@ -19,14 +19,12 @@ export const setSpeed = multiplier => {
 
 export class LeavingForm {
 
-  constructor(cx, cy, rx, ry, isInitiallyGrowing) {
-    this.cx = cx
-    this.cy = cy
+  constructor(rx, ry, initiallyGrowing) {
     this.rx = rx
     this.ry = ry
-    this.reset(isInitiallyGrowing)
-    this.ellipse = new Ellipse(cx, cy, rx, ry)
+    this.ellipse = new Ellipse(0, 0, rx, ry)
     this.travellingWave = new THREE.CubicBezierCurve()
+    this.reset(initiallyGrowing)
   }
 
   get shapeCount() {

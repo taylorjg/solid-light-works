@@ -8,9 +8,8 @@ import * as C from './constants'
 
 export class ProjectionEffect {
 
-  constructor(projectorPosition, orientation, meshCount, scene, hazeTexture) {
+  constructor(projectorPosition, meshCount, scene, hazeTexture, applyTransforms) {
     this.projectorPosition = projectorPosition
-    this.orientation = orientation
     this.meshCount = meshCount
     this.scene = scene
     this.meshes = U.range(meshCount).map(() => {
@@ -31,7 +30,9 @@ export class ProjectionEffect {
         transparent: true,
         depthTest: false
       })
-      return new THREE.Mesh(geometry, material)
+      const mesh = new THREE.Mesh(geometry, material)
+      applyTransforms && applyTransforms(mesh)
+      return mesh
     })
     this.meshes.forEach(mesh => scene.add(mesh))
     this.meshHelpers = null
@@ -40,12 +41,9 @@ export class ProjectionEffect {
   update(vec2ScreenPointsArray) {
     U.range(this.meshCount).forEach(meshIndex => {
       const vec2ScreenPoints = vec2ScreenPointsArray[meshIndex]
-      const vec2sToVec3s = this.orientation === C.ORIENTATION_HORIZONTAL
-        ? U.vec2sToVec3sHorizontal
-        : U.vec2sToVec3sVertical
       const numPoints = vec2ScreenPoints.length
       const projectorPoints = U.repeat(numPoints, this.projectorPosition)
-      const screenPoints = vec2sToVec3s(vec2ScreenPoints)
+      const screenPoints = U.vec2sToVec3sHorizontal(vec2ScreenPoints)
       const tempMembraneGeometry = new MembraneBufferGeometry(projectorPoints, screenPoints)
       tempMembraneGeometry.computeFaceNormals()
       tempMembraneGeometry.computeVertexNormals()

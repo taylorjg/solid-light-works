@@ -9,9 +9,9 @@ const CIRCLE_WAVE_POINT_COUNT = 200
 
 export class CouplingForm {
 
-  constructor() {
-    this.circleWaveOuter = new CircleWave(2, 0.4, 3.5, 0.001, 0.001, 0, 0)
-    this.circleWaveInner = new CircleWave(1, 0.4, 3.5, 0.001, 0.001, C.HALF_PI, 0)
+  constructor(outerRadius, innerRadius) {
+    this.circleWaveOuter = new CircleWave(outerRadius, 0.4, 3.5, 0.001, 0.001, 0, 0)
+    this.circleWaveInner = new CircleWave(innerRadius, 0.4, 3.5, 0.001, 0.001, C.HALF_PI, 0)
     this.tick = 0
   }
 

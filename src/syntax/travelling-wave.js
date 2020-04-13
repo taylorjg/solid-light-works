@@ -15,9 +15,7 @@ import * as C from '../constants'
 
 export class TravellingWave {
 
-  constructor(cx, cy, width, height, vertical) {
-    this.cx = cx
-    this.cy = cy
+  constructor(width, height, vertical) {
     this.width = width
     this.height = height
     this.vertical = vertical
@@ -31,7 +29,7 @@ export class TravellingWave {
     return U.range(divisions + 1).map(index => {
       const x = dx * index
       const y = this.height / 2 * Math.sin(this.k * x - this.omega * t * 0.0005 + this.phase)
-      return new THREE.Vector2(this.cx - this.width / 2 + x, this.cy + y)
+      return new THREE.Vector2(-this.width / 2 + x, y)
     })
   }
 
@@ -40,7 +38,7 @@ export class TravellingWave {
     return U.range(divisions + 1).map(index => {
       const x = dx * index
       const y = this.height / 2 * Math.sin(this.k * x - this.omega * t * 0.0005 + this.phase)
-      return new THREE.Vector2(this.cx + y, this.cy - this.height / 2 + x)
+      return new THREE.Vector2(y, -this.height / 2 + x)
     })
   }
 

@@ -8,14 +8,14 @@ export class CouplingInstallation {
   constructor() {
 
     this.floor = {
-      width: 12,
-      depth: 8
+      width: 8,
+      depth: 12
     }
 
     this.cameraPositions = [
       {
-        cameraPosition: new THREE.Vector3(18.18, 4.98, 3.41),
-        controlsTarget: new THREE.Vector3(-8.67, 2, 2.97)
+        cameraPosition: new THREE.Vector3(0, 2, 12),
+        controlsTarget: new THREE.Vector3(0, 0, 3)
       },
       {
         cameraPosition: new THREE.Vector3(1.88, -6, 3.86),
@@ -23,18 +23,20 @@ export class CouplingInstallation {
       }
     ]
 
-    this.projectorPosition = new THREE.Vector3(0, C.MEMBRANE_LENGTH, 4)
-    this.screenForm = new CouplingForm()
+    this.projectorPosition = new THREE.Vector3(0, 0, -10)
+    this.screenForm = new CouplingForm(2, 1)
     this.projector = null
   }
 
   create(scene, hazeTexture) {
     this.projector = new Projector(
       this.projectorPosition,
-      C.ORIENTATION_VERTICAL,
       this.screenForm,
       scene,
-      hazeTexture)
+      hazeTexture,
+      mesh => mesh
+        .rotateX(C.HALF_PI)
+        .translateY(6))
   }
 
   destroy() {

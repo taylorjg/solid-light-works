@@ -40,10 +40,10 @@ export class CircleWave {
   // Cx(θ, t) := (R + ω(θ, t)) · cos(θ)
   // Cy(θ, t) := (R + ω(θ, t)) · sin(θ)
   getPoint(theta, t) {
-    const adjustedR = this.R + this.omega(theta, t)
-    const cx = adjustedR * Math.cos(theta)
-    const cy = adjustedR * Math.sin(theta)
-    return new THREE.Vector2(cx, 4 + cy)
+    const term = this.R + this.omega(theta, t)
+    const x = term * Math.cos(theta)
+    const y = term * Math.sin(theta)
+    return new THREE.Vector2(x, y)
   }
 
   getPoints(divisions, t) {

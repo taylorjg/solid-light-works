@@ -27,11 +27,11 @@ export class BetweenYouAndIInstallation {
       }
     ]
 
-    this.frontProjectorPosition = new THREE.Vector3(0, C.MEMBRANE_LENGTH, 12)
-    this.backProjectorPosition = new THREE.Vector3(0, C.MEMBRANE_LENGTH, 7)
+    this.frontProjectorPosition = new THREE.Vector3(0, 0, -10)
+    this.backProjectorPosition = new THREE.Vector3(0, 0, -10)
 
-    this.frontScreenForm = new BetweenYouAndIForm(true, 12)
-    this.backScreenForm = new BetweenYouAndIForm(false, 7)
+    this.frontScreenForm = new BetweenYouAndIForm(1.5, 2, true)
+    this.backScreenForm = new BetweenYouAndIForm(1.5, 2, false)
 
     this.frontProjector = null
     this.backProjector = null
@@ -40,17 +40,21 @@ export class BetweenYouAndIInstallation {
   create(scene, hazeTexture) {
     this.frontProjector = new Projector(
       this.frontProjectorPosition,
-      C.ORIENTATION_VERTICAL,
       this.frontScreenForm,
       scene,
-      hazeTexture)
+      hazeTexture,
+      mesh => mesh
+        .rotateX(C.HALF_PI)
+        .translateY(12))
 
     this.backProjector = new Projector(
       this.backProjectorPosition,
-      C.ORIENTATION_VERTICAL,
       this.backScreenForm,
       scene,
-      hazeTexture)
+      hazeTexture,
+      mesh => mesh
+        .rotateX(C.HALF_PI)
+        .translateY(7))
   }
 
   destroy() {

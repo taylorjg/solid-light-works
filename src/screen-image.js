@@ -9,8 +9,7 @@ const Line2dBasicShader = Line2dBasicShaderInit(THREE)
 
 export class ScreenImage {
 
-  constructor(orientation, meshCount, scene) {
-    this.orientation = orientation
+  constructor(meshCount, scene, applyTransforms) {
     this.meshCount = meshCount
     this.scene = scene
     this.meshes = U.range(meshCount).map(() => {
@@ -22,9 +21,7 @@ export class ScreenImage {
           thickness: C.SCREEN_IMAGE_LINE_THICKNESS
         }))
       const mesh = new THREE.Mesh(geometry, material)
-      if (orientation === C.ORIENTATION_VERTICAL) {
-        mesh.rotateX(C.HALF_PI)
-      }
+      applyTransforms && applyTransforms(mesh)
       return mesh
     })
     this.meshes.forEach(mesh => scene.add(mesh))

@@ -13,7 +13,7 @@ export class DoublingBackInstallation {
     }
 
     this.leftWall = {
-      width: C.MEMBRANE_LENGTH,
+      width: 10,
       height: 4.4,
       x: -3.2
     }
@@ -33,18 +33,18 @@ export class DoublingBackInstallation {
       }
     ]
 
-    this.projectorPosition = new THREE.Vector3(-3.05, 0.1, C.MEMBRANE_LENGTH)
-    this.screenForm = new DoublingBackForm()
+    this.projectorPosition = new THREE.Vector3(-3.05, 0.1 - 2, 10)
+    this.screenForm = new DoublingBackForm(6, 4)
     this.projector = null
   }
 
   create(scene, hazeTexture) {
     this.projector = new Projector(
       this.projectorPosition,
-      C.ORIENTATION_HORIZONTAL,
       this.screenForm,
       scene,
-      hazeTexture)
+      hazeTexture,
+      mesh => mesh.translateY(2))
   }
 
   destroy() {

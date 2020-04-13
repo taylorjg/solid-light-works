@@ -3,8 +3,13 @@ import { LeavingForm } from '../forms/leaving'
 import { Projector } from '../projector'
 import * as C from '../constants'
 
-const LEFT_FORM_CX = -3.5
-const RIGHT_FORM_CX = -LEFT_FORM_CX
+const SCREEN_LEFT_CX = -3.5
+const SCREEN_RIGHT_CX = 3.5
+const SCREEN_CY = 2.6
+const SCREEN_RX = 2.8
+const SCREEN_RY = 2
+const PROJECTOR_HEIGHT = 0.3
+const PROJECTOR_DISTANCE = 12
 
 export class LeavingInstallation {
 
@@ -26,22 +31,11 @@ export class LeavingInstallation {
       }
     ]
 
-    this.leftProjectorPosition = new THREE.Vector3(LEFT_FORM_CX, C.PROJECTOR_CY, C.MEMBRANE_LENGTH)
-    this.rightProjectorPosition = new THREE.Vector3(RIGHT_FORM_CX, C.PROJECTOR_CY, C.MEMBRANE_LENGTH)
+    this.leftProjectorPosition = new THREE.Vector3(0, PROJECTOR_HEIGHT - SCREEN_CY, PROJECTOR_DISTANCE)
+    this.rightProjectorPosition = new THREE.Vector3(0, PROJECTOR_HEIGHT - SCREEN_CY, PROJECTOR_DISTANCE)
 
-    this.leftScreenForm = new LeavingForm(
-      LEFT_FORM_CX,
-      C.SCREEN_IMAGE_CY,
-      C.SCREEN_IMAGE_RX,
-      C.SCREEN_IMAGE_RY,
-      true)
-
-    this.rightScreenForm = new LeavingForm(
-      RIGHT_FORM_CX,
-      C.SCREEN_IMAGE_CY,
-      C.SCREEN_IMAGE_RX,
-      C.SCREEN_IMAGE_RY,
-      false)
+    this.leftScreenForm = new LeavingForm(SCREEN_RX, SCREEN_RY, true)
+    this.rightScreenForm = new LeavingForm(SCREEN_RX, SCREEN_RY, false)
 
     this.leftProjector = null
     this.rightProjector = null
@@ -50,17 +44,21 @@ export class LeavingInstallation {
   create(scene, hazeTexture) {
     this.leftProjector = new Projector(
       this.leftProjectorPosition,
-      C.ORIENTATION_HORIZONTAL,
       this.leftScreenForm,
       scene,
-      hazeTexture)
+      hazeTexture,
+      mesh => mesh
+        .translateX(SCREEN_LEFT_CX)
+        .translateY(SCREEN_CY))
 
     this.rightProjector = new Projector(
       this.rightProjectorPosition,
-      C.ORIENTATION_HORIZONTAL,
       this.rightScreenForm,
       scene,
-      hazeTexture)
+      hazeTexture,
+      mesh => mesh
+        .translateX(SCREEN_RIGHT_CX)
+        .translateY(SCREEN_CY))
   }
 
   destroy() {

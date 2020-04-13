@@ -5,9 +5,9 @@ const TRAVELLING_WAVE_POINT_COUNT = 100
 // https://paddle8.com/work/anthony-mccall/156781-doubling-back/
 export class DoublingBackForm {
 
-  constructor() {
-    this.travellingWaveRight = new TravellingWave(0, 2, 6, 4, false)
-    this.travellingWaveUp = new TravellingWave(0, 2, 6, 4, true)
+  constructor(width, height) {
+    this.travellingWaveRight = new TravellingWave(width, height, false)
+    this.travellingWaveUp = new TravellingWave(width, height, true)
     this.tick = 0
   }
 
