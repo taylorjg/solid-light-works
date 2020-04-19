@@ -30,8 +30,8 @@ export class BetweenYouAndIInstallation {
     this.frontProjectorPosition = new THREE.Vector3(0, 0, -10)
     this.backProjectorPosition = new THREE.Vector3(0, 0, -10)
 
-    this.frontScreenForm = new BetweenYouAndIForm(1.5, 2, true)
-    this.backScreenForm = new BetweenYouAndIForm(1.5, 2, false)
+    this.frontScreenForm = new BetweenYouAndIForm(3, 4, true)
+    this.backScreenForm = new BetweenYouAndIForm(3, 4, false)
 
     this.frontProjector = null
     this.backProjector = null
