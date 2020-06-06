@@ -1,5 +1,6 @@
 import * as THREE from 'three'
 import lineclip from 'lineclip'
+import { Line } from '../projector'
 import { Ellipse } from '../syntax/ellipse'
 import * as U from '../utils'
 import * as C from '../constants'
@@ -87,20 +88,21 @@ export class BetweenYouAndIForm {
       : U.repeat(2, new THREE.Vector2())
   }
 
-  getUpdatedPoints() {
+  getLines() {
     const tickRatio = this.tick / MAX_TICKS
     const wipeExtent = this.height * tickRatio
     const wipeY = this.maxY - wipeExtent
-    const points = [
+    const pointss = [
       this.getEllipsePoints(tickRatio, wipeY),
       this.getTravellingWavePoints(tickRatio, wipeY, wipeExtent),
       this.getStraightLinePoints(tickRatio, wipeY)
     ]
+    const lines = pointss.map(points => new Line(points))
     this.tick++
     if (this.tick > MAX_TICKS) {
       this.reset(!this.wipingInEllipse)
     }
-    return points
+    return lines
   }
 
   reset(wipingInEllipse) {

@@ -9,10 +9,9 @@ const Line2dBasicShader = Line2dBasicShaderInit(THREE)
 
 export class ScreenImage {
 
-  constructor(meshCount, scene, applyTransforms) {
-    this.meshCount = meshCount
+  constructor(lineCount, scene, applyTransforms) {
     this.scene = scene
-    this.meshes = U.range(meshCount).map(() => {
+    this.meshes = U.range(lineCount).map(() => {
       const geometry = new Line2d()
       const material = new THREE.ShaderMaterial(
         Line2dBasicShader({
@@ -27,12 +26,13 @@ export class ScreenImage {
     this.meshes.forEach(mesh => scene.add(mesh))
   }
 
-  update(pointsArray) {
-    U.range(this.meshCount).map(meshIndex => {
-      const points = pointsArray[meshIndex]
-      const path = U.vectorsAsArrays(points)
-      const mesh = this.meshes[meshIndex]
-      mesh.geometry.update(path)
+  update(lines) {
+    this.meshes.forEach((mesh, index) => {
+      const line = lines[index]
+      if (line) {
+        const path = U.vectorsAsArrays(line.points)
+        mesh.geometry.update(path)
+      }
     })
   }
 

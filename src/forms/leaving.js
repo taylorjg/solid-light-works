@@ -1,4 +1,5 @@
 import * as THREE from 'three'
+import { Line } from '../projector'
 import { newtonsMethod } from '../newtons-method'
 import * as U from '../utils'
 import * as C from '../constants'
@@ -122,7 +123,7 @@ export class LeavingForm {
       : travellingWavePointsTail.reverse().concat(ellipsePoints)
   }
 
-  getUpdatedPoints() {
+  getLines() {
 
     const tickRatio = this.tick / MAX_TICKS
     const a = this.travellingWaveAmplitude(tickRatio)
@@ -176,13 +177,15 @@ export class LeavingForm {
     })
 
     let combinedPoints = this.combinePoints(ellipsePoints, travellingWavePoints)
+    const line = new Line(combinedPoints)
+    const lines = [line]
 
     this.tick += 1
     if (this.tick > MAX_TICKS) {
       this.toggleGrowing()
     }
 
-    return [combinedPoints]
+    return lines
   }
 
   toggleGrowing() {

@@ -1,4 +1,5 @@
 import { TravellingWave } from '../syntax/travelling-wave'
+import { Line } from '../projector'
 
 const TRAVELLING_WAVE_POINT_COUNT = 100
 
@@ -15,12 +16,13 @@ export class DoublingBackForm {
     return 2
   }
 
-  getUpdatedPoints() {
-    const points = [
+  getLines() {
+    const pointss = [
       this.travellingWaveRight.getPoints(TRAVELLING_WAVE_POINT_COUNT, this.tick),
       this.travellingWaveUp.getPoints(TRAVELLING_WAVE_POINT_COUNT, this.tick)
     ]
+    const lines = pointss.map(points => new Line(points))
     this.tick++
-    return points
+    return lines
   }
 }

@@ -4,15 +4,13 @@ import { VertexNormalsHelper } from 'three/examples/jsm/helpers/VertexNormalsHel
 import vertexShader from './shaders/vertex-shader.glsl'
 import fragmentShader from './shaders/fragment-shader.glsl'
 import * as U from './utils'
-import * as C from './constants'
 
 export class ProjectionEffect {
 
-  constructor(projectorPosition, meshCount, scene, hazeTexture, applyTransforms) {
+  constructor(projectorPosition, lineCount, scene, hazeTexture, applyTransforms) {
     this.projectorPosition = projectorPosition
-    this.meshCount = meshCount
     this.scene = scene
-    this.meshes = U.range(meshCount).map(() => {
+    this.meshes = U.range(lineCount).map(() => {
       const geometry = new MembraneBufferGeometry()
       const material = new THREE.ShaderMaterial({
         uniforms: {
@@ -21,6 +19,9 @@ export class ProjectionEffect {
           },
           projectorPosition: {
             value: projectorPosition
+          },
+          opacity: {
+            value: 1
           }
         },
         vertexShader,
@@ -38,22 +39,24 @@ export class ProjectionEffect {
     this.meshHelpers = null
   }
 
-  update(vec2ScreenPointsArray) {
-    U.range(this.meshCount).forEach(meshIndex => {
-      const vec2ScreenPoints = vec2ScreenPointsArray[meshIndex]
-      const numPoints = vec2ScreenPoints.length
-      const projectorPoints = U.repeat(numPoints, this.projectorPosition)
-      const screenPoints = U.vec2sToVec3sHorizontal(vec2ScreenPoints)
-      const tempMembraneGeometry = new MembraneBufferGeometry(projectorPoints, screenPoints)
-      tempMembraneGeometry.computeFaceNormals()
-      tempMembraneGeometry.computeVertexNormals()
-      const mesh = this.meshes[meshIndex]
-      mesh.geometry.copy(tempMembraneGeometry)
-      tempMembraneGeometry.dispose()
-      if (this.meshHelpers) {
-        this.meshHelpers.forEach(meshHelper => meshHelper.update())
+  update(lines) {
+    this.meshes.forEach((mesh, index) => {
+      const line = lines[index]
+      if (line) {
+        const numPoints = line.points.length
+        const projectorPoints = U.repeat(numPoints, this.projectorPosition)
+        const screenPoints = U.vec2sToVec3sHorizontal(line.points)
+        const tempMembraneGeometry = new MembraneBufferGeometry(projectorPoints, screenPoints)
+        tempMembraneGeometry.computeFaceNormals()
+        tempMembraneGeometry.computeVertexNormals()
+        mesh.geometry.copy(tempMembraneGeometry)
+        tempMembraneGeometry.dispose()
+        mesh.material.uniforms.opacity.value = line.opacity
       }
     })
+    if (this.meshHelpers) {
+      this.meshHelpers.forEach(meshHelper => meshHelper.update())
+    }
   }
 
   destroy() {

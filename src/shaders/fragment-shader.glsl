@@ -1,4 +1,5 @@
 uniform sampler2D hazeTexture;
+uniform float opacity;
 varying vec3 vPosition;
 varying vec3 vNormal;
 varying vec2 vUv;
@@ -14,5 +15,5 @@ void main() {
   hazeValue.a = 0.05;
   vec4 whiteValue = vec4(1.0);
   whiteValue.a = a;
-  gl_FragColor = mix(hazeValue, whiteValue, weight);
+  gl_FragColor = mix(hazeValue, whiteValue, weight) * opacity;
 }
