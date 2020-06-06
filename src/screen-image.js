@@ -1,20 +1,20 @@
 import * as THREE from 'three'
-import Line2dInit from 'three-line-2d'
-import Line2dBasicShaderInit from 'three-line-2d/shaders/basic'
+import Line2DInit from 'three-line-2d'
+import Line2DBasicShaderInit from 'three-line-2d/shaders/basic'
 import * as U from './utils'
 import * as C from './constants'
 
-const Line2d = Line2dInit(THREE)
-const Line2dBasicShader = Line2dBasicShaderInit(THREE)
+const Line2D = Line2DInit(THREE)
+const Line2DBasicShader = Line2DBasicShaderInit(THREE)
 
 export class ScreenImage {
 
   constructor(lineCount, scene, applyTransforms) {
     this.scene = scene
     this.meshes = U.range(lineCount).map(() => {
-      const geometry = new Line2d()
+      const geometry = new Line2D()
       const material = new THREE.ShaderMaterial(
-        Line2dBasicShader({
+        Line2DBasicShader({
           side: THREE.DoubleSide,
           diffuse: 0xffffff,
           thickness: C.SCREEN_IMAGE_LINE_THICKNESS
@@ -32,6 +32,11 @@ export class ScreenImage {
       if (line) {
         const path = U.vectorsAsArrays(line.points)
         mesh.geometry.update(path)
+
+        // I can't get opacity to work unless transparent is set to true
+        // which looks awful. So I am doing this instead.
+        const grey = line.opacity
+        mesh.material.uniforms.diffuse.value = new THREE.Color(grey, grey, grey)
       }
     })
   }
