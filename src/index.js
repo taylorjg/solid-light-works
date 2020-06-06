@@ -4,7 +4,6 @@ import { DoublingBackInstallation } from './installations/doubling-back'
 import { CouplingInstallation } from './installations/coupling'
 import { LeavingInstallation } from './installations/leaving'
 import { BetweenYouAndIInstallation } from './installations/between-you-and-i'
-import { setSpeed } from './forms/leaving'
 import * as U from './utils'
 import * as C from './constants'
 
@@ -155,10 +154,6 @@ const main = async () => {
       case 'p': return switchCameraPosition()
       case 'r': return toggleAutoRotate()
       case 'v': return toggleVertexNormals()
-      case '1': return setSpeed(1)
-      case '2': return setSpeed(2)
-      case '3': return setSpeed(5)
-      case '4': return setSpeed(10)
     }
   }
 

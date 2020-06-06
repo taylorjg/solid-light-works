@@ -6,6 +6,7 @@
   "license": "MIT",
   "dependencies": {
     "lineclip": "^1.1.5",
+    "mathjs": "^7.0.1",
     "three": "^0.117.1",
     "three-line-2d": "^1.1.6"
   },
