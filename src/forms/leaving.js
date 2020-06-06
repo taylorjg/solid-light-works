@@ -3,10 +3,6 @@ import { newtonsMethod } from '../newtons-method'
 import * as U from '../utils'
 import * as C from '../constants'
 
-const MAX_TICKS = 10000
-const ELLIPSE_POINT_COUNT = 100
-const TRAVELLING_WAVE_POINT_COUNT = 50
-
 // Parametric equation of an ellipse:
 // x = a * cos(t)
 // y = b * sin(t)
@@ -50,12 +46,17 @@ const parametricTravellingWaveYDerivative = (a, k, wt, theta) =>
 const easeInOutQuint = x =>
   x < 0.5 ? 16 * x * x * x * x * x : 1 - Math.pow(-2 * x + 2, 5) / 2
 
+const MAX_TICKS = 10000
+const ELLIPSE_POINT_COUNT = 100
+const TRAVELLING_WAVE_POINT_COUNT = 50
+
 export class LeavingForm {
 
   constructor(rx, ry, initiallyGrowing) {
     this.rx = rx
     this.ry = ry
-    this.reset(initiallyGrowing)
+    this.growing = initiallyGrowing
+    this.tick = 0
   }
 
   get shapeCount() {
@@ -112,16 +113,6 @@ export class LeavingForm {
     }
     const t = (1 - tickRatio) * 4
     return maxAmplitude * easeInOutQuint(t)
-  }
-
-  rotatePoint(p, q, theta) {
-    // TODO: return p.rotateAround(q, theta)
-    const c = Math.cos(theta)
-    const s = Math.sin(theta)
-    const x = p.x - q.x
-    const y = p.y - q.y
-    // https://en.wikipedia.org/wiki/Rotation_matrix
-    return new THREE.Vector2(x * c - y * s, x * s + y * c).add(q)
   }
 
   combinePoints(ellipsePoints, travellingWavePoints) {
@@ -181,20 +172,21 @@ export class LeavingForm {
       const x = parametricTravellingWaveX(a, k, wt, theta)(t)
       const y = parametricTravellingWaveY(a, k, wt, theta)(t)
       const wavePoint = new THREE.Vector2(x, y)
-      return additionalRotation ? this.rotatePoint(wavePoint, p, additionalRotation) : wavePoint
+      return additionalRotation ? wavePoint.rotateAround(p, additionalRotation) : wavePoint
     })
+
+    let combinedPoints = this.combinePoints(ellipsePoints, travellingWavePoints)
 
     this.tick += 1
     if (this.tick > MAX_TICKS) {
-      this.reset(!this.growing)
+      this.toggleGrowing()
     }
 
-    let combinedPoints = this.combinePoints(ellipsePoints, travellingWavePoints)
     return [combinedPoints]
   }
 
-  reset(growing) {
+  toggleGrowing() {
+    this.growing = !this.growing
     this.tick = 0
-    this.growing = growing
   }
 }
