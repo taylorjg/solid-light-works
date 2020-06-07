@@ -71,7 +71,7 @@ export class ProjectionEffect {
       this.meshHelpers.forEach(meshHelper => this.scene.remove(meshHelper))
       this.meshHelpers = null
     } else {
-      this.meshHelpers = this.meshes.map(mesh => new VertexNormalsHelper(mesh, 0.2, 0xffffff))
+      this.meshHelpers = this.meshes.map(mesh => new VertexNormalsHelper(mesh, 0.2, 0x0000ff))
       this.meshHelpers.forEach(meshHelper => this.scene.add(meshHelper))
     }
   }

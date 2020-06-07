@@ -1,22 +1,21 @@
 import * as THREE from 'three'
 import { LeavingForm } from '../forms/leaving'
 import { Projector } from '../projector'
-import * as C from '../constants'
 
-const SCREEN_LEFT_CX = -3.5
-const SCREEN_RIGHT_CX = 3.5
-const SCREEN_CY = 2.6
-const SCREEN_RX = 2.8
-const SCREEN_RY = 2
+const SCREEN_LEFT_CX = -2.2
+const SCREEN_RIGHT_CX = 2.2
+const SCREEN_CY = 2.4
+const SCREEN_RX = 2
+const SCREEN_RY = 1.6
 const PROJECTOR_HEIGHT = 0.3
-const PROJECTOR_DISTANCE = 12
+const PROJECTOR_DISTANCE = 10
 
 export class LeavingInstallation {
 
   constructor() {
 
     this.screen = {
-      width: 16,
+      width: 14,
       height: 6
     }
 
