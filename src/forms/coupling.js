@@ -24,7 +24,7 @@ export class CouplingForm {
     this.firstTime = true
   }
 
-  get shapeCount() {
+  get lineCount() {
     return 2
   }
 

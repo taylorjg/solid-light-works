@@ -80,10 +80,10 @@ export class Line {
 export class Projector {
 
   constructor(projectorPosition, screenForm, scene, hazeTexture, applyTransforms) {
-    const lineCount = screenForm.shapeCount
+    const lineCount = screenForm.lineCount
     this.screenForm = screenForm
     this.screenImage = new ScreenImage(lineCount, scene, applyTransforms)
-    this.projectionEffect = new ProjectionEffect(projectorPosition, lineCount, scene, hazeTexture, applyTransforms)
+    this.projectionEffect = new ProjectionEffect(lineCount, scene, applyTransforms, projectorPosition, hazeTexture)
   }
 
   update() {

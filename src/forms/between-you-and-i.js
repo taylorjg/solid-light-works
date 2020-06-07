@@ -20,10 +20,11 @@ export class BetweenYouAndIForm {
     this.maxX = this.rx
     this.minY = -this.ry
     this.maxY = this.ry
-    this.reset(initiallyWipingInEllipse)
+    this.tick = 0
+    this.wipingInEllipse = initiallyWipingInEllipse
   }
 
-  get shapeCount() {
+  get lineCount() {
     return 3
   }
 
@@ -92,21 +93,19 @@ export class BetweenYouAndIForm {
     const tickRatio = this.tick / MAX_TICKS
     const wipeExtent = this.height * tickRatio
     const wipeY = this.maxY - wipeExtent
-    const pointss = [
-      this.getEllipsePoints(tickRatio, wipeY),
-      this.getTravellingWavePoints(tickRatio, wipeY, wipeExtent),
-      this.getStraightLinePoints(tickRatio, wipeY)
-    ]
-    const lines = pointss.map(points => new Line(points))
+    const ellipsePoints = this.getEllipsePoints(tickRatio, wipeY)
+    const travellingWavePoints = this.getTravellingWavePoints(tickRatio, wipeY, wipeExtent)
+    const straightLinePoints = this.getStraightLinePoints(tickRatio, wipeY)
+    const lines = [ellipsePoints, travellingWavePoints, straightLinePoints].map(points => new Line(points))
     this.tick++
     if (this.tick > MAX_TICKS) {
-      this.reset(!this.wipingInEllipse)
+      this.toggleWipeMode()
     }
     return lines
   }
 
-  reset(wipingInEllipse) {
+  toggleWipeMode() {
     this.tick = 0
-    this.wipingInEllipse = wipingInEllipse
+    this.wipingInEllipse = !this.wipingInEllipse
   }
 }

@@ -60,7 +60,7 @@ export class LeavingForm {
     this.tick = 0
   }
 
-  get shapeCount() {
+  get lineCount() {
     return 1
   }
 

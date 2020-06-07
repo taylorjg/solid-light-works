@@ -7,7 +7,7 @@ import * as U from './utils'
 
 export class ProjectionEffect {
 
-  constructor(projectorPosition, lineCount, scene, hazeTexture, applyTransforms) {
+  constructor(lineCount, scene, applyTransforms, projectorPosition, hazeTexture) {
     this.projectorPosition = projectorPosition
     this.scene = scene
     this.meshes = U.range(lineCount).map(() => {
