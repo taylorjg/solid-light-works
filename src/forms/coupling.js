@@ -1,5 +1,5 @@
 import { CircleWave } from '../syntax/circle-wave'
-import { Line } from '../projector'
+import { Line } from '../line'
 import * as C from '../constants'
 
 // https://www.ericforman.com/anthony-mccall-solid-light#6

@@ -1,6 +1,6 @@
 import * as THREE from 'three'
 import lineclip from 'lineclip'
-import { Line } from '../projector'
+import { Line } from '../line'
 import { Ellipse } from '../syntax/ellipse'
 import * as U from '../utils'
 import * as C from '../constants'

@@ -1,5 +1,5 @@
 import * as THREE from 'three'
-import { Line } from '../projector'
+import { Line } from '../line'
 import * as U from '../utils'
 import * as C from '../constants'
 

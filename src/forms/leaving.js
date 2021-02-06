@@ -1,5 +1,5 @@
 import * as THREE from 'three'
-import { Line } from '../projector'
+import { Line } from '../line'
 import { newtonsMethod } from '../newtons-method'
 import * as U from '../utils'
 import * as C from '../constants'

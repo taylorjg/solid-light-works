@@ -9,9 +9,15 @@ const Line2DBasicShader = Line2DBasicShaderInit(THREE)
 
 export class ScreenImage {
 
-  constructor(lineCount, scene, applyTransforms) {
+  constructor(screenForm, scene) {
+    this.screenForm = screenForm
     this.scene = scene
-    this.meshes = U.range(lineCount).map(() => {
+    this.meshes = undefined
+    this._visible = false
+  }
+
+  createMeshes(lineCount) {
+    return U.range(lineCount).map(() => {
       const geometry = new Line2D()
       const material = new THREE.ShaderMaterial(
         Line2DBasicShader({
@@ -20,13 +26,18 @@ export class ScreenImage {
           thickness: C.SCREEN_IMAGE_LINE_THICKNESS
         }))
       const mesh = new THREE.Mesh(geometry, material)
-      applyTransforms && applyTransforms(mesh)
+      mesh.applyMatrix4(this.screenForm.transform)
+      mesh.visible = this._visible
+      this.scene.add(mesh)
       return mesh
     })
-    this.meshes.forEach(mesh => scene.add(mesh))
   }
 
   update(lines) {
+    if (!this.meshes) {
+      const lineCount = lines.length
+      this.meshes = this.createMeshes(lineCount)
+    }
     this.meshes.forEach((mesh, index) => {
       const line = lines[index]
       if (line) {
@@ -41,7 +52,10 @@ export class ScreenImage {
     })
   }
 
-  destroy() {
-    this.meshes.forEach(mesh => U.disposeMesh(this.scene, mesh))
+  set visible(value) {
+    this._visible = value
+    if (this.meshes) {
+      this.meshes.forEach(mesh => mesh.visible = this._visible)
+    }
   }
 }
