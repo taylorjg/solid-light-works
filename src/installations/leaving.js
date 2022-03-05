@@ -1,4 +1,5 @@
 import * as THREE from 'three'
+import { InstallationBase } from './installation-base'
 import { LeavingForm } from '../forms/leaving'
 
 const SCREEN_LEFT_CX = -2.2
@@ -9,9 +10,11 @@ const SCREEN_RY = 1.6
 const PROJECTOR_HEIGHT = 0.3
 const PROJECTOR_DISTANCE = 10
 
-export class LeavingInstallation {
+export class LeavingInstallation extends InstallationBase {
 
   constructor() {
+
+    super()
 
     this.forms = [
       new LeavingForm(SCREEN_RX, SCREEN_RY, true),

@@ -1,10 +1,13 @@
 import * as THREE from 'three'
+import { InstallationBase } from './installation-base'
 import { CouplingForm } from '../forms/coupling'
 import * as C from '../constants'
 
-export class CouplingInstallation {
+export class CouplingInstallation extends InstallationBase {
 
   constructor() {
+
+    super()
 
     this.forms = [
       new CouplingForm(2, 1)

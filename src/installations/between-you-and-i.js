@@ -1,10 +1,13 @@
 import * as THREE from 'three'
+import { InstallationBase } from './installation-base'
 import { BetweenYouAndIForm } from '../forms/between-you-and-i'
 import * as C from '../constants'
 
-export class BetweenYouAndIInstallation {
+export class BetweenYouAndIInstallation extends InstallationBase {
 
   constructor() {
+
+    super()
 
     this.forms = [
       new BetweenYouAndIForm(3, 4, true),

@@ -79,6 +79,7 @@ export class ProjectionEffect {
   }
 
   set showVertexNormals(value) {
+    if (!this._visible) return
     if (value) {
       if (!this._meshHelpers && this._meshes) {
         this._meshHelpers = this._meshes.map(mesh => new VertexNormalsHelper(mesh, 0.2, 0x0000ff))
@@ -86,7 +87,7 @@ export class ProjectionEffect {
       }
     } else {
       if (this._meshHelpers) {
-        this._meshHelpers.forEach(meshHelper => this._scene.remove(meshHelper))
+        this._meshHelpers.forEach(meshHelper => U.disposeMesh(this._scene, meshHelper))
         this._meshHelpers = undefined
       }
     }

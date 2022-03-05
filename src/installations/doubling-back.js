@@ -1,9 +1,12 @@
 import * as THREE from 'three'
+import { InstallationBase } from './installation-base'
 import { DoublingBackForm } from '../forms/doubling-back'
 
-export class DoublingBackInstallation {
+export class DoublingBackInstallation extends InstallationBase {
 
   constructor() {
+
+    super()
 
     this.forms = [
       new DoublingBackForm(6, 4)
@@ -39,6 +42,11 @@ export class DoublingBackInstallation {
         length: 10,
         height: 4.4,
         distance: -3.2
+      },
+      rightWall: {
+        length: 10,
+        height: 4.4,
+        distance: 3.2
       }
     }
   }
