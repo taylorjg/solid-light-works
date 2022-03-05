@@ -48,8 +48,8 @@ export class LeavingInstallation extends InstallationBase {
         }
       ],
       cameraPoses: [
-        { position: new THREE.Vector3(-13.13, 2.42, 9.03), target: new THREE.Vector3(-0.75, 2, 4.43) },
-        { position: new THREE.Vector3(1.02, 3.02, -10.02), target: new THREE.Vector3(0.58, 2, 5.34) }
+        { position: new THREE.Vector3(-10.06, 1.50, 9.81), target: new THREE.Vector3(-0.75, 2.00, 4.43) },
+        { position: new THREE.Vector3(0.46, 1.21, 13.56), target: new THREE.Vector3(-0.54, 0.96, 4.38) }
       ],
       surfaces: [
         new ScreenSurface(14, 6)
