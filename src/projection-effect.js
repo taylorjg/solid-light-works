@@ -7,12 +7,12 @@ import * as U from './utils'
 
 export class ProjectionEffect {
 
-  constructor(projectedForm, scene, resources) {
-    this.projectedForm = projectedForm
-    this.scene = scene
-    this.resources = resources
-    this.meshes = undefined
-    this.meshHelpers = undefined
+  constructor(scene, projectedForm, resources) {
+    this._scene = scene
+    this._projectedForm = projectedForm
+    this._resources = resources
+    this._meshes = undefined
+    this._meshHelpers = undefined
     this._visible = false
   }
 
@@ -22,10 +22,10 @@ export class ProjectionEffect {
       const material = new THREE.ShaderMaterial({
         uniforms: {
           hazeTexture: {
-            value: this.resources.hazeTexture
+            value: this._resources.hazeTexture
           },
           projectorPosition: {
-            value: this.projectedForm.projectorPosition
+            value: this._projectedForm.projectorPosition
           },
           opacity: {
             value: 1
@@ -39,23 +39,23 @@ export class ProjectionEffect {
         depthTest: false
       })
       const mesh = new THREE.Mesh(geometry, material)
-      mesh.applyMatrix4(this.projectedForm.transform)
+      mesh.applyMatrix4(this._projectedForm.transform)
       mesh.visible = this._visible
-      this.scene.add(mesh)
+      this._scene.add(mesh)
       return mesh
     })
   }
 
   update(lines) {
-    if (!this.meshes) {
+    if (!this._meshes) {
       const lineCount = lines.length
-      this.meshes = this.createMeshes(lineCount)
+      this._meshes = this.createMeshes(lineCount)
     }
-    this.meshes.forEach((mesh, index) => {
+    this._meshes.forEach((mesh, index) => {
       const line = lines[index]
       if (line) {
         const numPoints = line.points.length
-        const projectorPoints = U.repeat(numPoints, this.projectedForm.projectorPosition)
+        const projectorPoints = U.repeat(numPoints, this._projectedForm.projectorPosition)
         const screenPoints = U.vec2sToVec3sHorizontal(line.points)
         const tempMembraneGeometry = new MembraneBufferGeometry(projectorPoints, screenPoints)
         tempMembraneGeometry.computeFaceNormals()
@@ -66,28 +66,28 @@ export class ProjectionEffect {
         mesh.visible = this._visible
       }
     })
-    if (this.meshHelpers) {
-      this.meshHelpers.forEach(meshHelper => meshHelper.update())
+    if (this._meshHelpers) {
+      this._meshHelpers.forEach(meshHelper => meshHelper.update())
     }
   }
 
   set visible(value) {
     this._visible = value
-    if (this.meshes) {
-      this.meshes.forEach(mesh => mesh.visible = value)
+    if (this._meshes) {
+      this._meshes.forEach(mesh => mesh.visible = value)
     }
   }
 
   set showVertexNormals(value) {
     if (value) {
-      if (!this.meshHelpers && this.meshes) {
-        this.meshHelpers = this.meshes.map(mesh => new VertexNormalsHelper(mesh, 0.2, 0x0000ff))
-        this.meshHelpers.forEach(meshHelper => this.scene.add(meshHelper))
+      if (!this._meshHelpers && this._meshes) {
+        this._meshHelpers = this._meshes.map(mesh => new VertexNormalsHelper(mesh, 0.2, 0x0000ff))
+        this._meshHelpers.forEach(meshHelper => this._scene.add(meshHelper))
       }
     } else {
-      if (this.meshHelpers) {
-        this.meshHelpers.forEach(meshHelper => this.scene.remove(meshHelper))
-        this.meshHelpers = undefined
+      if (this._meshHelpers) {
+        this._meshHelpers.forEach(meshHelper => this._scene.remove(meshHelper))
+        this._meshHelpers = undefined
       }
     }
   }

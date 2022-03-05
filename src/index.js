@@ -1,34 +1,34 @@
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
-import { DoublingBackInstallation2 } from './installations/doubling-back-2'
-import { LeavingInstallation2 } from './installations/leaving-2'
-import { CouplingInstallation2 } from './installations/coupling-2'
-import { BetweenYouAndIInstallation2 } from './installations/between-you-and-i-2'
+import { DoublingBackInstallation } from './installations/doubling-back'
+import { LeavingInstallation } from './installations/leaving'
+import { CouplingInstallation } from './installations/coupling'
+import { BetweenYouAndIInstallation } from './installations/between-you-and-i'
 import { ScreenImage } from './screen-image'
 import { ProjectionEffect } from './projection-effect'
 import * as U from './utils'
 import * as C from './constants'
 
-const createRenderables2D = (installation, scene) => {
+const createRenderables2D = (scene, installation) => {
   const screenForms = installation.installationData2D.screenForms
   return {
-    screenImages: screenForms.map(screenForm => new ScreenImage(screenForm, scene))
+    screenImages: screenForms.map(screenForm => new ScreenImage(scene, screenForm))
   }
 }
 
-const createRenderables3D = (installation, scene, resources) => {
+const createRenderables3D = (scene, installation, resources) => {
   const screenForms = installation.installationData3D.screenForms
   const projectedForms = installation.installationData3D.projectedForms
   return {
-    screenImages: screenForms.map(screenForm => new ScreenImage(screenForm, scene)),
-    projectionEffects: projectedForms.map(projectedForm => new ProjectionEffect(projectedForm, scene, resources))
+    screenImages: screenForms.map(screenForm => new ScreenImage(scene, screenForm)),
+    projectionEffects: projectedForms.map(projectedForm => new ProjectionEffect(scene, projectedForm, resources))
   }
 }
 
 const createRenderables = (scene, resources) => installation => ({
   ...installation,
-  renderables2D: createRenderables2D(installation, scene),
-  renderables3D: createRenderables3D(installation, scene, resources)
+  renderables2D: createRenderables2D(scene, installation),
+  renderables3D: createRenderables3D(scene, installation, resources)
 })
 
 const main = async () => {
@@ -119,10 +119,10 @@ const main = async () => {
   }
 
   const installations = [
-    new DoublingBackInstallation2(),
-    new LeavingInstallation2(),
-    new CouplingInstallation2(),
-    new BetweenYouAndIInstallation2()
+    new DoublingBackInstallation(),
+    new LeavingInstallation(),
+    new CouplingInstallation(),
+    new BetweenYouAndIInstallation()
   ].map(createRenderables(scene, resources))
 
   const toggleAxes = () => {
@@ -136,11 +136,15 @@ const main = async () => {
   }
 
   const reportCameraPosition = () => {
-    const prec2 = n => Number(n.toFixed(2))
-    const p = camera.position
-    const t = controls.target
-    console.log(`cameraPosition: new THREE.Vector3(${prec2(p.x)}, ${prec2(p.y)}, ${prec2(p.z)}),`)
-    console.log(`controlsTarget: new THREE.Vector3(${prec2(t.x)}, ${prec2(t.y)}, ${prec2(t.z)})`)
+    const prec2 = value => value.toFixed(2)
+    const newVector3 = vec3 => `new THREE.Vector3(${prec2(vec3.x)}, ${prec2(vec3.y)}, ${prec2(vec3.z)})`
+    // const p = camera.position
+    // const t = controls.target
+    // { position: new THREE.Vector3(0, 0, 6), target: new THREE.Vector3() }
+    // console.log(`cameraPosition: new THREE.Vector3(${prec2(p.x)}, ${prec2(p.y)}, ${prec2(p.z)}),`)
+    // console.log(`controlsTarget: new THREE.Vector3(${prec2(t.x)}, ${prec2(t.y)}, ${prec2(t.z)})`)
+    // { position: new THREE.Vector3(0, 0, 6), target: new THREE.Vector3() }
+    console.log(`{ position: ${newVector3(camera.position)}, target: ${newVector3(controls.target)} }`)
   }
 
   const updateVisibility = () => {

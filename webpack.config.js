@@ -17,7 +17,6 @@ module.exports = {
   plugins: [
     new CopyWebpackPlugin({
       patterns: [
-        { context: './src', from: '*.html' },
         { context: './src', from: '*.css' },
         { context: './src/assets', from: '*.jpg' },
         { context: './src/assets', from: '*.png' }

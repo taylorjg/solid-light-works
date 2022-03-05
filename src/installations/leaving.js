@@ -1,6 +1,5 @@
 import * as THREE from 'three'
 import { LeavingForm } from '../forms/leaving'
-import { Projector } from '../projector'
 
 const SCREEN_LEFT_CX = -2.2
 const SCREEN_RIGHT_CX = 2.2
@@ -14,66 +13,44 @@ export class LeavingInstallation {
 
   constructor() {
 
-    this.screen = {
-      width: 14,
-      height: 6
-    }
-
-    this.cameraPositions = [
-      {
-        cameraPosition: new THREE.Vector3(-13.13, 2.42, 9.03),
-        controlsTarget: new THREE.Vector3(-0.75, 2, 4.43)
-      },
-      {
-        cameraPosition: new THREE.Vector3(1.02, 3.02, -10.02),
-        controlsTarget: new THREE.Vector3(0.58, 2, 5.34)
-      }
+    this.forms = [
+      new LeavingForm(SCREEN_RX, SCREEN_RY, true),
+      new LeavingForm(SCREEN_RX, SCREEN_RY, false)
     ]
 
-    this.leftProjectorPosition = new THREE.Vector3(0, PROJECTOR_HEIGHT - SCREEN_CY, PROJECTOR_DISTANCE)
-    this.rightProjectorPosition = new THREE.Vector3(0, PROJECTOR_HEIGHT - SCREEN_CY, PROJECTOR_DISTANCE)
+    this.installationData2D = {
+      screenForms: [
+        { transform: new THREE.Matrix4().makeTranslation(SCREEN_LEFT_CX, 0, 0) },
+        { transform: new THREE.Matrix4().makeTranslation(SCREEN_RIGHT_CX, 0, 0) }
+      ],
+      cameraPoses: [
+        { position: new THREE.Vector3(0, 0, 8), target: new THREE.Vector3() }
+      ]
+    }
 
-    this.leftScreenForm = new LeavingForm(SCREEN_RX, SCREEN_RY, true)
-    this.rightScreenForm = new LeavingForm(SCREEN_RX, SCREEN_RY, false)
-
-    this.leftProjector = null
-    this.rightProjector = null
-  }
-
-  create(scene, hazeTexture) {
-    this.leftProjector = new Projector(
-      this.leftProjectorPosition,
-      this.leftScreenForm,
-      scene,
-      hazeTexture,
-      mesh => mesh
-        .translateX(SCREEN_LEFT_CX)
-        .translateY(SCREEN_CY))
-
-    this.rightProjector = new Projector(
-      this.rightProjectorPosition,
-      this.rightScreenForm,
-      scene,
-      hazeTexture,
-      mesh => mesh
-        .translateX(SCREEN_RIGHT_CX)
-        .translateY(SCREEN_CY))
-  }
-
-  destroy() {
-    this.leftProjector && this.leftProjector.destroy()
-    this.rightProjector && this.rightProjector.destroy()
-    this.leftProjector = null
-    this.rightProjector = null
-  }
-
-  update() {
-    this.leftProjector && this.leftProjector.update()
-    this.rightProjector && this.rightProjector.update()
-  }
-
-  toggleVertexNormals() {
-    this.leftProjector && this.leftProjector.toggleVertexNormals()
-    this.rightProjector && this.rightProjector.toggleVertexNormals()
+    this.installationData3D = {
+      screenForms: [
+        { transform: new THREE.Matrix4().makeTranslation(SCREEN_LEFT_CX, SCREEN_CY, 0) },
+        { transform: new THREE.Matrix4().makeTranslation(SCREEN_RIGHT_CX, SCREEN_CY, 0) }
+      ],
+      projectedForms: [
+        {
+          transform: new THREE.Matrix4().makeTranslation(SCREEN_LEFT_CX, SCREEN_CY, 0),
+          projectorPosition: new THREE.Vector3(0, PROJECTOR_HEIGHT - SCREEN_CY, PROJECTOR_DISTANCE)
+        },
+        {
+          transform: new THREE.Matrix4().makeTranslation(SCREEN_RIGHT_CX, SCREEN_CY, 0),
+          projectorPosition: new THREE.Vector3(0, PROJECTOR_HEIGHT - SCREEN_CY, PROJECTOR_DISTANCE)
+        }
+      ],
+      cameraPoses: [
+        { position: new THREE.Vector3(-13.13, 2.42, 9.03), target: new THREE.Vector3(-0.75, 2, 4.43) },
+        { position: new THREE.Vector3(1.02, 3.02, -10.02), target: new THREE.Vector3(0.58, 2, 5.34) }
+      ],
+      screen: {
+        width: 14,
+        height: 6
+      }
+    }
   }
 }
