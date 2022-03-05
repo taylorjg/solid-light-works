@@ -4,104 +4,9 @@ import { DoublingBackInstallation } from './installations/doubling-back'
 import { LeavingInstallation } from './installations/leaving'
 import { CouplingInstallation } from './installations/coupling'
 import { BetweenYouAndIInstallation } from './installations/between-you-and-i'
-import { ScreenImage } from './screen-image'
-import { ProjectionEffect } from './projection-effect'
 import { Mode } from './mode'
-import * as U from './utils'
 import * as C from './constants'
-
-const createRenderables2D = (scene, installation) => {
-  const screenForms = installation.installationData2D.screenForms
-  return {
-    screenImages: screenForms.map(screenForm => new ScreenImage(scene, screenForm))
-  }
-}
-
-const createRenderables3D = (scene, installation, resources) => {
-  const screenForms = installation.installationData3D.screenForms
-  const projectedForms = installation.installationData3D.projectedForms
-  return {
-    screenImages: screenForms.map(screenForm => new ScreenImage(scene, screenForm)),
-    projectionEffects: projectedForms.map(projectedForm => new ProjectionEffect(scene, projectedForm, resources)),
-    surfaces: createSurfaces(scene, installation)
-  }
-}
-
-const createRenderables = (scene, resources) => installation => {
-  installation.renderables2D = createRenderables2D(scene, installation)
-  installation.renderables3D = createRenderables3D(scene, installation, resources)
-  return installation
-}
-
-const createSurfaces = (scene, installation) => {
-
-  const surfaces = []
-
-  const { screen, leftWall, rightWall, floor } = installation.installationData3D
-
-  if (screen) {
-    const geometry = new THREE.PlaneGeometry(screen.width, screen.height)
-    geometry.translate(0, screen.height / 2, 0)
-    const material = new THREE.MeshBasicMaterial({
-      color: 0xC0C0C0,
-      transparent: true,
-      opacity: 0.2
-    })
-    const mesh = new THREE.Mesh(geometry, material)
-    scene.add(mesh)
-    surfaces.push(mesh)
-  }
-
-  if (leftWall) {
-    const geometry = new THREE.PlaneGeometry(leftWall.length, leftWall.height)
-    geometry.rotateY(C.HALF_PI)
-    geometry.translate(leftWall.distance, leftWall.height / 2, leftWall.length / 2)
-    const material = new THREE.MeshBasicMaterial({
-      color: 0xA0A0A0,
-      transparent: true,
-      opacity: 0.2
-    })
-    const mesh = new THREE.Mesh(geometry, material)
-    scene.add(mesh)
-    surfaces.push(mesh)
-  }
-
-  if (rightWall) {
-    const geometry = new THREE.PlaneGeometry(rightWall.length, rightWall.height)
-    geometry.rotateY(-C.HALF_PI)
-    geometry.translate(rightWall.distance, rightWall.height / 2, rightWall.length / 2)
-    const material = new THREE.MeshBasicMaterial({
-      color: 0xE0E0E0,
-      transparent: true,
-      opacity: 0.5
-    })
-    const mesh = new THREE.Mesh(geometry, material)
-    scene.add(mesh)
-    surfaces.push(mesh)
-  }
-
-  if (floor) {
-    const geometry = new THREE.PlaneGeometry(floor.width, floor.depth)
-    geometry.rotateX(-C.HALF_PI)
-    geometry.translate(0, 0, floor.depth / 2)
-    const material = new THREE.MeshBasicMaterial({
-      color: 0xD0D0D0,
-      transparent: true,
-      opacity: 0.2
-    })
-    const mesh = new THREE.Mesh(geometry, material)
-    scene.add(mesh)
-    surfaces.push(mesh)
-  }
-
-  return surfaces
-}
-
-// const destroySurfaces = (scene, surfaces) => {
-//   for (const surface of surfaces) {
-//     U.disposeMesh(scene, surface)
-//   }
-// }
+import * as U from './utils'
 
 const main = async () => {
 
@@ -146,7 +51,7 @@ const main = async () => {
     BetweenYouAndIInstallation
   ]
     .map(installationConstructor => new installationConstructor())
-    .map(createRenderables(scene, resources))
+    .map(installation => installation.createRenderables(scene, resources))
 
   const toggleAxes = () => {
     if (axesHelper) {
