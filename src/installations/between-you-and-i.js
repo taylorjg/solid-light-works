@@ -1,6 +1,7 @@
 import * as THREE from 'three'
 import { InstallationBase } from './installation-base'
 import { BetweenYouAndIForm } from '../forms/between-you-and-i'
+import { FloorSurface } from '../surfaces/floor-surface'
 import * as C from '../constants'
 
 export class BetweenYouAndIInstallation extends InstallationBase {
@@ -70,14 +71,14 @@ export class BetweenYouAndIInstallation extends InstallationBase {
         }
       ],
       cameraPoses: [
+        { position: new THREE.Vector3(4.44, 3.43, 13.70), target: new THREE.Vector3(1.20, 2.00, 9.48) },
         { position: new THREE.Vector3(-4.6, 9.03, 30.78), target: new THREE.Vector3(1.2, 2, 9.48) },
         { position: new THREE.Vector3(4.27, 2.76, 23.73), target: new THREE.Vector3(1.2, 2, 9.48) },
         { position: new THREE.Vector3(-0.16, -8.18, 9.26), target: new THREE.Vector3(0.45, 2, 9.25) }
       ],
-      floor: {
-        width: 10,
-        depth: 19
-      }
+      surfaces: [
+        new FloorSurface(10, 13)
+      ]
     }
   }
 }
