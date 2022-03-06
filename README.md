@@ -64,11 +64,13 @@ Bits of descrption garnered from the above video:
 
 * a
   * toggle axes helper
-  * <font color="red">x-axis</font>, <font color="green">y-axis</font>, <font color="blue">z-axis</font>
+    * x-axis: red, y-axis: green, z-axis: blue
 * f
-  * cycle through different Solid Light forms
+  * cycle through installations
+* m
+  * toggle mode: 2D/3D
 * p
-  * cycle through different camera positions
+  * cycle through camera positions (3D mode only)
 * r
   * toggle autorotate    
 * v
