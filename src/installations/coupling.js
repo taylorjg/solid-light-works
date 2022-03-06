@@ -1,7 +1,7 @@
 import * as THREE from 'three'
 import { InstallationBase } from './installation-base'
 import { CouplingForm } from '../forms/coupling'
-import { FloorSurface } from '../surfaces/floor-surface'
+import { Floor } from '../scenery'
 import * as C from '../constants'
 
 export class CouplingInstallation extends InstallationBase {
@@ -47,8 +47,8 @@ export class CouplingInstallation extends InstallationBase {
         { position: new THREE.Vector3(0, 2, 12), target: new THREE.Vector3(0, 0, 3) },
         { position: new THREE.Vector3(1.88, -6, 3.86), target: new THREE.Vector3(-0.32, 2, 3.46) }
       ],
-      surfaces: [
-        new FloorSurface(12, 8)
+      scenery: [
+        new Floor(12, 8)
       ]
     }
   }

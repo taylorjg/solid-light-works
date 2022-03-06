@@ -1,7 +1,7 @@
 import * as THREE from 'three'
 import { InstallationBase } from './installation-base'
 import { LeavingForm } from '../forms/leaving'
-import { ScreenSurface } from '../surfaces/screen-surface'
+import { Screen } from '../scenery'
 
 const SCREEN_CX_LEFT = -2.2
 const SCREEN_CX_RIGHT = 2.2
@@ -51,8 +51,8 @@ export class LeavingInstallation extends InstallationBase {
         { position: new THREE.Vector3(-10.06, 1.50, 9.81), target: new THREE.Vector3(-0.75, 2.00, 4.43) },
         { position: new THREE.Vector3(0.46, 1.21, 13.56), target: new THREE.Vector3(-0.54, 0.96, 4.38) }
       ],
-      surfaces: [
-        new ScreenSurface(14, 6)
+      scenery: [
+        new Screen(14, 6)
       ]
     }
   }

@@ -1,8 +1,8 @@
 import * as THREE from 'three'
-import { SurfaceBase } from './surface-base'
+import { SceneryBase } from './scenery-base'
 import * as C from '../constants'
 
-export class FloorSurface extends SurfaceBase {
+export class Floor extends SceneryBase {
 
   constructor(width, depth) {
     super()

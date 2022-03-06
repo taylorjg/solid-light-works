@@ -1,9 +1,7 @@
 import * as THREE from 'three'
 import { InstallationBase } from './installation-base'
 import { DoublingBackForm } from '../forms/doubling-back'
-import { ScreenSurface } from '../surfaces/screen-surface'
-import { LeftWallSurface } from '../surfaces/left-wall-surface'
-import { RightWallSurface } from '../surfaces/right-wall-surface'
+import { LeftWall, RightWall, Screen } from '../scenery'
 
 export class DoublingBackInstallation extends InstallationBase {
 
@@ -38,10 +36,10 @@ export class DoublingBackInstallation extends InstallationBase {
         { position: new THREE.Vector3(1.52, 2.75, -6.79), target: new THREE.Vector3(-0.8, 2, 5.5) },
         { position: new THREE.Vector3(-9.02, 1.68, 9.85), target: new THREE.Vector3(-0.8, 2, 5.5) }
       ],
-      surfaces: [
-        new ScreenSurface(6.4, 4.4),
-        new LeftWallSurface(10, 4.4, -3.2),
-        new RightWallSurface(10, 4.4, 3.2)
+      scenery: [
+        new Screen(6.4, 4.4),
+        new LeftWall(10, 4.4, -3.2),
+        new RightWall(10, 4.4, 3.2)
       ]
     }
   }

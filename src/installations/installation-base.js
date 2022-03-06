@@ -12,12 +12,12 @@ const createRenderables2D = (scene, installation) => {
 const createRenderables3D = (scene, installation, resources) => {
   const screenForms = installation.installationData3D.screenForms
   const projectedForms = installation.installationData3D.projectedForms
-  const surfaces = installation.installationData3D.surfaces
-  surfaces.forEach(surface => surface.create(scene))
+  const scenery = installation.installationData3D.scenery
+  scenery.forEach(sceneryItem => sceneryItem.create(scene))
   return {
     screenImages: screenForms.map(screenForm => new ScreenImage(scene, screenForm)),
     projectionEffects: projectedForms.map(projectedForm => new ProjectionEffect(scene, projectedForm, resources)),
-    surfaces
+    scenery
   }
 }
 
@@ -34,7 +34,7 @@ export class InstallationBase {
       projectionEffect.visible = visible3D
       projectionEffect.showVertexNormals = showVertexNormals
     })
-    this.renderables3D.surfaces.forEach(surface => surface.visible = visible3D)
+    this.renderables3D.scenery.forEach(sceneryItem => sceneryItem.visible = visible3D)
   }
 
   updateRenderables(mode) {

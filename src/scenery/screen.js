@@ -1,7 +1,7 @@
 import * as THREE from 'three'
-import { SurfaceBase } from './surface-base'
+import { SceneryBase } from './scenery-base'
 
-export class ScreenSurface extends SurfaceBase {
+export class Screen extends SceneryBase {
 
   constructor(width, height) {
     super()

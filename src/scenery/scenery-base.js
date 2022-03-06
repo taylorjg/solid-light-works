@@ -1,4 +1,4 @@
-export class SurfaceBase {
+export class SceneryBase {
 
   constructor() {
     this._visible = false
