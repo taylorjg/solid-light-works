@@ -1,17 +1,19 @@
 /* eslint-env node */
 
+const path = require('path')
+
 const CopyWebpackPlugin = require('copy-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
-const path = require('path')
-const { version } = require('./package.json')
 
-const dist = path.join(__dirname, 'dist')
+const packageJson = require('./package.json')
+
+const BUILD_FOLDER = path.join(__dirname, 'build')
 
 module.exports = {
-  mode: 'development',
+  mode: 'production',
   entry: './src/index.js',
   output: {
-    path: dist,
+    path: BUILD_FOLDER,
     filename: 'bundle.js',
   },
   plugins: [
@@ -24,7 +26,7 @@ module.exports = {
     }),
     new HtmlWebpackPlugin({
       template: './src/index.html',
-      version
+      version: packageJson.version
     })
   ],
   module: {
@@ -35,8 +37,5 @@ module.exports = {
       }
     ]
   },
-  devtool: 'source-map',
-  devServer: {
-    contentBase: dist
-  }
+  devtool: 'source-map'
 }
