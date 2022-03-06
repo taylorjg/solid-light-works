@@ -57,4 +57,16 @@ export class InstallationBase {
     this.renderables3D = createRenderables3D(scene, this, resources)
     return this
   }
+
+  showScenery() {
+    for (const sceneryItem of this.renderables3D.scenery) {
+      sceneryItem.visible = true
+    }
+  }
+
+  hideScenery() {
+    for (const sceneryItem of this.renderables3D.scenery) {
+      sceneryItem.visible = false
+    }
+  }
 }

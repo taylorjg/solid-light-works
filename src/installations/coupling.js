@@ -45,7 +45,8 @@ export class CouplingInstallation extends InstallationBase {
       ],
       cameraPoses: [
         { position: new THREE.Vector3(0, 2, 12), target: new THREE.Vector3(0, 0, 3) },
-        { position: new THREE.Vector3(1.88, -6, 3.86), target: new THREE.Vector3(-0.32, 2, 3.46) }
+        { position: new THREE.Vector3(-2.10, 5.85, 20.04), target: new THREE.Vector3(0.43, 4.16, 4.94) },
+        { position: new THREE.Vector3(0, -6.3, 3.7), target: new THREE.Vector3(0, 2, 4), hideScenery: true }
       ],
       scenery: [
         new Floor(12, 8)

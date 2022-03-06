@@ -72,8 +72,8 @@ export class BetweenYouAndIInstallation extends InstallationBase {
       ],
       cameraPoses: [
         { position: new THREE.Vector3(4.44, 3.43, 13.70), target: new THREE.Vector3(1.20, 2.00, 9.48) },
-        { position: new THREE.Vector3(-4.6, 9.03, 30.78), target: new THREE.Vector3(1.2, 2, 9.48) },
-        { position: new THREE.Vector3(4.27, 2.76, 23.73), target: new THREE.Vector3(1.2, 2, 9.48) },
+        { position: new THREE.Vector3(-3.62, 4.46, 23.05), target: new THREE.Vector3(1.08, 3.34, 9.27) },
+        { position: new THREE.Vector3(-1.10, -7.72, 6.38), target: new THREE.Vector3(-0.32, 1.65, 6.39), hideScenery: true }
       ],
       scenery: [
         new Floor(10, 13)

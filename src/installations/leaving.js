@@ -49,7 +49,8 @@ export class LeavingInstallation extends InstallationBase {
       ],
       cameraPoses: [
         { position: new THREE.Vector3(-10.06, 1.50, 9.81), target: new THREE.Vector3(-0.75, 2.00, 4.43) },
-        { position: new THREE.Vector3(0.46, 1.21, 13.56), target: new THREE.Vector3(-0.54, 0.96, 4.38) }
+        { position: new THREE.Vector3(0.46, 1.21, 13.56), target: new THREE.Vector3(-0.54, 0.96, 4.38) },
+        { position: new THREE.Vector3(0, 2, -6.75), target: new THREE.Vector3(0, 2.4, 0), hideScenery: true }
       ],
       scenery: [
         new Screen(14, 6)

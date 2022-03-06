@@ -33,8 +33,7 @@ export class DoublingBackInstallation extends InstallationBase {
       cameraPoses: [
         { position: new THREE.Vector3(-0.85, 7.31, 17.00), target: new THREE.Vector3(-0.80, 2.00, 5.50) },
         { position: new THREE.Vector3(4.18, 4.64, 12.76), target: new THREE.Vector3(-0.8, 2, 5.5) },
-        { position: new THREE.Vector3(1.52, 2.75, -6.79), target: new THREE.Vector3(-0.8, 2, 5.5) },
-        { position: new THREE.Vector3(-9.02, 1.68, 9.85), target: new THREE.Vector3(-0.8, 2, 5.5) }
+        { position: new THREE.Vector3(1.3, 2, -6), target: new THREE.Vector3(0, 2, 0), hideScenery: true }
       ],
       scenery: [
         new Screen(6.4, 4.4),
