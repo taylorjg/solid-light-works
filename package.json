@@ -7,14 +7,14 @@
   "dependencies": {
     "gh-pages": "^3.2.3",
     "lineclip": "^1.1.5",
-    "mathjs": "^7.1.0",
-    "three": "^0.119.1",
+    "mathjs": "^10.3.0",
+    "three": "^0.127.0",
     "three-line-2d": "^1.1.6"
   },
   "scripts": {
     "eslint": "eslint .",
     "build": "webpack",
-    "start:dev": "webpack-dev-server",
+    "start:dev": "webpack-dev-server --port 3080 --mode development",
     "deploy": "npm run build && gh-pages -d build"
   },
   "repository": {
