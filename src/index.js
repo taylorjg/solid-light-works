@@ -17,14 +17,17 @@ const main = async () => {
   renderer.setSize(w, h)
   container.appendChild(renderer.domElement)
 
+  const searchParams = new URLSearchParams(window.location.search)
+
   // TODO: set initial values for these via the query string
   let currentInstallationIndex = 0
   let currentCameraPoseIndex = 0
-  let mode = Mode.Mode2D
-  let showVertexNormals = false
+  let mode = searchParams.get('mode') === '3d' ? Mode.Mode3D : Mode.Mode2D
+  let showVertexNormals = searchParams.has('showVertexNormals')
   let axesHelper = undefined
-  let autoRotate = false
+  let autoRotate = searchParams.has('autoRotate')
   let autoRotateSpeed = .5
+  let behindOnly = searchParams.has('behindOnly')
 
   const scene = new THREE.Scene()
   const camera = new THREE.PerspectiveCamera(45, w / h, 0.1, 50)
@@ -37,6 +40,7 @@ const main = async () => {
   controls.dampingFactor = 0.9
   controls.autoRotate = autoRotate
   controls.autoRotateSpeed = autoRotateSpeed
+  controls.enabled = mode === Mode.Mode3D
 
   const hazeTexture = await U.loadTexture('haze.jpg')
 
@@ -89,9 +93,11 @@ const main = async () => {
 
   const switchCameraPose = reset => {
     const currentInstallation = installations[currentInstallationIndex]
-    const cameraPoses = mode === Mode.Mode2D
+    const allCameraPoses = mode === Mode.Mode2D
       ? currentInstallation.installationData2D.cameraPoses
       : currentInstallation.installationData3D.cameraPoses
+    const cameraPoses = allCameraPoses.filter(cameraPose =>
+      mode === Mode.Mode3D && behindOnly ? cameraPose.hideScenery : true)
     if (reset) {
       currentCameraPoseIndex = 0
     } else {
@@ -112,6 +118,7 @@ const main = async () => {
 
   const toggleMode = () => {
     mode = mode === Mode.Mode2D ? Mode.Mode3D : Mode.Mode2D
+    controls.enabled = mode === Mode.Mode3D
     updateVisibility()
     switchCameraPose(true)
   }
