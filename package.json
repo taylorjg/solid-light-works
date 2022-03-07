@@ -1,6 +1,6 @@
 {
   "name": "solid-light-works",
-  "version": "0.0.52",
+  "version": "0.0.53",
   "private": true,
   "dependencies": {
     "@emotion/css": "^11.7.1",
