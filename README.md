@@ -23,41 +23,41 @@ Bits of descrption garnered from the above video:
 ## Photos of the work (from the internet)
 
 <p align="center">
-  <img src="Images/54147-3.jpg">
+  <img src="images/54147-3.jpg">
 </p>
 
 <p align="center">
-  <img src="Images/20161016063645-Anthony-McCall-Leaving-With-Two-Minute-Silence-2009-double-installation-with-sound-32-min-edition-of-3-Courtesy-Galerie-Martine-Aboucaya-Photo-Fran_ois-Doury9-1024x576.jpg">
+  <img src="images/20161016063645-Anthony-McCall-Leaving-With-Two-Minute-Silence-2009-double-installation-with-sound-32-min-edition-of-3-Courtesy-Galerie-Martine-Aboucaya-Photo-Fran_ois-Doury9-1024x576.jpg">
 </p>
 
 <p align="center">
-  <img src="Images/Anthony-McCall-Leaving-With-Two-Minute-Silence-2009-double-installation-with-sound-32-min-edition-of-3-Courtesy-Galerie-Martine-Aboucaya-Photo-François-Doury6-e1474556507991-1024x439.jpg">
+  <img src="images/Anthony-McCall-Leaving-With-Two-Minute-Silence-2009-double-installation-with-sound-32-min-edition-of-3-Courtesy-Galerie-Martine-Aboucaya-Photo-François-Doury6-e1474556507991-1024x439.jpg">
 </p>
 
 <p align="center">
-  <img src="Images/Anthony-McCall-Leaving-With-Two-Minute-Silence-2009-double-installation-with-sound-32-min-edition-of-3-Courtesy-Galerie-Martine-Aboucaya-Photo-François-Doury8-1024x683.jpg">
+  <img src="images/Anthony-McCall-Leaving-With-Two-Minute-Silence-2009-double-installation-with-sound-32-min-edition-of-3-Courtesy-Galerie-Martine-Aboucaya-Photo-François-Doury8-1024x683.jpg">
 </p>
 
 <p align="center">
-  <img src="Images/Web-Anthony-McCall-Leaving-With-Two-Minute-Silence-2009-Photo-François-Doury2.jpg">
+  <img src="images/Web-Anthony-McCall-Leaving-With-Two-Minute-Silence-2009-Photo-François-Doury2.jpg">
 </p>
 
 <p align="center">
-  <img src="Images/Web-Anthony-McCall-Leaving-With-Two-Minute-Silence-2009-Photo-François-Doury3.jpg">
+  <img src="images/Web-Anthony-McCall-Leaving-With-Two-Minute-Silence-2009-Photo-François-Doury3.jpg">
 </p>
 
 ### Photos of working drawings by the artist (from the internet)
 
 <p align="center">
-  <img src="Images/1435064694_F_McCall.jpg">
+  <img src="images/1435064694_F_McCall.jpg">
 </p>
 
 <p align="center">
-  <img src="Images/download.jpeg">
+  <img src="images/download.jpeg">
 </p>
 
 <p align="center">
-  <img src="Images/Anthony-McCall-Leaving-With-Two-Minute-Silence-2006-8-Working-drawings-360-degree-turn-set-of-24-unique-works-Courtesy-Galerie-Martine-Aboucaya-Photo-François-Doury2-1024x683.jpg">
+  <img src="images/Anthony-McCall-Leaving-With-Two-Minute-Silence-2006-8-Working-drawings-360-degree-turn-set-of-24-unique-works-Courtesy-Galerie-Martine-Aboucaya-Photo-François-Doury2-1024x683.jpg">
 </p>
 
 ## Keyboard controls
@@ -93,10 +93,10 @@ See also:
     * [x] loci of the starting points of the ellipses
         * _the starting point of an ellipse is also the starting point of the corresponding "clock-hand" Bézier curve (see below)_
     * [x] get the speed right
-* [ ] Try to re-create the exact movement of the "clock-hands" (Bézier curves ?)
-    * [ ] loci of the ending points
-    * [ ] loci of the control points
-    * [ ] get the speed right
+* [x] Try to re-create the exact movement of the "clock-hands" (Bézier curves ?)
+    * [x] loci of the ending points
+    * [x] loci of the control points
+    * [x] get the speed right
 * [x] Add the opposite form
 * [x] Try to re-create the membrane effect
 * [ ] Improve the membrane effect (highlights)

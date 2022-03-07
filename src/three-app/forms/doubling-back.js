@@ -56,10 +56,10 @@ export class DoublingBackForm {
 
   getLines() {
 
-    if (this.tick == MAX_TICKS || (this.tick == 0 && !this.firstTime)) {
+    if (this.tick === MAX_TICKS || (this.tick === 0 && !this.firstTime)) {
       if (this.delaying) {
         this.delayTick -= 1
-        if (this.delayTick == 0) {
+        if (this.delayTick === 0) {
           this.delaying = false
           this.firstTime = false
           this.direction *= -1

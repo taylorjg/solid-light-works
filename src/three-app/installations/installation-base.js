@@ -48,6 +48,8 @@ export class InstallationBase {
           this.renderables3D.screenImages[index].update(lines)
           this.renderables3D.projectionEffects[index].update(lines)
           break
+        default:
+          break
       }
     })
   }
