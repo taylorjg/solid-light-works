@@ -1,9 +1,9 @@
 {
   "files": {
-    "main.js": "/static/js/main.ef99d904.js",
-    "service-worker.js": "/service-worker.js",
-    "index.html": "/index.html",
-    "main.ef99d904.js.map": "/static/js/main.ef99d904.js.map"
+    "main.js": "/solid-light-works/static/js/main.ef99d904.js",
+    "service-worker.js": "/solid-light-works/service-worker.js",
+    "index.html": "/solid-light-works/index.html",
+    "main.ef99d904.js.map": "/solid-light-works/static/js/main.ef99d904.js.map"
   },
   "entrypoints": [
     "static/js/main.ef99d904.js"
