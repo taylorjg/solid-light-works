@@ -54,6 +54,33 @@ const AnimationSpeedSetting = ({ value, setValue }) => {
   )
 }
 
+const BehindOnlySetting = ({ value, setValue }) => {
+
+  const handleChange = event => {
+    setValue(event.target.checked)
+  }
+
+  return (
+    <div>
+      <FormControl>
+        <FormLabel id="behind-only-label">Behind Only</FormLabel>
+        <FormControlLabel
+          sx={{ mt: ".25rem" }}
+          control={
+            <Switch
+              aria-labelledby="behind-only-label"
+              size="small"
+              checked={value}
+              onClick={handleChange}
+            />
+          }
+          label={value ? "On" : "Off"}
+        />
+      </FormControl>
+    </div>
+  )
+}
+
 const AutoRotateSetting = ({ value, setValue }) => {
 
   const handleChange = event => {
@@ -181,6 +208,7 @@ const SettingsContent = ({ settings, setSettings, onClose }) => {
       <Divider />
       <StyledInner>
         <ModeSetting {...createProps("mode")} />
+        <BehindOnlySetting {...createProps("behindOnly")} />
         {/* <AnimationSpeedSetting {...createProps("animationSpeed")} /> */}
         <AutoRotateSetting {...createProps("autoRotate")} />
         <AutoRotateSpeedSetting {...createProps("autoRotateSpeed")} />

@@ -64,7 +64,6 @@ const threeApp = () => {
   }
 
   const switchInstallation = reset => {
-    console.log('[switchInstallation]')
     if (reset) {
       currentInstallationIndex = 0
     } else {

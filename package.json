@@ -2,6 +2,7 @@
   "name": "solid-light-works",
   "version": "0.0.54",
   "private": true,
+  "homepage": "https://taylorjg.github.io/solid-light-works",
   "dependencies": {
     "@emotion/css": "^11.7.1",
     "@emotion/react": "^11.8.1",
@@ -36,7 +37,8 @@
     "start": "react-app-rewired start",
     "build": "react-app-rewired build",
     "test": "react-app-rewired test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "deploy": "npm run build && gh-pages -d build"
   },
   "eslintConfig": {
     "extends": [
