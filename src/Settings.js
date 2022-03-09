@@ -3,7 +3,9 @@ import { Drawer } from '@mui/material'
 import SettingsIcon from '@mui/icons-material/Settings'
 import styled from '@emotion/styled'
 import SettingsContent from './SettingsContent'
+import OverlayButtons from './OverlayButtons'
 import { useQueryParams } from './useQueryParams'
+import { Mode } from './three-app'
 
 const StyledSettingsIcon = styled(SettingsIcon)`
   color: #ffffff;
@@ -25,9 +27,11 @@ const Settings = ({ threeAppActions }) => {
   const queryParams = useQueryParams()
 
   const [settings, setSettings] = useState(() => ({
+    mode: queryParams.getString('mode', Mode.Mode2D),
+    behindOnly: queryParams.getBool('behindOnly', false),
     animationSpeed: queryParams.getNumber('animationSpeed', 750),
-    autoRotate: queryParams.getBool('autoRotate', true),
-    autoRotateSpeed: queryParams.getNumber('autoRotateSpeed', 1.0),
+    autoRotate: queryParams.getBool('autoRotate', false),
+    autoRotateSpeed: queryParams.getNumber('autoRotateSpeed', 0.5),
     axesEnabled: queryParams.getBool('axesEnabled', false)
   }))
 
@@ -37,6 +41,12 @@ const Settings = ({ threeAppActions }) => {
   })
 
   useEffect(() => {
+    if (settings.mode !== previousSettings.mode) {
+      threeAppActions.setMode(settings.mode)
+    }
+    if (settings.behindOnly !== previousSettings.behindOnly) {
+      threeAppActions.setBehindOnly(settings.behindOnly)
+    }
     if (settings.animationSpeed !== previousSettings.animationSpeed) {
       threeAppActions.setAnimationSpeed(settings.animationSpeed)
     }
@@ -64,8 +74,13 @@ const Settings = ({ threeAppActions }) => {
     <>
       <StyledSettingsIcon onClick={openDrawer} />
       <Drawer anchor="left" open={isDrawerOpen} onClose={closeDrawer}>
-        <SettingsContent settings={settings} setSettings={setSettings} />
+        <SettingsContent settings={settings} setSettings={setSettings} onClose={closeDrawer} />
       </Drawer>
+      <OverlayButtons
+        onToggleMode={threeAppActions.toggleMode}
+        onSwitchInstallation={threeAppActions.switchInstallation}
+        onSwitchCameraPose={threeAppActions.switchCameraPose}
+      />
     </>
   )
 }

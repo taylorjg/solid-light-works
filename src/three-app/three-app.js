@@ -8,63 +8,46 @@ import { Mode } from './mode'
 import * as C from './constants'
 import * as U from './utils'
 
-const init = async () => {
+const threeApp = () => {
 
-  const container = document.getElementById('container')
-  const w = container.offsetWidth
-  const h = container.offsetHeight
-  const renderer = new THREE.WebGLRenderer({ antialias: true })
-  renderer.setSize(w, h)
-  container.appendChild(renderer.domElement)
-
-  const searchParams = new URLSearchParams(window.location.search)
-
-  // TODO: set initial values for these via the query string
+  let mode = Mode.Mode2D
+  let renderer
+  let scene
+  let camera
+  let controls
+  let installations
   let currentInstallationIndex = 0
   let currentCameraPoseIndex = 0
-  let mode = searchParams.get('mode') === '3d' ? Mode.Mode3D : Mode.Mode2D
-  let showVertexNormals = searchParams.has('showVertexNormals')
+  let behindOnly = false
+  let axesEnabled = false
   let axesHelper = undefined
-  let autoRotate = searchParams.has('autoRotate')
-  let autoRotateSpeed = .5
-  let behindOnly = searchParams.has('behindOnly')
+  let showVertexNormals = false
 
-  const scene = new THREE.Scene()
-  const camera = new THREE.PerspectiveCamera(45, w / h, 0.1, 50)
-  scene.add(camera)
-
-  const controls = new OrbitControls(camera, renderer.domElement)
-  controls.minDistance = 0
-  controls.maxDistance = 50
-  controls.enableDamping = true
-  controls.dampingFactor = 0.9
-  controls.autoRotate = autoRotate
-  controls.autoRotateSpeed = autoRotateSpeed
-  controls.enabled = mode === Mode.Mode3D
-
-  const hazeTexture = await U.loadTexture('haze.jpg')
-
-  const resources = {
-    hazeTexture
+  const toggleMode = () => {
+    setMode(mode === Mode.Mode2D ? Mode.Mode3D : Mode.Mode2D)
   }
 
-  const installations = [
-    DoublingBackInstallation,
-    LeavingInstallation,
-    CouplingInstallation,
-    BetweenYouAndIInstallation
-  ]
-    .map(installationConstructor => new installationConstructor())
-    .map(installation => installation.createRenderables(scene, resources))
+  const toggleAutoRotate = () => {
+    setAutoRotate(!controls.autoRotate)
+  }
+
+  const toggleVertexNormals = () => {
+    showVertexNormals = !showVertexNormals
+    updateVisibility()
+  }
+
+  const showAxesHelper = () => {
+    axesHelper = new THREE.AxesHelper(C.MEMBRANE_LENGTH)
+    scene.add(axesHelper)
+  }
+
+  const hideAxesHelper = () => {
+    scene.remove(axesHelper)
+    axesHelper = undefined
+  }
 
   const toggleAxes = () => {
-    if (axesHelper) {
-      scene.remove(axesHelper)
-      axesHelper = undefined
-    } else {
-      axesHelper = new THREE.AxesHelper(C.MEMBRANE_LENGTH)
-      scene.add(axesHelper)
-    }
+    setAxesEnabled(!axesEnabled)
   }
 
   const reportCameraPosition = () => {
@@ -81,6 +64,7 @@ const init = async () => {
   }
 
   const switchInstallation = reset => {
+    console.log('[switchInstallation]')
     if (reset) {
       currentInstallationIndex = 0
     } else {
@@ -116,73 +100,117 @@ const init = async () => {
     }
   }
 
-  const toggleMode = () => {
-    mode = mode === Mode.Mode2D ? Mode.Mode3D : Mode.Mode2D
+  const init = async () => {
+
+    const container = document.getElementById('container')
+    const w = container.offsetWidth
+    const h = container.offsetHeight
+    renderer = new THREE.WebGLRenderer({ antialias: true })
+    renderer.setSize(w, h)
+    container.appendChild(renderer.domElement)
+
+    scene = new THREE.Scene()
+    camera = new THREE.PerspectiveCamera(45, w / h, 0.1, 50)
+    scene.add(camera)
+
+    controls = new OrbitControls(camera, renderer.domElement)
+    controls.minDistance = 0
+    controls.maxDistance = 50
+    controls.enableDamping = true
+    controls.dampingFactor = 0.9
+    controls.autoRotate = false
+    controls.autoRotateSpeed = 0.5
     controls.enabled = mode === Mode.Mode3D
-    updateVisibility()
-    switchCameraPose(true)
+
+    const hazeTexture = await U.loadTexture('haze.jpg')
+
+    const resources = {
+      hazeTexture
+    }
+
+    installations = [
+      DoublingBackInstallation,
+      LeavingInstallation,
+      CouplingInstallation,
+      BetweenYouAndIInstallation
+    ]
+      .map(installationConstructor => new installationConstructor())
+      .map(installation => installation.createRenderables(scene, resources))
+
+    const onDocumentKeyDownHandler = e => {
+      switch (e.key) {
+        case 'a': return toggleAxes()
+        case 'c': return reportCameraPosition()
+        case 'f': return switchInstallation()
+        case 'm': return toggleMode()
+        case 'p': return switchCameraPose()
+        case 'r': return toggleAutoRotate()
+        case 'v': return toggleVertexNormals()
+        default: return
+      }
+    }
+
+    document.addEventListener('keydown', onDocumentKeyDownHandler)
+
+    const onWindowResizeHandler = () => {
+      renderer.setSize(container.offsetWidth, container.offsetHeight)
+      camera.aspect = container.offsetWidth / container.offsetHeight
+      camera.updateProjectionMatrix()
+    }
+
+    window.addEventListener('resize', onWindowResizeHandler)
+
+    switchInstallation(true)
+    setMode(mode)
+
+    const render = () => {
+      const currentInstallation = installations[currentInstallationIndex]
+      currentInstallation.updateRenderables(mode)
+      controls.update()
+      renderer.render(scene, camera)
+      requestAnimationFrame(render)
+    }
+
+    render()
   }
 
-  const toggleAutoRotate = () => {
-    controls.autoRotate = !controls.autoRotate
-  }
-
-  const toggleVertexNormals = () => {
-    showVertexNormals = !showVertexNormals
-    updateVisibility()
-  }
-
-  const onDocumentKeyDownHandler = e => {
-    switch (e.key) {
-      case 'a': return toggleAxes()
-      case 'c': return reportCameraPosition()
-      case 'f': return switchInstallation()
-      case 'm': return toggleMode()
-      case 'p': return switchCameraPose()
-      case 'r': return toggleAutoRotate()
-      case 'v': return toggleVertexNormals()
-      default: return
+  const setMode = value => {
+    const validModes = [Mode.Mode2D, Mode.Mode3D]
+    mode = validModes.includes(value) ? value : Mode.Mode2D
+    controls.enabled = mode === Mode.Mode3D
+    if (installations) {
+      updateVisibility()
+      switchCameraPose(true)
     }
   }
 
-  document.addEventListener('keydown', onDocumentKeyDownHandler)
-
-  const onWindowResizeHandler = () => {
-    renderer.setSize(container.offsetWidth, container.offsetHeight)
-    camera.aspect = container.offsetWidth / container.offsetHeight
-    camera.updateProjectionMatrix()
+  const setAnimationSpeed = value => {
   }
 
-  window.addEventListener('resize', onWindowResizeHandler)
-
-  switchInstallation(true)
-
-  const render = () => {
-    const currentInstallation = installations[currentInstallationIndex]
-    currentInstallation.updateRenderables(mode)
-    controls.update()
-    renderer.render(scene, camera)
-    requestAnimationFrame(render)
+  const setAutoRotate = value => {
+    controls.autoRotate = value
   }
 
-  render()
-}
+  const setAutoRotateSpeed = value => {
+    controls.autoRotateSpeed = value
+  }
 
-const setAnimationSpeed = value => {
-}
+  const setAxesEnabled = value => {
+    axesEnabled = value
+    axesEnabled ? showAxesHelper() : hideAxesHelper()
+  }
 
-const setAutoRotate = value => {
-}
+  const setBehindOnly = value => {
+    behindOnly = value
+  }
 
-const setAutoRotateSpeed = value => {
-}
-
-const setAxesEnabled = value => {
-}
-
-const threeApp = () => {
   return {
     init,
+    toggleMode,
+    switchInstallation,
+    switchCameraPose,
+    setMode,
+    setBehindOnly,
     setAnimationSpeed,
     setAutoRotate,
     setAutoRotateSpeed,
