@@ -163,7 +163,7 @@ const AxesEnabledSetting = ({ value, setValue }) => {
 const StyledOuter = styled.div`
   margin: 0;
   padding: 0;
-  min-width: 16vw;
+  min-width: 15rem;
   width: 100%;
   height: 100%;
 `

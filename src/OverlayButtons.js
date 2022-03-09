@@ -4,7 +4,7 @@ const StyledPanel = styled.div`
   position: fixed;
   top: 0;
   right: 0;
-  width: 16vw;
+  width: 15rem;
   height: 95vh;
   display: flex;
   flex-direction: column;
@@ -17,6 +17,7 @@ const StyledArea = styled.div`
   align-items: center;
   justify-content: center;
   margin: .5rem;
+  color: rgba(0, 0, 0, 0);
   &:hover {
     color: white;
     opacity: .5;
