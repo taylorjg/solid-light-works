@@ -18,10 +18,12 @@ const StyledArea = styled.div`
   justify-content: center;
   margin: .5rem;
   color: rgba(0, 0, 0, 0);
-  &:hover {
-    color: white;
-    opacity: .5;
-    cursor: pointer;
+  @media(hover: hover) {
+    &:hover {
+      color: white;
+      opacity: .5;
+      cursor: pointer;
+    }
   }
 `
 
