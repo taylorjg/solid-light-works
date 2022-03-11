@@ -32,16 +32,12 @@ const OverlayButtons = ({ onToggleMode, onSwitchInstallation, onSwitchCameraPose
   return (
     <StyledPanel>
       <StyledArea onClick={() => onToggleMode()}>
-        Toggle 2D/3D mode
       </StyledArea>
 
       <StyledArea onClick={() => onSwitchInstallation()}>
-        Cycle through installations
       </StyledArea>
 
       <StyledArea onClick={() => onSwitchCameraPose()}>
-        <span>Cycle through camera poses</span>
-        <span>(3D mode only)</span>
       </StyledArea>
     </StyledPanel>
   )
