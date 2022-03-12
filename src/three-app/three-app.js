@@ -121,7 +121,7 @@ const threeApp = () => {
     controls.autoRotateSpeed = 0.5
     controls.enabled = mode === Mode.Mode3D
 
-    const hazeTexture = await U.loadTexture('haze.jpg')
+    const hazeTexture = await U.loadTexture('/solid-light-works/haze.jpg')
 
     const resources = {
       hazeTexture

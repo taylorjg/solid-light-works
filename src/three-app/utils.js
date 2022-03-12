@@ -21,7 +21,7 @@ export const vec2sToVec3sVertical = (vec2s, height = 0) =>
 export const loadTexture = url =>
   new Promise((resolve, reject) => {
     const textureLoader = new THREE.TextureLoader()
-    textureLoader.load(url, resolve, reject)
+    textureLoader.load(url, resolve, undefined, reject)
   })
 
 export const disposeMesh = (scene, mesh) => {

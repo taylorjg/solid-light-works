@@ -1,26 +1,12 @@
 import { useEffect, useState } from 'react'
 import { Drawer } from '@mui/material'
-import SettingsIcon from '@mui/icons-material/Settings'
-import styled from '@emotion/styled'
-import SettingsContent from './SettingsContent'
+import SettingsPanel from './SettingsPanel'
 import OverlayButtons from './OverlayButtons'
+import { StyledSettingsIcon } from './SettingsButton.styles'
 import { useQueryParams } from './useQueryParams'
 import { Mode } from './three-app'
 
-const StyledSettingsIcon = styled(SettingsIcon)`
-  color: #ffffff;
-  opacity: .5;
-  position: fixed;
-  top: .5rem;
-  left: .5rem;
-  cursor: pointer;
-  &:hover {
-    opacity: 1;
-    transform: scale(1.2);
-  }
-`
-
-const Settings = ({ threeAppActions }) => {
+const SettingsButton = ({ threeAppActions }) => {
 
   const [isDrawerOpen, setIsDrawerOpen] = useState(false)
 
@@ -60,7 +46,7 @@ const Settings = ({ threeAppActions }) => {
       threeAppActions.setAxesEnabled(settings.axesEnabled)
     }
     setPreviousSettings(settings)
-  }, [settings, previousSettings]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [settings, previousSettings, threeAppActions])
 
   const openDrawer = () => {
     setIsDrawerOpen(true)
@@ -74,7 +60,7 @@ const Settings = ({ threeAppActions }) => {
     <>
       <StyledSettingsIcon onClick={openDrawer} />
       <Drawer anchor="left" open={isDrawerOpen} onClose={closeDrawer}>
-        <SettingsContent settings={settings} setSettings={setSettings} onClose={closeDrawer} />
+        <SettingsPanel settings={settings} setSettings={setSettings} onClose={closeDrawer} />
       </Drawer>
       <OverlayButtons
         onToggleMode={threeAppActions.toggleMode}
@@ -85,4 +71,4 @@ const Settings = ({ threeAppActions }) => {
   )
 }
 
-export default Settings
+export default SettingsButton

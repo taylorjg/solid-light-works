@@ -1,6 +1,6 @@
 import { Divider, FormControl, FormControlLabel, FormLabel, Slider, Switch, ToggleButtonGroup, ToggleButton, Typography } from '@mui/material'
 import CloseIcon from '@mui/icons-material/Close'
-import styled from '@emotion/styled'
+import { StyledSettingsPanel, StyledSettingsPanelHeader, StyledSettingsPanelBody } from './SettingsPanel.styles'
 import { Mode } from './three-app'
 
 const ModeSetting = ({ value, setValue }) => {
@@ -160,36 +160,9 @@ const AxesEnabledSetting = ({ value, setValue }) => {
   )
 }
 
-const StyledOuter = styled.div`
-  margin: 0;
-  padding: 0;
-  min-width: 15rem;
-  width: 100%;
-  height: 100%;
-`
+const SettingsPanel = ({ settings, setSettings, onClose }) => {
 
-const StyledHeader = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin: .5rem .5rem .5rem 1rem;
-  svg {
-    cursor: pointer;
-  }
-`
-
-const StyledInner = styled.div`
-  margin: 1rem;
-  display: flex;
-  flex-direction: column;
-  > * {
-    margin-bottom: 2rem;
-  }
-`
-
-const SettingsContent = ({ settings, setSettings, onClose }) => {
-
-  const createProps = fieldName => {
+  const createPropsForSetting = fieldName => {
     return {
       value: settings[fieldName],
       setValue: value => setSettings(settings => ({
@@ -200,22 +173,22 @@ const SettingsContent = ({ settings, setSettings, onClose }) => {
   }
 
   return (
-    <StyledOuter>
-      <StyledHeader>
+    <StyledSettingsPanel>
+      <StyledSettingsPanelHeader>
         <Typography variant="subtitle1" gutterBottom>Settings</Typography>
         <CloseIcon onClick={onClose} />
-      </StyledHeader>
+      </StyledSettingsPanelHeader>
       <Divider />
-      <StyledInner>
-        <ModeSetting {...createProps("mode")} />
-        <BehindOnlySetting {...createProps("behindOnly")} />
+      <StyledSettingsPanelBody>
+        <ModeSetting {...createPropsForSetting("mode")} />
+        <BehindOnlySetting {...createPropsForSetting("behindOnly")} />
         {/* <AnimationSpeedSetting {...createProps("animationSpeed")} /> */}
-        <AutoRotateSetting {...createProps("autoRotate")} />
-        <AutoRotateSpeedSetting {...createProps("autoRotateSpeed")} />
-        <AxesEnabledSetting {...createProps("axesEnabled")} />
-      </StyledInner>
-    </StyledOuter>
+        <AutoRotateSetting {...createPropsForSetting("autoRotate")} />
+        <AutoRotateSpeedSetting {...createPropsForSetting("autoRotateSpeed")} />
+        <AxesEnabledSetting {...createPropsForSetting("axesEnabled")} />
+      </StyledSettingsPanelBody>
+    </StyledSettingsPanel>
   )
 }
 
-export default SettingsContent
+export default SettingsPanel
