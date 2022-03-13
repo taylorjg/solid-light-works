@@ -1,107 +1,104 @@
-import { BufferGeometry } from 'three'
-import { Float32BufferAttribute } from 'three'
+import { BufferGeometry, Float32BufferAttribute } from 'three'
 
-// TODO: make this a class
-// ps: array of Vector3 representing the small shape
-// - e.g. obtained from ElipseCurve.getPoints()
-// qs: array of Vector3 representing the large shape
-// - e.g. obtained from ElipseCurve.getPoints()
-export function MembraneBufferGeometry(ps = [], qs = [], numSegments = 1) {
+// ps: array of Vector3 representing the small shape at the projector end of the membrane
+// qs: array of Vector3 representing the large shape at the screen end of the membrane
+// This class is heavily inspired by THREE.CylinderGeometry
+export class MembraneGeometry extends BufferGeometry {
 
-	BufferGeometry.call(this)
+  constructor(ps = [], qs = [], numSegments = 1) {
 
-	this.type = 'MembraneBufferGeometry'
+    super()
 
-	const scope = this
+    this.type = 'MembraneGeometry'
 
-	numSegments = Math.floor(numSegments) || 1
+    const scope = this
 
-	// buffers
-	const indices = []
-	const vertices = []
-	const normals = []
-	const uvs = []
+    numSegments = Math.floor(numSegments) || 1
 
-	// helper variables
-	const indexArray = []
-	let index = 0
-	let groupStart = 0
+    // buffers
+    const indices = []
+    const vertices = []
+    const normals = []
+    const uvs = []
 
-	// generate geometry
-	generateTorso()
+    // helper variables
+    const indexArray = []
+    let index = 0
+    let groupStart = 0
 
-	// build geometry
-	this.setIndex(indices)
-	this.setAttribute('position', new Float32BufferAttribute(vertices, 3))
-	this.setAttribute('normal', new Float32BufferAttribute(normals, 3))
-	this.setAttribute('uv', new Float32BufferAttribute(uvs, 2))
+    // generate geometry
+    generateTorso()
 
-	function generateTorso() {
+    // build geometry
+    this.setIndex(indices)
+    this.setAttribute('position', new Float32BufferAttribute(vertices, 3))
+    this.setAttribute('normal', new Float32BufferAttribute(normals, 3))
+    this.setAttribute('uv', new Float32BufferAttribute(uvs, 2))
 
-		const pslen = ps.length
-		const qslen = qs.length
+    function generateTorso() {
 
-		if (pslen === 0 || qslen === 0 || pslen !== qslen) {
-			return
-		}
+      const pslen = ps.length
+      const qslen = qs.length
 
-		const numPoints = ps.length
-		let groupCount = 0
+      if (pslen === 0 || qslen === 0 || pslen !== qslen) {
+        return
+      }
 
-		// generate vertices, normals and uvs
-		for (let y = 0; y <= numSegments; y++) {
-			const v = y / numSegments
-			const indexRow = []
+      const numPoints = ps.length
+      let groupCount = 0
 
-			for (let x = 0; x < numPoints; x++) {
-				const u = x / numPoints
+      // generate vertices, normals and uvs
+      for (let y = 0; y <= numSegments; y++) {
+        const v = y / numSegments
+        const indexRow = []
 
-				// vertex
-				const clone = ps[x].clone()
-				clone.lerp(qs[x], v)
-				vertices.push(clone.x, clone.y, clone.z)
+        for (let x = 0; x < numPoints; x++) {
+          const u = x / numPoints
 
-				// normal
-				normals.push(0, 0, 0)
+          // vertex
+          const clone = ps[x].clone()
+          clone.lerp(qs[x], v)
+          vertices.push(clone.x, clone.y, clone.z)
 
-				// uv
-				uvs.push(u, v)
+          // normal
+          normals.push(0, 0, 0)
 
-				// save index of vertex in respective row
-				indexRow.push(index++)
-			}
+          // uv
+          uvs.push(u, v)
 
-			// now save vertices of the row in our index array
-			indexArray.push(indexRow)
-		}
+          // save index of vertex in respective row
+          indexRow.push(index++)
+        }
 
-		// generate indices
-		for (let x = 0; x < numPoints; x++) {
+        // now save vertices of the row in our index array
+        indexArray.push(indexRow)
+      }
 
-			for (let y = 0; y < numSegments; y++) {
+      // generate indices
+      for (let x = 0; x < numPoints; x++) {
 
-				// we use the index array to access the correct indices
-				const a = indexArray[y][x]
-				const b = indexArray[y + 1][x]
-				const c = indexArray[y + 1][x + 1]
-				const d = indexArray[y][x + 1]
+        for (let y = 0; y < numSegments; y++) {
 
-				// faces
-				indices.push(a, b, d)
-				indices.push(b, c, d)
+          // we use the index array to access the correct indices
+          const a = indexArray[y][x]
+          const b = indexArray[y + 1][x]
+          const c = indexArray[y + 1][x + 1]
+          const d = indexArray[y][x + 1]
 
-				// update group counter
-				groupCount += 6
-			}
-		}
+          // faces
+          indices.push(a, b, d)
+          indices.push(b, c, d)
 
-		// add a group to the geometry. this will ensure multi material support
-		scope.addGroup(groupStart, groupCount, 0)
+          // update group counter
+          groupCount += 6
+        }
+      }
 
-		// calculate new start value for groups
-		groupStart += groupCount
-	}
+      // add a group to the geometry. this will ensure multi material support
+      scope.addGroup(groupStart, groupCount, 0)
+
+      // calculate new start value for groups
+      groupStart += groupCount
+    }
+  }
 }
-
-MembraneBufferGeometry.prototype = Object.create(BufferGeometry.prototype)
-MembraneBufferGeometry.prototype.constructor = MembraneBufferGeometry

@@ -1,5 +1,5 @@
 import * as THREE from 'three'
-import { MembraneBufferGeometry } from './membrane-geometry'
+import { MembraneGeometry } from './membrane-geometry'
 import { VertexNormalsHelper } from 'three/examples/jsm/helpers/VertexNormalsHelper.js'
 import vertexShader from './shaders/vertex-shader.glsl'
 import fragmentShader from './shaders/fragment-shader.glsl'
@@ -18,7 +18,7 @@ export class ProjectionEffect {
 
   createMeshes(lineCount) {
     return U.range(lineCount).map(() => {
-      const geometry = new MembraneBufferGeometry()
+      const geometry = new MembraneGeometry()
       const material = new THREE.ShaderMaterial({
         uniforms: {
           hazeTexture: {
@@ -57,8 +57,7 @@ export class ProjectionEffect {
         const numPoints = line.points.length
         const projectorPoints = U.repeat(numPoints, this._projectedForm.projectorPosition)
         const screenPoints = U.vec2sToVec3sHorizontal(line.points)
-        const tempMembraneGeometry = new MembraneBufferGeometry(projectorPoints, screenPoints)
-        tempMembraneGeometry.computeFaceNormals()
+        const tempMembraneGeometry = new MembraneGeometry(projectorPoints, screenPoints)
         tempMembraneGeometry.computeVertexNormals()
         mesh.geometry.copy(tempMembraneGeometry)
         tempMembraneGeometry.dispose()

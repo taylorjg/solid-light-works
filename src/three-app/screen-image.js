@@ -1,11 +1,8 @@
 import * as THREE from 'three'
-import Line2DInit from 'three-line-2d'
-import Line2DBasicShaderInit from 'three-line-2d/shaders/basic'
+import { LineGeometry as Line2D } from '../three-line-2d'
+import { basicShader as Line2DBasicShader } from '../three-line-2d'
 import * as U from './utils'
 import * as C from './constants'
-
-const Line2D = Line2DInit(THREE)
-const Line2DBasicShader = Line2DBasicShaderInit(THREE)
 
 export class ScreenImage {
 
