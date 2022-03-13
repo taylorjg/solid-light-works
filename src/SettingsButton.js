@@ -15,10 +15,11 @@ const SettingsButton = ({ threeAppActions }) => {
   const [settings, setSettings] = useState(() => ({
     mode: queryParams.getString('mode', Mode.Mode2D),
     behindOnly: queryParams.getBool('behindOnly', false),
-    animationSpeed: queryParams.getNumber('animationSpeed', 750),
+    // animationSpeed: queryParams.getNumber('animationSpeed', 750),
     autoRotate: queryParams.getBool('autoRotate', false),
     autoRotateSpeed: queryParams.getNumber('autoRotateSpeed', 0.5),
-    axesEnabled: queryParams.getBool('axesEnabled', false)
+    axesEnabled: queryParams.getBool('axesEnabled', false),
+    vertexNormalsEnabled: queryParams.getBool('vertexNormalsEnabled', false)
   }))
 
   const [previousSettings, setPreviousSettings] = useState(() => {
@@ -33,9 +34,9 @@ const SettingsButton = ({ threeAppActions }) => {
     if (settings.behindOnly !== previousSettings.behindOnly) {
       threeAppActions.setBehindOnly(settings.behindOnly)
     }
-    if (settings.animationSpeed !== previousSettings.animationSpeed) {
-      threeAppActions.setAnimationSpeed(settings.animationSpeed)
-    }
+    // if (settings.animationSpeed !== previousSettings.animationSpeed) {
+    //   threeAppActions.setAnimationSpeed(settings.animationSpeed)
+    // }
     if (settings.autoRotate !== previousSettings.autoRotate) {
       threeAppActions.setAutoRotate(settings.autoRotate)
     }
@@ -45,8 +46,19 @@ const SettingsButton = ({ threeAppActions }) => {
     if (settings.axesEnabled !== previousSettings.axesEnabled) {
       threeAppActions.setAxesEnabled(settings.axesEnabled)
     }
+    if (settings.vertexNormalsEnabled !== previousSettings.vertexNormalsEnabled) {
+      threeAppActions.setVertexNormalsEnabled(settings.vertexNormalsEnabled)
+    }
     setPreviousSettings(settings)
   }, [settings, previousSettings, threeAppActions])
+
+  useEffect(() => {
+    const onSettingsChanged = newSettings => setSettings(newSettings)
+    threeAppActions.addSettingsChangedListener(onSettingsChanged)
+    return () => {
+      threeAppActions.removeSettingsChangedListener(onSettingsChanged)
+    }
+  }, [threeAppActions])
 
   const openDrawer = () => {
     setIsDrawerOpen(true)

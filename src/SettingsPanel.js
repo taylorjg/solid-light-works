@@ -29,30 +29,30 @@ const ModeSetting = ({ value, setValue }) => {
   )
 }
 
-const AnimationSpeedSetting = ({ value, setValue }) => {
+// const AnimationSpeedSetting = ({ value, setValue }) => {
 
-  const handleChange = event => {
-    setValue(event.target.value)
-  }
+//   const handleChange = event => {
+//     setValue(event.target.value)
+//   }
 
-  return (
-    <div>
-      <FormControl sx={{ width: "100%" }}>
-        <FormLabel id="animation-speed-label">Animation Speed</FormLabel>
-        <Slider
-          aria-labelledby="animation-speed-label"
-          size="small"
-          min={100}
-          max={5000}
-          step={25}
-          valueLabelDisplay="auto"
-          value={value}
-          onChange={handleChange}
-        />
-      </FormControl>
-    </div>
-  )
-}
+//   return (
+//     <div>
+//       <FormControl sx={{ width: "100%" }}>
+//         <FormLabel id="animation-speed-label">Animation Speed</FormLabel>
+//         <Slider
+//           aria-labelledby="animation-speed-label"
+//           size="small"
+//           min={100}
+//           max={5000}
+//           step={25}
+//           valueLabelDisplay="auto"
+//           value={value}
+//           onChange={handleChange}
+//         />
+//       </FormControl>
+//     </div>
+//   )
+// }
 
 const BehindOnlySetting = ({ value, setValue }) => {
 
@@ -160,6 +160,33 @@ const AxesEnabledSetting = ({ value, setValue }) => {
   )
 }
 
+const VertexNormalsEnabledSetting = ({ value, setValue }) => {
+
+  const handleChange = event => {
+    setValue(event.target.checked)
+  }
+
+  return (
+    <div>
+      <FormControl>
+        <FormLabel id="vertex-normals-enabled-label">Show Vertex Normals</FormLabel>
+        <FormControlLabel
+          sx={{ mt: ".25rem" }}
+          control={
+            <Switch
+              aria-labelledby="vertex-normals-enabled-label"
+              size="small"
+              checked={value}
+              onClick={handleChange}
+            />
+          }
+          label={value ? "On" : "Off"}
+        />
+      </FormControl>
+    </div>
+  )
+}
+
 const SettingsPanel = ({ settings, setSettings, onClose }) => {
 
   const createPropsForSetting = fieldName => {
@@ -186,6 +213,7 @@ const SettingsPanel = ({ settings, setSettings, onClose }) => {
         <AutoRotateSetting {...createPropsForSetting("autoRotate")} />
         <AutoRotateSpeedSetting {...createPropsForSetting("autoRotateSpeed")} />
         <AxesEnabledSetting {...createPropsForSetting("axesEnabled")} />
+        <VertexNormalsEnabledSetting {...createPropsForSetting("vertexNormalsEnabled")} />
       </StyledSettingsPanelBody>
     </StyledSettingsPanel>
   )

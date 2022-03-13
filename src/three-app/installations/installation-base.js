@@ -32,7 +32,7 @@ export class InstallationBase {
     this.renderables3D.screenImages.forEach(screenImage => screenImage.visible = visible3D)
     this.renderables3D.projectionEffects.forEach(projectionEffect => {
       projectionEffect.visible = visible3D
-      projectionEffect.showVertexNormals = showVertexNormals
+      projectionEffect.showVertexNormals = visible3D && showVertexNormals
     })
     this.renderables3D.scenery.forEach(sceneryItem => sceneryItem.visible = visible3D)
   }

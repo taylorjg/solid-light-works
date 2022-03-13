@@ -78,7 +78,6 @@ export class ProjectionEffect {
   }
 
   set showVertexNormals(value) {
-    if (!this._visible) return
     if (value) {
       if (!this._meshHelpers && this._meshes) {
         this._meshHelpers = this._meshes.map(mesh => new VertexNormalsHelper(mesh, 0.2, 0x0000ff))

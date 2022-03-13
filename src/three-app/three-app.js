@@ -1,3 +1,4 @@
+import EventEmitter from 'events'
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import { DoublingBackInstallation } from './installations/doubling-back'
@@ -8,7 +9,11 @@ import { Mode } from './mode'
 import * as C from './constants'
 import * as U from './utils'
 
+const SETTINGS_CHANGED_EVENT_NAME = 'settingsChanged'
+
 const threeApp = () => {
+
+  const eventEmitter = new EventEmitter()
 
   let mode = Mode.Mode2D
   let renderer
@@ -21,19 +26,39 @@ const threeApp = () => {
   let behindOnly = false
   let axesEnabled = false
   let axesHelper = undefined
-  let showVertexNormals = false
+  let vertexNormalsEnabled = false
+
+  const addSettingsChangedListener = listener =>
+    eventEmitter.on(SETTINGS_CHANGED_EVENT_NAME, listener)
+
+  const removeSettingsChangedListener = listener =>
+    eventEmitter.off(SETTINGS_CHANGED_EVENT_NAME, listener)
+
+  const emitSettingsChanged = () => {
+    eventEmitter.emit(SETTINGS_CHANGED_EVENT_NAME, {
+      mode,
+      behindOnly,
+      autoRotate: controls.autoRotate,
+      autoRotateSpeed: controls.autoRotateSpeed,
+      axesEnabled,
+      vertexNormalsEnabled
+    })
+  }
 
   const toggleMode = () => {
     setMode(mode === Mode.Mode2D ? Mode.Mode3D : Mode.Mode2D)
+    emitSettingsChanged()
   }
 
   const toggleAutoRotate = () => {
     setAutoRotate(!controls.autoRotate)
+    emitSettingsChanged()
   }
 
   const toggleVertexNormals = () => {
-    showVertexNormals = !showVertexNormals
+    vertexNormalsEnabled = !vertexNormalsEnabled
     updateVisibility()
+    emitSettingsChanged()
   }
 
   const showAxesHelper = () => {
@@ -48,6 +73,7 @@ const threeApp = () => {
 
   const toggleAxes = () => {
     setAxesEnabled(!axesEnabled)
+    emitSettingsChanged()
   }
 
   const reportCameraPosition = () => {
@@ -59,7 +85,7 @@ const threeApp = () => {
   const updateVisibility = () => {
     installations.forEach((installation, index) => {
       const isCurrentInstallation = index === currentInstallationIndex
-      installation.updateVisibility(mode, showVertexNormals, isCurrentInstallation)
+      installation.updateVisibility(mode, vertexNormalsEnabled, isCurrentInstallation)
     })
   }
 
@@ -161,6 +187,7 @@ const threeApp = () => {
 
     switchInstallation(true)
     setMode(mode)
+    setVertexNormalsEnabled(vertexNormalsEnabled)
 
     const render = () => {
       const currentInstallation = installations[currentInstallationIndex]
@@ -183,37 +210,53 @@ const threeApp = () => {
     }
   }
 
-  const setAnimationSpeed = value => {
-  }
+  // const setAnimationSpeed = value => {
+  //   emitSettingsChanged()
+  // }
 
   const setAutoRotate = value => {
     controls.autoRotate = value
+    emitSettingsChanged()
   }
 
   const setAutoRotateSpeed = value => {
     controls.autoRotateSpeed = value
+    emitSettingsChanged()
   }
 
   const setAxesEnabled = value => {
     axesEnabled = value
     axesEnabled ? showAxesHelper() : hideAxesHelper()
+    emitSettingsChanged()
+  }
+
+  const setVertexNormalsEnabled = value => {
+    vertexNormalsEnabled = value
+    if (installations) {
+      updateVisibility()
+    }
+    emitSettingsChanged()
   }
 
   const setBehindOnly = value => {
     behindOnly = value
+    emitSettingsChanged()
   }
 
   return {
     init,
+    addSettingsChangedListener,
+    removeSettingsChangedListener,
     toggleMode,
     switchInstallation,
     switchCameraPose,
     setMode,
     setBehindOnly,
-    setAnimationSpeed,
+    // setAnimationSpeed,
     setAutoRotate,
     setAutoRotateSpeed,
-    setAxesEnabled
+    setAxesEnabled,
+    setVertexNormalsEnabled
   }
 }
 
