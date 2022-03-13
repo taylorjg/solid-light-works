@@ -14,10 +14,11 @@ export class ProjectionEffect {
     this._meshes = undefined
     this._meshHelpers = undefined
     this._visible = false
+    this._visibleHelpers = false
   }
 
-  createMeshes(lineCount) {
-    return U.range(lineCount).map(() => {
+  _createMeshes(lineCount) {
+    this._meshes = U.range(lineCount).map(() => {
       const geometry = new MembraneGeometry()
       const material = new THREE.ShaderMaterial({
         uniforms: {
@@ -46,11 +47,25 @@ export class ProjectionEffect {
     })
   }
 
+  _createMeshHelpers() {
+    if (this._meshes && !this._meshHelpers) {
+      this._meshHelpers = this._meshes.map(mesh => new VertexNormalsHelper(mesh, 0.2, 0x0000ff))
+      this._meshHelpers.forEach(meshHelper => this._scene.add(meshHelper))
+    }
+  }
+
+  _destroyMeshHelpers() {
+    if (this._meshHelpers) {
+      this._meshHelpers.forEach(meshHelper => U.disposeMesh(this._scene, meshHelper))
+      this._meshHelpers = undefined
+    }
+  }
+
   update(lines) {
     if (!this._meshes) {
-      const lineCount = lines.length
-      this._meshes = this.createMeshes(lineCount)
+      this._createMeshes(lines.length)
     }
+
     this._meshes.forEach((mesh, index) => {
       const line = lines[index]
       if (line) {
@@ -65,6 +80,13 @@ export class ProjectionEffect {
         mesh.visible = this._visible
       }
     })
+
+    if (this._visible && this._visibleHelpers) {
+      this._createMeshHelpers()
+    } else {
+      this._destroyMeshHelpers()
+    }
+
     if (this._meshHelpers) {
       this._meshHelpers.forEach(meshHelper => meshHelper.update())
     }
@@ -78,16 +100,9 @@ export class ProjectionEffect {
   }
 
   set showVertexNormals(value) {
-    if (value) {
-      if (!this._meshHelpers && this._meshes) {
-        this._meshHelpers = this._meshes.map(mesh => new VertexNormalsHelper(mesh, 0.2, 0x0000ff))
-        this._meshHelpers.forEach(meshHelper => this._scene.add(meshHelper))
-      }
-    } else {
-      if (this._meshHelpers) {
-        this._meshHelpers.forEach(meshHelper => U.disposeMesh(this._scene, meshHelper))
-        this._meshHelpers = undefined
-      }
+    this._visibleHelpers = value
+    if (this._meshHelpers) {
+      this._meshHelpers.forEach(meshHelper => meshHelper.visible = value)
     }
   }
 }

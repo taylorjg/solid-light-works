@@ -9,7 +9,7 @@ import { Mode } from './mode'
 import * as C from './constants'
 import * as U from './utils'
 
-const SETTINGS_CHANGED_EVENT_NAME = 'settingsChanged'
+const SETTINGS_CHANGED_EVENT_NAME = 'settings-changed'
 
 const threeApp = () => {
 
@@ -185,10 +185,6 @@ const threeApp = () => {
 
     window.addEventListener('resize', onWindowResizeHandler)
 
-    switchInstallation(true)
-    setMode(mode)
-    setVertexNormalsEnabled(vertexNormalsEnabled)
-
     const render = () => {
       const currentInstallation = installations[currentInstallationIndex]
       currentInstallation.updateRenderables(mode)
@@ -196,6 +192,13 @@ const threeApp = () => {
       renderer.render(scene, camera)
       requestAnimationFrame(render)
     }
+
+    // 'installations' should be populated now so we can apply any pending
+    // changes that may have been set via query params
+    setMode(mode)
+    setVertexNormalsEnabled(vertexNormalsEnabled)
+
+    switchInstallation(true)
 
     render()
   }
