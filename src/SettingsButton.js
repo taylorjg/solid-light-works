@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Drawer } from '@mui/material'
 import SettingsPanel from './SettingsPanel'
 import OverlayButtons from './OverlayButtons'
@@ -22,12 +22,18 @@ const SettingsButton = ({ threeAppActions }) => {
     vertexNormalsEnabled: queryParams.getBool('vertexNormalsEnabled', false)
   }))
 
+  const ignoreNextSettingsEffectRef = useRef(false)
+
   const [previousSettings, setPreviousSettings] = useState(() => {
     const keys = Object.keys(settings)
     return Object.fromEntries(keys.map(key => [key, undefined]))
   })
 
   useEffect(() => {
+    if (ignoreNextSettingsEffectRef.current) {
+      ignoreNextSettingsEffectRef.current = false
+      return
+    }
     if (settings.mode !== previousSettings.mode) {
       threeAppActions.setMode(settings.mode)
     }
@@ -53,7 +59,10 @@ const SettingsButton = ({ threeAppActions }) => {
   }, [settings, previousSettings, threeAppActions])
 
   useEffect(() => {
-    const onSettingsChanged = newSettings => setSettings(newSettings)
+    const onSettingsChanged = newSettings => {
+      ignoreNextSettingsEffectRef.current = true
+      setSettings(newSettings)
+    }
     threeAppActions.addSettingsChangedListener(onSettingsChanged)
     return () => {
       threeAppActions.removeSettingsChangedListener(onSettingsChanged)

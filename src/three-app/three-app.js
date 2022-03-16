@@ -52,28 +52,28 @@ const threeApp = () => {
 
   const toggleAutoRotate = () => {
     setAutoRotate(!controls.autoRotate)
-    emitSettingsChanged()
   }
 
   const toggleVertexNormals = () => {
-    vertexNormalsEnabled = !vertexNormalsEnabled
-    updateVisibility()
-    emitSettingsChanged()
+    setVertexNormalsEnabled(!vertexNormalsEnabled)
   }
 
   const showAxesHelper = () => {
-    axesHelper = new THREE.AxesHelper(C.MEMBRANE_LENGTH)
-    scene.add(axesHelper)
+    if (!axesHelper) {
+      axesHelper = new THREE.AxesHelper(C.MEMBRANE_LENGTH)
+      scene.add(axesHelper)
+    }
   }
 
   const hideAxesHelper = () => {
-    scene.remove(axesHelper)
-    axesHelper = undefined
+    if (axesHelper) {
+      scene.remove(axesHelper)
+      axesHelper = undefined
+    }
   }
 
   const toggleAxes = () => {
     setAxesEnabled(!axesEnabled)
-    emitSettingsChanged()
   }
 
   const reportCameraPosition = () => {
@@ -211,6 +211,7 @@ const threeApp = () => {
       updateVisibility()
       switchCameraPose(true)
     }
+    emitSettingsChanged()
   }
 
   // const setAnimationSpeed = value => {
