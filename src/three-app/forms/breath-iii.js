@@ -33,7 +33,7 @@ export class BreathIIIForm {
     const k = C.TWO_PI / this.waveLength
     const f = 1
     const omega = C.TWO_PI * f
-    const speed = 0.0002
+    const speed = 0.0001
     const phase = THREE.MathUtils.degToRad(0)
     const dx = this.width / TRAVELLING_WAVE_POINT_COUNT
     return U.range(TRAVELLING_WAVE_POINT_COUNT + 1).map(n => {
