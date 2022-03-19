@@ -24,10 +24,6 @@ export class CouplingForm {
     this.firstTime = true
   }
 
-  get lineCount() {
-    return 2
-  }
-
   flipX(pt) {
     return pt.setX(-pt.x)
   }

@@ -21,10 +21,6 @@ export class DoublingBackForm {
     this.firstTime = true
   }
 
-  get lineCount() {
-    return 2
-  }
-
   getTravellingWavePoints1() {
     const k = C.TWO_PI / this.waveLength
     const frequency = 1

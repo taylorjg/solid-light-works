@@ -21,7 +21,7 @@ export class BreathIIIInstallation extends InstallationBase {
         }
       ],
       cameraPoses: [
-        { position: new THREE.Vector3(0, 0, 6), target: new THREE.Vector3() }
+        { position: new THREE.Vector3(0, 0, 5), target: new THREE.Vector3() }
       ]
     }
 

@@ -3,9 +3,6 @@ import * as THREE from 'three'
 export const range = n =>
   Array.from(Array(n).keys())
 
-export const repeat = (n, x) =>
-  range(n).map(() => x)
-
 export const reverse = xs =>
   xs.reverse()
 

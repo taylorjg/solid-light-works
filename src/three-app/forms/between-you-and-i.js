@@ -24,10 +24,6 @@ export class BetweenYouAndIForm {
     this.wipingInEllipse = initiallyWipingInEllipse
   }
 
-  get lineCount() {
-    return 3
-  }
-
   getEllipsePoints(tickRatio, wipeY) {
     const theta = Math.acos(wipeY / this.ry)
 
@@ -86,7 +82,7 @@ export class BetweenYouAndIForm {
 
     return clippedLines.length
       ? clippedLines[0].map(([x, y]) => new THREE.Vector2(x, y))
-      : U.repeat(2, new THREE.Vector2())
+      : Array(2).fill(new THREE.Vector2())
   }
 
   getLines() {

@@ -13,13 +13,9 @@ export class BreathIIIForm {
     this.width = width
     this.height = height
     this.waveLength = width * 3 / 4
-    this.rx = Math.min(width, height) / 4
-    this.ry = this.rx
+    this.rx = width / 4.5
+    this.ry = width / 5.5
     this.tick = 0
-  }
-
-  get lineCount() {
-    return 1
   }
 
   getEllipsePoints() {

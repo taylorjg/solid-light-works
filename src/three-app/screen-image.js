@@ -13,39 +13,54 @@ export class ScreenImage {
     this._visible = false
   }
 
-  createMeshes(lineCount) {
-    return U.range(lineCount).map(() => {
-      const geometry = new Line2D()
-      const material = new THREE.ShaderMaterial(
-        Line2DBasicShader({
-          side: THREE.DoubleSide,
-          diffuse: 0xffffff,
-          thickness: C.SCREEN_IMAGE_LINE_THICKNESS
-        }))
-      const mesh = new THREE.Mesh(geometry, material)
-      mesh.applyMatrix4(this._screenForm.transform)
-      mesh.visible = this._visible
-      this._scene.add(mesh)
-      return mesh
-    })
+  _createMesh() {
+    const geometry = new Line2D()
+    const material = new THREE.ShaderMaterial(
+      Line2DBasicShader({
+        side: THREE.DoubleSide,
+        diffuse: 0xffffff,
+        thickness: C.SCREEN_IMAGE_LINE_THICKNESS
+      }))
+    const mesh = new THREE.Mesh(geometry, material)
+    mesh.applyMatrix4(this._screenForm.transform)
+    mesh.visible = this._visible
+    this._scene.add(mesh)
+    return mesh
+  }
+
+  _createMeshes(lineCount) {
+    this._destroyMeshes()
+    this._meshes = U.range(lineCount).map(() => this._createMesh())
+  }
+
+  _destroyMeshes() {
+    if (this._meshes) {
+      for (const mesh of this._meshes) {
+        U.disposeMesh(this._scene, mesh)
+      }
+      this._meshes = undefined
+    }
   }
 
   update(lines) {
-    if (!this._meshes) {
-      const lineCount = lines.length
-      this._meshes = this.createMeshes(lineCount)
+    const lineCount = lines.length
+    const meshCount = this._meshes?.length ?? 0
+
+    if (meshCount !== lineCount) {
+      this._createMeshes(lineCount)
     }
+
     this._meshes.forEach((mesh, index) => {
       const line = lines[index]
-      if (line) {
-        const path = U.vectorsAsArrays(line.points)
-        mesh.geometry.update(path)
+      const path = U.vectorsAsArrays(line.points)
+      mesh.geometry.update(path)
 
-        // I can't get opacity to work unless transparent is set to true
-        // which looks awful. So I am doing this instead.
-        const grey = line.opacity
-        mesh.material.uniforms.diffuse.value = new THREE.Color(grey, grey, grey)
-      }
+      // I can't get opacity to work unless transparent is set to true
+      // which looks awful. So I am doing this instead.
+      const r = line.opacity
+      const g = line.opacity
+      const b = line.opacity
+      mesh.material.uniforms.diffuse.value = new THREE.Color(r, g, b)
     })
   }
 

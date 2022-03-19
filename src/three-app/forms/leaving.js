@@ -60,10 +60,6 @@ export class LeavingForm {
     this.tick = 0
   }
 
-  get lineCount() {
-    return 1
-  }
-
   // 0.00 => 0.25: 0.00 => 1.00
   // 0.25 => 0.75: 1.00
   // 0.75 => 1.00: 1.00 => 0.00
