@@ -5,6 +5,7 @@ import { DoublingBackInstallation } from './installations/doubling-back'
 import { LeavingInstallation } from './installations/leaving'
 import { CouplingInstallation } from './installations/coupling'
 import { BetweenYouAndIInstallation } from './installations/between-you-and-i'
+import { BreathIIIInstallation } from './installations/breath-iii'
 import { Mode } from './mode'
 import * as C from './constants'
 import * as U from './utils'
@@ -47,7 +48,6 @@ const threeApp = () => {
 
   const toggleMode = () => {
     setMode(mode === Mode.Mode2D ? Mode.Mode3D : Mode.Mode2D)
-    emitSettingsChanged()
   }
 
   const toggleAutoRotate = () => {
@@ -56,6 +56,10 @@ const threeApp = () => {
 
   const toggleVertexNormals = () => {
     setVertexNormalsEnabled(!vertexNormalsEnabled)
+  }
+
+  const toggleBehindOnly = () => {
+    setBehindOnly(!behindOnly)
   }
 
   const showAxesHelper = () => {
@@ -157,14 +161,17 @@ const threeApp = () => {
       DoublingBackInstallation,
       LeavingInstallation,
       CouplingInstallation,
-      BetweenYouAndIInstallation
+      BetweenYouAndIInstallation,
+      BreathIIIInstallation
     ]
       .map(installationConstructor => new installationConstructor())
       .map(installation => installation.createRenderables(scene, resources))
 
     const onDocumentKeyDownHandler = e => {
+      if (e.altKey || e.ctrlKey || e.metaKey || e.ShiftKey) return
       switch (e.key) {
         case 'a': return toggleAxes()
+        case 'b': return toggleBehindOnly()
         case 'c': return reportCameraPosition()
         case 'f': return switchInstallation()
         case 'm': return toggleMode()
@@ -185,14 +192,6 @@ const threeApp = () => {
 
     window.addEventListener('resize', onWindowResizeHandler)
 
-    const render = () => {
-      const currentInstallation = installations[currentInstallationIndex]
-      currentInstallation.updateRenderables(mode)
-      controls.update()
-      renderer.render(scene, camera)
-      requestAnimationFrame(render)
-    }
-
     // 'installations' should be populated now so we can apply any pending
     // changes that may have been set via query params
     setMode(mode)
@@ -200,7 +199,12 @@ const threeApp = () => {
 
     switchInstallation(true)
 
-    render()
+    renderer.setAnimationLoop(() => {
+      const currentInstallation = installations[currentInstallationIndex]
+      currentInstallation.updateRenderables(mode)
+      controls.update()
+      renderer.render(scene, camera)
+    })
   }
 
   const setMode = value => {
