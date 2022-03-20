@@ -12,11 +12,6 @@ import { newtonsMethod } from '../newtons-method'
 // x = t
 // y = a * sin(k * t - wt + phi)
 
-// Parametric equation of a travelling wave rotated ccw by theta:
-// x = t * cos(theta) - a * sin(k * t - wt) * sin(theta)
-// y = t * sin(theta) + a * sin(k * t - wt) * cos(theta)
-// (see https://math.stackexchange.com/questions/245859/rotating-parametric-curve)
-
 const parametricEllipseX = rx =>
   t => rx * Math.cos(t)
 
@@ -74,9 +69,9 @@ export class BreathIIIForm {
 
   createPointMeshes(tempScene) {
     if (!this.pointMeshes) {
-      this.pointMeshes = U.range(8).map((_, index) => {
-        const pointGeometry = new THREE.CircleBufferGeometry(C.SCREEN_IMAGE_LINE_THICKNESS, 32)
-        const pointMaterial = new THREE.MeshBasicMaterial({ color: POINT_MESH_COLOURS[index] })
+      this.pointMeshes = POINT_MESH_COLOURS.map(color => {
+        const pointGeometry = new THREE.CircleBufferGeometry(C.SCREEN_IMAGE_LINE_THICKNESS, 16)
+        const pointMaterial = new THREE.MeshBasicMaterial({ color })
         const pointMesh = new THREE.Mesh(pointGeometry, pointMaterial)
         pointMesh.visible = false
         pointMesh.renderOrder = 1
