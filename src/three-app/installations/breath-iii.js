@@ -11,7 +11,7 @@ export class BreathIIIInstallation extends InstallationBase {
     super()
 
     this.forms = [
-      new BreathIIIForm(4, 3)
+      new BreathIIIForm(6, 4)
     ]
 
     this.installationData2D = {
@@ -21,7 +21,7 @@ export class BreathIIIInstallation extends InstallationBase {
         }
       ],
       cameraPoses: [
-        { position: new THREE.Vector3(0, 0, 5), target: new THREE.Vector3() }
+        { position: new THREE.Vector3(0, 0, 6), target: new THREE.Vector3() }
       ]
     }
 

@@ -201,7 +201,7 @@ const threeApp = () => {
 
     renderer.setAnimationLoop(() => {
       const currentInstallation = installations[currentInstallationIndex]
-      currentInstallation.updateRenderables(mode)
+      currentInstallation.updateRenderables(mode, scene)
       controls.update()
       renderer.render(scene, camera)
     })

@@ -37,9 +37,9 @@ export class InstallationBase {
     this.renderables3D.scenery.forEach(sceneryItem => sceneryItem.visible = visible3D)
   }
 
-  updateRenderables(mode) {
+  updateRenderables(mode, tempScene) {
     this.forms.forEach((form, index) => {
-      const lines = form.getLines()
+      const lines = form.getLines(tempScene)
       switch (mode) {
         case Mode.Mode2D:
           this.renderables2D.screenImages[index].update(lines)
