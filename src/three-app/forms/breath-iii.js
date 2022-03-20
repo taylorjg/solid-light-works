@@ -38,7 +38,7 @@ const parametricEllipseXDerivative = rx =>
 const parametricEllipseYDerivative = ry =>
   t => ry * Math.cos(t)
 
-const parametricTravellingWaveXDerivative = () =>
+const parametricTravellingWaveXDerivative = xoffset =>
   t => 1
 
 const parametricTravellingWaveYDerivative = (a, k, wt, phi) =>
@@ -48,10 +48,14 @@ const ELLIPSE_POINT_COUNT = 100
 const TRAVELLING_WAVE_POINT_COUNT = 100
 
 const POINT_MESH_COLOURS = [
-  0xff0000,
-  0x00ff00,
-  0x0000ff,
-  0xffff00
+  new THREE.Color("red").getHex(),
+  new THREE.Color("green").getHex(),
+  new THREE.Color("blue").getHex(),
+  new THREE.Color("yellow").getHex(),
+  new THREE.Color("cyan").getHex(),
+  new THREE.Color("purple").getHex(),
+  new THREE.Color("orange").getHex(),
+  new THREE.Color("pink").getHex()
 ]
 
 export class BreathIIIForm {
@@ -70,7 +74,7 @@ export class BreathIIIForm {
 
   createPointMeshes(tempScene) {
     if (!this.pointMeshes) {
-      this.pointMeshes = U.range(4).map((_, index) => {
+      this.pointMeshes = U.range(8).map((_, index) => {
         const pointGeometry = new THREE.CircleBufferGeometry(C.SCREEN_IMAGE_LINE_THICKNESS, 32)
         const pointMaterial = new THREE.MeshBasicMaterial({ color: POINT_MESH_COLOURS[index] })
         const pointMesh = new THREE.Mesh(pointGeometry, pointMaterial)
@@ -82,100 +86,87 @@ export class BreathIIIForm {
     }
   }
 
-  // getEllipsePoints() {
-  //   const deltaAngle = C.TWO_PI / ELLIPSE_POINT_COUNT
-  //   const ellipsePoints = U.range(ELLIPSE_POINT_COUNT + 1).map(n => {
-  //     let t = n * deltaAngle
-  //     let x = parametricEllipseX(this.rx)(t)
-  //     let y = parametricEllipseY(this.ry)(t)
-  //     return new THREE.Vector2(x, y)
-  //   })
-  //   return ellipsePoints
-  // }
-
-  // getTravellingWavePoints() {
-  //   const a = this.height / 2
-  //   const k = C.TWO_PI / this.waveLength
-  //   const f = 1
-  //   const omega = C.TWO_PI * f
-  //   const speed = 0.0001
-  //   const wt = omega * this.tick * speed
-  //   const phi = 0
-  //   const dx = this.width / TRAVELLING_WAVE_POINT_COUNT
-  //   const travellingWavePoints = U.range(TRAVELLING_WAVE_POINT_COUNT + 1).map(n => {
-  //     const t = n * dx
-  //     const x = parametricTravellingWaveX()(t)
-  //     const y = parametricTravellingWaveY(a, k, wt, phi)(t)
-  //     return new THREE.Vector2(x - this.width / 2, y)
-  //   })
-  //   return travellingWavePoints
-  // }
-
   getLines(tempScene) {
-    // const ellipsePoints = this.getEllipsePoints()
-    // const travellingWavePoints = this.getTravellingWavePoints()
-
-    const xoffset = -this.width / 2
+    const parametricEllipseXFn = parametricEllipseX(this.rx)
+    const parametricEllipseYFn = parametricEllipseY(this.ry)
+    const parametricEllipseXDerivativeFn = parametricEllipseXDerivative(this.rx)
+    const parametricEllipseYDerivativeFn = parametricEllipseYDerivative(this.ry)
 
     const deltaAngle = C.TWO_PI / ELLIPSE_POINT_COUNT
     const ellipsePoints = U.range(ELLIPSE_POINT_COUNT + 1).map(n => {
-      let t = n * deltaAngle
-      let x = parametricEllipseX(this.rx)(t)
-      let y = parametricEllipseY(this.ry)(t)
+      const t = n * deltaAngle
+      const x = parametricEllipseXFn(t)
+      const y = parametricEllipseYFn(t)
       return new THREE.Vector2(x, y)
     })
 
+    const xoffset = -this.width / 2
     const a = this.height / 2
     const k = C.TWO_PI / this.waveLength
     const f = 1
     const omega = C.TWO_PI * f
     const speed = 0.0001
     const wt = omega * this.tick * speed
-    const phi = 0 // THREE.MathUtils.degToRad(30)
-    const dx = this.width / TRAVELLING_WAVE_POINT_COUNT
+    const phi = THREE.MathUtils.degToRad(30)
+
+    const parametricTravellingWaveXFn = parametricTravellingWaveX(xoffset)
+    const parametricTravellingWaveYFn = parametricTravellingWaveY(a, k, wt, phi)
+    const parametricTravellingWaveXDerivativeFn = parametricTravellingWaveXDerivative(xoffset)
+    const parametricTravellingWaveYDerivativeFn = parametricTravellingWaveYDerivative(a, k, wt, phi)
+
+    const dt = this.width / TRAVELLING_WAVE_POINT_COUNT
     const travellingWavePoints = U.range(TRAVELLING_WAVE_POINT_COUNT + 1).map(n => {
-      const t = n * dx
-      const x = parametricTravellingWaveX(xoffset)(t)
-      const y = parametricTravellingWaveY(a, k, wt, phi)(t)
+      const t = n * dt
+      const x = parametricTravellingWaveXFn(t)
+      const y = parametricTravellingWaveYFn(t)
       return new THREE.Vector2(x, y)
     })
 
-    // const ellipseAngles = U.range(4).map(n => n * C.HALF_PI + C.QUARTER_PI)
-    const ellipseAngles = [
-      THREE.MathUtils.degToRad(0 + 45),
-      THREE.MathUtils.degToRad(90 + 45),
-      THREE.MathUtils.degToRad(180 + 45),
-      THREE.MathUtils.degToRad(270 + 45)
-    ]
+    const ellipseAngles = U.range(8).map(n => n * C.QUARTER_PI)
 
     const intersections = ellipseAngles.map(ellipseAngle => {
       const t1e = ellipseAngle
-      const t2e = parametricEllipseX(this.rx)(t1e) - xoffset
+      const t2e = parametricEllipseXFn(t1e) - xoffset
       try {
         return newtonsMethod(
-          parametricEllipseX(this.rx),
-          parametricEllipseY(this.ry),
-          parametricTravellingWaveX(xoffset),
-          parametricTravellingWaveY(a, k, wt, phi),
-          parametricEllipseXDerivative(this.rx),
-          parametricEllipseYDerivative(this.ry),
-          parametricTravellingWaveXDerivative(),
-          parametricTravellingWaveYDerivative(a, k, wt, phi),
+          parametricEllipseXFn,
+          parametricEllipseYFn,
+          parametricTravellingWaveXFn,
+          parametricTravellingWaveYFn,
+          parametricEllipseXDerivativeFn,
+          parametricEllipseYDerivativeFn,
+          parametricTravellingWaveXDerivativeFn,
+          parametricTravellingWaveYDerivativeFn,
           t1e,
           t2e)
       } catch {
         return undefined
       }
     })
+
+    const truthyIntersections = intersections.filter(Boolean)
+    const finalIntersections = []
+    for (const intersection1 of truthyIntersections) {
+      const isDuplicate = finalIntersections.some(intersection2 => {
+        const t2Diff = Math.abs(intersection1.t2 - intersection2.t2)
+        return t2Diff < 0.01
+      })
+      if (!isDuplicate) {
+        finalIntersections.push(intersection1)
+      }
+    }
+    finalIntersections.sort((a, b) => a.t2 - b.t2)
     this.createPointMeshes(tempScene)
-    intersections.forEach((intersection, index) => {
+    for (const pointMesh of this.pointMeshes) {
+      pointMesh.visible = false
+    }
+
+    finalIntersections.forEach((intersection, index) => {
       const pointMesh = this.pointMeshes[index]
       if (intersection) {
-        pointMesh.position.x = parametricEllipseX(this.rx)(intersection.t1)
-        pointMesh.position.y = parametricEllipseY(this.ry)(intersection.t1)
+        pointMesh.position.x = parametricEllipseXFn(intersection.t1)
+        pointMesh.position.y = parametricEllipseYFn(intersection.t1)
         pointMesh.visible = true
-      } else {
-        pointMesh.visible = false
       }
     })
 
