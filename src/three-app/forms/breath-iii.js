@@ -117,11 +117,15 @@ export class BreathIIIForm {
       return new THREE.Vector2(x, y)
     })
 
+    // I'm not really sure how to come up with good initial guesses for finding
+    // the intersections so I'm using a scattergun approach. We'll use these angles
+    // to help calculate initial guesses for several invocations of Newton's Method
+    // and then de-dup the results.
     const ellipseAngles = U.range(8).map(n => n * C.QUARTER_PI)
 
     const intersections = ellipseAngles.map(ellipseAngle => {
-      const t1e = ellipseAngle
-      const t2e = parametricEllipseXFn(t1e) - xoffset
+      const t1Guess = ellipseAngle
+      const t2Guess = parametricEllipseXFn(t1Guess) - xoffset
       try {
         return newtonsMethod(
           parametricEllipseXFn,
@@ -132,8 +136,8 @@ export class BreathIIIForm {
           parametricEllipseYDerivativeFn,
           parametricTravellingWaveXDerivativeFn,
           parametricTravellingWaveYDerivativeFn,
-          t1e,
-          t2e)
+          t1Guess,
+          t2Guess)
       } catch {
         return undefined
       }
