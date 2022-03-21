@@ -39,6 +39,13 @@ const parametricTravellingWaveXDerivative = xoffset =>
 const parametricTravellingWaveYDerivative = (a, k, wt, phi) =>
   t => a * Math.cos(k * t - wt + phi) * k
 
+// combinePoints(ellipsePoints, travellingWavePoints) {
+//   const travellingWavePointsTail = travellingWavePoints.slice(1)
+//   return this.growing
+//     ? ellipsePoints.concat(travellingWavePointsTail)
+//     : travellingWavePointsTail.reverse().concat(ellipsePoints)
+// }
+
 const ELLIPSE_POINT_COUNT = 100
 const TRAVELLING_WAVE_POINT_COUNT = 100
 
@@ -87,14 +94,6 @@ export class BreathIIIForm {
     const parametricEllipseXDerivativeFn = parametricEllipseXDerivative(this.rx)
     const parametricEllipseYDerivativeFn = parametricEllipseYDerivative(this.ry)
 
-    const deltaAngle = C.TWO_PI / ELLIPSE_POINT_COUNT
-    const ellipsePoints = U.range(ELLIPSE_POINT_COUNT + 1).map(n => {
-      const t = n * deltaAngle
-      const x = parametricEllipseXFn(t)
-      const y = parametricEllipseYFn(t)
-      return new THREE.Vector2(x, y)
-    })
-
     const xoffset = -this.width / 2
     const a = this.height / 2
     const k = C.TWO_PI / this.waveLength
@@ -109,18 +108,11 @@ export class BreathIIIForm {
     const parametricTravellingWaveXDerivativeFn = parametricTravellingWaveXDerivative(xoffset)
     const parametricTravellingWaveYDerivativeFn = parametricTravellingWaveYDerivative(a, k, wt, phi)
 
-    const dt = this.width / TRAVELLING_WAVE_POINT_COUNT
-    const travellingWavePoints = U.range(TRAVELLING_WAVE_POINT_COUNT + 1).map(n => {
-      const t = n * dt
-      const x = parametricTravellingWaveXFn(t)
-      const y = parametricTravellingWaveYFn(t)
-      return new THREE.Vector2(x, y)
-    })
-
-    // I'm not really sure how to come up with good initial guesses for finding
-    // the intersections so I'm using a scattergun approach. We'll use these angles
-    // to help calculate initial guesses for several invocations of Newton's Method
-    // and then de-dup the results.
+    // The points where the travelling wave intersects with the ellipse are changing
+    // all the time which makes it difficult to decide what the initial guesses should
+    // be when invoking Newton's Method. Therefore, I'm using a scattergun approach
+    // i.e. 45 degree intervals covering the whole perimeter of the ellipse. I then need
+    // to de-dup the results and then sort them in left-to-right order.
     const ellipseAngles = U.range(8).map(n => n * C.QUARTER_PI)
 
     const intersections = ellipseAngles.map(ellipseAngle => {
@@ -168,6 +160,78 @@ export class BreathIIIForm {
         pointMesh.visible = true
       }
     })
+
+    const getEllipseSegmentPoints = (angle1, angle2) => {
+      const normaliseAngle = angle => {
+        if (angle < 0) return C.TWO_PI + angle
+        if (angle > C.TWO_PI) return angle - C.TWO_PI
+        return angle
+      }
+      const normalisedAngles = [angle1, angle2].map(normaliseAngle)
+      const minAngle = Math.min(...normalisedAngles)
+      const maxAngle = Math.max(...normalisedAngles)
+      const pointCount = ELLIPSE_POINT_COUNT / 2
+      const deltaAngle = (maxAngle - minAngle) / pointCount
+      return U.range(pointCount + 1).map(n => {
+        const t = minAngle + n * deltaAngle
+        const x = parametricEllipseXFn(t)
+        const y = parametricEllipseYFn(t)
+        return new THREE.Vector2(x, y)
+      })
+    }
+
+    const getTravellingWaveSegmentPoints = (startX, endX) => {
+      const pointCount = TRAVELLING_WAVE_POINT_COUNT / 2
+      const deltaX = (endX - startX) / pointCount
+      return U.range(pointCount + 1).map(n => {
+        const t = startX + n * deltaX
+        const x = parametricTravellingWaveXFn(t)
+        const y = parametricTravellingWaveYFn(t)
+        return new THREE.Vector2(x, y)
+      })
+    }
+
+    if (finalIntersections.length === 1) {
+      // ???
+    }
+
+    if (finalIntersections.length === 2) {
+
+      const ellipsePoints1 = getEllipseSegmentPoints(finalIntersections[0].t1, finalIntersections[1].t1)
+
+      const travellingWavePoints1 = getTravellingWaveSegmentPoints(0, finalIntersections[0].t2)
+      const travellingWavePoints2 = getTravellingWaveSegmentPoints(finalIntersections[1].t2, this.width)
+
+      const lines = [
+        travellingWavePoints1, ellipsePoints1, travellingWavePoints2 // TODO: combine => line 1
+      ].map(points => new Line(points))
+      this.tick++
+      return lines
+    }
+
+    if (finalIntersections.length === 3) {
+      // ???
+    }
+
+    if (finalIntersections.length === 4) {
+
+      const ellipsePoints1 = getEllipseSegmentPoints(finalIntersections[0].t1, finalIntersections[3].t1)
+      const ellipsePoints2 = getEllipseSegmentPoints(finalIntersections[1].t1, finalIntersections[2].t1)
+
+      const travellingWavePoints1 = getTravellingWaveSegmentPoints(0, finalIntersections[0].t2)
+      const travellingWavePoints2 = getTravellingWaveSegmentPoints(finalIntersections[1].t2, finalIntersections[2].t2)
+      const travellingWavePoints3 = getTravellingWaveSegmentPoints(finalIntersections[3].t2, this.width)
+
+      const lines = [
+        travellingWavePoints1, ellipsePoints1, travellingWavePoints3, // TODO: combine => line 1
+        ellipsePoints2, travellingWavePoints2 // TODO: combine => line 2
+      ].map(points => new Line(points))
+      this.tick++
+      return lines
+    }
+
+    const ellipsePoints = getEllipseSegmentPoints(0, C.TWO_PI)
+    const travellingWavePoints = getTravellingWaveSegmentPoints(0, this.width)
 
     const lines = [ellipsePoints, travellingWavePoints].map(points => new Line(points))
     this.tick++
