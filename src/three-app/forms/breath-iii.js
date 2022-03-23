@@ -39,31 +39,6 @@ const parametricTravellingWaveXDerivative = xoffset =>
 const parametricTravellingWaveYDerivative = (a, k, wt, phi) =>
   t => a * Math.cos(k * t - wt + phi) * k
 
-const combinePoints = (...setsOfPoints) => {
-  const last = xs => xs[xs.length - 1]
-  const concatAll = xss => [].concat(...xss)
-  const [firstSetOfPoints, ...remainingSetsOfPoints] = setsOfPoints
-  const segments = [firstSetOfPoints]
-  for (const setOfPoints of remainingSetsOfPoints) {
-    const lastSegment = last(segments)
-    const lastPoint = last(lastSegment)
-    const distanceToFirst = lastPoint.distanceTo(setOfPoints[0])
-    const distanceToLast = lastPoint.distanceTo(last(setOfPoints))
-    if (distanceToFirst < distanceToLast) {
-      segments.push(setOfPoints.slice(1))
-    } else {
-      segments.push(setOfPoints.slice().reverse().slice(1))
-    }
-  }
-  const combinedSegments = concatAll(segments)
-  // const firstPoint = combinedSegments[0]
-  // const lastPoint = last(combinedSegments)
-  // if (firstPoint.distanceTo(lastPoint) < 0.1) {
-  //   combinedSegments.push(firstPoint)
-  // }
-  return combinedSegments
-}
-
 const ELLIPSE_POINT_COUNT = 100
 const TRAVELLING_WAVE_POINT_COUNT = 100
 
@@ -84,9 +59,6 @@ export class BreathIIIForm {
     this.width = width
     this.height = height
     this.waveLength = width * 3 / 4
-    // this.rx = width / 5
-    // this.ry = width / 7
-    // this.rx = width / 4
     this.ry = width / 6
     this.tick = 0
     this.pointMeshes = undefined
@@ -223,7 +195,7 @@ export class BreathIIIForm {
       const travellingWavePoints1 = getTravellingWaveSegmentPoints(0, finalIntersections[0].t2)
       const travellingWavePoints2 = getTravellingWaveSegmentPoints(finalIntersections[1].t2, this.width)
 
-      const line1 = combinePoints(travellingWavePoints1, ellipsePoints1, travellingWavePoints2)
+      const line1 = U.combinePoints(travellingWavePoints1, ellipsePoints1, travellingWavePoints2)
       const lines = [line1].map(points => new Line(points))
       this.tick++
       return lines
@@ -233,16 +205,10 @@ export class BreathIIIForm {
 
       let [p1, p2, p3, p4] = finalIntersections.map(({ t1 }) => t1)
 
+      // Bit of a hack - sometimes the path from p1 to p4 fully overlaps
+      // the path from p2 to p3 so this hack sends the arc round the other way.
       const min = Math.min(p1, p4)
       const max = Math.max(p1, p4)
-
-      // p1 = min
-      // p4 = max
-      // if (p1 < p2 && p4 > p3) {
-      //   p1 = max
-      //   p4 = min + C.TWO_PI
-      // }
-
       if (min < p2 && max > p3) {
         p1 = max
         p4 = min + C.TWO_PI
@@ -255,9 +221,16 @@ export class BreathIIIForm {
       const travellingWavePoints2 = getTravellingWaveSegmentPoints(finalIntersections[1].t2, finalIntersections[2].t2)
       const travellingWavePoints3 = getTravellingWaveSegmentPoints(finalIntersections[3].t2, this.width)
 
-      const line1 = combinePoints(travellingWavePoints1, ellipsePoints1, travellingWavePoints3)
-      const line2 = combinePoints(ellipsePoints2, travellingWavePoints2)
-      const lines = [line1, line2].map(points => new Line(points))
+      const linePoints1 = U.combinePoints(travellingWavePoints1, ellipsePoints1, travellingWavePoints3)
+      const line1 = new Line(linePoints1)
+
+      const linePoints2 = U.combinePoints(ellipsePoints2, travellingWavePoints2)
+      const lineOpacity2 = 1
+      const lineClosed2 = true
+      const line2 = new Line(linePoints2, lineOpacity2, lineClosed2)
+
+      const lines = [line1, line2]
+
       this.tick++
       return lines
     }

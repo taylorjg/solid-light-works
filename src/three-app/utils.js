@@ -26,3 +26,25 @@ export const disposeMesh = (scene, mesh) => {
   mesh.geometry.dispose()
   mesh.material.dispose()
 }
+
+const last = xs => xs[xs.length - 1]
+
+const concatAll = xss => [].concat(...xss)
+
+export const combinePoints = (...setsOfPoints) => {
+  const [firstSetOfPoints, ...remainingSetsOfPoints] = setsOfPoints
+  const segments = [firstSetOfPoints]
+  for (const setOfPoints of remainingSetsOfPoints) {
+    const lastSegment = last(segments)
+    const lastPoint = last(lastSegment)
+    const distanceToFirst = lastPoint.distanceTo(setOfPoints[0])
+    const distanceToLast = lastPoint.distanceTo(last(setOfPoints))
+    if (distanceToFirst < distanceToLast) {
+      segments.push(setOfPoints.slice(1))
+    } else {
+      segments.push(setOfPoints.slice().reverse().slice(1))
+    }
+  }
+  const combinedSegments = concatAll(segments)
+  return combinedSegments
+}

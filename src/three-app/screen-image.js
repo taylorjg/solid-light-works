@@ -53,10 +53,15 @@ export class ScreenImage {
     this._meshes.forEach((mesh, index) => {
       const line = lines[index]
       const path = U.vectorsAsArrays(line.points)
-      mesh.geometry.update(path)
-      // const p1 = line.points[0]
-      // const p2 = line.points.slice(-1)[0]
-      // mesh.geometry.update(path, p1 === p2)
+      if (line.closed) {
+        const [x1, y1] = path[0]
+        const [x2, y2] = path[path.length - 1]
+        const firstSameAsLast = Math.abs(x1 - x2) < 0.01 && Math.abs(y1 - y2) < 0.01
+        const adjustedPath = firstSameAsLast ? path.slice(0, -1) : path
+        mesh.geometry.update(adjustedPath, true)
+      } else {
+        mesh.geometry.update(path)
+      }
 
       // I can't get opacity to work unless transparent is set to true
       // which looks awful. So I am doing this instead.

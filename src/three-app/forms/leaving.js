@@ -112,13 +112,6 @@ export class LeavingForm {
     return maxAmplitude * easeInOutQuint(t)
   }
 
-  combinePoints(ellipsePoints, travellingWavePoints) {
-    const travellingWavePointsTail = travellingWavePoints.slice(1)
-    return this.growing
-      ? ellipsePoints.concat(travellingWavePointsTail)
-      : travellingWavePointsTail.reverse().concat(ellipsePoints)
-  }
-
   getLines() {
 
     const tickRatio = this.tick / MAX_TICKS
@@ -172,7 +165,10 @@ export class LeavingForm {
       return additionalRotation ? wavePoint.rotateAround(p, additionalRotation) : wavePoint
     })
 
-    const combinedPoints = this.combinePoints(ellipsePoints, travellingWavePoints)
+    const combinedPoints = this.growing
+      ? U.combinePoints(ellipsePoints, travellingWavePoints)
+      : U.combinePoints(ellipsePoints.reverse(), travellingWavePoints.reverse())
+
     const line = new Line(combinedPoints)
     const lines = [line]
 
