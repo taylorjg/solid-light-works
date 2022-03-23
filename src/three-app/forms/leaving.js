@@ -172,7 +172,7 @@ export class LeavingForm {
       return additionalRotation ? wavePoint.rotateAround(p, additionalRotation) : wavePoint
     })
 
-    let combinedPoints = this.combinePoints(ellipsePoints, travellingWavePoints)
+    const combinedPoints = this.combinePoints(ellipsePoints, travellingWavePoints)
     const line = new Line(combinedPoints)
     const lines = [line]
 

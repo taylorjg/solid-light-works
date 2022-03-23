@@ -39,12 +39,30 @@ const parametricTravellingWaveXDerivative = xoffset =>
 const parametricTravellingWaveYDerivative = (a, k, wt, phi) =>
   t => a * Math.cos(k * t - wt + phi) * k
 
-// combinePoints(ellipsePoints, travellingWavePoints) {
-//   const travellingWavePointsTail = travellingWavePoints.slice(1)
-//   return this.growing
-//     ? ellipsePoints.concat(travellingWavePointsTail)
-//     : travellingWavePointsTail.reverse().concat(ellipsePoints)
-// }
+const combinePoints = (...setsOfPoints) => {
+  const last = xs => xs[xs.length - 1]
+  const concatAll = xss => [].concat(...xss)
+  const [firstSetOfPoints, ...remainingSetsOfPoints] = setsOfPoints
+  const segments = [firstSetOfPoints]
+  for (const setOfPoints of remainingSetsOfPoints) {
+    const lastSegment = last(segments)
+    const lastPoint = last(lastSegment)
+    const distanceToFirst = lastPoint.distanceTo(setOfPoints[0])
+    const distanceToLast = lastPoint.distanceTo(last(setOfPoints))
+    if (distanceToFirst < distanceToLast) {
+      segments.push(setOfPoints.slice(1))
+    } else {
+      segments.push(setOfPoints.slice().reverse().slice(1))
+    }
+  }
+  const combinedSegments = concatAll(segments)
+  // const firstPoint = combinedSegments[0]
+  // const lastPoint = last(combinedSegments)
+  // if (firstPoint.distanceTo(lastPoint) < 0.1) {
+  //   combinedSegments.push(firstPoint)
+  // }
+  return combinedSegments
+}
 
 const ELLIPSE_POINT_COUNT = 100
 const TRAVELLING_WAVE_POINT_COUNT = 100
@@ -66,10 +84,10 @@ export class BreathIIIForm {
     this.width = width
     this.height = height
     this.waveLength = width * 3 / 4
-    // this.rx = width / 6
+    // this.rx = width / 5
     // this.ry = width / 7
-    this.rx = width / 4
-    this.ry = width / 5
+    // this.rx = width / 4
+    this.ry = width / 6
     this.tick = 0
     this.pointMeshes = undefined
   }
@@ -89,9 +107,12 @@ export class BreathIIIForm {
   }
 
   getLines(tempScene) {
-    const parametricEllipseXFn = parametricEllipseX(this.rx)
+    const BREATH_CYCLE_TICKS = 2000
+    const rx = this.ry + 0.25 * Math.sin(C.PI / BREATH_CYCLE_TICKS * (this.tick % BREATH_CYCLE_TICKS))
+
+    const parametricEllipseXFn = parametricEllipseX(rx)
     const parametricEllipseYFn = parametricEllipseY(this.ry)
-    const parametricEllipseXDerivativeFn = parametricEllipseXDerivative(this.rx)
+    const parametricEllipseXDerivativeFn = parametricEllipseXDerivative(rx)
     const parametricEllipseYDerivativeFn = parametricEllipseYDerivative(this.ry)
 
     const xoffset = -this.width / 2
@@ -135,15 +156,20 @@ export class BreathIIIForm {
       }
     })
 
-    const truthyIntersections = intersections.filter(Boolean)
+    const truthyIntersections = intersections.filter(Boolean) // .filter(({ t1 }) => t1 >= 0)
     const finalIntersections = []
-    for (const intersection1 of truthyIntersections) {
-      const isDuplicate = finalIntersections.some(intersection2 => {
-        const t2Diff = Math.abs(intersection1.t2 - intersection2.t2)
+    for (const intersection of truthyIntersections) {
+      const duplicateIndex = finalIntersections.findIndex(({ t2 }) => {
+        const t2Diff = Math.abs(intersection.t2 - t2)
         return t2Diff < 0.01
       })
-      if (!isDuplicate) {
-        finalIntersections.push(intersection1)
+      if (duplicateIndex >= 0) {
+        const duplicate = finalIntersections[duplicateIndex]
+        if (duplicate.t1 < 0 && intersection.t1 > 0) {
+          finalIntersections[duplicateIndex] = intersection
+        }
+      } else {
+        finalIntersections.push(intersection)
       }
     }
     finalIntersections.sort((a, b) => a.t2 - b.t2)
@@ -157,23 +183,22 @@ export class BreathIIIForm {
       if (intersection) {
         pointMesh.position.x = parametricEllipseXFn(intersection.t1)
         pointMesh.position.y = parametricEllipseYFn(intersection.t1)
-        pointMesh.visible = true
+        // pointMesh.visible = true
       }
     })
 
+    const t1s = finalIntersections.map(({ t1 }) => t1)
+    console.log(`[${finalIntersections.length}] tick: ${this.tick}, t1s: ${t1s.join(", ")}`)
+
     const getEllipseSegmentPoints = (angle1, angle2) => {
-      const normaliseAngle = angle => {
-        if (angle < 0) return C.TWO_PI + angle
-        if (angle > C.TWO_PI) return angle - C.TWO_PI
-        return angle
-      }
-      const normalisedAngles = [angle1, angle2].map(normaliseAngle)
-      const minAngle = Math.min(...normalisedAngles)
-      const maxAngle = Math.max(...normalisedAngles)
-      const pointCount = ELLIPSE_POINT_COUNT / 2
-      const deltaAngle = (maxAngle - minAngle) / pointCount
+      // const minAngle = Math.min(angle1, angle2)
+      // const maxAngle = Math.max(angle1, angle2)
+      const pointCount = ELLIPSE_POINT_COUNT
+      // const deltaAngle = (maxAngle - minAngle) / pointCount
+      const deltaAngle = (angle2 - angle1) / pointCount
       return U.range(pointCount + 1).map(n => {
-        const t = minAngle + n * deltaAngle
+        // const t = minAngle + n * deltaAngle
+        const t = angle1 + n * deltaAngle
         const x = parametricEllipseXFn(t)
         const y = parametricEllipseYFn(t)
         return new THREE.Vector2(x, y)
@@ -181,7 +206,7 @@ export class BreathIIIForm {
     }
 
     const getTravellingWaveSegmentPoints = (startX, endX) => {
-      const pointCount = TRAVELLING_WAVE_POINT_COUNT / 2
+      const pointCount = TRAVELLING_WAVE_POINT_COUNT
       const deltaX = (endX - startX) / pointCount
       return U.range(pointCount + 1).map(n => {
         const t = startX + n * deltaX
@@ -191,41 +216,48 @@ export class BreathIIIForm {
       })
     }
 
-    if (finalIntersections.length === 1) {
-      // ???
-    }
-
-    if (finalIntersections.length === 2) {
+    if (finalIntersections.length === 2 || finalIntersections.length === 3) {
 
       const ellipsePoints1 = getEllipseSegmentPoints(finalIntersections[0].t1, finalIntersections[1].t1)
 
       const travellingWavePoints1 = getTravellingWaveSegmentPoints(0, finalIntersections[0].t2)
       const travellingWavePoints2 = getTravellingWaveSegmentPoints(finalIntersections[1].t2, this.width)
 
-      const lines = [
-        travellingWavePoints1, ellipsePoints1, travellingWavePoints2 // TODO: combine => line 1
-      ].map(points => new Line(points))
+      const line1 = combinePoints(travellingWavePoints1, ellipsePoints1, travellingWavePoints2)
+      const lines = [line1].map(points => new Line(points))
       this.tick++
       return lines
     }
 
-    if (finalIntersections.length === 3) {
-      // ???
-    }
-
     if (finalIntersections.length === 4) {
 
-      const ellipsePoints1 = getEllipseSegmentPoints(finalIntersections[0].t1, finalIntersections[3].t1)
-      const ellipsePoints2 = getEllipseSegmentPoints(finalIntersections[1].t1, finalIntersections[2].t1)
+      let [p1, p2, p3, p4] = finalIntersections.map(({ t1 }) => t1)
+
+      const min = Math.min(p1, p4)
+      const max = Math.max(p1, p4)
+
+      // p1 = min
+      // p4 = max
+      // if (p1 < p2 && p4 > p3) {
+      //   p1 = max
+      //   p4 = min + C.TWO_PI
+      // }
+
+      if (min < p2 && max > p3) {
+        p1 = max
+        p4 = min + C.TWO_PI
+      }
+
+      const ellipsePoints1 = getEllipseSegmentPoints(p1, p4)
+      const ellipsePoints2 = getEllipseSegmentPoints(p2, p3)
 
       const travellingWavePoints1 = getTravellingWaveSegmentPoints(0, finalIntersections[0].t2)
       const travellingWavePoints2 = getTravellingWaveSegmentPoints(finalIntersections[1].t2, finalIntersections[2].t2)
       const travellingWavePoints3 = getTravellingWaveSegmentPoints(finalIntersections[3].t2, this.width)
 
-      const lines = [
-        travellingWavePoints1, ellipsePoints1, travellingWavePoints3, // TODO: combine => line 1
-        ellipsePoints2, travellingWavePoints2 // TODO: combine => line 2
-      ].map(points => new Line(points))
+      const line1 = combinePoints(travellingWavePoints1, ellipsePoints1, travellingWavePoints3)
+      const line2 = combinePoints(ellipsePoints2, travellingWavePoints2)
+      const lines = [line1, line2].map(points => new Line(points))
       this.tick++
       return lines
     }

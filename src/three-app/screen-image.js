@@ -54,6 +54,9 @@ export class ScreenImage {
       const line = lines[index]
       const path = U.vectorsAsArrays(line.points)
       mesh.geometry.update(path)
+      // const p1 = line.points[0]
+      // const p2 = line.points.slice(-1)[0]
+      // mesh.geometry.update(path, p1 === p2)
 
       // I can't get opacity to work unless transparent is set to true
       // which looks awful. So I am doing this instead.
