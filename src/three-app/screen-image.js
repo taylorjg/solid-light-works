@@ -48,6 +48,22 @@ export class ScreenImage {
 
     if (meshCount !== lineCount) {
       this._createMeshes(lineCount)
+    } else {
+      const meshes = this._meshes ?? []
+      meshes.forEach((mesh, index) => {
+        const pointCount = lines[index].points.length
+        const positionAttribute = mesh.geometry.getAttribute("position")
+
+        // For each point in the path, the line geometry adds
+        // 2 lots of X, Y and Z values to the position attribute,
+        const minRequiredArrayLength = pointCount * 6
+
+        const arrayLength = positionAttribute.array.length
+        if (arrayLength < minRequiredArrayLength) {
+          U.disposeMesh(this._scene, mesh)
+          this._meshes[index] = this._createMesh()
+        }
+      })
     }
 
     this._meshes.forEach((mesh, index) => {

@@ -37,8 +37,8 @@ export const combinePoints = (...setsOfPoints) => {
   for (const setOfPoints of remainingSetsOfPoints) {
     const lastSegment = last(segments)
     const lastPoint = last(lastSegment)
-    const distanceToFirst = lastPoint.distanceTo(setOfPoints[0])
-    const distanceToLast = lastPoint.distanceTo(last(setOfPoints))
+    const distanceToFirst = lastPoint.distanceToSquared(setOfPoints[0])
+    const distanceToLast = lastPoint.distanceToSquared(last(setOfPoints))
     if (distanceToFirst < distanceToLast) {
       segments.push(setOfPoints.slice(1))
     } else {

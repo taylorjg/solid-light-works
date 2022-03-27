@@ -190,7 +190,13 @@ export class BreathIIIForm {
 
     if (finalIntersections.length === 2 || finalIntersections.length === 3) {
 
-      const ellipsePoints1 = getEllipseSegmentPoints(finalIntersections[0].t1, finalIntersections[1].t1)
+      let [p1, p2] = finalIntersections.map(({ t1 }) => t1)
+
+      if (p2 > p1) {
+        p1 += C.TWO_PI
+      }
+
+      const ellipsePoints1 = getEllipseSegmentPoints(p1, p2)
 
       const travellingWavePoints1 = getTravellingWaveSegmentPoints(0, finalIntersections[0].t2)
       const travellingWavePoints2 = getTravellingWaveSegmentPoints(finalIntersections[1].t2, this.width)
@@ -203,33 +209,52 @@ export class BreathIIIForm {
 
     if (finalIntersections.length === 4) {
 
-      let [p1, p2, p3, p4] = finalIntersections.map(({ t1 }) => t1)
+      let [a, b, c, d] = finalIntersections.map(({ t1 }) => t1)
+
+      // const makeIncreasingOrder = (p1, p2) => {
+      //   return p2 > p1 ? [p1, p2] : [p2, p1]
+      // }
+      const sortIncreasing = (a, b) => a - b
 
       // Bit of a hack - sometimes the path from p1 to p4 fully overlaps
       // the path from p2 to p3 so this hack sends the arc round the other way.
-      const min = Math.min(p1, p4)
-      const max = Math.max(p1, p4)
-      if (min < p2 && max > p3) {
-        p1 = max
-        p4 = min + C.TWO_PI
-      }
+      // const min = Math.min(p1, p4)
+      // const max = Math.max(p1, p4)
+      // if (min < p2 && max > p3) {
+      //   p1 = max
+      //   p4 = min + C.TWO_PI
+      // }
+      let [p1, p2] = [a, b].sort(sortIncreasing)
+      let [p3, p4] = [c, d].sort(sortIncreasing)
+      p4 -= C.TWO_PI
+      console.log("p1 p2", p1, p2)
+      console.log("p3 p4", p3, p4)
 
-      const ellipsePoints1 = getEllipseSegmentPoints(p1, p4)
-      const ellipsePoints2 = getEllipseSegmentPoints(p2, p3)
+      // const ellipsePoints1 = getEllipseSegmentPoints(p1, p4)
+      // const ellipsePoints2 = getEllipseSegmentPoints(p2, p3)
+      const ellipsePointsLeft = getEllipseSegmentPoints(p1, p2)
+      const ellipsePointsRight = getEllipseSegmentPoints(p3, p4)
 
-      const travellingWavePoints1 = getTravellingWaveSegmentPoints(0, finalIntersections[0].t2)
-      const travellingWavePoints2 = getTravellingWaveSegmentPoints(finalIntersections[1].t2, finalIntersections[2].t2)
-      const travellingWavePoints3 = getTravellingWaveSegmentPoints(finalIntersections[3].t2, this.width)
+      const travellingWavePointsStart = getTravellingWaveSegmentPoints(0, finalIntersections[0].t2)
+      const travellingWavePointsMiddle = getTravellingWaveSegmentPoints(finalIntersections[1].t2, finalIntersections[2].t2)
+      const travellingWavePointsEnd = getTravellingWaveSegmentPoints(finalIntersections[3].t2, this.width)
 
-      const linePoints1 = U.combinePoints(travellingWavePoints1, ellipsePoints1, travellingWavePoints3)
+      // const linePoints1 = U.combinePoints(travellingWavePoints1, ellipsePoints1, travellingWavePoints3)
+      // const line1 = new Line(linePoints1)
+      const linePoints1 = U.combinePoints(
+        travellingWavePointsStart,
+        ellipsePointsLeft,
+        travellingWavePointsMiddle,
+        ellipsePointsRight,
+        travellingWavePointsEnd,
+      )
       const line1 = new Line(linePoints1)
+      const lines = [line1]
 
-      const linePoints2 = U.combinePoints(ellipsePoints2, travellingWavePoints2)
-      const lineOpacity2 = 1
-      const lineClosed2 = true
-      const line2 = new Line(linePoints2, lineOpacity2, lineClosed2)
-
-      const lines = [line1, line2]
+      // const linePoints2 = U.combinePoints(ellipsePoints2, travellingWavePoints2)
+      // const lineOpacity2 = 1
+      // const lineClosed2 = true
+      // const line2 = new Line(linePoints2, lineOpacity2, lineClosed2)
 
       this.tick++
       return lines
