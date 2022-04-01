@@ -42,17 +42,6 @@ const parametricTravellingWaveYDerivative = (a, k, wt, phi) =>
 const ELLIPSE_POINT_COUNT = 100
 const TRAVELLING_WAVE_POINT_COUNT = 100
 
-const POINT_MESH_COLOURS = [
-  new THREE.Color("red").getHex(),
-  new THREE.Color("green").getHex(),
-  new THREE.Color("blue").getHex(),
-  new THREE.Color("yellow").getHex(),
-  new THREE.Color("cyan").getHex(),
-  new THREE.Color("purple").getHex(),
-  new THREE.Color("orange").getHex(),
-  new THREE.Color("pink").getHex()
-]
-
 export class BreathIIIForm {
 
   constructor(width, height) {
@@ -61,24 +50,9 @@ export class BreathIIIForm {
     this.waveLength = width * 3 / 4
     this.ry = width / 5
     this.tick = 8500
-    this.pointMeshes = undefined
   }
 
-  createPointMeshes(tempScene) {
-    if (!this.pointMeshes) {
-      this.pointMeshes = POINT_MESH_COLOURS.map(color => {
-        const pointGeometry = new THREE.CircleBufferGeometry(C.SCREEN_IMAGE_LINE_THICKNESS, 16)
-        const pointMaterial = new THREE.MeshBasicMaterial({ color })
-        const pointMesh = new THREE.Mesh(pointGeometry, pointMaterial)
-        pointMesh.visible = false
-        pointMesh.renderOrder = 1
-        tempScene.add(pointMesh)
-        return pointMesh
-      })
-    }
-  }
-
-  getLines(tempScene) {
+  getLines() {
     const BREATH_CYCLE_TICKS = 2000
     const rx = this.ry + 0.25 * Math.sin(C.PI / BREATH_CYCLE_TICKS * (this.tick % BREATH_CYCLE_TICKS))
 
@@ -146,20 +120,6 @@ export class BreathIIIForm {
     }
     intersections.sort((a, b) => a.t2 - b.t2)
 
-    this.createPointMeshes(tempScene)
-    for (const pointMesh of this.pointMeshes) {
-      pointMesh.visible = false
-    }
-
-    intersections.forEach((intersection, index) => {
-      const pointMesh = this.pointMeshes[index]
-      if (intersection) {
-        pointMesh.position.x = parametricEllipseXFn(intersection.t1)
-        pointMesh.position.y = parametricEllipseYFn(intersection.t1)
-        // pointMesh.visible = true
-      }
-    })
-
     const getEllipseSegmentPoints = (angle1, angle2) => {
       const pointCount = ELLIPSE_POINT_COUNT
       const deltaAngle = (angle2 - angle1) / pointCount
@@ -171,11 +131,11 @@ export class BreathIIIForm {
       })
     }
 
-    const getTravellingWaveSegmentPoints = (startX, endX) => {
+    const getTravellingWaveSegmentPoints = (x1, x2) => {
       const pointCount = TRAVELLING_WAVE_POINT_COUNT
-      const deltaX = (endX - startX) / pointCount
+      const deltaX = (x2 - x1) / pointCount
       return U.range(pointCount + 1).map(n => {
-        const t = startX + n * deltaX
+        const t = x1 + n * deltaX
         const x = parametricTravellingWaveXFn(t)
         const y = parametricTravellingWaveYFn(t)
         return new THREE.Vector2(x, y)
@@ -262,8 +222,8 @@ export class BreathIIIForm {
 
     if (intersections.length === 4) {
 
-      const leftBound = -rx + this.width / 2
-      const rightBound = rx + this.width / 2
+      const leftBound = -rx - xoffset
+      const rightBound = rx - xoffset
       const points = getTravellingWaveSegmentPoints(leftBound, rightBound)
       const minPoint = U.minBy(points, pt => pt.y)
       const maxPoint = U.maxBy(points, pt => pt.y)
