@@ -59,8 +59,8 @@ export class BreathIIIForm {
     this.width = width
     this.height = height
     this.waveLength = width * 3 / 4
-    this.ry = width / 6
-    this.tick = 19500
+    this.ry = width / 5
+    this.tick = 8500
     this.pointMeshes = undefined
   }
 
@@ -160,9 +160,6 @@ export class BreathIIIForm {
       }
     })
 
-    const t1s = intersections.map(({ t1 }) => t1)
-    console.log(`[${intersections.length}] tick: ${this.tick}, t1s: ${t1s.join(", ")}`)
-
     const getEllipseSegmentPoints = (angle1, angle2) => {
       const pointCount = ELLIPSE_POINT_COUNT
       const deltaAngle = (angle2 - angle1) / pointCount
@@ -238,9 +235,6 @@ export class BreathIIIForm {
           }
         }
 
-        console.log("intersectionsLeft:", intersectionsLeft)
-        console.log("intersectionsRight:", intersectionsRight)
-
         if (intersectionsLeft.length === 2) {
           intersection1 = intersectionsLeft[0]
           intersection2 = intersectionsLeft[1]
@@ -268,27 +262,53 @@ export class BreathIIIForm {
 
     if (intersections.length === 4) {
 
-      const [intersection1, intersection2, intersection3, intersection4] = intersections
+      const leftBound = -rx + this.width / 2
+      const rightBound = rx + this.width / 2
+      const points = getTravellingWaveSegmentPoints(leftBound, rightBound)
+      const minPoint = U.minBy(points, pt => pt.y)
+      const maxPoint = U.maxBy(points, pt => pt.y)
+      const absMinY = Math.abs(minPoint.y)
+      const absMaxY = Math.abs(maxPoint.y)
+      const troughBelowEllipse = absMinY > absMaxY
 
-      const ellipsePointsLeft = smallCurve(intersection1.t1, intersection2.t1)
-      const ellipsePointsRight = smallCurve(intersection3.t1, intersection4.t1)
+      const [intersection1, intersection2, intersection3, intersection4] = intersections
 
       const travellingWavePointsStart = getTravellingWaveSegmentPoints(0, intersection1.t2)
       const travellingWavePointsMiddle = getTravellingWaveSegmentPoints(intersection2.t2, intersection3.t2)
       const travellingWavePointsEnd = getTravellingWaveSegmentPoints(intersection4.t2, this.width)
 
-      const linePoints1 = U.combinePoints(
-        travellingWavePointsStart,
-        ellipsePointsLeft,
-        travellingWavePointsMiddle,
-        ellipsePointsRight,
-        travellingWavePointsEnd,
-      )
-      const line1 = new Line(linePoints1)
-      const lines = [line1]
+      if (troughBelowEllipse) {
+        const ellipsePointsTop = ccwCurve(intersection1.t1, intersection4.t1)
+        const ellipsePointsBottom = ccwCurve(intersection2.t1, intersection3.t1)
 
-      this.tick++
-      return lines
+        const line1Points = U.combinePoints(travellingWavePointsStart, ellipsePointsTop, travellingWavePointsEnd)
+        const line1 = new Line(line1Points)
+
+        const line2Points = U.combinePoints(travellingWavePointsMiddle, ellipsePointsBottom)
+        const line2Opacity = 1.0
+        const line2Closed = true
+        const line2 = new Line(line2Points, line2Opacity, line2Closed)
+
+        const lines = [line1, line2]
+        this.tick++
+        return lines
+      } else {
+        const ellipsePointsLeft = smallCurve(intersection1.t1, intersection2.t1)
+        const ellipsePointsRight = smallCurve(intersection3.t1, intersection4.t1)
+
+        const linePoints = U.combinePoints(
+          travellingWavePointsStart,
+          ellipsePointsLeft,
+          travellingWavePointsMiddle,
+          ellipsePointsRight,
+          travellingWavePointsEnd,
+        )
+
+        const line = new Line(linePoints)
+        const lines = [line]
+        this.tick++
+        return lines
+      }
     }
 
     const ellipsePoints = getEllipseSegmentPoints(0, C.TWO_PI)

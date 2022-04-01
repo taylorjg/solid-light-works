@@ -6,6 +6,33 @@ export const range = n =>
 export const reverse = xs =>
   xs.reverse()
 
+
+export const bestBy = (xs, valueFn, comparisonFn) => {
+  const seed = {
+    currentIndex: -1,
+    currentBestValue: undefined
+  }
+
+  const finalAcc = xs.reduce((acc, x, index) => {
+    const value = valueFn(x)
+    if (acc.currentIndex < 0 || comparisonFn(value, acc.currentBestValue)) {
+      return {
+        currentIndex: index,
+        currentBestValue: value
+      }
+    }
+    return acc
+  }, seed)
+
+  return finalAcc.currentIndex >= 0 ? xs[finalAcc.currentIndex] : undefined
+}
+
+export const minBy = (xs, valueFn) =>
+  bestBy(xs, valueFn, (value, currentBestValue) => value < currentBestValue)
+
+export const maxBy = (xs, valueFn) =>
+  bestBy(xs, valueFn, (value, currentBestValue) => value > currentBestValue)
+
 export const vectorsAsArrays = vectors =>
   vectors.map(vector => vector.toArray())
 
