@@ -60,7 +60,7 @@ export class BreathIIIForm {
     this.height = height
     this.waveLength = width * 3 / 4
     this.ry = width / 6
-    this.tick = 0
+    this.tick = 19500
     this.pointMeshes = undefined
   }
 
@@ -222,12 +222,43 @@ export class BreathIIIForm {
 
     if (intersections.length === 2 || intersections.length === 3) {
 
-      const ellipsePoints = isDownSlope(intersections[0], intersections[1])
-        ? cwCurve(intersections[0].t1, intersections[1].t1)
-        : ccwCurve(intersections[0].t1, intersections[1].t1)
+      let intersection1
+      let intersection2
 
-      const travellingWavePoints1 = getTravellingWaveSegmentPoints(0, intersections[0].t2)
-      const travellingWavePoints2 = getTravellingWaveSegmentPoints(intersections[1].t2, this.width)
+      if (intersections.length === 3) {
+        const intersectionsLeft = []
+        const intersectionsRight = []
+
+        for (const intersection of intersections) {
+          const normalisedAngle = normaliseAngle(intersection.t1)
+          if (normalisedAngle > C.HALF_PI && normalisedAngle <= C.HALF_PI + C.PI) {
+            intersectionsLeft.push(intersection)
+          } else {
+            intersectionsRight.push(intersection)
+          }
+        }
+
+        console.log("intersectionsLeft:", intersectionsLeft)
+        console.log("intersectionsRight:", intersectionsRight)
+
+        if (intersectionsLeft.length === 2) {
+          intersection1 = intersectionsLeft[0]
+          intersection2 = intersectionsLeft[1]
+        } else {
+          intersection1 = intersectionsRight[0]
+          intersection2 = intersectionsRight[1]
+        }
+      } else {
+        intersection1 = intersections[0]
+        intersection2 = intersections[1]
+      }
+
+      const ellipsePoints = isDownSlope(intersection1, intersection2)
+        ? cwCurve(intersection1.t1, intersection2.t1)
+        : ccwCurve(intersection1.t1, intersection2.t1)
+
+      const travellingWavePoints1 = getTravellingWaveSegmentPoints(0, intersection1.t2)
+      const travellingWavePoints2 = getTravellingWaveSegmentPoints(intersection2.t2, this.width)
 
       const line1 = U.combinePoints(travellingWavePoints1, ellipsePoints, travellingWavePoints2)
       const lines = [line1].map(points => new Line(points))
@@ -237,12 +268,14 @@ export class BreathIIIForm {
 
     if (intersections.length === 4) {
 
-      const ellipsePointsLeft = smallCurve(intersections[0].t1, intersections[1].t1)
-      const ellipsePointsRight = smallCurve(intersections[2].t1, intersections[3].t1)
+      const [intersection1, intersection2, intersection3, intersection4] = intersections
 
-      const travellingWavePointsStart = getTravellingWaveSegmentPoints(0, intersections[0].t2)
-      const travellingWavePointsMiddle = getTravellingWaveSegmentPoints(intersections[1].t2, intersections[2].t2)
-      const travellingWavePointsEnd = getTravellingWaveSegmentPoints(intersections[3].t2, this.width)
+      const ellipsePointsLeft = smallCurve(intersection1.t1, intersection2.t1)
+      const ellipsePointsRight = smallCurve(intersection3.t1, intersection4.t1)
+
+      const travellingWavePointsStart = getTravellingWaveSegmentPoints(0, intersection1.t2)
+      const travellingWavePointsMiddle = getTravellingWaveSegmentPoints(intersection2.t2, intersection3.t2)
+      const travellingWavePointsEnd = getTravellingWaveSegmentPoints(intersection4.t2, this.width)
 
       const linePoints1 = U.combinePoints(
         travellingWavePointsStart,
