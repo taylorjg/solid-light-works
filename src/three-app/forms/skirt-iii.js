@@ -39,6 +39,7 @@ const parametricTravellingWaveXDerivative = xoffset =>
 const parametricTravellingWaveYDerivative = (a, k, wt, phi) =>
   t => a * Math.cos(k * t - wt + phi) * k
 
+const ELLIPSE_POINT_COUNT = 100
 const WAVE_POINT_COUNT = 100
 
 export class SkirtIIIForm {
@@ -52,14 +53,47 @@ export class SkirtIIIForm {
     const f = 0
     this.eyeWave = new EyeWave(A, F, S, f, C.QUARTER_PI, 0)
     this.tick = 0
+    this.ellipseRadiusX = this.width / 2
+    this.ellipseRadiusY = this.height / 2
+    this.eyeWaveRadiusX = this.width * 0.75 / 2
+    this.eyeWaveRadiusY = this.height / 4
+    this.fudge = this.ellipseRadiusX - this.eyeWaveRadiusX
+    this.eyeWaveOffsetX = this.fudge
+  }
+
+  getEllipsePoints(angle1, angle2) {
+    const parametricEllipseXFn = parametricEllipseX(this.ellipseRadiusX)
+    const parametricEllipseYFn = parametricEllipseY(this.ellipseRadiusY)
+    const pointCount = ELLIPSE_POINT_COUNT
+    const deltaAngle = (angle2 - angle1) / pointCount
+    return U.range(pointCount + 1).map(n => {
+      const t = angle1 + n * deltaAngle
+      const x = parametricEllipseXFn(t)
+      const y = parametricEllipseYFn(t)
+      return new THREE.Vector2(x, y)
+    })
+  }
+
+  getEyeWavePoints() {
+    const points = this.eyeWave.getPoints(
+      this.eyeWaveRadiusX,
+      this.eyeWaveRadiusY,
+      WAVE_POINT_COUNT,
+      this.tick)
+
+    const offsetX = dx => pt => pt.setX(pt.x + dx)
+    return points.map(offsetX(this.eyeWaveOffsetX - this.fudge))
   }
 
   getLines() {
-    const rx = this.width / 2
-    const ry = this.height / 4
-    const points = this.eyeWave.getPoints(rx, ry, WAVE_POINT_COUNT, this.tick)
-    const line = new Line(points, 1, true)
+    const eyeWavePoints = this.getEyeWavePoints()
+    const ellipsePoints = this.getEllipsePoints(0, C.TWO_PI)
+    const line1 = new Line(eyeWavePoints, 1, true)
+    const line2 = new Line(ellipsePoints)
+
     this.tick++
-    return [line]
+    this.eyeWaveOffsetX = (this.eyeWaveOffsetX + 0.001) % (this.width)
+
+    return [line1, line2]
   }
 }
