@@ -6,6 +6,7 @@ import { LeavingInstallation } from './installations/leaving'
 import { CouplingInstallation } from './installations/coupling'
 import { BetweenYouAndIInstallation } from './installations/between-you-and-i'
 import { BreathIIIInstallation } from './installations/breath-iii'
+import { SkirtIIIInstallation } from './installations/skirt-iii'
 import { Mode } from './mode'
 import * as C from './constants'
 import * as U from './utils'
@@ -163,7 +164,8 @@ const threeApp = () => {
       LeavingInstallation,
       CouplingInstallation,
       BetweenYouAndIInstallation,
-      BreathIIIInstallation
+      BreathIIIInstallation,
+      SkirtIIIInstallation
     ]
       .map(installationConstructor => new installationConstructor())
       .map(installation => installation.createRenderables(scene, resources))
