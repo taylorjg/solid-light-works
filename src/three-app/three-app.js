@@ -29,6 +29,7 @@ const threeApp = () => {
   let axesEnabled = false
   let axesHelper = undefined
   let vertexNormalsEnabled = false
+  let intersectionPointsEnabled = false
 
   const addSettingsChangedListener = listener =>
     eventEmitter.on(SETTINGS_CHANGED_EVENT_NAME, listener)
@@ -43,7 +44,8 @@ const threeApp = () => {
       autoRotate: controls.autoRotate,
       autoRotateSpeed: controls.autoRotateSpeed,
       axesEnabled,
-      vertexNormalsEnabled
+      vertexNormalsEnabled,
+      intersectionsEnabled: intersectionPointsEnabled
     })
   }
 
@@ -57,6 +59,10 @@ const threeApp = () => {
 
   const toggleVertexNormals = () => {
     setVertexNormalsEnabled(!vertexNormalsEnabled)
+  }
+
+  const toggleIntersectionPoints = () => {
+    setIntersectionPointsEnabled(!intersectionPointsEnabled)
   }
 
   const toggleBehindOnly = () => {
@@ -90,7 +96,11 @@ const threeApp = () => {
   const updateVisibility = () => {
     installations.forEach((installation, index) => {
       const isCurrentInstallation = index === currentInstallationIndex
-      installation.updateVisibility(mode, vertexNormalsEnabled, isCurrentInstallation)
+      installation.updateVisibility(
+        mode,
+        vertexNormalsEnabled,
+        intersectionPointsEnabled,
+        isCurrentInstallation)
     })
   }
 
@@ -177,6 +187,7 @@ const threeApp = () => {
         case 'b': return toggleBehindOnly()
         case 'c': return reportCameraPosition()
         case 'f': return switchInstallation()
+        case 'i': return toggleIntersectionPoints()
         case 'm': return toggleMode()
         case 'p': return switchCameraPose()
         case 'r': return toggleAutoRotate()
@@ -249,6 +260,14 @@ const threeApp = () => {
     emitSettingsChanged()
   }
 
+  const setIntersectionPointsEnabled = value => {
+    intersectionPointsEnabled = value
+    if (installations) {
+      updateVisibility()
+    }
+    emitSettingsChanged()
+  }
+
   const setBehindOnly = value => {
     behindOnly = value
     emitSettingsChanged()
@@ -267,7 +286,8 @@ const threeApp = () => {
     setAutoRotate,
     setAutoRotateSpeed,
     setAxesEnabled,
-    setVertexNormalsEnabled
+    setVertexNormalsEnabled,
+    setIntersectionPointsEnabled
   }
 }
 

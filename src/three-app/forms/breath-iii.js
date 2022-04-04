@@ -120,6 +120,12 @@ export class BreathIIIForm {
     }
     intersections.sort((a, b) => a.t2 - b.t2)
 
+    const intersectionPoints = intersections.map(({ t1 }) => {
+      const x = parametricEllipseXFn(t1)
+      const y = parametricEllipseYFn(t1)
+      return new THREE.Vector2(x, y)
+    })
+
     const getEllipseSegmentPoints = (angle1, angle2) => {
       const pointCount = ELLIPSE_POINT_COUNT
       const deltaAngle = (angle2 - angle1) / pointCount
@@ -217,6 +223,7 @@ export class BreathIIIForm {
       const line1 = U.combinePoints(travellingWavePoints1, ellipsePoints, travellingWavePoints2)
       const lines = [line1].map(points => new Line(points))
       this.tick++
+      lines.intersectionPoints = intersectionPoints
       return lines
     }
 
@@ -251,6 +258,7 @@ export class BreathIIIForm {
 
         const lines = [line1, line2]
         this.tick++
+        lines.intersectionPoints = intersectionPoints
         return lines
       } else {
         const ellipsePointsLeft = smallCurve(intersection1.t1, intersection2.t1)
@@ -267,6 +275,7 @@ export class BreathIIIForm {
         const line = new Line(linePoints)
         const lines = [line]
         this.tick++
+        lines.intersectionPoints = intersectionPoints
         return lines
       }
     }
@@ -276,6 +285,7 @@ export class BreathIIIForm {
 
     const lines = [ellipsePoints, travellingWavePoints].map(points => new Line(points))
     this.tick++
+    lines.intersectionPoints = intersectionPoints
     return lines
   }
 }

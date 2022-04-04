@@ -177,6 +177,7 @@ export class LeavingForm {
       this.toggleGrowing()
     }
 
+    lines.intersectionPoints = [p]
     return lines
   }
 
