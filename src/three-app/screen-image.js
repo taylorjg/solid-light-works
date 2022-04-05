@@ -1,16 +1,24 @@
 import * as THREE from 'three'
 import { LineGeometry as Line2D } from '../three-line-2d'
 import { basicShader as Line2DBasicShader } from '../three-line-2d'
-import * as U from './utils'
+import { IntersectionPoints } from './intersection-points'
 import * as C from './constants'
+import * as U from './utils'
 
 export class ScreenImage {
 
   constructor(scene, screenForm) {
-    this._scene = scene
-    this._screenForm = screenForm
-    this._meshes = undefined
-    this._visible = false
+    this._group = this._createGroup(scene, screenForm)
+    this._meshes = this._createMeshes()
+    this._intersectionPoints = new IntersectionPoints(this._group)
+  }
+
+  _createGroup(scene, screenForm) {
+    const group = new THREE.Group()
+    group.applyMatrix4(screenForm.transform)
+    group.visible = false
+    scene.add(group)
+    return group
   }
 
   _createMesh() {
@@ -22,9 +30,7 @@ export class ScreenImage {
         thickness: C.SCREEN_IMAGE_LINE_THICKNESS
       }))
     const mesh = new THREE.Mesh(geometry, material)
-    mesh.applyMatrix4(this._screenForm.transform)
-    mesh.visible = this._visible
-    this._scene.add(mesh)
+    this._group.add(mesh)
     return mesh
   }
 
@@ -36,7 +42,7 @@ export class ScreenImage {
   _destroyMeshes() {
     if (this._meshes) {
       for (const mesh of this._meshes) {
-        U.disposeMesh(this._scene, mesh)
+        U.disposeMesh(mesh)
       }
       this._meshes = undefined
     }
@@ -60,7 +66,7 @@ export class ScreenImage {
 
         const arrayLength = positionAttribute.array.length
         if (arrayLength < minRequiredArrayLength) {
-          U.disposeMesh(this._scene, mesh)
+          U.disposeMesh(mesh)
           this._meshes[index] = this._createMesh()
         }
       })
@@ -86,12 +92,17 @@ export class ScreenImage {
       const b = line.opacity
       mesh.material.uniforms.diffuse.value = new THREE.Color(r, g, b)
     })
+
+    if (this._intersectionPoints.visible && lines.intersectionPoints) {
+      this._intersectionPoints.update(lines.intersectionPoints)
+    }
   }
 
   set visible(value) {
-    this._visible = value
-    if (this._meshes) {
-      this._meshes.forEach(mesh => mesh.visible = this._visible)
-    }
+    this._group.visible = value
+  }
+
+  set intersectionPointsVisible(value) {
+    this._intersectionPoints.visible = value
   }
 }

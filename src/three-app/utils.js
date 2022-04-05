@@ -48,8 +48,8 @@ export const loadTexture = url =>
     textureLoader.load(url, resolve, undefined, reject)
   })
 
-export const disposeMesh = (scene, mesh) => {
-  scene.remove(mesh)
+export const disposeMesh = mesh => {
+  mesh.removeFromParent()
   mesh.geometry.dispose()
   mesh.material.dispose()
 }

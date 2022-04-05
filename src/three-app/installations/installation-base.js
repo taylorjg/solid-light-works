@@ -1,13 +1,11 @@
 import { Mode } from '../mode'
 import { ProjectionEffect } from '../projection-effect'
 import { ScreenImage } from '../screen-image'
-import { IntersectionPoints } from '../intersection-points'
 
 const createRenderables2D = (scene, installation) => {
   const screenForms = installation.installationData2D.screenForms
   return {
     screenImages: screenForms.map(screenForm => new ScreenImage(scene, screenForm)),
-    intersectionPointss: screenForms.map(screenForm => new IntersectionPoints(scene, screenForm))
   }
 }
 
@@ -29,10 +27,11 @@ export class InstallationBase {
 
     const visible2D = isCurrentInstallation && mode === Mode.Mode2D
     this.renderables2D.screenImages.forEach(screenImage => screenImage.visible = visible2D)
-    this.renderables2D.intersectionPointss.forEach(intersectionPoints => intersectionPoints.visible = visible2D && showIntersectionPoints)
+    this.renderables2D.screenImages.forEach(screenImage => screenImage.intersectionPointsVisible = visible2D && showIntersectionPoints)
 
     const visible3D = isCurrentInstallation && mode === Mode.Mode3D
     this.renderables3D.screenImages.forEach(screenImage => screenImage.visible = visible3D)
+    this.renderables3D.screenImages.forEach(screenImage => screenImage.intersectionPointsVisible = visible3D && showIntersectionPoints)
     this.renderables3D.projectionEffects.forEach(projectionEffect => {
       projectionEffect.visible = visible3D
       projectionEffect.showVertexNormals = visible3D && showVertexNormals
@@ -46,11 +45,6 @@ export class InstallationBase {
       switch (mode) {
         case Mode.Mode2D:
           this.renderables2D.screenImages[index].update(lines)
-          if (this.renderables2D.intersectionPointss[index].visible) {
-            if (lines.intersectionPoints) {
-              this.renderables2D.intersectionPointss[index].update(lines.intersectionPoints)
-            }
-          }
           break
         case Mode.Mode3D:
           this.renderables3D.screenImages[index].update(lines)

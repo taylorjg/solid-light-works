@@ -1,6 +1,5 @@
 import * as THREE from 'three'
 import * as C from './constants'
-import * as U from './utils'
 
 const COLOURS = [
   new THREE.Color("red").getHex(),
@@ -15,47 +14,32 @@ const COLOURS = [
 
 export class IntersectionPoints {
 
-  constructor(scene, screenForm) {
-    this._scene = scene
-    this._screenForm = screenForm
-    this._meshes = undefined
+  constructor(parent) {
+    this._meshes = this._createMeshes(parent)
     this._visible = false
   }
 
-  _createMeshes() {
-    if (!this._meshes) {
-      this._meshes = COLOURS.map(color => {
-        const geometry = new THREE.CircleBufferGeometry(C.SCREEN_IMAGE_LINE_THICKNESS, 16)
-        const material = new THREE.MeshBasicMaterial({ color })
-        const mesh = new THREE.Mesh(geometry, material)
-        mesh.visible = false
-        mesh.renderOrder = 1
-        this._scene.add(mesh)
-        return mesh
-      })
-    }
-  }
-
-  _destroyMeshes() {
-    if (this._meshes) {
-      for (const mesh of this._meshes) {
-        U.disposeMesh(this._scene, mesh)
-      }
-      this._meshes = undefined
-    }
+  _createMeshes(parent) {
+    return COLOURS.map(color => {
+      const geometry = new THREE.CircleBufferGeometry(C.SCREEN_IMAGE_LINE_THICKNESS, 16)
+      const material = new THREE.MeshBasicMaterial({ color, side: THREE.DoubleSide })
+      const mesh = new THREE.Mesh(geometry, material)
+      mesh.visible = false
+      mesh.renderOrder = 1
+      parent.add(mesh)
+      return mesh
+    })
   }
 
   update(points) {
-    this._createMeshes()
     for (const mesh of this._meshes) {
       mesh.visible = false
     }
     if (this._visible) {
-      points.forEach((point, index) => {
+      points.slice(0, COLOURS.length).forEach((point, index) => {
         const mesh = this._meshes[index]
         mesh.position.x = point.x
         mesh.position.y = point.y
-        mesh.applyMatrix4(this._screenForm.transform)
         mesh.visible = true
       })
     }
@@ -67,9 +51,9 @@ export class IntersectionPoints {
 
   set visible(value) {
     this._visible = value
-    if (this._meshes && !value) {
+    if (!value) {
       for (const mesh of this._meshes) {
-        mesh.visible = false
+        mesh.visible = value
       }
     }
   }

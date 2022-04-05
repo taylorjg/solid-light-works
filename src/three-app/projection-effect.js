@@ -57,7 +57,7 @@ export class ProjectionEffect {
   _destroyMeshes() {
     if (this._meshes) {
       for (const mesh of this._meshes) {
-        U.disposeMesh(this._scene, mesh)
+        U.disposeMesh(mesh)
       }
       this._meshes = undefined
     }
@@ -72,7 +72,7 @@ export class ProjectionEffect {
 
   _destroyMeshHelpers() {
     if (this._meshHelpers) {
-      this._meshHelpers.forEach(meshHelper => U.disposeMesh(this._scene, meshHelper))
+      this._meshHelpers.forEach(meshHelper => U.disposeMesh(meshHelper))
       this._meshHelpers = undefined
     }
   }
