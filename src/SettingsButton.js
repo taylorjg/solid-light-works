@@ -33,6 +33,7 @@ const SettingsButton = ({ threeAppActions }) => {
   useEffect(() => {
     if (ignoreNextSettingsEffectRef.current) {
       ignoreNextSettingsEffectRef.current = false
+      setPreviousSettings(settings)
       return
     }
     if (settings.mode !== previousSettings.mode) {
