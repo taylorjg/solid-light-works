@@ -160,6 +160,33 @@ const AxesEnabledSetting = ({ value, setValue }) => {
   )
 }
 
+const IntersectionPointsEnabledSetting = ({ value, setValue }) => {
+
+  const handleChange = event => {
+    setValue(event.target.checked)
+  }
+
+  return (
+    <div>
+      <FormControl>
+        <FormLabel id="intersection-points-enabled-label">Show Intersection Points</FormLabel>
+        <FormControlLabel
+          sx={{ mt: ".25rem" }}
+          control={
+            <Switch
+              aria-labelledby="intersection-points-enabled-label"
+              size="small"
+              checked={value}
+              onClick={handleChange}
+            />
+          }
+          label={value ? "On" : "Off"}
+        />
+      </FormControl>
+    </div>
+  )
+}
+
 const VertexNormalsEnabledSetting = ({ value, setValue }) => {
 
   const handleChange = event => {
@@ -213,6 +240,7 @@ const SettingsPanel = ({ settings, setSettings, onClose }) => {
         <AutoRotateSetting {...createPropsForSetting("autoRotate")} />
         <AutoRotateSpeedSetting {...createPropsForSetting("autoRotateSpeed")} />
         <AxesEnabledSetting {...createPropsForSetting("axesEnabled")} />
+        <IntersectionPointsEnabledSetting {...createPropsForSetting("intersectionPointsEnabled")} />
         <VertexNormalsEnabledSetting {...createPropsForSetting("vertexNormalsEnabled")} />
       </StyledSettingsPanelBody>
     </StyledSettingsPanel>

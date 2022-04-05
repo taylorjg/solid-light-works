@@ -19,6 +19,7 @@ const SettingsButton = ({ threeAppActions }) => {
     autoRotate: queryParams.getBool('autoRotate', false),
     autoRotateSpeed: queryParams.getNumber('autoRotateSpeed', 0.5),
     axesEnabled: queryParams.getBool('axesEnabled', false),
+    intersectionPointsEnabled: queryParams.getBool('intersectionPointsEnabled', false),
     vertexNormalsEnabled: queryParams.getBool('vertexNormalsEnabled', false)
   }))
 
@@ -51,6 +52,9 @@ const SettingsButton = ({ threeAppActions }) => {
     }
     if (settings.axesEnabled !== previousSettings.axesEnabled) {
       threeAppActions.setAxesEnabled(settings.axesEnabled)
+    }
+    if (settings.intersectionPointsEnabled !== previousSettings.intersectionPointsEnabled) {
+      threeAppActions.setIntersectionPointsEnabled(settings.intersectionPointsEnabled)
     }
     if (settings.vertexNormalsEnabled !== previousSettings.vertexNormalsEnabled) {
       threeAppActions.setVertexNormalsEnabled(settings.vertexNormalsEnabled)

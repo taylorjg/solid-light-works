@@ -45,7 +45,7 @@ const threeApp = () => {
       autoRotateSpeed: controls.autoRotateSpeed,
       axesEnabled,
       vertexNormalsEnabled,
-      intersectionsEnabled: intersectionPointsEnabled
+      intersectionPointsEnabled
     })
   }
 
