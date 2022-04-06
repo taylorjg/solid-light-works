@@ -74,24 +74,34 @@ export class SkirtIIIForm {
     })
   }
 
-  getEyeWavePoints() {
-    const points = this.eyeWave.getPoints(
+  getEyeWaveCombinedPoints() {
+    const topPoints = this.eyeWave.getTopPoints(
+      this.eyeWaveRadiusX,
+      this.eyeWaveRadiusY,
+      WAVE_POINT_COUNT,
+      this.tick)
+
+    const bottomPoints = this.eyeWave.getBottomPoints(
       this.eyeWaveRadiusX,
       this.eyeWaveRadiusY,
       WAVE_POINT_COUNT,
       this.tick)
 
     const offsetX = dx => pt => pt.setX(pt.x + dx)
-    return points.map(offsetX(this.eyeWaveOffsetX - this.fudge))
+
+    const mappedPoints1 = topPoints.map(offsetX(this.eyeWaveOffsetX - this.fudge))
+    const mappedPoints2 = bottomPoints.map(offsetX(this.eyeWaveOffsetX - this.fudge))
+
+    return U.combinePoints(mappedPoints1, mappedPoints2)
   }
 
   getLines() {
-    const eyeWavePoints = this.getEyeWavePoints()
-    const ellipsePoints1 = this.getEllipsePoints(0, C.PI * 5 / 8)
-    const ellipsePoints2 = this.getEllipsePoints(C.PI, C.PI + C.PI * 5 / 8)
+    const eyeWavePoints = this.getEyeWaveCombinedPoints()
+    const ellipseTopPoints = this.getEllipsePoints(0, C.PI * 5 / 8)
+    const ellipseBottomPoints = this.getEllipsePoints(C.PI, C.PI + C.PI * 5 / 8)
     const line1 = new Line(eyeWavePoints, 1, true)
-    const line2 = new Line(ellipsePoints1)
-    const line3 = new Line(ellipsePoints2)
+    const line2 = new Line(ellipseTopPoints)
+    const line3 = new Line(ellipseBottomPoints)
 
     this.tick++
     this.eyeWaveOffsetX = (this.eyeWaveOffsetX + 0.001) % (this.width)

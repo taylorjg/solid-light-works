@@ -26,16 +26,44 @@ export class EyeWave {
     return A * Math.sin(F * θ + S * t + Φ) * Math.cos(f * t + φ)
   }
 
-  getPoints(rx, ry, divisions, t) {
+  // getPoints(rx, ry, divisions, t) {
+  //   const xoffset = -rx
+  //   const totalX = rx * 4
+  //   const deltaX = totalX / divisions
+  //   const deltaAngle = C.TWO_PI / divisions
+  //   return U.range(divisions + 1).map(index => {
+  //     const θ = deltaAngle * index
+  //     const x = θ <= C.PI
+  //       ? deltaX * index
+  //       : (totalX - deltaX * index)
+  //     const ω = this._ω(θ, t)
+  //     const y = (ry + ω) * Math.sin(θ)
+  //     return new THREE.Vector2(x + xoffset, y)
+  //   })
+  // }
+
+  getTopPoints(rx, ry, divisions, t) {
     const xoffset = -rx
-    const totalX = rx * 4
-    const deltaX = (totalX) / divisions
-    const deltaAngle = C.TWO_PI / divisions
+    const totalX = rx * 2
+    const deltaX = totalX / divisions
+    const deltaAngle = C.PI / divisions
     return U.range(divisions + 1).map(index => {
+      const x = deltaX * index
       const θ = deltaAngle * index
-      const x = θ <= C.PI
-        ? deltaX * index
-        : (totalX - deltaX * index)
+      const ω = this._ω(θ, t)
+      const y = (ry + ω) * Math.sin(θ)
+      return new THREE.Vector2(x + xoffset, y)
+    })
+  }
+
+  getBottomPoints(rx, ry, divisions, t) {
+    const xoffset = -rx
+    const totalX = rx * 2
+    const deltaX = totalX / divisions
+    const deltaAngle = C.PI / divisions
+    return U.range(divisions + 1).map(index => {
+      const x = totalX - deltaX * index
+      const θ = C.PI + deltaAngle * index
       const ω = this._ω(θ, t)
       const y = (ry + ω) * Math.sin(θ)
       return new THREE.Vector2(x + xoffset, y)
