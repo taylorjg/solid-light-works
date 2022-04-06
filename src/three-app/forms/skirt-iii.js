@@ -47,16 +47,16 @@ export class SkirtIIIForm {
   constructor(width, height) {
     this.width = width
     this.height = height
-    const A = this.height / 6
+    const A = this.height / 8
     const F = 1.7
     const S = C.PI / 2000
     const f = 0
-    this.eyeWave = new EyeWave(A, F, S, f, C.QUARTER_PI, 0)
+    this.eyeWave = new EyeWave(A, F, S, f, -C.HALF_PI, -C.PI)
     this.tick = 0
     this.ellipseRadiusX = this.width / 2
     this.ellipseRadiusY = this.height / 2
     this.eyeWaveRadiusX = this.width * 0.75 / 2
-    this.eyeWaveRadiusY = this.height / 4
+    this.eyeWaveRadiusY = this.height / 6
     this.fudge = this.ellipseRadiusX - this.eyeWaveRadiusX
     this.eyeWaveOffsetX = this.fudge
   }
@@ -87,13 +87,15 @@ export class SkirtIIIForm {
 
   getLines() {
     const eyeWavePoints = this.getEyeWavePoints()
-    const ellipsePoints = this.getEllipsePoints(0, C.TWO_PI)
+    const ellipsePoints1 = this.getEllipsePoints(0, C.PI * 5 / 8)
+    const ellipsePoints2 = this.getEllipsePoints(C.PI, C.PI + C.PI * 5 / 8)
     const line1 = new Line(eyeWavePoints, 1, true)
-    const line2 = new Line(ellipsePoints)
+    const line2 = new Line(ellipsePoints1)
+    const line3 = new Line(ellipsePoints2)
 
     this.tick++
     this.eyeWaveOffsetX = (this.eyeWaveOffsetX + 0.001) % (this.width)
 
-    return [line1, line2]
+    return [line1, line2, line3]
   }
 }
