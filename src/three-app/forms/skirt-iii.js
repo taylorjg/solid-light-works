@@ -18,6 +18,16 @@ const parametricEllipseX = rx =>
 const parametricEllipseY = ry =>
   t => ry * Math.sin(t)
 
+const parametricEyeWaveX = (xoffset, rx, deltaX) =>
+  t => xoffset - rx + deltaX * t
+
+const parametricEyeWaveTopY = (A, F, S, f, Φ, φ, ry, deltaAngle, tick) =>
+  t => {
+    const θ = deltaAngle * t
+    const ω = A * Math.sin(F * θ + S * tick + Φ) * Math.cos(f * tick + φ)
+    return (ry + ω) * Math.sin(θ)
+  }
+
 const parametricTravellingWaveX = xoffset =>
   t => t + xoffset
 
@@ -57,8 +67,8 @@ export class SkirtIIIForm {
     this.ellipseRadiusY = this.height / 2
     this.eyeWaveRadiusX = this.width * 0.75 / 2
     this.eyeWaveRadiusY = this.height / 6
-    this.fudge = this.ellipseRadiusX - this.eyeWaveRadiusX
-    this.eyeWaveOffsetX = this.fudge
+    this.eyeWaveInitialOffsetX = this.ellipseRadiusX - this.eyeWaveRadiusX
+    this.eyeWaveOffsetX = this.eyeWaveInitialOffsetX
   }
 
   getEllipsePoints(angle1, angle2) {
@@ -75,11 +85,11 @@ export class SkirtIIIForm {
   }
 
   getEyeWaveCombinedPoints() {
-    const topPoints = this.eyeWave.getTopPoints(
-      this.eyeWaveRadiusX,
-      this.eyeWaveRadiusY,
-      WAVE_POINT_COUNT,
-      this.tick)
+    // const topPoints = this.eyeWave.getTopPoints(
+    //   this.eyeWaveRadiusX,
+    //   this.eyeWaveRadiusY,
+    //   WAVE_POINT_COUNT,
+    //   this.tick)
 
     const bottomPoints = this.eyeWave.getBottomPoints(
       this.eyeWaveRadiusX,
@@ -87,10 +97,30 @@ export class SkirtIIIForm {
       WAVE_POINT_COUNT,
       this.tick)
 
+    const xoffset = this.eyeWaveOffsetX - this.eyeWaveInitialOffsetX
+    const rx = this.eyeWaveRadiusX
+    const deltaX = this.eyeWaveRadiusX * 2 / WAVE_POINT_COUNT
+    const parametricEyeWaveXFn = parametricEyeWaveX(xoffset, rx, deltaX)
+    const deltaAngle = C.PI / WAVE_POINT_COUNT
+    const A = this.height / 8
+    const F = 1.7
+    const S = C.PI / 2000
+    const f = 0
+    const Φ = -C.HALF_PI
+    const φ = -C.PI
+    const ry = this.eyeWaveRadiusY
+    const parametricEyeWaveTopYFn = parametricEyeWaveTopY(A, F, S, f, Φ, φ, ry, deltaAngle, this.tick)
+
+    const mappedPoints1 = U.range(WAVE_POINT_COUNT + 1).map(t => {
+      const x = parametricEyeWaveXFn(t)
+      const y = parametricEyeWaveTopYFn(t)
+      return new THREE.Vector2(x, y)
+    })
+
     const offsetX = dx => pt => pt.setX(pt.x + dx)
 
-    const mappedPoints1 = topPoints.map(offsetX(this.eyeWaveOffsetX - this.fudge))
-    const mappedPoints2 = bottomPoints.map(offsetX(this.eyeWaveOffsetX - this.fudge))
+    // const mappedPoints1 = topPoints.map(offsetX(this.eyeWaveOffsetX - this.eyeWaveInitialOffsetX))
+    const mappedPoints2 = bottomPoints.map(offsetX(this.eyeWaveOffsetX - this.eyeWaveInitialOffsetX))
 
     return U.combinePoints(mappedPoints1, mappedPoints2)
   }
