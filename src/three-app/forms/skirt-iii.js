@@ -1,8 +1,7 @@
 import * as THREE from 'three'
 import { Line } from '../line'
-import { EyeWave } from '../syntax/eye-wave'
-import * as U from '../utils'
 import * as C from '../constants'
+import * as U from '../utils'
 
 // Parametric equation of an ellipse:
 // x = a * cos(t)
@@ -18,14 +17,24 @@ const parametricEllipseX = rx =>
 const parametricEllipseY = ry =>
   t => ry * Math.sin(t)
 
-const parametricEyeWaveX = (xoffset, rx, deltaX) =>
-  t => xoffset - rx + deltaX * t
+const parametricEyeWaveTopX = (xoffset, width, deltaX) =>
+  t => xoffset - width / 2 + deltaX * t
 
-const parametricEyeWaveTopY = (A, F, S, f, Φ, φ, ry, deltaAngle, tick) =>
+const parametricEyeWaveTopY = (A, F, S, f, Φ, φ, height, deltaAngle, tick) =>
   t => {
     const θ = deltaAngle * t
     const ω = A * Math.sin(F * θ + S * tick + Φ) * Math.cos(f * tick + φ)
-    return (ry + ω) * Math.sin(θ)
+    return (height + ω) * Math.sin(θ)
+  }
+
+const parametricEyeWaveBottomX = (xoffset, width, deltaX) =>
+  t => xoffset + width / 2 - deltaX * t
+
+const parametricEyeWaveBottomY = (A, F, S, f, Φ, φ, height, deltaAngle, tick) =>
+  t => {
+    const θ = C.PI + deltaAngle * t
+    const ω = A * Math.sin(F * θ + S * tick + Φ) * Math.cos(f * tick + φ)
+    return (height + ω) * Math.sin(θ)
   }
 
 const parametricTravellingWaveX = xoffset =>
@@ -57,50 +66,21 @@ export class SkirtIIIForm {
   constructor(width, height) {
     this.width = width
     this.height = height
-    const A = this.height / 8
-    const F = 1.7
-    const S = C.PI / 2000
-    const f = 0
-    this.eyeWave = new EyeWave(A, F, S, f, -C.HALF_PI, -C.PI)
     this.tick = 0
     this.ellipseRadiusX = this.width / 2
     this.ellipseRadiusY = this.height / 2
-    this.eyeWaveRadiusX = this.width * 0.75 / 2
-    this.eyeWaveRadiusY = this.height / 6
-    this.eyeWaveInitialOffsetX = this.ellipseRadiusX - this.eyeWaveRadiusX
+    this.eyeWaveWidth = this.width * 0.75
+    this.eyeWaveHeight = this.height / 6
+    this.eyeWaveInitialOffsetX = (this.width - this.eyeWaveWidth) / 2
     this.eyeWaveOffsetX = this.eyeWaveInitialOffsetX
   }
 
-  getEllipsePoints(angle1, angle2) {
-    const parametricEllipseXFn = parametricEllipseX(this.ellipseRadiusX)
-    const parametricEllipseYFn = parametricEllipseY(this.ellipseRadiusY)
-    const pointCount = ELLIPSE_POINT_COUNT
-    const deltaAngle = (angle2 - angle1) / pointCount
-    return U.range(pointCount + 1).map(n => {
-      const t = angle1 + n * deltaAngle
-      const x = parametricEllipseXFn(t)
-      const y = parametricEllipseYFn(t)
-      return new THREE.Vector2(x, y)
-    })
-  }
-
-  getEyeWaveCombinedPoints() {
-    // const topPoints = this.eyeWave.getTopPoints(
-    //   this.eyeWaveRadiusX,
-    //   this.eyeWaveRadiusY,
-    //   WAVE_POINT_COUNT,
-    //   this.tick)
-
-    const bottomPoints = this.eyeWave.getBottomPoints(
-      this.eyeWaveRadiusX,
-      this.eyeWaveRadiusY,
-      WAVE_POINT_COUNT,
-      this.tick)
-
+  getLines() {
     const xoffset = this.eyeWaveOffsetX - this.eyeWaveInitialOffsetX
-    const rx = this.eyeWaveRadiusX
-    const deltaX = this.eyeWaveRadiusX * 2 / WAVE_POINT_COUNT
-    const parametricEyeWaveXFn = parametricEyeWaveX(xoffset, rx, deltaX)
+    const deltaX = this.eyeWaveWidth / WAVE_POINT_COUNT
+    const parametricEyeWaveTopXFn = parametricEyeWaveTopX(xoffset, this.eyeWaveWidth, deltaX)
+    const parametricEyeWaveBottomXFn = parametricEyeWaveBottomX(xoffset, this.eyeWaveWidth, deltaX)
+
     const deltaAngle = C.PI / WAVE_POINT_COUNT
     const A = this.height / 8
     const F = 1.7
@@ -108,27 +88,43 @@ export class SkirtIIIForm {
     const f = 0
     const Φ = -C.HALF_PI
     const φ = -C.PI
-    const ry = this.eyeWaveRadiusY
-    const parametricEyeWaveTopYFn = parametricEyeWaveTopY(A, F, S, f, Φ, φ, ry, deltaAngle, this.tick)
+    const parametricEyeWaveTopYFn = parametricEyeWaveTopY(A, F, S, f, Φ, φ, this.eyeWaveHeight, deltaAngle, this.tick)
+    const parametricEyeWaveBottomYFn = parametricEyeWaveBottomY(A, F, S, f, Φ, φ, this.eyeWaveHeight, deltaAngle, this.tick)
 
-    const mappedPoints1 = U.range(WAVE_POINT_COUNT + 1).map(t => {
-      const x = parametricEyeWaveXFn(t)
-      const y = parametricEyeWaveTopYFn(t)
-      return new THREE.Vector2(x, y)
-    })
+    const parametricEllipseXFn = parametricEllipseX(this.ellipseRadiusX)
+    const parametricEllipseYFn = parametricEllipseY(this.ellipseRadiusY)
 
-    const offsetX = dx => pt => pt.setX(pt.x + dx)
+    const getEyeWaveCombinedPoints = () => {
+      const mappedPoints1 = U.range(WAVE_POINT_COUNT + 1).map(t => {
+        const x = parametricEyeWaveTopXFn(t)
+        const y = parametricEyeWaveTopYFn(t)
+        return new THREE.Vector2(x, y)
+      })
 
-    // const mappedPoints1 = topPoints.map(offsetX(this.eyeWaveOffsetX - this.eyeWaveInitialOffsetX))
-    const mappedPoints2 = bottomPoints.map(offsetX(this.eyeWaveOffsetX - this.eyeWaveInitialOffsetX))
+      const mappedPoints2 = U.range(WAVE_POINT_COUNT + 1).map(t => {
+        const x = parametricEyeWaveBottomXFn(t)
+        const y = parametricEyeWaveBottomYFn(t)
+        return new THREE.Vector2(x, y)
+      })
 
-    return U.combinePoints(mappedPoints1, mappedPoints2)
-  }
+      return U.combinePoints(mappedPoints1, mappedPoints2)
+    }
 
-  getLines() {
-    const eyeWavePoints = this.getEyeWaveCombinedPoints()
-    const ellipseTopPoints = this.getEllipsePoints(0, C.PI * 5 / 8)
-    const ellipseBottomPoints = this.getEllipsePoints(C.PI, C.PI + C.PI * 5 / 8)
+    const getEllipsePoints = (angle1, angle2) => {
+      const pointCount = ELLIPSE_POINT_COUNT
+      const deltaAngle = (angle2 - angle1) / pointCount
+      return U.range(pointCount + 1).map(n => {
+        const t = angle1 + n * deltaAngle
+        const x = parametricEllipseXFn(t)
+        const y = parametricEllipseYFn(t)
+        return new THREE.Vector2(x, y)
+      })
+    }
+
+    const eyeWavePoints = getEyeWaveCombinedPoints()
+    const ellipseTopPoints = getEllipsePoints(0, C.PI * 5 / 8)
+    const ellipseBottomPoints = getEllipsePoints(C.PI, C.PI + C.PI * 5 / 8)
+
     const line1 = new Line(eyeWavePoints, 1, true)
     const line2 = new Line(ellipseTopPoints)
     const line3 = new Line(ellipseBottomPoints)
