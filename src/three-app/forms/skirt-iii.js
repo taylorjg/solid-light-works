@@ -106,7 +106,7 @@ export class SkirtIIIForm {
       const xstart = parametricEyeWaveTopXFn(0)
       const xend = parametricEyeWaveTopXFn(WAVE_POINT_COUNT)
 
-      if (xstart < this.ellipseRadiusX && xend > this.ellipseRadiusX) {
+      if (xstart <= this.ellipseRadiusX && xend >= this.ellipseRadiusX) {
 
         const t1Guess = THREE.MathUtils.degToRad(angle)
         const x = parametricEllipseXFn(t1Guess)
@@ -137,7 +137,7 @@ export class SkirtIIIForm {
       const xstart = parametricEyeWaveBottomXFn(0)
       const xend = parametricEyeWaveBottomXFn(WAVE_POINT_COUNT)
 
-      if (xend < this.ellipseRadiusX && xstart > this.ellipseRadiusX) {
+      if (xend <= this.ellipseRadiusX && xstart >= this.ellipseRadiusX) {
 
         const t1Guess = THREE.MathUtils.degToRad(angle)
         const x = parametricEllipseXFn(t1Guess)
@@ -163,41 +163,43 @@ export class SkirtIIIForm {
       }
     }
 
-    const intersection1 = findEyeWaveTopIntersection(0)
-    const intersection2 = findEyeWaveTopIntersection(30)
-    const intersection3 = findEyeWaveBottomIntersection(0)
+    const intersection1 = findEyeWaveTopIntersection(0) || findEyeWaveTopIntersection(30)
+    const intersection2 = findEyeWaveBottomIntersection(0) || findEyeWaveBottomIntersection(-30)
 
-    const intersectionPoints = []
+    const intersections = [intersection1, intersection2].filter(Boolean)
 
-    const addIntersection = intersection => {
-      if (!intersection) return
-      const x = parametricEllipseXFn(intersection.t1)
-      const y = parametricEllipseYFn(intersection.t1)
-      const point = new THREE.Vector2(x, y)
-      const index = intersectionPoints.findIndex(otherPoint => U.isCloseVec(point, otherPoint))
-      if (index < 0) {
-        intersectionPoints.push(point)
-      }
-    }
+    const intersectionPoints = intersections.map(intersection =>
+      new THREE.Vector2(
+        parametricEllipseXFn(intersection.t1),
+        parametricEllipseYFn(intersection.t1))
+    )
 
-    addIntersection(intersection1)
-    addIntersection(intersection2)
-    addIntersection(intersection3)
-
-    const getEyeWaveCombinedPoints = () => {
-      const mappedPoints1 = U.range(WAVE_POINT_COUNT + 1).map(t => {
+    const getEyeWaveCombinedPoints = (tTop = 0, tBottom = 0) => {
+      const wavePointCountTop = tTop ? Math.floor(tTop) : WAVE_POINT_COUNT + 1
+      const mappedPoints1 = U.range(wavePointCountTop).map(t => {
         const x = parametricEyeWaveTopXFn(t)
         const y = parametricEyeWaveTopYFn(t)
         return new THREE.Vector2(x, y)
       })
+      if (tTop) {
+        const x = parametricEyeWaveTopXFn(tTop)
+        const y = parametricEyeWaveTopYFn(tTop)
+        mappedPoints1.push(new THREE.Vector2(x, y))
+      }
 
-      const mappedPoints2 = U.range(WAVE_POINT_COUNT + 1).map(t => {
-        const x = parametricEyeWaveBottomXFn(t)
-        const y = parametricEyeWaveBottomYFn(t)
+      const wavePointCountBottom = tBottom ? WAVE_POINT_COUNT - Math.floor(tBottom) : WAVE_POINT_COUNT + 1
+      const mappedPoints2 = U.range(wavePointCountBottom).map(t => {
+        const x = parametricEyeWaveBottomXFn(tBottom + t)
+        const y = parametricEyeWaveBottomYFn(tBottom + t)
         return new THREE.Vector2(x, y)
       })
+      if (tBottom) {
+        const x = parametricEyeWaveBottomXFn(WAVE_POINT_COUNT)
+        const y = parametricEyeWaveBottomYFn(WAVE_POINT_COUNT)
+        mappedPoints2.push(new THREE.Vector2(x, y))
+      }
 
-      return U.combinePoints(mappedPoints1, mappedPoints2)
+      return U.combinePoints(mappedPoints1.reverse(), mappedPoints2)
     }
 
     const getEllipsePoints = (angle1, angle2) => {
@@ -209,6 +211,23 @@ export class SkirtIIIForm {
         const y = parametricEllipseYFn(t)
         return new THREE.Vector2(x, y)
       })
+    }
+
+    if (intersections.length === 2) {
+      const eyeWavePoints = getEyeWaveCombinedPoints(intersection1.t2, intersection2.t2)
+      const ellipseTopPoints = getEllipsePoints(intersection1.t1, C.PI * 5 / 8)
+      const ellipseBottomPoints = getEllipsePoints(C.PI, C.PI + C.PI * 5 / 8)
+
+      const line1Points = U.combinePoints(eyeWavePoints.reverse(), ellipseTopPoints)
+      const line1 = new Line(line1Points)
+      const line2 = new Line(ellipseBottomPoints)
+
+      this.tick++
+      this.eyeWaveOffsetX = (this.eyeWaveOffsetX + 0.001) % (this.width)
+
+      const lines = [line1, line2]
+      lines.intersectionPoints = intersectionPoints
+      return lines
     }
 
     const eyeWavePoints = getEyeWaveCombinedPoints()
