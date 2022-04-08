@@ -214,9 +214,15 @@ export class SkirtIIIForm {
     }
 
     if (intersections.length === 2) {
+      const reflectedAngle = C.PI - intersection2.t1
+      intersectionPoints.push(new THREE.Vector2(
+        parametricEllipseXFn(reflectedAngle),
+        parametricEllipseYFn(reflectedAngle)
+      ))
+
       const eyeWavePoints = getEyeWaveCombinedPoints(intersection1.t2, intersection2.t2)
       const ellipseTopPoints = getEllipsePoints(intersection1.t1, C.PI * 5 / 8)
-      const ellipseBottomPoints = getEllipsePoints(C.PI, C.PI + C.PI * 5 / 8)
+      const ellipseBottomPoints = getEllipsePoints(reflectedAngle, C.PI + C.PI * 5 / 8)
 
       const line1Points = U.combinePoints(eyeWavePoints.reverse(), ellipseTopPoints)
       const line1 = new Line(line1Points)
