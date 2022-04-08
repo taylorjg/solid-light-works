@@ -78,7 +78,7 @@ export class ScreenImage {
       if (line.closed) {
         const [x1, y1] = path[0]
         const [x2, y2] = path[path.length - 1]
-        const firstSameAsLast = Math.abs(x1 - x2) < 0.01 && Math.abs(y1 - y2) < 0.01
+        const firstSameAsLast = U.isClose(x1, x2) && U.isClose(y1, y2)
         const adjustedPath = firstSameAsLast ? path.slice(0, -1) : path
         mesh.geometry.update(adjustedPath, true)
       } else {

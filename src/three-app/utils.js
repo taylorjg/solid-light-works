@@ -6,7 +6,6 @@ export const range = n =>
 export const reverse = xs =>
   xs.reverse()
 
-
 export const bestBy = (xs, valueFn, comparisonFn) => {
   const seed = {
     currentIndex: -1,
@@ -74,4 +73,14 @@ export const combinePoints = (...setsOfPoints) => {
   }
   const combinedSegments = concatAll(segments)
   return combinedSegments
+}
+
+export const isClose = (a, b, tolerance = 0.01) =>
+  Math.abs(a - b) <= tolerance
+
+export const isCloseVec = (a, b, tolerance = 0.01) => {
+  const componentsA = a.toArray()
+  const componentsB = b.toArray()
+  const length = Math.min(componentsA.length, componentsB.length)
+  return range(length).every(index => isClose(componentsA[index], componentsB[index], tolerance))
 }

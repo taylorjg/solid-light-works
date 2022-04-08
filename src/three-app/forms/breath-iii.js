@@ -105,10 +105,7 @@ export class BreathIIIForm {
     const truthyIntersections = candidateIntersections.filter(Boolean)
     const intersections = []
     for (const intersection of truthyIntersections) {
-      const duplicateIndex = intersections.findIndex(({ t2 }) => {
-        const t2Diff = Math.abs(intersection.t2 - t2)
-        return t2Diff < 0.01
-      })
+      const duplicateIndex = intersections.findIndex(({ t2 }) => U.isClose(intersection.t2, t2))
       if (duplicateIndex >= 0) {
         const duplicate = intersections[duplicateIndex]
         if (duplicate.t1 < 0 && intersection.t1 > 0) {
