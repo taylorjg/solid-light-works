@@ -41,11 +41,10 @@ export const vec2sToVec3sHorizontal = (vec2s, distance = 0) =>
 export const vec2sToVec3sVertical = (vec2s, height = 0) =>
   vec2s.map(({ x, y }) => new THREE.Vector3(x, height, y))
 
-export const loadTexture = url =>
-  new Promise((resolve, reject) => {
-    const textureLoader = new THREE.TextureLoader()
-    textureLoader.load(url, resolve, undefined, reject)
-  })
+export const loadTexture = url => {
+  const textureLoader = new THREE.TextureLoader()
+  return textureLoader.loadAsync(url)
+}
 
 export const disposeMesh = mesh => {
   mesh.removeFromParent()
