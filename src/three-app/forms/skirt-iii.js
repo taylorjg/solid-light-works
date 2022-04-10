@@ -92,10 +92,10 @@ export class SkirtIIIForm {
     const deltaAngle = C.PI / WAVE_POINT_COUNT
     const A = this.height / 8
     const F = 1.7
-    const S = C.PI / 2000
-    const f = 0
-    const Φ = -C.HALF_PI
-    const φ = -C.PI
+    const S = 0.001
+    const f = 0.001
+    const Φ = THREE.MathUtils.degToRad(35)
+    const φ = THREE.MathUtils.degToRad(125)
     const parametricEyeWaveTopYFn = parametricEyeWaveTopY(A, F, S, f, Φ, φ, this.eyeWaveHeight, deltaAngle, this.tick)
     const parametricEyeWaveTopYDerivativeFn = parametricEyeWaveTopYDerivative(A, F, S, f, Φ, φ, this.eyeWaveHeight, deltaAngle, this.tick)
     const parametricEyeWaveBottomYFn = parametricEyeWaveBottomY(A, F, S, f, Φ, φ, this.eyeWaveHeight, deltaAngle, this.tick)
@@ -230,10 +230,18 @@ export class SkirtIIIForm {
       }
     }
 
-    const intersection1 = findEyeWaveTopIntersection(0) || findEyeWaveTopIntersection(30)
-    const intersection2 = findEyeWaveBottomIntersection(0) || findEyeWaveBottomIntersection(-30)
-    const intersection3 = findEyeWaveTopIntersection2(180) || findEyeWaveTopIntersection2(150)
-    const intersection4 = findEyeWaveBottomIntersection2(180) || findEyeWaveBottomIntersection2(210)
+    const tryVariousAngles = (findIntersection, ...angles) => {
+      for (const angle of angles) {
+        const intersection = findIntersection(angle)
+        if (intersection) return intersection
+      }
+      return undefined
+    }
+
+    const intersection1 = tryVariousAngles(findEyeWaveTopIntersection, 0, 30, 45)
+    const intersection2 = tryVariousAngles(findEyeWaveBottomIntersection, 0, -30, -45)
+    const intersection3 = tryVariousAngles(findEyeWaveTopIntersection2, 180, 150, 135)
+    const intersection4 = tryVariousAngles(findEyeWaveBottomIntersection2, 180, 210, 225)
 
     const intersections = [
       intersection1,
