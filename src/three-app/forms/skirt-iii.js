@@ -33,7 +33,7 @@ const parametricEyeWaveBottomX = xoffset =>
 
 const parametricEyeWaveBottomY = (A, F, S, f, Φ, φ, k, h, tick) =>
   t => {
-    const θ = C.TWO_PI - (k * t)
+    const θ = C.PI + (k * t)
     const ω = A * Math.sin(F * θ + S * tick + Φ) * Math.cos(f * tick + φ)
     return (h + ω) * Math.sin(θ)
   }
@@ -71,7 +71,7 @@ export class SkirtIIIForm {
     this.ellipseRadiusX = this.width / 2
     this.ellipseRadiusY = this.height / 2
     this.eyeWaveWidth = this.width * 5 / 6
-    this.eyeWaveHeight = this.height / 6
+    this.eyeWaveHeight = this.height / 4
     this.eyeWaveInitialOffsetX = (this.width - this.eyeWaveWidth) / 2
     this.eyeWaveOffsetX = this.eyeWaveInitialOffsetX
   }
@@ -89,17 +89,19 @@ export class SkirtIIIForm {
     const parametricEyeWaveBottomXDerivativeFn2 = parametricEyeWaveBottomXDerivative(xoffset2)
 
     const A = this.height / 8
-    const F = 1.7
-    const S = 0.003
-    const f = 0.003
-    const Φ = THREE.MathUtils.degToRad(35)
-    const φ = THREE.MathUtils.degToRad(125)
+    const F = C.HALF_PI
+    const S = C.PI / 1000
+    const f = 0
+    const Φ1 = THREE.MathUtils.degToRad(15)
+    const φ1 = THREE.MathUtils.degToRad(15)
+    const Φ2 = THREE.MathUtils.degToRad(60)
+    const φ2 = THREE.MathUtils.degToRad(60)
     const k = C.PI / this.eyeWaveWidth
     const h = this.eyeWaveHeight
-    const parametricEyeWaveTopYFn = parametricEyeWaveTopY(A, F, S, f, Φ, φ, k, h, this.tick)
-    const parametricEyeWaveTopYDerivativeFn = parametricEyeWaveTopYDerivative(A, F, S, f, Φ, φ, k, h, this.tick)
-    const parametricEyeWaveBottomYFn = parametricEyeWaveBottomY(A, F, S, f, Φ, φ, k, h, this.tick)
-    const parametricEyeWaveBottomYDerivativeFn = parametricEyeWaveBottomYDerivative(A, F, S, f, Φ, φ, k, h, this.tick)
+    const parametricEyeWaveTopYFn = parametricEyeWaveTopY(A, F, S, f, Φ1, φ1, k, h, this.tick)
+    const parametricEyeWaveTopYDerivativeFn = parametricEyeWaveTopYDerivative(A, F, S, f, Φ1, φ1, k, h, this.tick)
+    const parametricEyeWaveBottomYFn = parametricEyeWaveBottomY(A, F, S, f, Φ2, φ2, k, h, this.tick)
+    const parametricEyeWaveBottomYDerivativeFn = parametricEyeWaveBottomYDerivative(A, F, S, f, Φ2, φ2, k, h, this.tick)
 
     const parametricEllipseXFn = parametricEllipseX(this.ellipseRadiusX)
     const parametricEllipseYFn = parametricEllipseY(this.ellipseRadiusY)
@@ -270,7 +272,7 @@ export class SkirtIIIForm {
       })
 
       const bottomPoints = U.range(pointCount + 1).map(n => {
-        const t = this.eyeWaveWidth - (n * deltaX)
+        const t = n * deltaX
         const x = parametricEyeWaveBottomXFn(t)
         const y = parametricEyeWaveBottomYFn(t)
         return new THREE.Vector2(x, y)
