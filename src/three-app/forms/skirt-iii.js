@@ -18,25 +18,68 @@ const parametricEllipseX = rx =>
 const parametricEllipseY = ry =>
   t => ry * Math.sin(t)
 
-const parametricEyeWaveTopX = (xoffset, width, deltaX) =>
-  t => xoffset - width / 2 + deltaX * t
+// Circle-wave equation:
+// Cx(θ, t) := (R + ω(θ, t)) · cos(θ)
+// Cy(θ, t) := (R + ω(θ, t)) · sin(θ)
 
-const parametricEyeWaveTopY = (A, F, S, f, Φ, φ, height, deltaAngle, tick) =>
+// Wave function:
+// ω(θ, t) := A · sin(F · θ + S · t + Φ) · cos(f · t + φ)
+
+// Variables:
+// θ = radial angle to a point on the circle wave; 0 ≤ θ < ∞
+// t = time; 0 ≤ t < ∞
+
+// Parameters:
+// R = distance from circle center to middle of wave; 0 ≤ R < ∞
+// A = amplitude of circle wave; 0 < A < ∞
+// F = number of wavelengths per circumference; F = 1, 2, 3, …
+// S = speed of rotation of circle wave; 0 ≤ S < ∞
+// f = frequency of circle wave oscillation; 0 ≤ f < ∞
+// Φ = phase of circle wave rotation; 0 ≤ Φ < 2π
+// φ = phase of circle wave oscillation; 0 ≤ φ < 2π
+
+const parametricEyeWaveX = (xoffset, R, A, F, S, f, Φ, φ, tick) =>
   t => {
-    const θ = deltaAngle * t
-    const ω = A * Math.sin(F * θ + S * tick + Φ) * Math.cos(f * tick + φ)
-    return (height + ω) * Math.sin(θ)
+    const θ = t
+    // const ω = A * Math.sin(F * θ + S * tick + Φ) * Math.cos(f * tick * φ)
+    // return (R + ω) * Math.cos(θ)
+    return R * Math.cos(θ)
+    // return Math.abs(t)
   }
 
-const parametricEyeWaveBottomX = (xoffset, width, deltaX) =>
-  t => xoffset + width / 2 - deltaX * t
+// const parametricEyeWaveTopY = (A, F, S, f, Φ, φ, k, h, tick) =>
+//   t => {
+//     const θ = k * t
+//     const ω = A * Math.sin(F * θ + S * tick + Φ) * Math.cos(f * tick + φ)
+//     return (h + ω) * Math.sin(θ)
+//   }
 
-const parametricEyeWaveBottomY = (A, F, S, f, Φ, φ, height, deltaAngle, tick) =>
+const parametricEyeWaveY = (R, A, F, S, f, Φ, φ, tick) =>
   t => {
-    const θ = C.PI + deltaAngle * t
-    const ω = A * Math.sin(F * θ + S * tick + Φ) * Math.cos(f * tick + φ)
-    return (height + ω) * Math.sin(θ)
+    const θ = t
+    const ω = A * Math.sin(F * θ + S * tick + Φ) * Math.cos(f * tick * φ)
+    return (R + ω) * Math.sin(θ)
   }
+
+// const parametricEyeWaveTopX = (xoffset, width, deltaX) =>
+//   t => xoffset - width / 2 + deltaX * t
+
+// const parametricEyeWaveTopY = (A, F, S, f, Φ, φ, height, deltaAngle, tick) =>
+//   t => {
+//     const θ = deltaAngle * t
+//     const ω = A * Math.sin(F * θ + S * tick + Φ) * Math.cos(f * tick + φ)
+//     return (height + ω) * Math.sin(θ)
+//   }
+
+// const parametricEyeWaveBottomX = (xoffset, width, deltaX) =>
+//   t => xoffset + width / 2 - deltaX * t
+
+// const parametricEyeWaveBottomY = (A, F, S, f, Φ, φ, height, deltaAngle, tick) =>
+//   t => {
+//     const θ = C.PI + deltaAngle * t
+//     const ω = A * Math.sin(F * θ + S * tick + Φ) * Math.cos(f * tick + φ)
+//     return (height + ω) * Math.sin(θ)
+//   }
 
 // The following online tool was very useful for finding the derivatives:
 // https://www.symbolab.com/solver/derivative-calculator
@@ -77,253 +120,255 @@ export class SkirtIIIForm {
   }
 
   getLines() {
-    const xoffset = this.eyeWaveOffsetX - this.eyeWaveInitialOffsetX
-    const deltaX = this.eyeWaveWidth / WAVE_POINT_COUNT
-    const parametricEyeWaveTopXFn = parametricEyeWaveTopX(xoffset, this.eyeWaveWidth, deltaX)
-    const parametricEyeWaveTopXDerivativeFn = parametricEyeWaveTopXDerivative(xoffset, this.eyeWaveWidth, deltaX)
-    const parametricEyeWaveBottomXFn = parametricEyeWaveBottomX(xoffset, this.eyeWaveWidth, deltaX)
-    const parametricEyeWaveBottomXDerivativeFn = parametricEyeWaveBottomXDerivative(xoffset, this.eyeWaveWidth, deltaX)
-    const xoffset2 = xoffset - this.width
-    const parametricEyeWaveTopXFn2 = parametricEyeWaveTopX(xoffset2, this.eyeWaveWidth, deltaX)
-    const parametricEyeWaveTopXDerivativeFn2 = parametricEyeWaveTopXDerivative(xoffset2, this.eyeWaveWidth, deltaX)
-    const parametricEyeWaveBottomXFn2 = parametricEyeWaveBottomX(xoffset2, this.eyeWaveWidth, deltaX)
-    const parametricEyeWaveBottomXDerivativeFn2 = parametricEyeWaveBottomXDerivative(xoffset2, this.eyeWaveWidth, deltaX)
+    const rx = this.width * 5 / 12
+    const ry = 1 // this.height / 10
+    const A = .2 // this.height / 8
+    const F = 1.5
+    const S = 0.003
+    const f = 0.003
+    const Φ = THREE.MathUtils.degToRad(0)
+    const φ = THREE.MathUtils.degToRad(0)
 
-    const deltaAngle = C.PI / WAVE_POINT_COUNT
-    const A = this.height / 8
-    const F = 1.7
-    const S = 0.001
-    const f = 0.001
-    const Φ = THREE.MathUtils.degToRad(35)
-    const φ = THREE.MathUtils.degToRad(125)
-    const parametricEyeWaveTopYFn = parametricEyeWaveTopY(A, F, S, f, Φ, φ, this.eyeWaveHeight, deltaAngle, this.tick)
-    const parametricEyeWaveTopYDerivativeFn = parametricEyeWaveTopYDerivative(A, F, S, f, Φ, φ, this.eyeWaveHeight, deltaAngle, this.tick)
-    const parametricEyeWaveBottomYFn = parametricEyeWaveBottomY(A, F, S, f, Φ, φ, this.eyeWaveHeight, deltaAngle, this.tick)
-    const parametricEyeWaveBottomYDerivativeFn = parametricEyeWaveBottomYDerivative(A, F, S, f, Φ, φ, this.eyeWaveHeight, deltaAngle, this.tick)
+    // const xoffset = this.eyeWaveOffsetX - this.eyeWaveInitialOffsetX
+    // const xoffset2 = xoffset - this.width
+
+    const parametricEyeWaveXFn = parametricEyeWaveX(-rx, rx/C.HALF_PI, A, F, S, f, Φ, φ, this.tick)
+    const parametricEyeWaveYFn = parametricEyeWaveY(ry, A, F, S, f, Φ, φ, this.tick)
 
     const parametricEllipseXFn = parametricEllipseX(this.ellipseRadiusX)
     const parametricEllipseYFn = parametricEllipseY(this.ellipseRadiusY)
-    const parametricEllipseXDerivativeFn = parametricEllipseXDerivative(this.ellipseRadiusX)
-    const parametricEllipseYDerivativeFn = parametricEllipseYDerivative(this.ellipseRadiusY)
+    // const parametricEllipseXDerivativeFn = parametricEllipseXDerivative(this.ellipseRadiusX)
+    // const parametricEllipseYDerivativeFn = parametricEllipseYDerivative(this.ellipseRadiusY)
 
-    const findEyeWaveTopIntersection = angle => {
+    // const findEyeWaveTopIntersection = angle => {
 
-      const xstart = parametricEyeWaveTopXFn(0)
-      const xend = parametricEyeWaveTopXFn(WAVE_POINT_COUNT)
+    //   const xstart = parametricEyeWaveXFn(0)
+    //   const xend = parametricEyeWaveXFn(WAVE_POINT_COUNT)
 
-      if (xstart <= this.ellipseRadiusX && xend >= this.ellipseRadiusX) {
+    //   if (xstart <= this.ellipseRadiusX && xend >= this.ellipseRadiusX) {
 
-        const t1Guess = THREE.MathUtils.degToRad(angle)
-        const x = parametricEllipseXFn(t1Guess)
-        const d = x - xstart
-        const l = xend - xstart
-        const t2Guess = d / l * WAVE_POINT_COUNT
+    //     const t1Guess = THREE.MathUtils.degToRad(angle)
+    //     const x = parametricEllipseXFn(t1Guess)
+    //     const d = x - xstart
+    //     const l = xend - xstart
+    //     const t2Guess = d / l * WAVE_POINT_COUNT
 
-        try {
-          return newtonsMethod(
-            parametricEllipseXFn,
-            parametricEllipseYFn,
-            parametricEyeWaveTopXFn,
-            parametricEyeWaveTopYFn,
-            parametricEllipseXDerivativeFn,
-            parametricEllipseYDerivativeFn,
-            parametricEyeWaveTopXDerivativeFn,
-            parametricEyeWaveTopYDerivativeFn,
-            t1Guess,
-            t2Guess)
-        } catch {
-          return undefined
-        }
-      }
-    }
+    //     try {
+    //       return newtonsMethod(
+    //         parametricEllipseXFn,
+    //         parametricEllipseYFn,
+    //         parametricEyeWaveXFn,
+    //         parametricEyeWaveYFn,
+    //         parametricEllipseXDerivativeFn,
+    //         parametricEllipseYDerivativeFn,
+    //         parametricEyeWaveXDerivativeFn,
+    //         parametricEyeWaveYDerivativeFn,
+    //         t1Guess,
+    //         t2Guess)
+    //     } catch {
+    //       return undefined
+    //     }
+    //   }
+    // }
 
-    const findEyeWaveBottomIntersection = angle => {
+    // const findEyeWaveBottomIntersection = angle => {
 
-      const xstart = parametricEyeWaveBottomXFn(0)
-      const xend = parametricEyeWaveBottomXFn(WAVE_POINT_COUNT)
+    //   const xstart = parametricEyeWaveBottomXFn(0)
+    //   const xend = parametricEyeWaveBottomXFn(WAVE_POINT_COUNT)
 
-      if (xend <= this.ellipseRadiusX && xstart >= this.ellipseRadiusX) {
+    //   if (xend <= this.ellipseRadiusX && xstart >= this.ellipseRadiusX) {
 
-        const t1Guess = THREE.MathUtils.degToRad(angle)
-        const x = parametricEllipseXFn(t1Guess)
-        const d = xstart - x
-        const l = xstart - xend
-        const t2Guess = d / l * WAVE_POINT_COUNT
+    //     const t1Guess = THREE.MathUtils.degToRad(angle)
+    //     const x = parametricEllipseXFn(t1Guess)
+    //     const d = xstart - x
+    //     const l = xstart - xend
+    //     const t2Guess = d / l * WAVE_POINT_COUNT
 
-        try {
-          return newtonsMethod(
-            parametricEllipseXFn,
-            parametricEllipseYFn,
-            parametricEyeWaveBottomXFn,
-            parametricEyeWaveBottomYFn,
-            parametricEllipseXDerivativeFn,
-            parametricEllipseYDerivativeFn,
-            parametricEyeWaveBottomXDerivativeFn,
-            parametricEyeWaveBottomYDerivativeFn,
-            t1Guess,
-            t2Guess)
-        } catch {
-          return undefined
-        }
-      }
-    }
+    //     try {
+    //       return newtonsMethod(
+    //         parametricEllipseXFn,
+    //         parametricEllipseYFn,
+    //         parametricEyeWaveBottomXFn,
+    //         parametricEyeWaveBottomYFn,
+    //         parametricEllipseXDerivativeFn,
+    //         parametricEllipseYDerivativeFn,
+    //         parametricEyeWaveBottomXDerivativeFn,
+    //         parametricEyeWaveBottomYDerivativeFn,
+    //         t1Guess,
+    //         t2Guess)
+    //     } catch {
+    //       return undefined
+    //     }
+    //   }
+    // }
 
-    const findEyeWaveTopIntersection2 = angle => {
+    // const findEyeWaveTopIntersection2 = angle => {
 
-      const xstart = parametricEyeWaveTopXFn2(0)
-      const xend = parametricEyeWaveTopXFn2(WAVE_POINT_COUNT)
+    //   const xstart = parametricEyeWaveXFn2(0)
+    //   const xend = parametricEyeWaveXFn2(WAVE_POINT_COUNT)
 
-      if (xstart <= -this.ellipseRadiusX && xend >= -this.ellipseRadiusX) {
+    //   if (xstart <= -this.ellipseRadiusX && xend >= -this.ellipseRadiusX) {
 
-        const t1Guess = THREE.MathUtils.degToRad(angle)
-        const x = parametricEllipseXFn(t1Guess)
-        const d = x - xstart
-        const l = xend - xstart
-        const t2Guess = d / l * WAVE_POINT_COUNT
+    //     const t1Guess = THREE.MathUtils.degToRad(angle)
+    //     const x = parametricEllipseXFn(t1Guess)
+    //     const d = x - xstart
+    //     const l = xend - xstart
+    //     const t2Guess = d / l * WAVE_POINT_COUNT
 
-        try {
-          return newtonsMethod(
-            parametricEllipseXFn,
-            parametricEllipseYFn,
-            parametricEyeWaveTopXFn2,
-            parametricEyeWaveTopYFn,
-            parametricEllipseXDerivativeFn,
-            parametricEllipseYDerivativeFn,
-            parametricEyeWaveTopXDerivativeFn2,
-            parametricEyeWaveTopYDerivativeFn,
-            t1Guess,
-            t2Guess)
-        } catch {
-          return undefined
-        }
-      }
-    }
+    //     try {
+    //       return newtonsMethod(
+    //         parametricEllipseXFn,
+    //         parametricEllipseYFn,
+    //         parametricEyeWaveXFn2,
+    //         parametricEyeWaveYFn,
+    //         parametricEllipseXDerivativeFn,
+    //         parametricEllipseYDerivativeFn,
+    //         parametricEyeWaveXDerivativeFn2,
+    //         parametricEyeWaveYDerivativeFn,
+    //         t1Guess,
+    //         t2Guess)
+    //     } catch {
+    //       return undefined
+    //     }
+    //   }
+    // }
 
-    const findEyeWaveBottomIntersection2 = angle => {
+    // const findEyeWaveBottomIntersection2 = angle => {
 
-      const xstart = parametricEyeWaveBottomXFn2(0)
-      const xend = parametricEyeWaveBottomXFn2(WAVE_POINT_COUNT)
+    //   const xstart = parametricEyeWaveBottomXFn2(0)
+    //   const xend = parametricEyeWaveBottomXFn2(WAVE_POINT_COUNT)
 
-      if (xend <= -this.ellipseRadiusX && xstart >= -this.ellipseRadiusX) {
+    //   if (xend <= -this.ellipseRadiusX && xstart >= -this.ellipseRadiusX) {
 
-        const t1Guess = THREE.MathUtils.degToRad(angle)
-        const x = parametricEllipseXFn(t1Guess)
-        const d = xstart - x
-        const l = xstart - xend
-        const t2Guess = d / l * WAVE_POINT_COUNT
+    //     const t1Guess = THREE.MathUtils.degToRad(angle)
+    //     const x = parametricEllipseXFn(t1Guess)
+    //     const d = xstart - x
+    //     const l = xstart - xend
+    //     const t2Guess = d / l * WAVE_POINT_COUNT
 
-        try {
-          return newtonsMethod(
-            parametricEllipseXFn,
-            parametricEllipseYFn,
-            parametricEyeWaveBottomXFn2,
-            parametricEyeWaveBottomYFn,
-            parametricEllipseXDerivativeFn,
-            parametricEllipseYDerivativeFn,
-            parametricEyeWaveBottomXDerivativeFn2,
-            parametricEyeWaveBottomYDerivativeFn,
-            t1Guess,
-            t2Guess)
-        } catch {
-          return undefined
-        }
-      }
-    }
+    //     try {
+    //       return newtonsMethod(
+    //         parametricEllipseXFn,
+    //         parametricEllipseYFn,
+    //         parametricEyeWaveBottomXFn2,
+    //         parametricEyeWaveBottomYFn,
+    //         parametricEllipseXDerivativeFn,
+    //         parametricEllipseYDerivativeFn,
+    //         parametricEyeWaveBottomXDerivativeFn2,
+    //         parametricEyeWaveBottomYDerivativeFn,
+    //         t1Guess,
+    //         t2Guess)
+    //     } catch {
+    //       return undefined
+    //     }
+    //   }
+    // }
 
-    const tryVariousAngles = (findIntersection, ...angles) => {
-      for (const angle of angles) {
-        const intersection = findIntersection(angle)
-        if (intersection) return intersection
-      }
-      return undefined
-    }
+    // const tryVariousAngles = (findIntersection, ...angles) => {
+    //   for (const angle of angles) {
+    //     const intersection = findIntersection(angle)
+    //     if (intersection) return intersection
+    //   }
+    //   return undefined
+    // }
 
-    const intersection1 = tryVariousAngles(findEyeWaveTopIntersection, 0, 30, 45)
-    const intersection2 = tryVariousAngles(findEyeWaveBottomIntersection, 0, -30, -45)
-    const intersection3 = tryVariousAngles(findEyeWaveTopIntersection2, 180, 150, 135)
-    const intersection4 = tryVariousAngles(findEyeWaveBottomIntersection2, 180, 210, 225)
+    // const intersection1 = tryVariousAngles(findEyeWaveTopIntersection, 0, 30, 45)
+    // const intersection2 = tryVariousAngles(findEyeWaveBottomIntersection, 0, -30, -45)
+    // const intersection3 = tryVariousAngles(findEyeWaveTopIntersection2, 180, 150, 135)
+    // const intersection4 = tryVariousAngles(findEyeWaveBottomIntersection2, 180, 210, 225)
 
-    const intersections = [
-      intersection1,
-      intersection2,
-      intersection3,
-      intersection4
-    ]
-      .filter(Boolean)
+    // const intersections = [
+    //   intersection1,
+    //   intersection2,
+    //   intersection3,
+    //   intersection4
+    // ]
+    //   .filter(Boolean)
 
-    const intersectionPoints = intersections.map(intersection =>
-      new THREE.Vector2(
-        parametricEllipseXFn(intersection.t1),
-        parametricEllipseYFn(intersection.t1))
-    )
+    // const intersectionPoints = intersections.map(intersection =>
+    //   new THREE.Vector2(
+    //     parametricEllipseXFn(intersection.t1),
+    //     parametricEllipseYFn(intersection.t1))
+    // )
+
+    // const intersections = []
 
     const getEyeWavePoints = () => {
-      const topPoints = U.range(WAVE_POINT_COUNT + 1).map(t => {
-        const x = parametricEyeWaveTopXFn(t)
-        const y = parametricEyeWaveTopYFn(t)
+      const pointCount = WAVE_POINT_COUNT
+      const deltaAngle = C.TWO_PI / pointCount
+      return U.range(pointCount + 1).map(n => {
+        const t = n * deltaAngle
+        const x = parametricEyeWaveXFn(t)
+        const y = parametricEyeWaveYFn(t)
         return new THREE.Vector2(x, y)
       })
 
-      const bottomPoints = U.range(WAVE_POINT_COUNT).map(t => {
-        const x = parametricEyeWaveBottomXFn(t)
-        const y = parametricEyeWaveBottomYFn(t)
-        return new THREE.Vector2(x, y)
-      })
+      // const topPoints = U.range(WAVE_POINT_COUNT + 1).map(t => {
+      //   const x = parametricEyeWaveXFn(t)
+      //   const y = parametricEyeWaveYFn(t)
+      //   return new THREE.Vector2(x, y)
+      // })
 
-      return U.combinePoints(topPoints, bottomPoints)
+      // const bottomPoints = U.range(WAVE_POINT_COUNT).map(t => {
+      //   const x = parametricEyeWaveBottomXFn(t)
+      //   const y = parametricEyeWaveBottomYFn(t)
+      //   return new THREE.Vector2(x, y)
+      // })
+
+      // return U.combinePoints(topPoints, bottomPoints)
     }
 
-    const getEyeWavePointsLeft = (p1, p2) => {
-      const pointCountTop = Math.floor(p1)
-      const topPoints = U.range(pointCountTop).map(t => {
-        const x = parametricEyeWaveTopXFn(t)
-        const y = parametricEyeWaveTopYFn(t)
-        return new THREE.Vector2(x, y)
-      })
-      topPoints.push(new THREE.Vector2(
-        parametricEyeWaveTopXFn(p1),
-        parametricEyeWaveTopYFn(p1))
-      )
+    // const getEyeWavePointsLeft = (p1, p2) => {
+    //   const pointCountTop = Math.floor(p1)
+    //   const topPoints = U.range(pointCountTop).map(t => {
+    //     const x = parametricEyeWaveXFn(t)
+    //     const y = parametricEyeWaveYFn(t)
+    //     return new THREE.Vector2(x, y)
+    //   })
+    //   topPoints.push(new THREE.Vector2(
+    //     parametricEyeWaveXFn(p1),
+    //     parametricEyeWaveYFn(p1))
+    //   )
 
-      const pointCountBottom = WAVE_POINT_COUNT - Math.floor(p2)
-      const bottomPoints = U.range(pointCountBottom).map(t => {
-        const x = parametricEyeWaveBottomXFn(p2 + t)
-        const y = parametricEyeWaveBottomYFn(p2 + t)
-        return new THREE.Vector2(x, y)
-      })
-      bottomPoints.push(new THREE.Vector2(
-        parametricEyeWaveBottomXFn(WAVE_POINT_COUNT),
-        parametricEyeWaveBottomYFn(WAVE_POINT_COUNT))
-      )
+    //   const pointCountBottom = WAVE_POINT_COUNT - Math.floor(p2)
+    //   const bottomPoints = U.range(pointCountBottom).map(t => {
+    //     const x = parametricEyeWaveBottomXFn(p2 + t)
+    //     const y = parametricEyeWaveBottomYFn(p2 + t)
+    //     return new THREE.Vector2(x, y)
+    //   })
+    //   bottomPoints.push(new THREE.Vector2(
+    //     parametricEyeWaveBottomXFn(WAVE_POINT_COUNT),
+    //     parametricEyeWaveBottomYFn(WAVE_POINT_COUNT))
+    //   )
 
-      return U.combinePoints(topPoints.reverse(), bottomPoints)
-    }
+    //   return U.combinePoints(topPoints.reverse(), bottomPoints)
+    // }
 
-    const getEyeWavePointsRight = (p1, p2) => {
-      const pointCountTop = WAVE_POINT_COUNT - Math.floor(p1)
-      const topPoints = U.range(pointCountTop).map(t => {
-        const x = parametricEyeWaveTopXFn2(p1 + t)
-        const y = parametricEyeWaveTopYFn(p1 + t)
-        return new THREE.Vector2(x, y)
-      })
-      topPoints.push(new THREE.Vector2(
-        parametricEyeWaveTopXFn2(WAVE_POINT_COUNT),
-        parametricEyeWaveTopYFn(WAVE_POINT_COUNT))
-      )
+    // const getEyeWavePointsRight = (p1, p2) => {
+    //   const pointCountTop = WAVE_POINT_COUNT - Math.floor(p1)
+    //   const topPoints = U.range(pointCountTop).map(t => {
+    //     const x = parametricEyeWaveXFn2(p1 + t)
+    //     const y = parametricEyeWaveYFn(p1 + t)
+    //     return new THREE.Vector2(x, y)
+    //   })
+    //   topPoints.push(new THREE.Vector2(
+    //     parametricEyeWaveXFn2(WAVE_POINT_COUNT),
+    //     parametricEyeWaveYFn(WAVE_POINT_COUNT))
+    //   )
 
-      const pointCountBottom = Math.floor(p2)
-      const bottomPoints = U.range(pointCountBottom).map(t => {
-        const x = parametricEyeWaveBottomXFn2(t)
-        const y = parametricEyeWaveBottomYFn(t)
-        return new THREE.Vector2(x, y)
-      })
-      bottomPoints.push(new THREE.Vector2(
-        parametricEyeWaveBottomXFn2(p2),
-        parametricEyeWaveBottomYFn(p2))
-      )
+    //   const pointCountBottom = Math.floor(p2)
+    //   const bottomPoints = U.range(pointCountBottom).map(t => {
+    //     const x = parametricEyeWaveBottomXFn2(t)
+    //     const y = parametricEyeWaveBottomYFn(t)
+    //     return new THREE.Vector2(x, y)
+    //   })
+    //   bottomPoints.push(new THREE.Vector2(
+    //     parametricEyeWaveBottomXFn2(p2),
+    //     parametricEyeWaveBottomYFn(p2))
+    //   )
 
-      return U.combinePoints(topPoints, bottomPoints)
-    }
+    //   return U.combinePoints(topPoints, bottomPoints)
+    // }
 
     const getEllipsePoints = (angle1, angle2) => {
       const pointCount = ELLIPSE_POINT_COUNT
@@ -336,24 +381,24 @@ export class SkirtIIIForm {
       })
     }
 
-    if (intersections.length === 4) {
-      const eyeWavePointsLeft = getEyeWavePointsLeft(intersection1.t2, intersection2.t2)
-      const eyeWavePointsRight = getEyeWavePointsRight(intersection3.t2, intersection4.t2)
-      const ellipseTopPoints = getEllipsePoints(C.PI * 5 / 8, intersection1.t1)
-      const ellipseBottomPoints = getEllipsePoints(intersection4.t1, C.PI + C.PI * 5 / 8)
+    // if (intersections.length === 4) {
+    //   const eyeWavePointsLeft = getEyeWavePointsLeft(intersection1.t2, intersection2.t2)
+    //   const eyeWavePointsRight = getEyeWavePointsRight(intersection3.t2, intersection4.t2)
+    //   const ellipseTopPoints = getEllipsePoints(C.PI * 5 / 8, intersection1.t1)
+    //   const ellipseBottomPoints = getEllipsePoints(intersection4.t1, C.PI + C.PI * 5 / 8)
 
-      const topPoints = U.combinePoints(ellipseTopPoints, eyeWavePointsLeft)
-      const bottomPoints = U.combinePoints(eyeWavePointsRight, ellipseBottomPoints)
-      const line1 = new Line(topPoints)
-      const line2 = new Line(bottomPoints)
+    //   const topPoints = U.combinePoints(ellipseTopPoints, eyeWavePointsLeft)
+    //   const bottomPoints = U.combinePoints(eyeWavePointsRight, ellipseBottomPoints)
+    //   const line1 = new Line(topPoints)
+    //   const line2 = new Line(bottomPoints)
 
-      this.tick++
-      this.eyeWaveOffsetX = (this.eyeWaveOffsetX + 0.001) % (this.width)
+    //   this.tick++
+    //   this.eyeWaveOffsetX = (this.eyeWaveOffsetX + 0.001) % (this.width)
 
-      const lines = [line1, line2]
-      lines.intersectionPoints = intersectionPoints
-      return lines
-    }
+    //   const lines = [line1, line2]
+    //   lines.intersectionPoints = intersectionPoints
+    //   return lines
+    // }
 
     const eyeWavePoints = getEyeWavePoints()
     const ellipseTopPoints = getEllipsePoints(0, C.PI * 5 / 8)
@@ -364,10 +409,10 @@ export class SkirtIIIForm {
     const line3 = new Line(ellipseBottomPoints)
 
     this.tick++
-    this.eyeWaveOffsetX = (this.eyeWaveOffsetX + 0.001) % (this.width)
+    // this.eyeWaveOffsetX = (this.eyeWaveOffsetX + 0.001) % (this.width)
 
     const lines = [line1, line2, line3]
-    lines.intersectionPoints = intersectionPoints
+    lines.intersectionPoints = [] // intersectionPoints
     return lines
   }
 }
