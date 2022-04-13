@@ -272,19 +272,17 @@ export class SkirtIIIForm {
     }
 
     const eyeWavePointsPrimary = getEyeWavePoints(PRIMARY)
-    const eyeWavePointsSecondary = getEyeWavePoints(SECONDARY)
     const ellipsePointsTop = getEllipsePoints(0, C.PI * 5 / 8)
     const ellipsePointsBottom = getEllipsePoints(C.PI, C.PI + C.PI * 5 / 8)
 
     const line1 = new Line(eyeWavePointsPrimary, 1, true)
-    const line2 = new Line(eyeWavePointsSecondary, 1, true)
-    const line3 = new Line(ellipsePointsTop)
-    const line4 = new Line(ellipsePointsBottom)
+    const line2 = new Line(ellipsePointsTop)
+    const line3 = new Line(ellipsePointsBottom)
 
     this.tick++
     this.eyeWaveOffsetX = (this.eyeWaveOffsetX + 0.001) % (this.width)
 
-    const lines = [line1, line2, line3, line4]
+    const lines = [line1, line2, line3]
     lines.intersectionPoints = intersectionPoints
     return lines
   }
