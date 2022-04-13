@@ -41,7 +41,10 @@ const parametricEyeWaveXDerivative = _xoffset =>
   t => 1
 
 const parametricEyeWaveYDerivative = (R, A, F, S, f, Φ, φ, k, tick, θoffset) =>
-  t => A * F * k * Math.cos(tick * f + φ) * Math.cos(F * (k * t + θoffset) + S * tick + Φ) * Math.sin(θoffset + k * t) + Math.cos(θoffset + k * t) * k * (R + A * Math.sin(F * (θoffset + k * t) + S * tick + Φ) * Math.cos(f * tick + φ))
+  t => (
+    A * F * k * Math.cos(tick * f + φ) * Math.cos(F * (k * t + θoffset) + S * tick + Φ) * Math.sin(θoffset + k * t) +
+    Math.cos(θoffset + k * t) * k * (R + A * Math.sin(F * (θoffset + k * t) + S * tick + Φ) * Math.cos(f * tick + φ))
+  )
 
 const ELLIPSE_POINT_COUNT = 100
 const EYE_WAVE_POINT_COUNT = 100
@@ -192,57 +195,51 @@ export class SkirtIIIForm {
       return U.combinePoints(topPoints, bottomPoints)
     }
 
-    // const getEyeWavePointsLeft = (p1, p2) => {
-    //   const pointCountTop = Math.floor(p1)
-    //   const topPoints = U.range(pointCountTop).map(t => {
-    //     const x = parametricEyeWaveTopXFn(t)
-    //     const y = parametricEyeWaveTopYFn(t)
-    //     return new THREE.Vector2(x, y)
-    //   })
-    //   topPoints.push(new THREE.Vector2(
-    //     parametricEyeWaveTopXFn(p1),
-    //     parametricEyeWaveTopYFn(p1))
-    //   )
+    const getEyeWavePointsPrimary = (t1, t2) => {
 
-    //   const pointCountBottom = WAVE_POINT_COUNT - Math.floor(p2)
-    //   const bottomPoints = U.range(pointCountBottom).map(t => {
-    //     const x = parametricEyeWaveBottomXFn(p2 + t)
-    //     const y = parametricEyeWaveBottomYFn(p2 + t)
-    //     return new THREE.Vector2(x, y)
-    //   })
-    //   bottomPoints.push(new THREE.Vector2(
-    //     parametricEyeWaveBottomXFn(WAVE_POINT_COUNT),
-    //     parametricEyeWaveBottomYFn(WAVE_POINT_COUNT))
-    //   )
+      const pointCount = EYE_WAVE_POINT_COUNT
+      const topΔt = t1 / pointCount
+      const bottomΔt = t2 / pointCount
 
-    //   return U.combinePoints(topPoints.reverse(), bottomPoints)
-    // }
+      const topPoints = U.range(pointCount + 1).map(n => {
+        const t = n * topΔt
+        const x = parametricEyeWaveXFns[PRIMARY](t)
+        const y = parametricEyeWaveYFns[TOP](t)
+        return new THREE.Vector2(x, y)
+      })
 
-    // const getEyeWavePointsRight = (p1, p2) => {
-    //   const pointCountTop = WAVE_POINT_COUNT - Math.floor(p1)
-    //   const topPoints = U.range(pointCountTop).map(t => {
-    //     const x = parametricEyeWaveTopXFn2(p1 + t)
-    //     const y = parametricEyeWaveTopYFn(p1 + t)
-    //     return new THREE.Vector2(x, y)
-    //   })
-    //   topPoints.push(new THREE.Vector2(
-    //     parametricEyeWaveTopXFn2(WAVE_POINT_COUNT),
-    //     parametricEyeWaveTopYFn(WAVE_POINT_COUNT))
-    //   )
+      const bottomPoints = U.range(pointCount + 1).map(n => {
+        const t = n * bottomΔt
+        const x = parametricEyeWaveXFns[PRIMARY](t)
+        const y = parametricEyeWaveYFns[BOTTOM](t)
+        return new THREE.Vector2(x, y)
+      })
 
-    //   const pointCountBottom = Math.floor(p2)
-    //   const bottomPoints = U.range(pointCountBottom).map(t => {
-    //     const x = parametricEyeWaveBottomXFn2(t)
-    //     const y = parametricEyeWaveBottomYFn(t)
-    //     return new THREE.Vector2(x, y)
-    //   })
-    //   bottomPoints.push(new THREE.Vector2(
-    //     parametricEyeWaveBottomXFn2(p2),
-    //     parametricEyeWaveBottomYFn(p2))
-    //   )
+      return U.combinePoints(topPoints.reverse(), bottomPoints)
+    }
 
-    //   return U.combinePoints(topPoints, bottomPoints)
-    // }
+    const getEyeWavePointsSecondary = (t1, t2) => {
+
+      const pointCount = EYE_WAVE_POINT_COUNT
+      const topΔt = (this.eyeWaveWidth - t1) / pointCount
+      const bottomΔt = (this.eyeWaveWidth - t2) / pointCount
+
+      const topPoints = U.range(pointCount + 1).map(n => {
+        const t = t1 + n * topΔt
+        const x = parametricEyeWaveXFns[SECONDARY](t)
+        const y = parametricEyeWaveYFns[TOP](t)
+        return new THREE.Vector2(x, y)
+      })
+
+      const bottomPoints = U.range(pointCount + 1).map(n => {
+        const t = t2 + n * bottomΔt
+        const x = parametricEyeWaveXFns[SECONDARY](t)
+        const y = parametricEyeWaveYFns[BOTTOM](t)
+        return new THREE.Vector2(x, y)
+      })
+
+      return U.combinePoints(topPoints, bottomPoints)
+    }
 
     const getEllipsePoints = (angle1, angle2) => {
       const pointCount = ELLIPSE_POINT_COUNT
@@ -255,24 +252,24 @@ export class SkirtIIIForm {
       })
     }
 
-    // if (intersections.length === 4) {
-    //   const eyeWavePointsLeft = getEyeWavePointsLeft(intersection1.t2, intersection2.t2)
-    //   const eyeWavePointsRight = getEyeWavePointsRight(intersection3.t2, intersection4.t2)
-    //   const ellipseTopPoints = getEllipsePoints(C.PI * 5 / 8, intersection1.t1)
-    //   const ellipseBottomPoints = getEllipsePoints(intersection4.t1, C.PI + C.PI * 5 / 8)
+    if (intersections.length === 4) {
+      const eyeWavePointsPrimary = getEyeWavePointsPrimary(intersection1.t2, intersection2.t2)
+      const eyeWavePointsSecondary = getEyeWavePointsSecondary(intersection3.t2, intersection4.t2)
+      const ellipsePointsTop = getEllipsePoints(C.PI * 5 / 8, intersection1.t1)
+      const ellipsePointsBottom = getEllipsePoints(intersection4.t1, C.PI + C.PI * 5 / 8)
 
-    //   const topPoints = U.combinePoints(ellipseTopPoints, eyeWavePointsLeft)
-    //   const bottomPoints = U.combinePoints(eyeWavePointsRight, ellipseBottomPoints)
-    //   const line1 = new Line(topPoints)
-    //   const line2 = new Line(bottomPoints)
+      const topPoints = U.combinePoints(ellipsePointsTop, eyeWavePointsPrimary)
+      const bottomPoints = U.combinePoints(eyeWavePointsSecondary, ellipsePointsBottom)
+      const line1 = new Line(topPoints)
+      const line2 = new Line(bottomPoints)
 
-    //   this.tick++
-    //   this.eyeWaveOffsetX = (this.eyeWaveOffsetX + 0.001) % (this.width)
+      this.tick++
+      this.eyeWaveOffsetX = (this.eyeWaveOffsetX + 0.001) % (this.width)
 
-    //   const lines = [line1, line2]
-    //   lines.intersectionPoints = intersectionPoints
-    //   return lines
-    // }
+      const lines = [line1, line2]
+      lines.intersectionPoints = intersectionPoints
+      return lines
+    }
 
     const eyeWavePointsPrimary = getEyeWavePoints(PRIMARY)
     const eyeWavePointsSecondary = getEyeWavePoints(SECONDARY)
