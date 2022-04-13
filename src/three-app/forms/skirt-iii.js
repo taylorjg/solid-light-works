@@ -91,19 +91,21 @@ export class SkirtIIIForm {
     const F = C.PI * .75
     const S = C.PI / 1000
     const f = 0.001
-    const Φ = THREE.MathUtils.degToRad(90)
-    const φ = THREE.MathUtils.degToRad(90)
+    const Φ1 = THREE.MathUtils.degToRad(0)
+    const φ1 = THREE.MathUtils.degToRad(0)
+    const Φ2 = THREE.MathUtils.degToRad(45)
+    const φ2 = THREE.MathUtils.degToRad(45)
     const k = C.PI / this.eyeWaveWidth
     const R = this.eyeWaveHeight
 
     const parametricEyeWaveYFns = [
-      parametricEyeWaveY(R, A, F, S, f, Φ, φ, k, this.tick, 0),
-      parametricEyeWaveY(R, A, F, S, f, Φ, φ, k, this.tick, C.PI)
+      parametricEyeWaveY(R, A, F, S, f, Φ1, φ1, k, this.tick, 0),
+      parametricEyeWaveY(R, A, F, S, f, Φ2, φ2, k, this.tick, C.PI)
     ]
 
     const parametricEyeWaveYDerivativeFns = [
-      parametricEyeWaveYDerivative(R, A, F, S, f, Φ, φ, k, this.tick, 0),
-      parametricEyeWaveYDerivative(R, A, F, S, f, Φ, φ, k, this.tick, C.PI)
+      parametricEyeWaveYDerivative(R, A, F, S, f, Φ1, φ1, k, this.tick, 0),
+      parametricEyeWaveYDerivative(R, A, F, S, f, Φ2, φ2, k, this.tick, C.PI)
     ]
 
     const parametricEllipseXFn = parametricEllipseX(this.ellipseRadiusX)
@@ -172,28 +174,6 @@ export class SkirtIIIForm {
         parametricEllipseXFn(intersection.t1),
         parametricEllipseYFn(intersection.t1))
     )
-
-    const getEyeWavePoints = (primaryOrSecondary) => {
-
-      const pointCount = EYE_WAVE_POINT_COUNT
-      const Δt = this.eyeWaveWidth / pointCount
-
-      const topPoints = U.range(pointCount + 1).map(n => {
-        const t = n * Δt
-        const x = parametricEyeWaveXFns[primaryOrSecondary](t)
-        const y = parametricEyeWaveYFns[TOP](t)
-        return new THREE.Vector2(x, y)
-      })
-
-      const bottomPoints = U.range(pointCount + 1).map(n => {
-        const t = n * Δt
-        const x = parametricEyeWaveXFns[primaryOrSecondary](t)
-        const y = parametricEyeWaveYFns[BOTTOM](t)
-        return new THREE.Vector2(x, y)
-      })
-
-      return U.combinePoints(topPoints, bottomPoints)
-    }
 
     const getEyeWavePointsPrimary = (t1, t2) => {
 
@@ -271,7 +251,7 @@ export class SkirtIIIForm {
       return lines
     }
 
-    const eyeWavePointsPrimary = getEyeWavePoints(PRIMARY)
+    const eyeWavePointsPrimary = getEyeWavePointsPrimary(this.eyeWaveWidth, this.eyeWaveWidth)
     const ellipsePointsTop = getEllipsePoints(0, C.PI * 5 / 8)
     const ellipsePointsBottom = getEllipsePoints(C.PI, C.PI + C.PI * 5 / 8)
 
