@@ -2,8 +2,8 @@ import * as THREE from 'three'
 import lineclip from 'lineclip'
 import { Line } from '../line'
 import { Ellipse } from '../syntax/ellipse'
-import * as U from '../utils'
 import * as C from '../constants'
+import * as U from '../utils'
 
 const ELLIPSE_POINT_COUNT = 100
 const TRAVELLING_WAVE_POINT_COUNT = 100
@@ -25,11 +25,11 @@ export class BetweenYouAndIForm {
   }
 
   getEllipsePoints(tickRatio, wipeY) {
-    const theta = Math.acos(wipeY / this.ry)
+    const θ = Math.acos(wipeY / this.ry)
 
     const [startAngle, endAngle] = this.wipingInEllipse
-      ? [theta, -theta]
-      : [-theta, theta - C.TWO_PI]
+      ? [θ, -θ]
+      : [-θ, θ - C.TWO_PI]
 
     const rx = this.rx - Math.sin(C.PI * tickRatio)
 
@@ -72,9 +72,9 @@ export class BetweenYouAndIForm {
     const minY = this.wipingInEllipse ? this.minY : wipeY
     const maxY = this.wipingInEllipse ? wipeY : this.maxY
 
-    const theta = -C.QUARTER_PI + (C.PI * tickRatio)
-    const px = this.width * Math.cos(theta)
-    const py = this.height * Math.sin(theta)
+    const θ = -C.QUARTER_PI + (C.PI * tickRatio)
+    const px = this.width * Math.cos(θ)
+    const py = this.height * Math.sin(θ)
 
     const points = [[px, py], [-px, -py]]
     const bbox = [this.minX, minY, this.maxX, maxY]

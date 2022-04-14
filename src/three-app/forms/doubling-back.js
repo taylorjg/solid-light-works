@@ -24,13 +24,13 @@ export class DoublingBackForm {
   getTravellingWavePoints1() {
     const k = C.TWO_PI / this.waveLength
     const frequency = 1
-    const omega = C.TWO_PI * frequency
+    const ω = C.TWO_PI * frequency
     const speed = 0.0001
-    const phase = THREE.MathUtils.degToRad(160)
-    const dx = this.width / TRAVELLING_WAVE_POINT_COUNT
+    const φ = THREE.MathUtils.degToRad(160)
+    const Δx = this.width / TRAVELLING_WAVE_POINT_COUNT
     return U.range(TRAVELLING_WAVE_POINT_COUNT + 1).map(n => {
-      const x = dx * n
-      const y = this.height / 2 * Math.sin(k * x - omega * this.tick * speed + phase)
+      const x = Δx * n
+      const y = this.height / 2 * Math.sin(k * x - ω * this.tick * speed + φ)
       return new THREE.Vector2(x - this.width / 2, y)
     })
   }
@@ -38,14 +38,14 @@ export class DoublingBackForm {
   getTravellingWavePoints2() {
     const k = C.TWO_PI / this.waveLength
     const frequency = 1
-    const omega = C.TWO_PI * frequency
+    const ω = C.TWO_PI * frequency
     const speed = 0.0001
-    const phase = THREE.MathUtils.degToRad(70)
-    const dy = this.height / TRAVELLING_WAVE_POINT_COUNT
+    const φ = THREE.MathUtils.degToRad(70)
+    const Δy = this.height / TRAVELLING_WAVE_POINT_COUNT
     const midpoint = this.width / 2 - this.height / 2
     return U.range(TRAVELLING_WAVE_POINT_COUNT + 1).map(n => {
-      const y = dy * n
-      const x = this.height / 2 * Math.sin(k * y - omega * this.tick * speed + phase)
+      const y = Δy * n
+      const x = this.height / 2 * Math.sin(k * y - ω * this.tick * speed + φ)
       return new THREE.Vector2(midpoint - x, y - this.height / 2)
     })
   }

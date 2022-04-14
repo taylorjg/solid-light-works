@@ -10,7 +10,7 @@ import * as U from '../utils'
 
 // Parametric equation of a travelling wave:
 // x = t
-// y = a * sin(k * t - wt + phi)
+// y = A * sin(k * t - ωt + φ)
 
 const parametricEllipseX = rx =>
   t => rx * Math.cos(t)

@@ -1,16 +1,17 @@
 import * as THREE from 'three'
 import { Line } from '../line'
 import { newtonsMethod } from '../newtons-method'
-import * as U from '../utils'
 import * as C from '../constants'
+import * as U from '../utils'
 
 // Parametric equation of an ellipse:
 // x = a * cos(t)
 // y = b * sin(t)
 
+// http://labman.phys.utk.edu/phys221core/modules/m11/traveling_waves.html
 // Parametric equation of a travelling wave:
 // x = t
-// y = a * sin(k * t - wt + phi)
+// y = A * sin(k * t - ωt + φ)
 
 const parametricEllipseX = rx =>
   t => rx * Math.cos(t)
@@ -21,8 +22,8 @@ const parametricEllipseY = ry =>
 const parametricTravellingWaveX = xoffset =>
   t => t + xoffset
 
-const parametricTravellingWaveY = (a, k, wt, phi) =>
-  t => a * Math.sin(k * t - wt + phi)
+const parametricTravellingWaveY = (A, k, ωt, φ) =>
+  t => A * Math.sin(k * t - ωt + φ)
 
 // The following online tool was very useful for finding the derivatives:
 // https://www.symbolab.com/solver/derivative-calculator
@@ -33,11 +34,11 @@ const parametricEllipseXDerivative = rx =>
 const parametricEllipseYDerivative = ry =>
   t => ry * Math.cos(t)
 
-const parametricTravellingWaveXDerivative = xoffset =>
+const parametricTravellingWaveXDerivative = _xoffset =>
   t => 1
 
-const parametricTravellingWaveYDerivative = (a, k, wt, phi) =>
-  t => a * Math.cos(k * t - wt + phi) * k
+const parametricTravellingWaveYDerivative = (A, k, ωt, φ) =>
+  t => A * Math.cos(k * t - ωt + φ) * k
 
 const ELLIPSE_POINT_COUNT = 100
 const TRAVELLING_WAVE_POINT_COUNT = 100
@@ -62,18 +63,18 @@ export class BreathIIIForm {
     const parametricEllipseYDerivativeFn = parametricEllipseYDerivative(this.ry)
 
     const xoffset = -this.width / 2
-    const a = this.height / 2
+    const A = this.height / 2
     const k = C.TWO_PI / this.waveLength
     const f = 1
-    const omega = C.TWO_PI * f
+    const ω = C.TWO_PI * f
     const speed = 0.0001
-    const wt = omega * this.tick * speed
-    const phi = THREE.MathUtils.degToRad(30)
+    const ωt = ω * this.tick * speed
+    const φ = THREE.MathUtils.degToRad(30)
 
     const parametricTravellingWaveXFn = parametricTravellingWaveX(xoffset)
-    const parametricTravellingWaveYFn = parametricTravellingWaveY(a, k, wt, phi)
+    const parametricTravellingWaveYFn = parametricTravellingWaveY(A, k, ωt, φ)
     const parametricTravellingWaveXDerivativeFn = parametricTravellingWaveXDerivative(xoffset)
-    const parametricTravellingWaveYDerivativeFn = parametricTravellingWaveYDerivative(a, k, wt, phi)
+    const parametricTravellingWaveYDerivativeFn = parametricTravellingWaveYDerivative(A, k, ωt, φ)
 
     // The points where the travelling wave intersects with the ellipse are changing
     // all the time which makes it difficult to decide what the initial guesses should
