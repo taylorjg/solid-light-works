@@ -1,8 +1,8 @@
 import * as THREE from 'three'
 import { Line } from '../line'
 import { newtonsMethod } from '../newtons-method'
-import * as U from '../utils'
 import * as C from '../constants'
+import * as U from '../utils'
 
 // Parametric equation of an ellipse:
 // x = a * cos(t)
@@ -23,10 +23,10 @@ const parametricEllipseX = rx =>
 const parametricEllipseY = ry =>
   t => ry * Math.sin(t)
 
-const parametricTravellingWaveX = (a, k, wt, theta) =>
+const parametricRotatingTravellingWaveX = (a, k, wt, theta) =>
   t => t * Math.cos(theta) - a * Math.sin(k * t - wt) * Math.sin(theta)
 
-const parametricTravellingWaveY = (a, k, wt, theta) =>
+const parametricRotatingTravellingWaveY = (a, k, wt, theta) =>
   t => t * Math.sin(theta) + a * Math.sin(k * t - wt) * Math.cos(theta)
 
 // The following online tool was very useful for finding the derivatives:
@@ -38,10 +38,10 @@ const parametricEllipseXDerivative = rx =>
 const parametricEllipseYDerivative = ry =>
   t => ry * Math.cos(t)
 
-const parametricTravellingWaveXDerivative = (a, k, wt, theta) =>
+const parametricRotatingTravellingWaveXDerivative = (a, k, wt, theta) =>
   t => Math.cos(theta) - a * Math.sin(theta) * Math.cos(k * t - wt) * k
 
-const parametricTravellingWaveYDerivative = (a, k, wt, theta) =>
+const parametricRotatingTravellingWaveYDerivative = (a, k, wt, theta) =>
   t => Math.sin(theta) + a * Math.cos(theta) * Math.cos(k * t - wt) * k
 
 const easeInOutQuint = x =>
@@ -126,20 +126,30 @@ export class LeavingForm {
     const convertedAngle = -C.HALF_PI - desiredAngle
     const theta = convertedAngle - C.PI
 
-    const t1e = convertedAngle
-    const t2e = this.rx * Math.cos(convertedAngle)
+    const t1Guess = convertedAngle
+    const t2Guess = this.rx * Math.cos(convertedAngle)
+
+    const parametricEllipseXFn = parametricEllipseX(this.rx)
+    const parametricEllipseYFn = parametricEllipseY(this.ry)
+    const parametricEllipseXDerivativeFn = parametricEllipseXDerivative(this.rx)
+    const parametricEllipseYDerivativeFn = parametricEllipseYDerivative(this.ry)
+
+    const parametricRotatingTravellingWaveXFn = parametricRotatingTravellingWaveX(a, k, wt, theta)
+    const parametricRotatingTravellingWaveYFn = parametricRotatingTravellingWaveY(a, k, wt, theta)
+    const parametricRotatingTravellingWaveXDerivativeFn = parametricRotatingTravellingWaveXDerivative(a, k, wt, theta)
+    const parametricRotatingTravellingWaveYDerivativeFn = parametricRotatingTravellingWaveYDerivative(a, k, wt, theta)
 
     const { t1, t2 } = newtonsMethod(
-      parametricEllipseX(this.rx),
-      parametricEllipseY(this.ry),
-      parametricTravellingWaveX(a, k, wt, theta),
-      parametricTravellingWaveY(a, k, wt, theta),
-      parametricEllipseXDerivative(this.rx),
-      parametricEllipseYDerivative(this.ry),
-      parametricTravellingWaveXDerivative(a, k, wt, theta),
-      parametricTravellingWaveYDerivative(a, k, wt, theta),
-      t1e,
-      t2e)
+      parametricEllipseXFn,
+      parametricEllipseYFn,
+      parametricRotatingTravellingWaveXFn,
+      parametricRotatingTravellingWaveYFn,
+      parametricEllipseXDerivativeFn,
+      parametricEllipseYDerivativeFn,
+      parametricRotatingTravellingWaveXDerivativeFn,
+      parametricRotatingTravellingWaveYDerivativeFn,
+      t1Guess,
+      t2Guess)
 
     const [startAngle, endAngle] = this.growing
       ? [-C.HALF_PI, t1]
@@ -147,20 +157,20 @@ export class LeavingForm {
     const deltaAngle = (endAngle - startAngle) / ELLIPSE_POINT_COUNT
     const ellipsePoints = U.range(ELLIPSE_POINT_COUNT + 1).map(n => {
       let t = startAngle + n * deltaAngle
-      let x = parametricEllipseX(this.rx)(t)
-      let y = parametricEllipseY(this.ry)(t)
+      let x = parametricEllipseXFn(t)
+      let y = parametricEllipseYFn(t)
       return new THREE.Vector2(x, y)
     })
 
-    const p = new THREE.Vector2(parametricEllipseX(this.rx)(t1), parametricEllipseY(this.ry)(t1))
+    const p = new THREE.Vector2(parametricEllipseXFn(t1), parametricEllipseYFn(t1))
     const radius = p.length()
     const radiusRatio = this.travellingWaveRadiusRatio(tickRatio)
     const deltaRadius = radius * radiusRatio / TRAVELLING_WAVE_POINT_COUNT
     const additionalRotation = this.travellingWaveAdditionalRotation(tickRatio)
     const travellingWavePoints = U.range(TRAVELLING_WAVE_POINT_COUNT + 1).map(n => {
       const t = t2 + n * deltaRadius
-      const x = parametricTravellingWaveX(a, k, wt, theta)(t)
-      const y = parametricTravellingWaveY(a, k, wt, theta)(t)
+      const x = parametricRotatingTravellingWaveXFn(t)
+      const y = parametricRotatingTravellingWaveYFn(t)
       const wavePoint = new THREE.Vector2(x, y)
       return additionalRotation ? wavePoint.rotateAround(p, additionalRotation) : wavePoint
     })
