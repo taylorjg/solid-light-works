@@ -255,7 +255,7 @@ export class SkirtIIIForm {
     const ellipsePointsTop = getEllipsePoints(0, C.PI * 5 / 8)
     const ellipsePointsBottom = getEllipsePoints(C.PI, C.PI + C.PI * 5 / 8)
 
-    const line1 = new Line(eyeWavePointsPrimary, 1, true)
+    const line1 = new Line(eyeWavePointsPrimary, { closed: true })
     const line2 = new Line(ellipsePointsTop)
     const line3 = new Line(ellipsePointsBottom)
 

@@ -249,9 +249,7 @@ export class BreathIIIForm {
         const line1 = new Line(line1Points)
 
         const line2Points = U.combinePoints(travellingWavePointsMiddle, ellipsePointsBottom)
-        const line2Opacity = 1.0
-        const line2Closed = true
-        const line2 = new Line(line2Points, line2Opacity, line2Closed)
+        const line2 = new Line(line2Points, { closed: true })
 
         const lines = [line1, line2]
         this.tick++

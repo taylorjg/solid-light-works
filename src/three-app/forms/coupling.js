@@ -106,8 +106,8 @@ export class CouplingForm {
     const pointsB = radiusB
       ? this.circleWaveB.getPoints(radiusB, CIRCLE_WAVE_POINT_COUNT, this.tick).map(this.flipX)
       : []
-    const lineA = new Line(pointsA, opacityA)
-    const lineB = new Line(pointsB, opacityB)
+    const lineA = new Line(pointsA, { opacity: opacityA })
+    const lineB = new Line(pointsB, { opacity: opacityB })
     const lines = [lineA, lineB]
     this.tick += 1
     if (this.tick > MAX_TICKS) {

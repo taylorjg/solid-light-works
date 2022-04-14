@@ -1,9 +1,9 @@
 export class Line {
 
-  constructor(points, opacity = 1, closed = false) {
+  constructor(points, options = {}) {
     this._points = points
-    this._opacity = opacity
-    this._closed = closed
+    this._opacity = options.opacity ?? 1.0
+    this._closed = options.closed ?? false
   }
 
   get points() {
