@@ -1,17 +1,15 @@
 import * as THREE from 'three'
-import { SceneryBase } from './scenery-base'
 import * as C from '../constants'
 
-export class LeftWall extends SceneryBase {
+export class LeftWall {
 
   constructor(length, height, distance) {
-    super()
     this._length = length
     this._height = height
     this._distance = distance
   }
 
-  create(scene) {
+  create(parent) {
     const geometry = new THREE.PlaneGeometry(this._length, this._height)
     geometry.rotateY(C.HALF_PI)
     geometry.translate(this._distance, this._height / 2, this._length / 2)
@@ -20,7 +18,7 @@ export class LeftWall extends SceneryBase {
       transparent: true,
       opacity: 0.2
     })
-    this._mesh = new THREE.Mesh(geometry, material)
-    scene.add(this._mesh)
+    const mesh = new THREE.Mesh(geometry, material)
+    parent.add(mesh)
   }
 }

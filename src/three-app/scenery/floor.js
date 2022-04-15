@@ -1,16 +1,14 @@
 import * as THREE from 'three'
-import { SceneryBase } from './scenery-base'
 import * as C from '../constants'
 
-export class Floor extends SceneryBase {
+export class Floor {
 
   constructor(width, depth) {
-    super()
     this._width = width
     this._depth = depth
   }
 
-  create(scene) {
+  create(parent) {
     const geometry = new THREE.PlaneGeometry(this._width, this._depth)
     geometry.rotateX(-C.HALF_PI)
     geometry.translate(0, 0, this._depth / 2)
@@ -19,7 +17,7 @@ export class Floor extends SceneryBase {
       transparent: true,
       opacity: 0.2
     })
-    this._mesh = new THREE.Mesh(geometry, material)
-    scene.add(this._mesh)
+    const mesh = new THREE.Mesh(geometry, material)
+    parent.add(mesh)
   }
 }

@@ -7,13 +7,12 @@ import * as U from './utils'
 
 export class ProjectionEffect {
 
-  constructor(scene, projectedForm, resources) {
-    this._scene = scene
+  constructor(parent, projectedForm, resources) {
+    this._parent = parent
     this._projectedForm = projectedForm
     this._resources = resources
     this._meshes = undefined
     this._meshHelpers = undefined
-    this._visible = false
     this._visibleHelpers = false
   }
 
@@ -40,8 +39,7 @@ export class ProjectionEffect {
     })
     const mesh = new THREE.Mesh(geometry, material)
     mesh.applyMatrix4(this._projectedForm.transform)
-    mesh.visible = this._visible
-    this._scene.add(mesh)
+    this._parent.add(mesh)
     return mesh
   }
 
@@ -49,7 +47,7 @@ export class ProjectionEffect {
     this._destroyMeshes()
     this._destroyMeshHelpers()
     this._meshes = U.range(lineCount).map(() => this._createMesh())
-    if (this._visible && this._visibleHelpers) {
+    if (this._visibleHelpers) {
       this._createMeshHelpers()
     }
   }
@@ -66,7 +64,7 @@ export class ProjectionEffect {
   _createMeshHelpers() {
     if (this._meshes && !this._meshHelpers) {
       this._meshHelpers = this._meshes.map(mesh => new VertexNormalsHelper(mesh, 0.2, 0x0000ff))
-      this._meshHelpers.forEach(meshHelper => this._scene.add(meshHelper))
+      this._meshHelpers.forEach(meshHelper => this._parent.add(meshHelper))
     }
   }
 
@@ -94,10 +92,9 @@ export class ProjectionEffect {
       mesh.geometry = new MembraneGeometry(projectorPoints, screenPoints)
       mesh.geometry.computeVertexNormals()
       mesh.material.uniforms.opacity.value = line.opacity
-      mesh.visible = this._visible
     })
 
-    if (this._visible && this._visibleHelpers) {
+    if (this._visibleHelpers) {
       this._createMeshHelpers()
     } else {
       this._destroyMeshHelpers()
@@ -106,15 +103,8 @@ export class ProjectionEffect {
     if (this._meshHelpers) {
       this._meshHelpers.forEach(meshHelper => {
         meshHelper.update()
-        meshHelper.visible = this._visible && this._visibleHelpers
+        meshHelper.visible = this._visibleHelpers
       })
-    }
-  }
-
-  set visible(value) {
-    this._visible = value
-    if (this._meshes) {
-      this._meshes.forEach(mesh => mesh.visible = value)
     }
   }
 

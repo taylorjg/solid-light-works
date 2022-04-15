@@ -1,15 +1,13 @@
 import * as THREE from 'three'
-import { SceneryBase } from './scenery-base'
 
-export class Screen extends SceneryBase {
+export class Screen {
 
   constructor(width, height) {
-    super()
     this._width = width
     this._height = height
   }
 
-  create(scene) {
+  create(parent) {
     const geometry = new THREE.PlaneGeometry(this._width, this._height)
     geometry.translate(0, this._height / 2, 0)
     const material = new THREE.MeshBasicMaterial({
@@ -17,7 +15,7 @@ export class Screen extends SceneryBase {
       transparent: true,
       opacity: 0.2
     })
-    this._mesh = new THREE.Mesh(geometry, material)
-    scene.add(this._mesh)
+    const mesh = new THREE.Mesh(geometry, material)
+    parent.add(mesh)
   }
 }

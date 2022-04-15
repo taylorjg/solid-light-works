@@ -7,17 +7,16 @@ import * as U from './utils'
 
 export class ScreenImage {
 
-  constructor(scene, screenForm) {
-    this._group = this._createGroup(scene, screenForm)
+  constructor(parent, screenForm) {
+    this._group = this._createGroup(parent, screenForm)
     this._meshes = this._createMeshes()
     this._intersectionPoints = new IntersectionPoints(this._group)
   }
 
-  _createGroup(scene, screenForm) {
+  _createGroup(parent, screenForm) {
     const group = new THREE.Group()
     group.applyMatrix4(screenForm.transform)
-    group.visible = false
-    scene.add(group)
+    parent.add(group)
     return group
   }
 
@@ -96,10 +95,6 @@ export class ScreenImage {
     if (this._intersectionPoints.visible && lines.intersectionPoints) {
       this._intersectionPoints.update(lines.intersectionPoints)
     }
-  }
-
-  set visible(value) {
-    this._group.visible = value
   }
 
   set intersectionPointsVisible(value) {

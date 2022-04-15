@@ -131,13 +131,6 @@ const threeApp = () => {
     const cameraPose = cameraPoses[currentCameraPoseIndex]
     camera.position.copy(cameraPose.position)
     controls.target.copy(cameraPose.target)
-    if (mode === Mode.Mode3D) {
-      if (cameraPose.hideScenery) {
-        currentInstallation.hideScenery()
-      } else {
-        currentInstallation.showScenery()
-      }
-    }
   }
 
   const init = async () => {
