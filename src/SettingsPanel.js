@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import { Divider, FormControl, FormControlLabel, FormLabel, Slider, Switch, ToggleButtonGroup, ToggleButton, Typography } from '@mui/material'
 import CloseIcon from '@mui/icons-material/Close'
 import { StyledSettingsPanel, StyledSettingsPanelHeader, StyledSettingsPanelBody } from './SettingsPanel.styles'
@@ -28,31 +29,6 @@ const ModeSetting = ({ value, setValue }) => {
     </div>
   )
 }
-
-// const AnimationSpeedSetting = ({ value, setValue }) => {
-
-//   const handleChange = event => {
-//     setValue(event.target.value)
-//   }
-
-//   return (
-//     <div>
-//       <FormControl sx={{ width: "100%" }}>
-//         <FormLabel id="animation-speed-label">Animation Speed</FormLabel>
-//         <Slider
-//           aria-labelledby="animation-speed-label"
-//           size="small"
-//           min={100}
-//           max={5000}
-//           step={25}
-//           valueLabelDisplay="auto"
-//           value={value}
-//           onChange={handleChange}
-//         />
-//       </FormControl>
-//     </div>
-//   )
-// }
 
 const BehindOnlySetting = ({ value, setValue }) => {
 
@@ -214,17 +190,17 @@ const VertexNormalsEnabledSetting = ({ value, setValue }) => {
   )
 }
 
-const SettingsPanel = ({ settings, setSettings, onClose }) => {
+const SettingsPanel = ({ threeAppActions, onClose }) => {
 
-  const createPropsForSetting = fieldName => {
-    return {
-      value: settings[fieldName],
-      setValue: value => setSettings(settings => ({
-        ...settings,
-        [fieldName]: value
-      }))
-    }
-  }
+  const [settings, setSettings] = useState(threeAppActions.getSettings)
+
+  useEffect(() => {
+    // const onSettingsChanged = newSettings => setSettings(newSettings)
+    // threeAppActions.addSettingsChangedListener(onSettingsChanged)
+    // return () => threeAppActions.removeSettingsChangedListener(onSettingsChanged)
+    threeAppActions.addSettingsChangedListener(setSettings)
+    return () => threeAppActions.removeSettingsChangedListener(setSettings)
+  }, [threeAppActions])
 
   return (
     <StyledSettingsPanel>
@@ -234,14 +210,13 @@ const SettingsPanel = ({ settings, setSettings, onClose }) => {
       </StyledSettingsPanelHeader>
       <Divider />
       <StyledSettingsPanelBody>
-        <ModeSetting {...createPropsForSetting("mode")} />
-        <BehindOnlySetting {...createPropsForSetting("behindOnly")} />
-        {/* <AnimationSpeedSetting {...createProps("animationSpeed")} /> */}
-        <AutoRotateSetting {...createPropsForSetting("autoRotate")} />
-        <AutoRotateSpeedSetting {...createPropsForSetting("autoRotateSpeed")} />
-        <AxesEnabledSetting {...createPropsForSetting("axesEnabled")} />
-        <IntersectionPointsEnabledSetting {...createPropsForSetting("intersectionPointsEnabled")} />
-        <VertexNormalsEnabledSetting {...createPropsForSetting("vertexNormalsEnabled")} />
+        <ModeSetting value={settings.mode} setValue={threeAppActions.setMode} />
+        <BehindOnlySetting value={settings.behindOnly} setValue={threeAppActions.setBehindOnly} />
+        <AutoRotateSetting value={settings.autoRotate} setValue={threeAppActions.setAutoRotate} />
+        <AutoRotateSpeedSetting value={settings.autoRotateSpeed} setValue={threeAppActions.setAutoRotateSpeed} />
+        <AxesEnabledSetting value={settings.axesEnabled} setValue={threeAppActions.setAxesEnabled} />
+        <IntersectionPointsEnabledSetting value={settings.intersectionPointsEnabled} setValue={threeAppActions.setIntersectionPointsEnabled} />
+        <VertexNormalsEnabledSetting value={settings.vertexNormalsEnabled} setValue={threeAppActions.setVertexNormalsEnabled} />
       </StyledSettingsPanelBody>
     </StyledSettingsPanel>
   )

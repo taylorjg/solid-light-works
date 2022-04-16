@@ -37,8 +37,8 @@ const threeApp = () => {
   const removeSettingsChangedListener = listener =>
     eventEmitter.off(SETTINGS_CHANGED_EVENT_NAME, listener)
 
-  const emitSettingsChanged = () => {
-    eventEmitter.emit(SETTINGS_CHANGED_EVENT_NAME, {
+  const getSettings = () => {
+    return {
       mode,
       behindOnly,
       autoRotate: controls.autoRotate,
@@ -46,7 +46,11 @@ const threeApp = () => {
       axesEnabled,
       vertexNormalsEnabled,
       intersectionPointsEnabled
-    })
+    }
+  }
+
+  const emitSettingsChanged = () => {
+    eventEmitter.emit(SETTINGS_CHANGED_EVENT_NAME, getSettings())
   }
 
   const toggleMode = () => {
@@ -225,10 +229,6 @@ const threeApp = () => {
     emitSettingsChanged()
   }
 
-  // const setAnimationSpeed = value => {
-  //   emitSettingsChanged()
-  // }
-
   const setAutoRotate = value => {
     controls.autoRotate = value
     emitSettingsChanged()
@@ -275,12 +275,12 @@ const threeApp = () => {
     switchCameraPose,
     setMode,
     setBehindOnly,
-    // setAnimationSpeed,
     setAutoRotate,
     setAutoRotateSpeed,
     setAxesEnabled,
     setVertexNormalsEnabled,
-    setIntersectionPointsEnabled
+    setIntersectionPointsEnabled,
+    getSettings
   }
 }
 
