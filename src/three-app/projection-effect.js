@@ -33,7 +33,7 @@ export class ProjectionEffect {
       vertexShader,
       fragmentShader,
       side: THREE.DoubleSide,
-      // blending: THREE.AdditiveBlending,
+      blending: THREE.AdditiveBlending,
       transparent: true,
       depthTest: false
     })
@@ -44,19 +44,14 @@ export class ProjectionEffect {
   }
 
   _createMeshes(lineCount) {
-    this._destroyMeshes()
     this._destroyMeshHelpers()
+    this._destroyMeshes()
     this._meshes = U.range(lineCount).map(() => this._createMesh())
-    if (this._visibleHelpers) {
-      this._createMeshHelpers()
-    }
   }
 
   _destroyMeshes() {
     if (this._meshes) {
-      for (const mesh of this._meshes) {
-        U.disposeMesh(mesh)
-      }
+      this._meshes.forEach(U.disposeMesh)
       this._meshes = undefined
     }
   }
@@ -70,7 +65,7 @@ export class ProjectionEffect {
 
   _destroyMeshHelpers() {
     if (this._meshHelpers) {
-      this._meshHelpers.forEach(meshHelper => U.disposeMesh(meshHelper))
+      this._meshHelpers.forEach(U.disposeMesh)
       this._meshHelpers = undefined
     }
   }
@@ -95,23 +90,18 @@ export class ProjectionEffect {
     })
 
     if (this._visibleHelpers) {
-      this._createMeshHelpers()
+      if (!this._meshHelpers) {
+        this._createMeshHelpers()
+      }
+      this._meshHelpers.forEach(meshHelper => meshHelper.update())
     } else {
-      this._destroyMeshHelpers()
-    }
-
-    if (this._meshHelpers) {
-      this._meshHelpers.forEach(meshHelper => {
-        meshHelper.update()
-        meshHelper.visible = this._visibleHelpers
-      })
+      if (this._meshHelpers) {
+        this._destroyMeshHelpers()
+      }
     }
   }
 
   set showVertexNormals(value) {
     this._visibleHelpers = value
-    if (this._meshHelpers) {
-      this._meshHelpers.forEach(meshHelper => meshHelper.visible = value)
-    }
   }
 }
