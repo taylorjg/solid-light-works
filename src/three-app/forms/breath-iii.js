@@ -124,11 +124,11 @@ export class BreathIIIForm {
       return new THREE.Vector2(x, y)
     })
 
-    const getEllipseSegmentPoints = (angle1, angle2) => {
+    const getEllipseSegmentPoints = (θ1, θ2) => {
       const pointCount = ELLIPSE_POINT_COUNT
-      const deltaAngle = (angle2 - angle1) / pointCount
+      const Δθ = (θ2 - θ1) / pointCount
       return U.range(pointCount + 1).map(n => {
-        const t = angle1 + n * deltaAngle
+        const t = θ1 + n * Δθ
         const x = parametricEllipseXFn(t)
         const y = parametricEllipseYFn(t)
         return new THREE.Vector2(x, y)
@@ -137,9 +137,9 @@ export class BreathIIIForm {
 
     const getTravellingWaveSegmentPoints = (x1, x2) => {
       const pointCount = TRAVELLING_WAVE_POINT_COUNT
-      const deltaX = (x2 - x1) / pointCount
+      const Δx = (x2 - x1) / pointCount
       return U.range(pointCount + 1).map(n => {
-        const t = x1 + n * deltaX
+        const t = x1 + n * Δx
         const x = parametricTravellingWaveXFn(t)
         const y = parametricTravellingWaveYFn(t)
         return new THREE.Vector2(x, y)

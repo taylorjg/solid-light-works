@@ -5,6 +5,16 @@ import { Ellipse } from '../syntax/ellipse'
 import * as C from '../constants'
 import * as U from '../utils'
 
+// Parametric equation of an ellipse:
+// x = a * cos(t)
+// y = b * sin(t)
+
+const parametricEllipseX = rx =>
+  t => rx * Math.cos(t)
+
+const parametricEllipseY = ry =>
+  t => ry * Math.sin(t)
+
 const ELLIPSE_POINT_COUNT = 100
 const TRAVELLING_WAVE_POINT_COUNT = 100
 const MAX_TICKS = 10000
@@ -46,23 +56,24 @@ export class BetweenYouAndIForm {
     // and ω = 2π/T = 2πf is the angular frequency of the wave.
     // φ is called the phase constant.
 
-    const lambda = this.height
-    const k = C.TWO_PI / lambda
+    const λ = this.height
+    const k = C.TWO_PI / λ
     const f = 2
-    const omega = C.TWO_PI * f
+    const ω = C.TWO_PI * f
+    const ωt = ω * tickRatio
 
     if (this.wipingInEllipse) {
-      const dy = (this.height - wipeExtent) / TRAVELLING_WAVE_POINT_COUNT
+      const Δy = (this.height - wipeExtent) / TRAVELLING_WAVE_POINT_COUNT
       return U.range(TRAVELLING_WAVE_POINT_COUNT + 1).map(n => {
-        const y = n * dy
-        const x = this.rx * Math.sin(k * y + omega * tickRatio)
+        const y = n * Δy
+        const x = this.rx * Math.sin(k * y + ωt)
         return new THREE.Vector2(x, wipeY - y)
       })
     } else {
-      const dy = wipeExtent / TRAVELLING_WAVE_POINT_COUNT
+      const Δy = wipeExtent / TRAVELLING_WAVE_POINT_COUNT
       return U.range(TRAVELLING_WAVE_POINT_COUNT + 1).map(n => {
-        const y = n * dy
-        const x = this.rx * Math.sin(k * -y + omega * tickRatio)
+        const y = n * Δy
+        const x = this.rx * Math.sin(k * -y + ωt)
         return new THREE.Vector2(x, wipeY + y)
       })
     }

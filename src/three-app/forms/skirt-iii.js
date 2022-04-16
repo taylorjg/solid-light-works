@@ -221,11 +221,11 @@ export class SkirtIIIForm {
       return U.combinePoints(topPoints, bottomPoints)
     }
 
-    const getEllipsePoints = (angle1, angle2) => {
+    const getEllipsePoints = (θ1, θ2) => {
       const pointCount = ELLIPSE_POINT_COUNT
-      const deltaAngle = (angle2 - angle1) / pointCount
+      const Δθ = (θ2 - θ1) / pointCount
       return U.range(pointCount + 1).map(n => {
-        const t = angle1 + n * deltaAngle
+        const t = θ1 + n * Δθ
         const x = parametricEllipseXFn(t)
         const y = parametricEllipseYFn(t)
         return new THREE.Vector2(x, y)
