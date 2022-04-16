@@ -2,6 +2,7 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 import { injectGlobal } from '@emotion/css'
 import { createTheme, ThemeProvider } from '@mui/material'
+import ApplyQueryParams from './ApplyQueryParams'
 import SettingsButton from './SettingsButton'
 import OverlayButtons from './OverlayButtons'
 import Version from './Version'
@@ -28,6 +29,7 @@ const threeAppActions = threeApp()
 ReactDOM.render(
   <React.StrictMode>
     <ThemeProvider theme={darkTheme}>
+      <ApplyQueryParams threeAppActions={threeAppActions} />
       <SettingsButton threeAppActions={threeAppActions} />
       <OverlayButtons
         onToggleMode={threeAppActions.toggleMode}
