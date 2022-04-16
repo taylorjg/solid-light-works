@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom'
 import { injectGlobal } from '@emotion/css'
 import { createTheme, ThemeProvider } from '@mui/material'
 import SettingsButton from './SettingsButton'
+import OverlayButtons from './OverlayButtons'
 import Version from './Version'
 import * as serviceWorkerRegistration from './serviceWorkerRegistration'
 import threeApp from './three-app'
@@ -28,6 +29,11 @@ ReactDOM.render(
   <React.StrictMode>
     <ThemeProvider theme={darkTheme}>
       <SettingsButton threeAppActions={threeAppActions} />
+      <OverlayButtons
+        onToggleMode={threeAppActions.toggleMode}
+        onSwitchInstallation={threeAppActions.switchInstallation}
+        onSwitchCameraPose={threeAppActions.switchCameraPose}
+      />
       <Version />
     </ThemeProvider>
   </React.StrictMode>,

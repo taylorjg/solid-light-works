@@ -195,9 +195,6 @@ const SettingsPanel = ({ threeAppActions, onClose }) => {
   const [settings, setSettings] = useState(threeAppActions.getSettings)
 
   useEffect(() => {
-    // const onSettingsChanged = newSettings => setSettings(newSettings)
-    // threeAppActions.addSettingsChangedListener(onSettingsChanged)
-    // return () => threeAppActions.removeSettingsChangedListener(onSettingsChanged)
     threeAppActions.addSettingsChangedListener(setSettings)
     return () => threeAppActions.removeSettingsChangedListener(setSettings)
   }, [threeAppActions])

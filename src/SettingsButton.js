@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { Drawer } from '@mui/material'
 import SettingsPanel from './SettingsPanel'
-import OverlayButtons from './OverlayButtons'
 import { StyledSettingsIcon } from './SettingsButton.styles'
 // import { useQueryParams } from './useQueryParams'
 // import { Mode } from './three-app'
@@ -36,11 +35,6 @@ const SettingsButton = ({ threeAppActions }) => {
       <Drawer anchor="left" open={isDrawerOpen} onClose={closeDrawer}>
         <SettingsPanel threeAppActions={threeAppActions} onClose={closeDrawer} />
       </Drawer>
-      <OverlayButtons
-        onToggleMode={threeAppActions.toggleMode}
-        onSwitchInstallation={threeAppActions.switchInstallation}
-        onSwitchCameraPose={threeAppActions.switchCameraPose}
-      />
     </>
   )
 }
