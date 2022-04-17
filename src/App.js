@@ -1,7 +1,10 @@
 import { useEffect } from 'react'
 import { useQueryParams } from './useQueryParams'
+import SettingsButton from './SettingsButton'
+import OverlayButtons from './OverlayButtons'
+import Version from './Version'
 
-const ApplyQueryParams = ({ threeAppActions }) => {
+const App = ({ threeAppActions }) => {
 
   const queryParams = useQueryParams()
 
@@ -29,7 +32,17 @@ const ApplyQueryParams = ({ threeAppActions }) => {
     }
   }, [threeAppActions, queryParams])
 
-  return null
+  return (
+    <>
+      <SettingsButton threeAppActions={threeAppActions} />
+      <OverlayButtons
+        onToggleMode={threeAppActions.toggleMode}
+        onSwitchInstallation={threeAppActions.switchInstallation}
+        onSwitchCameraPose={threeAppActions.switchCameraPose}
+      />
+      <Version />
+    </>
+  )
 }
 
-export default ApplyQueryParams
+export default App

@@ -2,10 +2,7 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 import { injectGlobal } from '@emotion/css'
 import { createTheme, ThemeProvider } from '@mui/material'
-import ApplyQueryParams from './ApplyQueryParams'
-import SettingsButton from './SettingsButton'
-import OverlayButtons from './OverlayButtons'
-import Version from './Version'
+import App from './App'
 import * as serviceWorkerRegistration from './serviceWorkerRegistration'
 import threeApp from './three-app'
 
@@ -29,14 +26,7 @@ const threeAppActions = threeApp()
 ReactDOM.render(
   <React.StrictMode>
     <ThemeProvider theme={darkTheme}>
-      <ApplyQueryParams threeAppActions={threeAppActions} />
-      <SettingsButton threeAppActions={threeAppActions} />
-      <OverlayButtons
-        onToggleMode={threeAppActions.toggleMode}
-        onSwitchInstallation={threeAppActions.switchInstallation}
-        onSwitchCameraPose={threeAppActions.switchCameraPose}
-      />
-      <Version />
+      <App threeAppActions={threeAppActions} />
     </ThemeProvider>
   </React.StrictMode>,
   document.getElementById('container')
