@@ -35,11 +35,7 @@ const App = ({ threeAppActions }) => {
   return (
     <>
       <SettingsButton threeAppActions={threeAppActions} />
-      <OverlayButtons
-        onToggleMode={threeAppActions.toggleMode}
-        onSwitchInstallation={threeAppActions.switchInstallation}
-        onSwitchCameraPose={threeAppActions.switchCameraPose}
-      />
+      <OverlayButtons threeAppActions={threeAppActions} />
       <Version />
     </>
   )

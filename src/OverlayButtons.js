@@ -1,12 +1,11 @@
 import { StyledOverlayButtons, StyledOverlayButton } from './OverlayButtons.styles'
 
-const OverlayButtons = ({ onToggleMode, onSwitchInstallation, onSwitchCameraPose }) => {
-
+const OverlayButtons = ({ threeAppActions }) => {
   return (
     <StyledOverlayButtons>
-      <StyledOverlayButton onClick={() => onToggleMode()} />
-      <StyledOverlayButton onClick={() => onSwitchInstallation()} />
-      <StyledOverlayButton onClick={() => onSwitchCameraPose()} />
+      <StyledOverlayButton onClick={() => threeAppActions.toggleMode()} />
+      <StyledOverlayButton onClick={() => threeAppActions.switchInstallation()} />
+      <StyledOverlayButton onClick={() => threeAppActions.switchCameraPose()} />
     </StyledOverlayButtons>
   )
 }
