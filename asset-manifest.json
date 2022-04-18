@@ -1,11 +1,11 @@
 {
   "files": {
-    "main.js": "/solid-light-works/static/js/main.6007347a.js",
+    "main.js": "/solid-light-works/static/js/main.a3530204.js",
     "service-worker.js": "/solid-light-works/service-worker.js",
     "index.html": "/solid-light-works/index.html",
-    "main.6007347a.js.map": "/solid-light-works/static/js/main.6007347a.js.map"
+    "main.a3530204.js.map": "/solid-light-works/static/js/main.a3530204.js.map"
   },
   "entrypoints": [
-    "static/js/main.6007347a.js"
+    "static/js/main.a3530204.js"
   ]
 }
