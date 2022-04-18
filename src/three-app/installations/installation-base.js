@@ -14,11 +14,13 @@ const createRenderables3D = (parent, installation, resources) => {
   const screenForms = installation.installationData3D.screenForms
   const projectedForms = installation.installationData3D.projectedForms
   const scenery = installation.installationData3D.scenery
-  scenery.forEach(sceneryItem => sceneryItem.create(parent))
+  const groupScenery = new Group()
+  groupScenery.name = "Scenery"
+  parent.add(groupScenery)
+  scenery.forEach(sceneryItem => sceneryItem.create(groupScenery))
   return {
     screenImages: screenForms.map(screenForm => new ScreenImage(parent, screenForm)),
-    projectionEffects: projectedForms.map(projectedForm => new ProjectionEffect(parent, projectedForm, resources)),
-    scenery
+    projectionEffects: projectedForms.map(projectedForm => new ProjectionEffect(parent, projectedForm, resources))
   }
 }
 
@@ -66,5 +68,15 @@ export class InstallationBase {
     scene.add(this.group2d)
     scene.add(this.group3d)
     return this
+  }
+
+  showScenery() {
+    const groupScenery = this.group3d.getObjectByName("Scenery")
+    if (groupScenery) groupScenery.visible = true
+  }
+
+  hideScenery() {
+    const groupScenery = this.group3d.getObjectByName("Scenery")
+    if (groupScenery) groupScenery.visible = false
   }
 }

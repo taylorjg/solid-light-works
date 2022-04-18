@@ -125,7 +125,7 @@ const threeApp = () => {
       ? currentInstallation.installationData2D.cameraPoses
       : currentInstallation.installationData3D.cameraPoses
     const cameraPoses = allCameraPoses.filter(cameraPose =>
-      mode === Mode.Mode3D && behindOnly ? cameraPose.hideScenery : true)
+      mode === Mode.Mode3D && behindOnly ? cameraPose.isBehind : true)
     if (reset) {
       currentCameraPoseIndex = 0
     } else {
@@ -135,6 +135,13 @@ const threeApp = () => {
     const cameraPose = cameraPoses[currentCameraPoseIndex]
     camera.position.copy(cameraPose.position)
     controls.target.copy(cameraPose.target)
+    if (mode === Mode.Mode3D) {
+      if (cameraPose.isBehind) {
+        currentInstallation.hideScenery()
+      } else {
+        currentInstallation.showScenery()
+      }
+    }
   }
 
   const init = async () => {
@@ -263,6 +270,9 @@ const threeApp = () => {
 
   const setBehindOnly = value => {
     behindOnly = value
+    if (installations) {
+      switchCameraPose()
+    }
     emitSettingsChanged()
   }
 
