@@ -185,7 +185,7 @@ const setBehindOnly = value => {
   emitSettingsChanged()
 }
 
-export const init = async () => {
+export const threeAppInit = async () => {
 
   const container = document.getElementById('visualisation-container')
   const w = container.offsetWidth
@@ -196,6 +196,7 @@ export const init = async () => {
   container.appendChild(renderer.domElement)
 
   scene = new THREE.Scene()
+  scene.visible = false
   camera = new THREE.PerspectiveCamera(45, w / h, 0.1, 50)
   scene.add(camera)
 
@@ -260,7 +261,13 @@ export const init = async () => {
     renderer.render(scene, camera)
   })
 
+  const ready = () => {
+    scene.visible = true
+  }
+
   return {
+    ready,
+    getSettings,
     addSettingsChangedListener,
     removeSettingsChangedListener,
     toggleMode,
@@ -272,7 +279,6 @@ export const init = async () => {
     setAutoRotateSpeed,
     setAxesEnabled,
     setVertexNormalsEnabled,
-    setIntersectionPointsEnabled,
-    getSettings
+    setIntersectionPointsEnabled
   }
 }

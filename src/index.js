@@ -4,7 +4,7 @@ import { injectGlobal } from '@emotion/css'
 import { createTheme, ThemeProvider } from '@mui/material'
 import App from './App'
 import * as serviceWorkerRegistration from './serviceWorkerRegistration'
-import { init } from './three-app'
+import { threeAppInit } from './three-app'
 
 const darkTheme = createTheme({
   palette: {
@@ -23,7 +23,7 @@ injectGlobal`
 `
 
 const main = async () => {
-  const threeAppActions = await init()
+  const threeAppActions = await threeAppInit()
 
   ReactDOM.render(
     <React.StrictMode>
@@ -38,6 +38,8 @@ const main = async () => {
   // unregister() to register() below. Note this comes with some pitfalls.
   // Learn more about service workers: https://cra.link/PWA
   serviceWorkerRegistration.register()
+
+  threeAppActions.ready()
 }
 
 main()
