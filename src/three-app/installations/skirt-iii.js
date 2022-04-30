@@ -4,53 +4,51 @@ import { SkirtIIIForm } from '../forms/skirt-iii'
 import { Floor } from '../scenery'
 import * as C from '../constants'
 
-export class SkirtIIIInstallation extends InstallationBase {
+const makeWork1 = () => {
+  const translation3D = new THREE.Matrix4().makeTranslation(0, 0, 4)
+  const rotation3D = new THREE.Matrix4().makeRotationX(-C.HALF_PI)
+  const transform3D = new THREE.Matrix4()
+    .multiply(translation3D)
+    .multiply(rotation3D)
 
-  constructor() {
-
-    super()
-
-    this.forms = [
-      new SkirtIIIForm(6, 4)
-    ]
-
-    this.installationData2D = {
-      screenForms: [
-        {
+  return {
+    formConfigs: [
+      {
+        form: new SkirtIIIForm(6, 4),
+        config2D: {
           transform: new THREE.Matrix4()
-        }
-      ],
-      cameraPoses: [
-        { position: new THREE.Vector3(0, 0, 6), target: new THREE.Vector3() }
-      ]
-    }
-
-    const translation3D = new THREE.Matrix4().makeTranslation(0, 0, 4)
-    const rotation3D = new THREE.Matrix4().makeRotationX(-C.HALF_PI)
-    const transform3D = new THREE.Matrix4()
-      .multiply(translation3D)
-      .multiply(rotation3D)
-
-    this.installationData3D = {
-      screenForms: [
-        {
-          transform: transform3D
-        }
-      ],
-      projectedForms: [
-        {
+        },
+        config3D: {
           transform: transform3D,
           projectorPosition: new THREE.Vector3(0, 0, 10)
         }
-      ],
-      cameraPoses: [
-        { position: new THREE.Vector3(0, 2, 12), target: new THREE.Vector3(0, 0, 3) },
-        { position: new THREE.Vector3(-2.10, 5.85, 20.04), target: new THREE.Vector3(0.43, 4.16, 4.94) },
-        { position: new THREE.Vector3(0, -6.3, 3.7), target: new THREE.Vector3(0, 2, 4), isBehind: true }
-      ],
-      scenery: [
-        new Floor(10, 8)
-      ]
-    }
+      }
+    ]
+  }
+}
+
+const config = {
+  works: [
+    makeWork1()
+  ],
+  config2D: {
+    cameraPose: { position: new THREE.Vector3(0, 0, 6), target: new THREE.Vector3() }
+  },
+  config3D: {
+    cameraPoses: [
+      { position: new THREE.Vector3(0, 2, 12), target: new THREE.Vector3(0, 0, 3) },
+      { position: new THREE.Vector3(-2.10, 5.85, 20.04), target: new THREE.Vector3(0.43, 4.16, 4.94) },
+      { position: new THREE.Vector3(0, -6.3, 3.7), target: new THREE.Vector3(0, 2, 4), isBehind: true }
+    ],
+    scenery: [
+      new Floor(10, 8)
+    ]
+  }
+}
+
+export class SkirtIIIInstallation extends InstallationBase {
+  constructor() {
+    super()
+    this.config = config
   }
 }

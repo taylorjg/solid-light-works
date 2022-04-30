@@ -7,6 +7,7 @@ import { CouplingInstallation } from './installations/coupling'
 import { BetweenYouAndIInstallation } from './installations/between-you-and-i'
 import { BreathIIIInstallation } from './installations/breath-iii'
 import { SkirtIIIInstallation } from './installations/skirt-iii'
+// import { MultiWorksInstallation } from './installations/multi-works'
 import { Mode } from './mode'
 import * as C from './constants'
 import * as U from './utils'
@@ -120,10 +121,9 @@ const switchInstallation = reset => {
 const switchCameraPose = reset => {
   const currentInstallation = installations[currentInstallationIndex]
   const allCameraPoses = mode === Mode.Mode2D
-    ? currentInstallation.installationData2D.cameraPoses
-    : currentInstallation.installationData3D.cameraPoses
-  const cameraPoses = allCameraPoses.filter(cameraPose =>
-    mode === Mode.Mode3D && behindOnly ? cameraPose.isBehind : true)
+    ? [currentInstallation.config.config2D.cameraPose]
+    : currentInstallation.config.config3D.cameraPoses
+  const cameraPoses = allCameraPoses.filter(cameraPose => behindOnly ? cameraPose.isBehind : true)
   if (reset) {
     currentCameraPoseIndex = 0
   } else {
@@ -221,7 +221,8 @@ export const threeAppInit = async () => {
     CouplingInstallation,
     BetweenYouAndIInstallation,
     BreathIIIInstallation,
-    SkirtIIIInstallation
+    SkirtIIIInstallation,
+    // MultiWorksInstallation
   ]
     .map(installationConstructor => new installationConstructor())
     .map(installation => installation.createRenderables(scene, resources))
