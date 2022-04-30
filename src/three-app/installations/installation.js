@@ -3,40 +3,11 @@ import { Mode } from '../mode'
 import { ProjectionEffect } from '../projection-effect'
 import { ScreenImage } from '../screen-image'
 
-const SCENERY_GROUP_NAME = "Scenery"
-
-const createRenderables2D = (parent, config) => {
-  for (const work of config.works) {
-    work.renderables2D = {
-      screenImages: work.formConfigs.map(formConfig => new ScreenImage(parent, formConfig.config2D))
-    }
-  }
-}
-
-const createRenderables3D = (parent, config, resources) => {
-  // TODO: improve this - put sceneryGroup inside the config somewhere
-  const sceneryGroup = new Group()
-  sceneryGroup.name = SCENERY_GROUP_NAME
-  config.config3D.scenery.forEach(sceneryItem => sceneryItem.create(sceneryGroup))
-  parent.add(sceneryGroup)
-
-  for (const work of config.works) {
-    work.renderables3D = {
-      // TODO: change shape of this
-      screenImages: work.formConfigs.map(formConfig => new ScreenImage(parent, formConfig.config3D)),
-      projectionEffects: work.formConfigs.map(formConfig => new ProjectionEffect(parent, formConfig.config3D, resources))
-    }
-  }
-}
-
 export class Installation {
 
   constructor(scene, resources, config) {
     this.config = config
-    this.group2d = new Group()
-    this.group3d = new Group()
-    scene.add(this.group2d)
-    scene.add(this.group3d)
+    this._createGroups(scene)
     this._createRenderables(resources)
   }
 
@@ -75,18 +46,45 @@ export class Installation {
     }
   }
 
-  _createRenderables(resources) {
-    createRenderables2D(this.group2d, this.config)
-    createRenderables3D(this.group3d, this.config, resources)
-  }
-
   showScenery() {
-    const sceneryGroup = this.group3d.getObjectByName(SCENERY_GROUP_NAME)
-    if (sceneryGroup) sceneryGroup.visible = true
+    this.sceneryGroup.visible = true
   }
 
   hideScenery() {
-    const sceneryGroup = this.group3d.getObjectByName(SCENERY_GROUP_NAME)
-    if (sceneryGroup) sceneryGroup.visible = false
+    this.sceneryGroup.visible = false
+  }
+
+  _createGroups(scene) {
+    this.group2d = new Group()
+    this.group3d = new Group()
+    this.sceneryGroup = new Group()
+    scene.add(this.group2d)
+    scene.add(this.group3d)
+    this.group3d.add(this.sceneryGroup)
+  }
+
+  _createRenderables(resources) {
+    this._createRenderables2D()
+    this._createRenderables3D(resources)
+  }
+
+  _createRenderables2D() {
+    for (const work of this.config.works) {
+      work.renderables2D = {
+        screenImages: work.formConfigs.map(formConfig => new ScreenImage(this.group2d, formConfig.config2D))
+      }
+    }
+  }
+
+  _createRenderables3D(resources) {
+    this.config.config3D.scenery.forEach(sceneryItem => sceneryItem.create(this.sceneryGroup))
+
+    for (const work of this.config.works) {
+      work.renderables3D = {
+        // TODO: change shape of this
+        screenImages: work.formConfigs.map(formConfig => new ScreenImage(this.group3d, formConfig.config3D)),
+        projectionEffects: work.formConfigs.map(formConfig => new ProjectionEffect(this.group3d, formConfig.config3D, resources))
+      }
+    }
   }
 }
