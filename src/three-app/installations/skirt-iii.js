@@ -1,5 +1,4 @@
 import * as THREE from 'three'
-import { InstallationBase } from './installation-base'
 import { SkirtIIIForm } from '../forms/skirt-iii'
 import { Floor } from '../scenery'
 import * as C from '../constants'
@@ -27,7 +26,7 @@ const makeWork1 = () => {
   }
 }
 
-const config = {
+export const config = {
   works: [
     makeWork1()
   ],
@@ -43,12 +42,5 @@ const config = {
     scenery: [
       new Floor(10, 8)
     ]
-  }
-}
-
-export class SkirtIIIInstallation extends InstallationBase {
-  constructor() {
-    super()
-    this.config = config
   }
 }

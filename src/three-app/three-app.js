@@ -1,13 +1,14 @@
 import EventEmitter from 'events'
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
-import { DoublingBackInstallation } from './installations/doubling-back'
-import { LeavingInstallation } from './installations/leaving'
-import { CouplingInstallation } from './installations/coupling'
-import { BetweenYouAndIInstallation } from './installations/between-you-and-i'
-import { BreathIIIInstallation } from './installations/breath-iii'
-import { SkirtIIIInstallation } from './installations/skirt-iii'
-// import { MultiWorksInstallation } from './installations/multi-works'
+import { Installation } from './installations/installation'
+import { config as DoublingBackInstallationConfig } from './installations/doubling-back'
+import { config as LeavingInstallationConfig } from './installations/leaving'
+import { config as CouplingInstallationConfig } from './installations/coupling'
+import { config as BetweenYouAndIInstallationConfig } from './installations/between-you-and-i'
+import { config as BreathIIIInstallationConfig } from './installations/breath-iii'
+import { config as SkirtIIIInstallationConfig } from './installations/skirt-iii'
+// import { config as MultiWorksInstallationConfig } from './installations/multi-works'
 import { Mode } from './mode'
 import * as C from './constants'
 import * as U from './utils'
@@ -215,17 +216,17 @@ export const threeAppInit = async () => {
     hazeTexture
   }
 
-  installations = [
-    DoublingBackInstallation,
-    LeavingInstallation,
-    CouplingInstallation,
-    BetweenYouAndIInstallation,
-    BreathIIIInstallation,
-    SkirtIIIInstallation,
-    // MultiWorksInstallation
+  const configs = [
+    DoublingBackInstallationConfig,
+    LeavingInstallationConfig,
+    CouplingInstallationConfig,
+    BetweenYouAndIInstallationConfig,
+    BreathIIIInstallationConfig,
+    SkirtIIIInstallationConfig,
+    // MultiWorksInstallationConfig
   ]
-    .map(installationConstructor => new installationConstructor())
-    .map(installation => installation.createRenderables(scene, resources))
+
+  installations = configs.map(config => new Installation(scene, resources, config))
 
   const onDocumentKeyDownHandler = e => {
     if (e.altKey || e.ctrlKey || e.metaKey || e.ShiftKey) return

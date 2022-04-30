@@ -29,11 +29,15 @@ const createRenderables3D = (parent, config, resources) => {
   }
 }
 
-export class InstallationBase {
+export class Installation {
 
-  constructor() {
-    this.group2d = undefined
-    this.group3d = undefined
+  constructor(scene, resources, config) {
+    this.config = config
+    this.group2d = new Group()
+    this.group3d = new Group()
+    scene.add(this.group2d)
+    scene.add(this.group3d)
+    this._createRenderables(resources)
   }
 
   updateVisibility(mode, showVertexNormals, showIntersectionPoints, isCurrentInstallation) {
@@ -71,14 +75,9 @@ export class InstallationBase {
     }
   }
 
-  createRenderables(scene, resources) {
-    this.group2d = new Group()
-    this.group3d = new Group()
-    this.renderables2D = createRenderables2D(this.group2d, this.config)
-    this.renderables3D = createRenderables3D(this.group3d, this.config, resources)
-    scene.add(this.group2d)
-    scene.add(this.group3d)
-    return this
+  _createRenderables(resources) {
+    createRenderables2D(this.group2d, this.config)
+    createRenderables3D(this.group3d, this.config, resources)
   }
 
   showScenery() {

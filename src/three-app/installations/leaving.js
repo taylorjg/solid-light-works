@@ -1,5 +1,4 @@
 import * as THREE from 'three'
-import { InstallationBase } from './installation-base'
 import { LeavingForm } from '../forms/leaving'
 import { Screen } from '../scenery'
 
@@ -38,7 +37,7 @@ const makeWork1 = () => {
   }
 }
 
-const config = {
+export const config = {
   works: [
     makeWork1()
   ],
@@ -54,12 +53,5 @@ const config = {
     scenery: [
       new Screen(14, 6)
     ]
-  }
-}
-
-export class LeavingInstallation extends InstallationBase {
-  constructor() {
-    super()
-    this.config = config
   }
 }

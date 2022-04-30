@@ -1,5 +1,4 @@
 import * as THREE from 'three'
-import { InstallationBase } from './installation-base'
 import { DoublingBackForm } from '../forms/doubling-back'
 import { LeftWall, RightWall, Screen } from '../scenery'
 
@@ -22,7 +21,7 @@ const makeWork1 = () => {
   }
 }
 
-const config = {
+export const config = {
   works: [
     makeWork1()
   ],
@@ -40,12 +39,5 @@ const config = {
       new LeftWall(10, 4.4, -3.2),
       new RightWall(10, 4.4, 3.2)
     ]
-  }
-}
-
-export class DoublingBackInstallation extends InstallationBase {
-  constructor() {
-    super()
-    this.config = config
   }
 }

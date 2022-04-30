@@ -1,5 +1,4 @@
 import * as THREE from 'three'
-import { InstallationBase } from './installation-base'
 import { BetweenYouAndIForm } from '../forms/between-you-and-i'
 import { Floor } from '../scenery'
 import * as C from '../constants'
@@ -53,7 +52,7 @@ const makeWork1 = () => {
   }
 }
 
-const config = {
+export const config = {
   works: [
     makeWork1()
   ],
@@ -69,12 +68,5 @@ const config = {
     scenery: [
       new Floor(10, 13)
     ]
-  }
-}
-
-export class BetweenYouAndIInstallation extends InstallationBase {
-  constructor() {
-    super()
-    this.config = config
   }
 }
