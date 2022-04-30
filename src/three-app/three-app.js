@@ -8,7 +8,7 @@ import { config as CouplingInstallationConfig } from './installations/coupling'
 import { config as BetweenYouAndIInstallationConfig } from './installations/between-you-and-i'
 import { config as BreathIIIInstallationConfig } from './installations/breath-iii'
 import { config as SkirtIIIInstallationConfig } from './installations/skirt-iii'
-// import { config as MultiWorksInstallationConfig } from './installations/multi-works'
+import { config as MultiWorksInstallationConfig } from './installations/multi-works'
 import { Mode } from './mode'
 import * as C from './constants'
 import * as U from './utils'
@@ -223,7 +223,7 @@ export const threeAppInit = async () => {
     BetweenYouAndIInstallationConfig,
     BreathIIIInstallationConfig,
     SkirtIIIInstallationConfig,
-    // MultiWorksInstallationConfig
+    MultiWorksInstallationConfig
   ]
 
   installations = configs.map(config => new Installation(scene, resources, config))
