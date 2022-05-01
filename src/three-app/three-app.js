@@ -8,6 +8,7 @@ import { config as CouplingInstallationConfig } from './installations/coupling'
 import { config as BetweenYouAndIInstallationConfig } from './installations/between-you-and-i'
 import { config as BreathIIIInstallationConfig } from './installations/breath-iii'
 import { config as SkirtIIIInstallationConfig } from './installations/skirt-iii'
+import { config as MeetingYouHalfwayInstallationConfig } from './installations/meeting-you-halfway'
 import { config as MultiWorksInstallationConfig } from './installations/multi-works'
 import { Mode } from './mode'
 import * as C from './constants'
@@ -223,6 +224,7 @@ export const threeAppInit = async () => {
     BetweenYouAndIInstallationConfig,
     BreathIIIInstallationConfig,
     SkirtIIIInstallationConfig,
+    MeetingYouHalfwayInstallationConfig,
     MultiWorksInstallationConfig
   ]
 
