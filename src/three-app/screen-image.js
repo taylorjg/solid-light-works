@@ -9,7 +9,7 @@ export class ScreenImage {
 
   constructor(parent, screenForm) {
     this._group = this._createGroup(parent, screenForm)
-    this._meshes = this._createMeshes()
+    this._meshes = undefined
     this._intersectionPoints = new IntersectionPoints(this._group)
   }
 
@@ -20,7 +20,7 @@ export class ScreenImage {
     return group
   }
 
-  _createMesh() {
+  _createMesh(line) {
     const geometry = new Line2D()
     const material = new THREE.ShaderMaterial(
       Line2DBasicShader({
@@ -28,14 +28,18 @@ export class ScreenImage {
         diffuse: 0xffffff,
         thickness: C.SCREEN_IMAGE_LINE_THICKNESS
       }))
+    if (line.plane) {
+      material.clippingPlanes = [line.plane]
+      material.clipping = true
+    }
     const mesh = new THREE.Mesh(geometry, material)
     this._group.add(mesh)
     return mesh
   }
 
-  _createMeshes(lineCount) {
+  _createMeshes(lines) {
     this._destroyMeshes()
-    this._meshes = U.range(lineCount).map(() => this._createMesh())
+    this._meshes = lines.map(line => this._createMesh(line))
   }
 
   _destroyMeshes() {
@@ -52,7 +56,7 @@ export class ScreenImage {
     const meshCount = this._meshes?.length ?? 0
 
     if (meshCount !== lineCount) {
-      this._createMeshes(lineCount)
+      this._createMeshes(lines)
     } else {
       const meshes = this._meshes ?? []
       meshes.forEach((mesh, index) => {
@@ -86,10 +90,10 @@ export class ScreenImage {
 
       // I can't get opacity to work unless transparent is set to true
       // which looks awful. So I am doing this instead.
-      const r = line.opacity
-      const g = line.opacity
-      const b = line.opacity
-      mesh.material.uniforms.diffuse.value = new THREE.Color(r, g, b)
+      // const r = line.opacity
+      // const g = line.opacity
+      // const b = line.opacity
+      // mesh.material.uniforms.diffuse.value = new THREE.Color(r, g, b)
     })
 
     if (this._intersectionPoints.visible && lines.intersectionPoints) {

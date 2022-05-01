@@ -12,6 +12,8 @@ export function basicShader(opt) {
   delete opt.diffuse
   delete opt.precision
 
+  // https://stackoverflow.com/questions/42532545/add-clipping-to-three-shadermaterial
+
   var ret = {
     uniforms: {
       thickness: { type: 'f', value: thickness },
@@ -22,16 +24,22 @@ export function basicShader(opt) {
       'uniform float thickness;',
       'attribute float lineMiter;',
       'attribute vec2 lineNormal;',
+      '#include <clipping_planes_pars_vertex>',
       'void main() {',
+      '#include <begin_vertex>',
       'float lineMiterClamped = clamp(lineMiter, -2.0, 2.0);',
       'vec3 pointPos = position.xyz + vec3(lineNormal * thickness / 2.0 * lineMiterClamped, 0.0);',
+      '#include <project_vertex>',
+      '#include <clipping_planes_vertex>',
       'gl_Position = projectionMatrix * modelViewMatrix * vec4(pointPos, 1.0);',
       '}'
     ].join('\n'),
     fragmentShader: [
       'uniform vec3 diffuse;',
       'uniform float opacity;',
+      '#include <clipping_planes_pars_fragment>',
       'void main() {',
+      '#include <clipping_planes_fragment>',
       'gl_FragColor = vec4(diffuse, opacity);',
       '}'
     ].join('\n'),

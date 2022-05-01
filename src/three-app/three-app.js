@@ -194,6 +194,7 @@ export const threeAppInit = async () => {
   const h = container.offsetHeight
   renderer = new THREE.WebGLRenderer({ antialias: true })
   renderer.setPixelRatio(window.devicePixelRatio)
+  renderer.localClippingEnabled = true
   renderer.setSize(w, h)
   container.appendChild(renderer.domElement)
 

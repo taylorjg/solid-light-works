@@ -4,6 +4,7 @@ export class Line {
     this._points = points
     this._opacity = options.opacity ?? 1.0
     this._closed = options.closed ?? false
+    this._plane = options.plane
   }
 
   get points() {
@@ -16,5 +17,9 @@ export class Line {
 
   get closed() {
     return this._closed
+  }
+
+  get plane() {
+    return this._plane
   }
 }
