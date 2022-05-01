@@ -28,10 +28,6 @@ export class ScreenImage {
         diffuse: 0xffffff,
         thickness: C.SCREEN_IMAGE_LINE_THICKNESS
       }))
-    if (line.plane) {
-      material.clippingPlanes = [line.plane]
-      material.clipping = true
-    }
     const mesh = new THREE.Mesh(geometry, material)
     this._group.add(mesh)
     return mesh
@@ -88,12 +84,21 @@ export class ScreenImage {
         mesh.geometry.update(path)
       }
 
+      if (line.plane) {
+        mesh.material.clippingPlanes = [line.plane]
+        mesh.material.clipping = true
+
+      } else {
+        mesh.material.clippingPlanes = null
+        mesh.material.clipping = false
+      }
+
       // I can't get opacity to work unless transparent is set to true
       // which looks awful. So I am doing this instead.
-      // const r = line.opacity
-      // const g = line.opacity
-      // const b = line.opacity
-      // mesh.material.uniforms.diffuse.value = new THREE.Color(r, g, b)
+      const r = line.opacity
+      const g = line.opacity
+      const b = line.opacity
+      mesh.material.uniforms.diffuse.value = new THREE.Color(r, g, b)
     })
 
     if (this._intersectionPoints.visible && lines.intersectionPoints) {

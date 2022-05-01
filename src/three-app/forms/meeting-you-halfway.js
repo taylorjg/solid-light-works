@@ -20,9 +20,8 @@ export class MeetingYouHalfwayForm {
     this.ry1 = height * 0.45
     this.rx2 = width / 2
     this.ry2 = height * 0.2
-    const normal = new THREE.Vector3(1, 0, 0).applyMatrix4(new THREE.Matrix4().makeRotationZ(C.QUARTER_PI))
-    this.plane1 = new THREE.Plane(normal)
-    this.plane2 = this.plane1.clone().negate()
+    this.swipeOffset = 0
+    this.swipeRotationDegrees = 0
     this.tick = 0
   }
 
@@ -57,12 +56,17 @@ export class MeetingYouHalfwayForm {
     const ellipse1Points = getEllipse1Points(0, C.TWO_PI)
     const ellipse2Points = getEllipse2Points(0, C.TWO_PI)
 
-    const line1 = new Line(ellipse1Points, { plane: this.plane1 })
-    const line2 = new Line(ellipse2Points, { plane: this.plane2 })
+    const swipeRotationRadians = THREE.MathUtils.degToRad(this.swipeRotationDegrees)
+    const swipeRotationZ = new THREE.Matrix4().makeRotationZ(swipeRotationRadians)
+    const planeNormal = new THREE.Vector3(1, 0, 0).applyMatrix4(swipeRotationZ)
+    const plane1 = new THREE.Plane(planeNormal, this.swipeOffset)
+    const plane2 = plane1.clone().negate()
+    const line1 = new Line(ellipse1Points, { plane: plane1 })
+    const line2 = new Line(ellipse2Points, { plane: plane2 })
 
     this.tick++
-    this.plane1.set(this.plane1.normal, this.plane1.constant + 0.001)
-    this.plane2.set(this.plane2.normal, this.plane2.constant - 0.001)
+    this.swipeOffset += 0.001
+    this.swipeRotationDegrees += 0.1
 
     const lines = [line1, line2]
     return lines
