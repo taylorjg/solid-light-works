@@ -65,8 +65,8 @@ export class MeetingYouHalfwayForm {
     const line2 = new Line(ellipse2Points, { plane: plane2 })
 
     this.tick++
-    this.swipeOffset += 0.001
-    this.swipeRotationDegrees += 0.1
+    const CYCLE_TICKS = 10000
+    this.swipeOffset = this.width / 4 * Math.sin((this.tick % CYCLE_TICKS) / CYCLE_TICKS * C.TWO_PI)
 
     const lines = [line1, line2]
     return lines
