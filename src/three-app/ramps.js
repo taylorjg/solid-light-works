@@ -5,7 +5,8 @@ export const linearRamps = (blocks, tick) => {
   }
   const finalAcc = blocks.reduce((acc, block) => {
     const newRunningTotal = acc.runningTotal + block.span
-    const kvp = [[acc.runningTotal, newRunningTotal], block]
+    const range = [acc.runningTotal, newRunningTotal]
+    const kvp = [range, block]
     return {
       runningTotal: newRunningTotal,
       kvps: [...acc.kvps, kvp]
