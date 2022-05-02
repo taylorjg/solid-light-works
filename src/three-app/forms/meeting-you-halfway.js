@@ -28,20 +28,49 @@ export class MeetingYouHalfwayForm {
   constructor(width, height) {
     this.width = width
     this.height = height
-    this.rx1 = width / 2
-    this.ry1 = height * 0.45
-    this.rx2 = width / 2
-    this.ry2 = height * 0.2
+
     this.swipeOffset = 0
     this.swipeRotationDegrees = 0
     this.tick = 0
+
+    const ryMax = height / 2
+    const ryMin = height / 4
+
+    // B: slow expansion, fast contraction
+    this.RY1_BLOCKS = [
+      { span: CYCLE_TICKS * 0.22, from: ryMin, to: ryMax },
+      { span: CYCLE_TICKS * 0.11, from: ryMax, to: ryMin },
+      { span: CYCLE_TICKS * 0.22, from: ryMin, to: ryMax },
+      { span: CYCLE_TICKS * 0.11, from: ryMax, to: ryMin },
+      { span: CYCLE_TICKS * 0.22, from: ryMin, to: ryMax },
+      { span: CYCLE_TICKS * 0.12, from: ryMax, to: ryMin }
+    ]
+
+    // A: slow contraction, fast expansion
+    this.RY2_BLOCKS = [
+      { span: CYCLE_TICKS * 0.22, from: ryMax, to: ryMin },
+      { span: CYCLE_TICKS * 0.11, from: ryMin, to: ryMax },
+      { span: CYCLE_TICKS * 0.22, from: ryMax, to: ryMin },
+      { span: CYCLE_TICKS * 0.11, from: ryMin, to: ryMax },
+      { span: CYCLE_TICKS * 0.22, from: ryMax, to: ryMin },
+      { span: CYCLE_TICKS * 0.12, from: ryMin, to: ryMax }
+    ]
   }
 
   getLines() {
-    const parametricEllipse1XFn = parametricEllipseX(this.rx1)
-    const parametricEllipse1YFn = parametricEllipseY(this.ry1)
-    const parametricEllipse2XFn = parametricEllipseX(this.rx2)
-    const parametricEllipse2YFn = parametricEllipseY(this.ry2)
+    const modTick = this.tick % CYCLE_TICKS
+    const ratio = modTick / CYCLE_TICKS
+
+    const rx = this.width / 2
+    const ry1 = linearRamps(this.RY1_BLOCKS, modTick)
+    const ry2 = linearRamps(this.RY2_BLOCKS, modTick)
+    this.swipeOffset = this.width / 4 * Math.sin(ratio * C.TWO_PI)
+    this.swipeRotationDegrees = linearRamps(SWIPE_ROTATION_BLOCKS, modTick)
+
+    const parametricEllipse1XFn = parametricEllipseX(rx)
+    const parametricEllipse1YFn = parametricEllipseY(ry1)
+    const parametricEllipse2XFn = parametricEllipseX(rx)
+    const parametricEllipse2YFn = parametricEllipseY(ry2)
 
     const getEllipse1Points = (θ1, θ2) => {
       const pointCount = ELLIPSE_POINT_COUNT
@@ -67,11 +96,6 @@ export class MeetingYouHalfwayForm {
 
     const ellipse1Points = getEllipse1Points(0, C.TWO_PI)
     const ellipse2Points = getEllipse2Points(0, C.TWO_PI)
-
-    const modTick = this.tick % CYCLE_TICKS
-    const ratio = modTick / CYCLE_TICKS
-    this.swipeOffset = this.width / 4 * Math.sin(ratio * C.TWO_PI)
-    this.swipeRotationDegrees = linearRamps(SWIPE_ROTATION_BLOCKS, modTick)
 
     const normal = new THREE.Vector3(1, 0, 0)
       .applyMatrix4(new THREE.Matrix4().makeRotationZ(THREE.MathUtils.degToRad(this.swipeRotationDegrees)))
