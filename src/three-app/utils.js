@@ -1,5 +1,11 @@
 import * as THREE from 'three'
 
+export const sum = xs =>
+  xs.reduce((acc, x) => acc + x, 0)
+
+export const sumBy = (xs, selector) =>
+  sum(xs.map(selector))
+
 export const range = n =>
   Array.from(Array(n).keys())
 

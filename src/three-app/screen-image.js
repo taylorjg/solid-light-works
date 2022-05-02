@@ -84,8 +84,8 @@ export class ScreenImage {
         mesh.geometry.update(path)
       }
 
-      if (line.plane) {
-        mesh.material.clippingPlanes = [line.plane]
+      if (line.clippingPlanes) {
+        mesh.material.clippingPlanes = line.clippingPlanes
         mesh.material.clipping = true
 
       } else {
