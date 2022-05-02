@@ -8,6 +8,7 @@ import * as U from './utils'
 export class ScreenImage {
 
   constructor(parent, screenForm) {
+    this._screenForm = screenForm
     this._group = this._createGroup(parent, screenForm)
     this._meshes = undefined
     this._intersectionPoints = new IntersectionPoints(this._group)
@@ -85,7 +86,8 @@ export class ScreenImage {
       }
 
       if (line.clippingPlanes) {
-        mesh.material.clippingPlanes = line.clippingPlanes
+        mesh.material.clippingPlanes = line.clippingPlanes.map(clippingPlane =>
+          clippingPlane.clone().applyMatrix4(this._screenForm.transform))
         mesh.material.clipping = true
 
       } else {
