@@ -11,7 +11,7 @@ const parametricEllipseY = ry =>
   t => ry * Math.sin(t)
 
 const ELLIPSE_POINT_COUNT = 100
-const CYCLE_TICKS = 10000
+const CYCLE_TICKS = 25000
 
 export class MeetingYouHalfwayForm {
 
@@ -20,18 +20,18 @@ export class MeetingYouHalfwayForm {
     this.height = height
     this.tick = 0
 
-    const swipeOffsetMax = width * 0.4
-    const swipeOffsetMin = -swipeOffsetMax
+    const wipeOffsetMax = width * 0.4
+    const wipeOffsetMin = -wipeOffsetMax
     const ryMax = height / 2
     const ryMin = height / 4
 
-    this.SWIPE_OFFSET_BLOCKS = [
-      { span: CYCLE_TICKS * 0.25, from: 0, to: swipeOffsetMax },
-      { span: CYCLE_TICKS * 0.5, from: swipeOffsetMax, to: swipeOffsetMin },
-      { span: CYCLE_TICKS * 0.25, from: swipeOffsetMin, to: 0 }
+    this.WIPE_OFFSET_BLOCKS = [
+      { span: CYCLE_TICKS * 0.25, from: 0, to: wipeOffsetMax },
+      { span: CYCLE_TICKS * 0.5, from: wipeOffsetMax, to: wipeOffsetMin },
+      { span: CYCLE_TICKS * 0.25, from: wipeOffsetMin, to: 0 }
     ]
 
-    this.SWIPE_ROTATION_BLOCKS = [
+    this.WIPE_ROTATION_BLOCKS = [
       { span: CYCLE_TICKS * 0.125, from: 0, to: -20 },
       { span: CYCLE_TICKS * 0.125, from: -20, to: 0 },
       { span: CYCLE_TICKS * 0.25, from: 0, to: 60 },
@@ -62,9 +62,9 @@ export class MeetingYouHalfwayForm {
   }
 
   getLines() {
-    const swipeOffset = linearRamps(this.SWIPE_OFFSET_BLOCKS, this.tick)
-    const swipeRotationDegrees = linearRamps(this.SWIPE_ROTATION_BLOCKS, this.tick)
-    const swipeRotationRadians = THREE.MathUtils.degToRad(swipeRotationDegrees)
+    const wipeOffset = linearRamps(this.WIPE_OFFSET_BLOCKS, this.tick)
+    const wipeRotationDegrees = linearRamps(this.WIPE_ROTATION_BLOCKS, this.tick)
+    const wipeRotationRadians = THREE.MathUtils.degToRad(wipeRotationDegrees)
 
     const rx = this.width / 2
     const ry1 = linearRamps(this.RY1_BLOCKS, this.tick)
@@ -83,9 +83,9 @@ export class MeetingYouHalfwayForm {
     const ellipse1Points = getEllipsePoints(ry1)
     const ellipse2Points = getEllipsePoints(ry2)
 
-    const rotationZ = new THREE.Matrix4().makeRotationZ(swipeRotationRadians)
+    const rotationZ = new THREE.Matrix4().makeRotationZ(wipeRotationRadians)
     const normal = new THREE.Vector3(1, 0, 0).applyMatrix4(rotationZ)
-    const constant = swipeOffset
+    const constant = wipeOffset
     const wipeClippingPlane1 = new THREE.Plane(normal, constant)
     const wipeClippingPlane2 = wipeClippingPlane1.clone().negate()
     const line1 = new Line(ellipse1Points, { clippingPlanes: [wipeClippingPlane1] })

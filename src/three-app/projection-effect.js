@@ -87,6 +87,16 @@ export class ProjectionEffect {
       mesh.geometry = new MembraneGeometry(projectorPoints, screenPoints)
       mesh.geometry.computeVertexNormals()
       mesh.material.uniforms.opacity.value = line.opacity
+
+      if (line.clippingPlanes) {
+        mesh.material.clippingPlanes = line.clippingPlanes.map(clippingPlane =>
+          clippingPlane.clone().applyMatrix4(this._projectedForm.transform))
+        mesh.material.clipping = true
+
+      } else {
+        mesh.material.clippingPlanes = null
+        mesh.material.clipping = false
+      }
     })
 
     if (this._visibleHelpers) {

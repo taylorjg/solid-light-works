@@ -5,7 +5,10 @@ varying vec3 vNormal;
 varying vec2 vUv;
 varying vec3 vProjectorPosition;
 
+#include <clipping_planes_pars_fragment>
+
 void main() {
+  #include <clipping_planes_fragment>
   float d = distance(vPosition, vProjectorPosition);
   float a = 1.0 - (d / 12.0);
   vec3 v = normalize(vPosition - cameraPosition);

@@ -27,7 +27,7 @@ export class ScreenImage {
       Line2DBasicShader({
         side: THREE.DoubleSide,
         diffuse: 0xffffff,
-        thickness: C.SCREEN_IMAGE_LINE_THICKNESS
+        thickness: line.lineThickness ?? C.SCREEN_IMAGE_LINE_THICKNESS
       }))
     const mesh = new THREE.Mesh(geometry, material)
     this._group.add(mesh)
@@ -89,7 +89,6 @@ export class ScreenImage {
         mesh.material.clippingPlanes = line.clippingPlanes.map(clippingPlane =>
           clippingPlane.clone().applyMatrix4(this._screenForm.transform))
         mesh.material.clipping = true
-
       } else {
         mesh.material.clippingPlanes = null
         mesh.material.clipping = false

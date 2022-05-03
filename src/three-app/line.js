@@ -5,6 +5,7 @@ export class Line {
     this._opacity = options.opacity ?? 1.0
     this._closed = options.closed ?? false
     this._clippingPlanes = options.clippingPlanes
+    this._lineThickness = options.lineThickness
   }
 
   get points() {
@@ -21,5 +22,9 @@ export class Line {
 
   get clippingPlanes() {
     return this._clippingPlanes
+  }
+
+  get lineThickness() {
+    return this._lineThickness
   }
 }
