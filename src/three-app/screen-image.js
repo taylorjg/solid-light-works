@@ -7,16 +7,16 @@ import * as U from './utils'
 
 export class ScreenImage {
 
-  constructor(parent, screenForm) {
-    this._screenForm = screenForm
-    this._group = this._createGroup(parent, screenForm)
+  constructor(parent, config2D) {
+    this._config2D = config2D
+    this._group = this._createGroup(parent, config2D)
     this._meshes = undefined
     this._intersectionPoints = new IntersectionPoints(this._group)
   }
 
-  _createGroup(parent, screenForm) {
+  _createGroup(parent, config2D) {
     const group = new THREE.Group()
-    group.applyMatrix4(screenForm.transform)
+    group.applyMatrix4(config2D.transform)
     parent.add(group)
     return group
   }
@@ -87,7 +87,7 @@ export class ScreenImage {
 
       if (line.clippingPlanes) {
         mesh.material.clippingPlanes = line.clippingPlanes.map(clippingPlane =>
-          clippingPlane.clone().applyMatrix4(this._screenForm.transform))
+          clippingPlane.clone().applyMatrix4(this._config2D.transform))
         mesh.material.clipping = true
       } else {
         mesh.material.clippingPlanes = null
