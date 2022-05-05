@@ -70,6 +70,31 @@ export class ProjectionEffect {
     }
   }
 
+  _tiltClippingPlane(clippingPlane) {
+    const formPoint1 = new THREE.Vector3(2, 2, 0).applyMatrix4(this._config3D.transform)
+    const formPoint2 = new THREE.Vector3(2, -2, 0).applyMatrix4(this._config3D.transform)
+    const projectedFormPoint1 = clippingPlane.projectPoint(formPoint1, new THREE.Vector3())
+    const projectedFormPoint2 = clippingPlane.projectPoint(formPoint2, new THREE.Vector3())
+    const translation = new THREE.Matrix4().makeTranslation(...this._config3D.projectorPosition.toArray())
+    const transform = translation.premultiply(this._config3D.transform)
+    const transformedProjectorPosition = new THREE.Vector3().applyMatrix4(transform)
+    const originalNormal = clippingPlane.normal.clone()
+    clippingPlane.setFromCoplanarPoints(
+      projectedFormPoint1,
+      projectedFormPoint2,
+      transformedProjectorPosition)
+    const dotProduct = originalNormal.dot(clippingPlane.normal)
+    if (dotProduct < 0) {
+      clippingPlane.negate()
+    }
+  }
+
+  _tiltClippingPlanes(clippingPlanes) {
+    for (const clippingPlane of clippingPlanes) {
+      this._tiltClippingPlane(clippingPlane)
+    }
+  }
+
   update(lines) {
     const lineCount = lines.length
     const meshCount = this._meshes?.length ?? 0
@@ -92,41 +117,7 @@ export class ProjectionEffect {
         mesh.material.clippingPlanes = line.clippingPlanes.map(clippingPlane =>
           clippingPlane.clone().applyMatrix4(this._config3D.transform))
         mesh.material.clipping = true
-
-        // if (!mesh.material.planeHelper) {
-        //   mesh.material.planeHelper = new THREE.PlaneHelper(firstClippingPlane, 20)
-        //   this._parent.add(mesh.material.planeHelper)
-        //   const sphereGeometry1 = new THREE.SphereBufferGeometry(0.05, 16, 16)
-        //   const sphereGeometry2 = new THREE.SphereBufferGeometry(0.05, 16, 16)
-        //   const sphereMaterial1 = new THREE.LineBasicMaterial({ color: 'brown' })
-        //   const sphereMaterial2 = new THREE.LineBasicMaterial({ color: 'pink' })
-        //   mesh.material.sphereMesh1 = new THREE.Mesh(sphereGeometry1, sphereMaterial1)
-        //   mesh.material.sphereMesh2 = new THREE.Mesh(sphereGeometry2, sphereMaterial2)
-        //   this._parent.add(mesh.material.sphereMesh1)
-        //   this._parent.add(mesh.material.sphereMesh2)
-        // } else {
-        //   mesh.material.planeHelper.plane = firstClippingPlane
-        // }
-
-        const firstClippingPlane = mesh.material.clippingPlanes[0]
-        const p1 = new THREE.Vector3(2, 2, 0).applyMatrix4(this._config3D.transform)
-        const p2 = new THREE.Vector3(2, -2, 0).applyMatrix4(this._config3D.transform)
-        const p3 = new THREE.Vector3()
-        const p4 = new THREE.Vector3()
-        firstClippingPlane.projectPoint(p1, p3)
-        firstClippingPlane.projectPoint(p2, p4)
-        const translation = new THREE.Matrix4().makeTranslation(...this._config3D.projectorPosition.toArray())
-        const transform = translation.premultiply(this._config3D.transform)
-        const p5 = new THREE.Vector3().applyMatrix4(transform)
-
-        const oldNormal = firstClippingPlane.normal.clone()
-        firstClippingPlane.setFromCoplanarPoints(p3, p4, p5)
-        const newNormal = firstClippingPlane.normal.clone()
-        const dotProduct = oldNormal.dot(newNormal)
-        if (dotProduct < 0) {
-          firstClippingPlane.negate()
-        }
-        // console.log(`oldNormal: ${oldNormal.toArray()}; newNormal: ${newNormal.toArray()}; dotProduct: ${dotProduct}`)
+        this._tiltClippingPlanes(mesh.material.clippingPlanes)
       } else {
         mesh.material.clippingPlanes = null
         mesh.material.clipping = false
