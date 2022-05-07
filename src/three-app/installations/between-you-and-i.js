@@ -1,5 +1,5 @@
 import * as THREE from 'three'
-import { BetweenYouAndIFormV2 } from '../forms/between-you-and-i-v2'
+import { BetweenYouAndIForm } from '../forms/between-you-and-i'
 import { Floor } from '../scenery'
 import * as C from '../constants'
 
@@ -20,7 +20,7 @@ const makeWork1 = () => {
   return {
     formConfigs: [
       {
-        form: new BetweenYouAndIFormV2(4, 3, true),
+        form: new BetweenYouAndIForm(4, 3, true),
         config2D: {
           transform: new THREE.Matrix4()
             .multiply(new THREE.Matrix4().makeTranslation(-2.5, 0, 0))
@@ -31,7 +31,7 @@ const makeWork1 = () => {
         }
       },
       {
-        form: new BetweenYouAndIFormV2(4, 3, false),
+        form: new BetweenYouAndIForm(4, 3, false),
         config2D: {
           transform: new THREE.Matrix4()
             .multiply(new THREE.Matrix4().makeTranslation(2.5, 0, 0))

@@ -25,7 +25,7 @@ const ELLIPSE_POINT_COUNT = 100
 const TRAVELLING_WAVE_POINT_COUNT = 100
 const MAX_TICKS = 10000
 
-export class BetweenYouAndIFormV2 {
+export class BetweenYouAndIForm {
 
   constructor(width, height, initiallyWipingInEllipse) {
     this.width = width
