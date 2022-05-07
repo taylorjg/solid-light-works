@@ -5,7 +5,6 @@ import { Installation } from './installations/installation'
 import { config as DoublingBackInstallationConfig } from './installations/doubling-back'
 import { config as LeavingInstallationConfig } from './installations/leaving'
 import { config as CouplingInstallationConfig } from './installations/coupling'
-import { config as BetweenYouAndIInstallationConfig } from './installations/between-you-and-i'
 import { config as BetweenYouAndIInstallationConfigV2 } from './installations/between-you-and-i-v2'
 import { config as BreathIIIInstallationConfig } from './installations/breath-iii'
 import { config as SkirtIIIInstallationConfig } from './installations/skirt-iii'
@@ -220,11 +219,10 @@ export const threeAppInit = async () => {
   }
 
   const configs = [
-    BetweenYouAndIInstallationConfigV2,
     DoublingBackInstallationConfig,
     LeavingInstallationConfig,
     CouplingInstallationConfig,
-    BetweenYouAndIInstallationConfig,
+    BetweenYouAndIInstallationConfigV2,
     BreathIIIInstallationConfig,
     SkirtIIIInstallationConfig,
     MeetingYouHalfwayInstallationConfig,
