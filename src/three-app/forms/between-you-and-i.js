@@ -21,8 +21,8 @@ const parametricTravellingWaveY = (A, k, ωt, φ) =>
 // const parametricLineY = (y0, b) =>
 //   t => y0 + b * t
 
-const ELLIPSE_POINT_COUNT = 100
-const TRAVELLING_WAVE_POINT_COUNT = 100
+const ELLIPSE_POINT_COUNT = 200
+const TRAVELLING_WAVE_POINT_COUNT = 200
 const MAX_TICKS = 10000
 
 export class BetweenYouAndIForm {
@@ -77,23 +77,27 @@ export class BetweenYouAndIForm {
     const tickRatio = this.tick / MAX_TICKS
     const normal = new THREE.Vector3(1, 0, 0)
     const constant = this.width / 2 + C.SCREEN_IMAGE_LINE_THICKNESS - tickRatio * this.width
-    const wipeClippingPlane1 = new THREE.Plane(normal, constant)
-    const wipeClippingPlane2 = wipeClippingPlane1.clone().negate()
+    const wipingOutClippingPlane = new THREE.Plane(normal, constant)
+    const wipingInClippingPlane = wipingOutClippingPlane.clone().negate()
+    const scene1WipeClippingPlane = this.wipingInEllipse ? wipingInClippingPlane : wipingOutClippingPlane
+    const scene2WipeClippingPlane = this.wipingInEllipse ? wipingOutClippingPlane : wipingInClippingPlane
     const topClippingPlane = new THREE.Plane(new THREE.Vector3(0, -1, 0), this.height / 2)
     const bottomClippingPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), this.height / 2)
     const leftClippingPlane = new THREE.Plane(new THREE.Vector3(1, 0, 0), this.width / 2)
     const rightClippingPlane = new THREE.Plane(new THREE.Vector3(-1, 0, 0), this.width / 2)
+    const leftAndRightClippingPlanes = [leftClippingPlane, rightClippingPlane]
+    const allSidesClippingPlanes = [topClippingPlane, bottomClippingPlane, leftClippingPlane, rightClippingPlane]
     const ellipsePoints = this.getEllipsePoints(tickRatio)
     const travellingWavePoints = this.getTravellingWavePoints(tickRatio)
     const straightLinePoints = this.getStraightLinePoints(tickRatio)
-    const ellipseLine = new Line(ellipsePoints, { clippingPlanes: [this.wipingInEllipse ? wipeClippingPlane1 : wipeClippingPlane2] })
-    const travellingWaveLine = new Line(travellingWavePoints, { clippingPlanes: [this.wipingInEllipse ? wipeClippingPlane2 : wipeClippingPlane1, leftClippingPlane, rightClippingPlane] })
-    const straightLine = new Line(straightLinePoints, { clippingPlanes: [this.wipingInEllipse ? wipeClippingPlane2 : wipeClippingPlane1, topClippingPlane, bottomClippingPlane, leftClippingPlane, rightClippingPlane] })
-    const lines = [ellipseLine, travellingWaveLine, straightLine]
+    const ellipseLine = new Line(ellipsePoints, { clippingPlanes: [scene1WipeClippingPlane] })
+    const travellingWaveLine = new Line(travellingWavePoints, { clippingPlanes: [scene2WipeClippingPlane, ...leftAndRightClippingPlanes] })
+    const straightLine = new Line(straightLinePoints, { clippingPlanes: [scene2WipeClippingPlane, ...allSidesClippingPlanes] })
     this.tick++
     if (this.tick > MAX_TICKS) {
       this.toggleWipeMode()
     }
+    const lines = [ellipseLine, travellingWaveLine, straightLine]
     return lines
   }
 
