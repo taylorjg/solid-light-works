@@ -37,7 +37,7 @@ export class BetweenYouAndIForm {
   }
 
   getEllipsePoints(tickRatio) {
-    const ry = this.ry - this.ry * 0.9 * Math.sin(C.PI * tickRatio)
+    const ry = this.ry - this.ry * 0.8 * Math.sin(C.PI * tickRatio)
     const Δθ = C.TWO_PI / ELLIPSE_POINT_COUNT
     return U.range(ELLIPSE_POINT_COUNT + 1).map(n => {
       const t = n * Δθ

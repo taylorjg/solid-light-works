@@ -70,29 +70,32 @@ export class ProjectionEffect {
     }
   }
 
-  _tiltClippingPlane(clippingPlane) {
-    const formPoint1 = new THREE.Vector3(2, 2, 0).applyMatrix4(this._config3D.transform)
-    const formPoint2 = new THREE.Vector3(2, -2, 0).applyMatrix4(this._config3D.transform)
-    const projectedFormPoint1 = clippingPlane.projectPoint(formPoint1, new THREE.Vector3())
-    const projectedFormPoint2 = clippingPlane.projectPoint(formPoint2, new THREE.Vector3())
+  _tiltClippingPlane(newClippingPlane, oldClippingPlane) {
+    const zaxis = new THREE.Vector3(0, 0, 1)
+    const oldClippingPlaneNormal = oldClippingPlane.normal
+    const oldClippingPlaneTangent = zaxis.cross(oldClippingPlaneNormal).normalize()
+    const pointInOldClippingPlane1 = oldClippingPlane.coplanarPoint(new THREE.Vector3())
+    const pointInOldClippingPlane2 = pointInOldClippingPlane1.clone().add(oldClippingPlaneTangent)
+    const transformedPointInOldClippingPlane1 = pointInOldClippingPlane1.applyMatrix4(this._config3D.transform)
+    const transformedPointInOldClippingPlane2 = pointInOldClippingPlane2.applyMatrix4(this._config3D.transform)
     const translation = new THREE.Matrix4().makeTranslation(...this._config3D.projectorPosition.toArray())
     const transform = translation.premultiply(this._config3D.transform)
     const transformedProjectorPosition = new THREE.Vector3().applyMatrix4(transform)
-    const originalNormal = clippingPlane.normal.clone()
-    clippingPlane.setFromCoplanarPoints(
-      projectedFormPoint1,
-      projectedFormPoint2,
+    const newClippingPlaneSavedNormal = newClippingPlane.normal.clone()
+    newClippingPlane.setFromCoplanarPoints(
+      transformedPointInOldClippingPlane1,
+      transformedPointInOldClippingPlane2,
       transformedProjectorPosition)
-    const dotProduct = originalNormal.dot(clippingPlane.normal)
+    const dotProduct = newClippingPlaneSavedNormal.dot(newClippingPlane.normal)
     if (dotProduct < 0) {
-      clippingPlane.negate()
+      newClippingPlane.negate()
     }
   }
 
-  _tiltClippingPlanes(clippingPlanes) {
-    for (const clippingPlane of clippingPlanes) {
-      this._tiltClippingPlane(clippingPlane)
-    }
+  _tiltClippingPlanes(clippingPlanes, oldClippingPlanes) {
+    clippingPlanes.forEach((clippingPlane, index) => {
+      this._tiltClippingPlane(clippingPlane, oldClippingPlanes[index])
+    })
   }
 
   update(lines) {
@@ -117,7 +120,7 @@ export class ProjectionEffect {
         mesh.material.clippingPlanes = line.clippingPlanes.map(clippingPlane =>
           clippingPlane.clone().applyMatrix4(this._config3D.transform))
         mesh.material.clipping = true
-        this._tiltClippingPlanes(mesh.material.clippingPlanes)
+        this._tiltClippingPlanes(mesh.material.clippingPlanes, line.clippingPlanes)
       } else {
         mesh.material.clippingPlanes = null
         mesh.material.clipping = false
