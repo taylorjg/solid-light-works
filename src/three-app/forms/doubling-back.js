@@ -3,6 +3,12 @@ import { Line } from '../line'
 import * as U from '../utils'
 import * as C from '../constants'
 
+const parametricTravellingWaveX = xoffset =>
+  t => t + xoffset
+
+const parametricTravellingWaveY = (A, k, ωt, φ) =>
+  t => A * Math.sin(k * t - ωt + φ)
+
 const MAX_TICKS = 8900
 const DELAY_TICKS = 120
 const TRAVELLING_WAVE_POINT_COUNT = 200
@@ -13,7 +19,6 @@ export class DoublingBackForm {
   constructor(width, height) {
     this.width = width
     this.height = height
-    this.waveLength = width * 4 / 3
     this.tick = 0
     this.direction = 1
     this.delaying = false
@@ -22,9 +27,10 @@ export class DoublingBackForm {
   }
 
   getTravellingWavePoints1() {
-    const k = C.TWO_PI / this.waveLength
-    const frequency = 1
-    const ω = C.TWO_PI * frequency
+    const λ = this.width * 4 / 3
+    const k = C.TWO_PI / λ
+    const f = 1
+    const ω = C.TWO_PI * f
     const speed = 0.0001
     const φ = THREE.MathUtils.degToRad(160)
     const Δx = this.width / TRAVELLING_WAVE_POINT_COUNT
@@ -36,9 +42,10 @@ export class DoublingBackForm {
   }
 
   getTravellingWavePoints2() {
-    const k = C.TWO_PI / this.waveLength
-    const frequency = 1
-    const ω = C.TWO_PI * frequency
+    const λ = this.width * 4 / 3
+    const k = C.TWO_PI / λ
+    const f = 1
+    const ω = C.TWO_PI * f
     const speed = 0.0001
     const φ = THREE.MathUtils.degToRad(70)
     const Δy = this.height / TRAVELLING_WAVE_POINT_COUNT
@@ -66,9 +73,11 @@ export class DoublingBackForm {
       }
     }
 
-    const points1 = this.getTravellingWavePoints1()
-    const points2 = this.getTravellingWavePoints2()
-    const lines = [points1, points2].map(points => new Line(points))
+    const travellingWavePoints1 = this.getTravellingWavePoints1()
+    const travellingWavePoints2 = this.getTravellingWavePoints2()
+    const line1 = new Line(travellingWavePoints1)
+    const line2 = new Line(travellingWavePoints2)
+    const lines = [line1, line2]
 
     if (!this.delaying) {
       this.tick += this.direction
