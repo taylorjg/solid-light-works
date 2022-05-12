@@ -1,14 +1,9 @@
 import * as THREE from 'three'
 import { Line } from '../line'
+import { parametricEllipseX, parametricEllipseY } from '../syntax/parametric-ellipse'
 import { linearRamps } from "../ramps"
 import * as C from '../constants'
 import * as U from '../utils'
-
-const parametricEllipseX = rx =>
-  t => rx * Math.cos(t)
-
-const parametricEllipseY = ry =>
-  t => ry * Math.sin(t)
 
 const ELLIPSE_POINT_COUNT = 100
 const CYCLE_TICKS = 25000

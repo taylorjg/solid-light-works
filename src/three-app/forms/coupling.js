@@ -94,21 +94,31 @@ export class CouplingForm {
     return 1
   }
 
+  getCircleWavePointsA = (r, t) => {
+    if (!r) return []
+    const rx = r * 1.1
+    const ry = r
+    return this.circleWaveA.getPoints(rx, ry, CIRCLE_WAVE_POINT_COUNT, t)
+  }
+
+  getCircleWavePointsB = (r, t) => {
+    if (!r) return []
+    const rx = r * 1.1
+    const ry = r
+    return this.circleWaveB.getPoints(rx, ry, CIRCLE_WAVE_POINT_COUNT, t).map(this.flipX)
+  }
+
   getLines() {
     const tickRatio = this.tick / MAX_TICKS
     const radiusA = this.calcRadiusA(tickRatio)
     const radiusB = this.calcRadiusB(tickRatio)
     const opacityA = this.calcOpacityA(tickRatio)
     const opacityB = this.calcOpacityB(tickRatio)
-    const pointsA = radiusA
-      ? this.circleWaveA.getPoints(radiusA, CIRCLE_WAVE_POINT_COUNT, this.tick)
-      : []
-    const pointsB = radiusB
-      ? this.circleWaveB.getPoints(radiusB, CIRCLE_WAVE_POINT_COUNT, this.tick).map(this.flipX)
-      : []
-    const lineA = new Line(pointsA, { opacity: opacityA })
-    const lineB = new Line(pointsB, { opacity: opacityB })
-    const lines = [lineA, lineB]
+    const circleWavePointsA = this.getCircleWavePointsA(radiusA, this.tick)
+    const circleWavePointsB = this.getCircleWavePointsB(radiusB, this.tick)
+    const line1 = new Line(circleWavePointsA, { opacity: opacityA })
+    const line2 = new Line(circleWavePointsB, { opacity: opacityB })
+    const lines = [line1, line2]
     this.tick += 1
     if (this.tick > MAX_TICKS) {
       this.firstTime = false

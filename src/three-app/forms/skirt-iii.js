@@ -1,50 +1,20 @@
 import * as THREE from 'three'
 import { Line } from '../line'
+import {
+  parametricEllipseX,
+  parametricEllipseY,
+  parametricEllipseXDerivative,
+  parametricEllipseYDerivative
+} from '../syntax/parametric-ellipse'
+import {
+  parametricEyeWaveX,
+  parametricEyeWaveY,
+  parametricEyeWaveXDerivative,
+  parametricEyeWaveYDerivative
+} from '../syntax/parametric-eye-wave'
 import { newtonsMethod } from '../newtons-method'
 import * as C from '../constants'
 import * as U from '../utils'
-
-// Parametric equation of an ellipse:
-// x = a * cos(t)
-// y = b * sin(t)
-
-// Parametric equation of a travelling wave:
-// x = t
-// y = A * sin(k * t - ωt + φ)
-
-const parametricEllipseX = rx =>
-  t => rx * Math.cos(t)
-
-const parametricEllipseY = ry =>
-  t => ry * Math.sin(t)
-
-const parametricEyeWaveX = xoffset =>
-  t => t + xoffset
-
-const parametricEyeWaveY = (R, A, F, S, f, Φ, φ, k, tick, θoffset) =>
-  t => {
-    const θ = θoffset + k * t
-    const ω = A * Math.sin(F * θ + S * tick + Φ) * Math.cos(f * tick + φ)
-    return (R + ω) * Math.sin(θ)
-  }
-
-// The following online tool was very useful for finding the derivatives:
-// https://www.symbolab.com/solver/derivative-calculator
-
-const parametricEllipseXDerivative = rx =>
-  t => -rx * Math.sin(t)
-
-const parametricEllipseYDerivative = ry =>
-  t => ry * Math.cos(t)
-
-const parametricEyeWaveXDerivative = _xoffset =>
-  t => 1
-
-const parametricEyeWaveYDerivative = (R, A, F, S, f, Φ, φ, k, tick, θoffset) =>
-  t => (
-    A * F * k * Math.cos(tick * f + φ) * Math.cos(F * (k * t + θoffset) + S * tick + Φ) * Math.sin(θoffset + k * t) +
-    Math.cos(θoffset + k * t) * k * (R + A * Math.sin(F * (θoffset + k * t) + S * tick + Φ) * Math.cos(f * tick + φ))
-  )
 
 const ELLIPSE_POINT_COUNT = 100
 const EYE_WAVE_POINT_COUNT = 100

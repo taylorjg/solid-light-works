@@ -1,48 +1,20 @@
 import * as THREE from 'three'
 import { Line } from '../line'
+import {
+  parametricEllipseX,
+  parametricEllipseY,
+  parametricEllipseXDerivative,
+  parametricEllipseYDerivative
+} from '../syntax/parametric-ellipse'
+import {
+  parametricRotatingTravellingWaveX,
+  parametricRotatingTravellingWaveY,
+  parametricRotatingTravellingWaveXDerivative,
+  parametricRotatingTravellingWaveYDerivative
+} from '../syntax/parametric-rotating-travelling-wave'
 import { newtonsMethod } from '../newtons-method'
 import * as C from '../constants'
 import * as U from '../utils'
-
-// Parametric equation of an ellipse:
-// x = a * cos(t)
-// y = b * sin(t)
-
-// Parametric equation of a travelling wave:
-// x = t
-// y = A * sin(k * t - ωt)
-
-// Parametric equation of a travelling wave rotated ccw by θ:
-// x = t * cos(θ) - a * sin(k * t - ωt) * sin(θ)
-// y = t * sin(θ) + a * sin(k * t - ωt) * cos(θ)
-// (see https://math.stackexchange.com/questions/245859/rotating-parametric-curve)
-
-const parametricEllipseX = rx =>
-  t => rx * Math.cos(t)
-
-const parametricEllipseY = ry =>
-  t => ry * Math.sin(t)
-
-const parametricRotatingTravellingWaveX = (A, k, ωt, θ) =>
-  t => t * Math.cos(θ) - A * Math.sin(k * t - ωt) * Math.sin(θ)
-
-const parametricRotatingTravellingWaveY = (A, k, ωt, θ) =>
-  t => t * Math.sin(θ) + A * Math.sin(k * t - ωt) * Math.cos(θ)
-
-// The following online tool was very useful for finding the derivatives:
-// https://www.symbolab.com/solver/derivative-calculator
-
-const parametricEllipseXDerivative = rx =>
-  t => -rx * Math.sin(t)
-
-const parametricEllipseYDerivative = ry =>
-  t => ry * Math.cos(t)
-
-const parametricRotatingTravellingWaveXDerivative = (A, k, ωt, θ) =>
-  t => Math.cos(θ) - A * Math.sin(θ) * Math.cos(k * t - ωt) * k
-
-const parametricRotatingTravellingWaveYDerivative = (A, k, ωt, θ) =>
-  t => Math.sin(θ) + A * Math.cos(θ) * Math.cos(k * t - ωt) * k
 
 const easeInOutQuint = x =>
   x < 0.5 ? 16 * x * x * x * x * x : 1 - Math.pow(-2 * x + 2, 5) / 2
@@ -156,9 +128,9 @@ export class LeavingForm {
       : [t1, -C.HALF_PI - C.TWO_PI]
     const Δθ = (θ2 - θ1) / ELLIPSE_POINT_COUNT
     const ellipsePoints = U.range(ELLIPSE_POINT_COUNT + 1).map(n => {
-      let t = θ1 + n * Δθ
-      let x = parametricEllipseXFn(t)
-      let y = parametricEllipseYFn(t)
+      const t = θ1 + n * Δθ
+      const x = parametricEllipseXFn(t)
+      const y = parametricEllipseYFn(t)
       return new THREE.Vector2(x, y)
     })
 

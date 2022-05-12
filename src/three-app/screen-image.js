@@ -57,7 +57,8 @@ export class ScreenImage {
     } else {
       const meshes = this._meshes ?? []
       meshes.forEach((mesh, index) => {
-        const pointCount = lines[index].points.length
+        const line = lines[index]
+        const pointCount = line.points.length
         const positionAttribute = mesh.geometry.getAttribute("position")
 
         // For each point in the path, the line geometry adds
@@ -67,7 +68,7 @@ export class ScreenImage {
         const arrayLength = positionAttribute.array.length
         if (arrayLength < minRequiredArrayLength) {
           U.disposeMesh(mesh)
-          this._meshes[index] = this._createMesh()
+          this._meshes[index] = this._createMesh(line)
         }
       })
     }

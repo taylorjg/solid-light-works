@@ -1,44 +1,20 @@
 import * as THREE from 'three'
 import { Line } from '../line'
+import {
+  parametricEllipseX,
+  parametricEllipseY,
+  parametricEllipseXDerivative,
+  parametricEllipseYDerivative
+} from '../syntax/parametric-ellipse'
+import {
+  parametricTravellingWaveX,
+  parametricTravellingWaveY,
+  parametricTravellingWaveXDerivative,
+  parametricTravellingWaveYDerivative
+} from '../syntax/parametric-travelling-wave'
 import { newtonsMethod } from '../newtons-method'
 import * as C from '../constants'
 import * as U from '../utils'
-
-// Parametric equation of an ellipse:
-// x = a * cos(t)
-// y = b * sin(t)
-
-// http://labman.phys.utk.edu/phys221core/modules/m11/traveling_waves.html
-// Parametric equation of a travelling wave:
-// x = t
-// y = A * sin(k * t - ωt + φ)
-
-const parametricEllipseX = rx =>
-  t => rx * Math.cos(t)
-
-const parametricEllipseY = ry =>
-  t => ry * Math.sin(t)
-
-const parametricTravellingWaveX = xoffset =>
-  t => t + xoffset
-
-const parametricTravellingWaveY = (A, k, ωt, φ) =>
-  t => A * Math.sin(k * t - ωt + φ)
-
-// The following online tool was very useful for finding the derivatives:
-// https://www.symbolab.com/solver/derivative-calculator
-
-const parametricEllipseXDerivative = rx =>
-  t => -rx * Math.sin(t)
-
-const parametricEllipseYDerivative = ry =>
-  t => ry * Math.cos(t)
-
-const parametricTravellingWaveXDerivative = _xoffset =>
-  t => 1
-
-const parametricTravellingWaveYDerivative = (A, k, ωt, φ) =>
-  t => A * Math.cos(k * t - ωt + φ) * k
 
 const ELLIPSE_POINT_COUNT = 100
 const TRAVELLING_WAVE_POINT_COUNT = 100

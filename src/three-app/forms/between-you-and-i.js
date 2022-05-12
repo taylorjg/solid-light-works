@@ -1,29 +1,13 @@
 import * as THREE from 'three'
 import { Line } from '../line'
+import { parametricEllipseX, parametricEllipseY } from '../syntax/parametric-ellipse'
+import { parametricTravellingWaveX, parametricTravellingWaveY } from '../syntax/parametric-travelling-wave'
 import * as C from '../constants'
 import * as U from '../utils'
 
-const parametricEllipseX = rx =>
-  t => rx * Math.cos(t)
-
-const parametricEllipseY = ry =>
-  t => ry * Math.sin(t)
-
-const parametricTravellingWaveX = xoffset =>
-  t => t + xoffset
-
-const parametricTravellingWaveY = (A, k, ωt, φ) =>
-  t => A * Math.sin(k * t - ωt + φ)
-
-// const parametricLineX = (x0, a) =>
-//   t => x0 + a * t
-
-// const parametricLineY = (y0, b) =>
-//   t => y0 + b * t
-
 const ELLIPSE_POINT_COUNT = 200
 const TRAVELLING_WAVE_POINT_COUNT = 200
-const MAX_TICKS = 10000
+const MAX_TICKS = 20000
 
 export class BetweenYouAndIForm {
 
@@ -58,8 +42,8 @@ export class BetweenYouAndIForm {
     return U.range(TRAVELLING_WAVE_POINT_COUNT + 1).map(n => {
       const t = n * Δx
       const x = parametricTravellingWaveX(xoffset)(t)
-      const y = -parametricTravellingWaveY(this.ry * 0.9, k, -ωt, 0)(t)
-      return new THREE.Vector2(x, y)
+      const y = parametricTravellingWaveY(this.ry * 0.9, k, -ωt, 0)(t)
+      return new THREE.Vector2(x, -y)
     })
   }
 
