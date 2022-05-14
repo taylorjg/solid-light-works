@@ -1,6 +1,8 @@
-import { CircleWave } from '../syntax/circle-wave'
+import * as THREE from 'three'
 import { Line } from '../line'
+import { parametricCircleWaveX, parametricCircleWaveY } from '../syntax/parametric-circle-wave'
 import * as C from '../constants'
+import * as U from '../utils'
 
 // https://www.ericforman.com/anthony-mccall-solid-light#6
 // https://www.ericforman.com/anthony-mccall-solid-light#7
@@ -14,12 +16,10 @@ export class CouplingForm {
   constructor(outerRadius, innerRadius) {
     this.outerRadius = outerRadius
     this.innerRadius = innerRadius
-    const A = (outerRadius - innerRadius) * 0.2
-    const F = 3.5
-    const S = C.TWO_PI / (MAX_TICKS / 4)
-    const f = 0
-    this.circleWaveA = new CircleWave(A, F, S, f, C.PI, C.PI)
-    this.circleWaveB = new CircleWave(A, F, S, f, -C.HALF_PI, C.PI)
+    this.A = (outerRadius - innerRadius) * 0.2
+    this.F = 3.5
+    this.S = C.TWO_PI / (MAX_TICKS / 4)
+    this.f = 0
     this.tick = 0
     this.firstTime = true
   }
@@ -94,18 +94,33 @@ export class CouplingForm {
     return 1
   }
 
-  getCircleWavePointsA = (r, t) => {
-    if (!r) return []
-    const rx = r * 1.1
-    const ry = r
-    return this.circleWaveA.getPoints(rx, ry, CIRCLE_WAVE_POINT_COUNT, t)
+  getCircleWavePoints(rx, ry, Φ, φ) {
+    const { A, F, S, f, tick } = this
+    const Δθ = C.TWO_PI / CIRCLE_WAVE_POINT_COUNT
+    return U.range(CIRCLE_WAVE_POINT_COUNT + 1).map(n => {
+      const t = Δθ * n
+      const x = parametricCircleWaveX(A, F, S, f, Φ, φ, rx, tick)(t)
+      const y = parametricCircleWaveY(A, F, S, f, Φ, φ, ry, tick)(t)
+      return new THREE.Vector2(x, y)
+    })
   }
 
-  getCircleWavePointsB = (r, t) => {
+  getCircleWavePointsA = r => {
     if (!r) return []
     const rx = r * 1.1
     const ry = r
-    return this.circleWaveB.getPoints(rx, ry, CIRCLE_WAVE_POINT_COUNT, t).map(this.flipX)
+    const Φ = C.PI
+    const φ = C.PI
+    return this.getCircleWavePoints(rx, ry, Φ, φ)
+  }
+
+  getCircleWavePointsB = r => {
+    if (!r) return []
+    const rx = r * 1.1
+    const ry = r
+    const Φ = -C.HALF_PI
+    const φ = C.PI
+    return this.getCircleWavePoints(rx, ry, Φ, φ).map(this.flipX)
   }
 
   getLines() {
@@ -114,8 +129,8 @@ export class CouplingForm {
     const radiusB = this.calcRadiusB(tickRatio)
     const opacityA = this.calcOpacityA(tickRatio)
     const opacityB = this.calcOpacityB(tickRatio)
-    const circleWavePointsA = this.getCircleWavePointsA(radiusA, this.tick)
-    const circleWavePointsB = this.getCircleWavePointsB(radiusB, this.tick)
+    const circleWavePointsA = this.getCircleWavePointsA(radiusA)
+    const circleWavePointsB = this.getCircleWavePointsB(radiusB)
     const line1 = new Line(circleWavePointsA, { opacity: opacityA })
     const line2 = new Line(circleWavePointsB, { opacity: opacityB })
     const lines = [line1, line2]
