@@ -30,8 +30,8 @@ export class DoublingBackForm {
     const { A, k, ω, speed } = this
     const ωt = ω * this.tick * speed
     const φ = THREE.MathUtils.degToRad(160)
-    const xoffset = -this.width / 2
-    const Δx = this.width / TRAVELLING_WAVE_POINT_COUNT
+    const xoffset = -this.width / 2 - C.LINE_THICKNESS
+    const Δx = (this.width + C.LINE_THICKNESS * 2) / TRAVELLING_WAVE_POINT_COUNT
     const parametricTravellingWaveXFn = parametricTravellingWaveX(xoffset)
     const parametricTravellingWaveYFn = parametricTravellingWaveY(A, k, ωt, φ)
     return U.range(TRAVELLING_WAVE_POINT_COUNT + 1).map(n => {
@@ -46,8 +46,8 @@ export class DoublingBackForm {
     const { A, k, ω, speed } = this
     const ωt = ω * this.tick * speed
     const φ = THREE.MathUtils.degToRad(70)
-    const xoffset = -this.height / 2
-    const Δx = this.height / TRAVELLING_WAVE_POINT_COUNT
+    const xoffset = -this.height / 2 - C.LINE_THICKNESS
+    const Δx = (this.height + C.LINE_THICKNESS * 2) / TRAVELLING_WAVE_POINT_COUNT
     const midpoint = this.width / 2 - this.height / 2
     const parametricTravellingWaveXFn = parametricTravellingWaveX(xoffset)
     const parametricTravellingWaveYFn = parametricTravellingWaveY(A, k, ωt, φ)
@@ -77,8 +77,8 @@ export class DoublingBackForm {
 
     const leftToRightTravellingWavePoints = this.getLeftToRightTravellingWavePoints()
     const bottomToTopTravellingWavePoints = this.getBottomToTopTravellingWavePoints()
-    const line1 = new Line(leftToRightTravellingWavePoints)
-    const line2 = new Line(bottomToTopTravellingWavePoints)
+    const line1 = new Line(leftToRightTravellingWavePoints, { clipToFormBoundary: true })
+    const line2 = new Line(bottomToTopTravellingWavePoints, { clipToFormBoundary: true })
     const lines = [line1, line2]
 
     if (!this.delaying) {

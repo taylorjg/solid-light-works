@@ -3,17 +3,20 @@ import { MembraneGeometry } from './membrane-geometry'
 import { VertexNormalsHelper } from 'three/examples/jsm/helpers/VertexNormalsHelper.js'
 import vertexShader from './shaders/vertex-shader.glsl'
 import fragmentShader from './shaders/fragment-shader.glsl'
+import * as C from './constants'
 import * as U from './utils'
 
 export class ProjectionEffect {
 
-  constructor(parent, config3D, resources) {
+  constructor(parent, config3D, formBoundary, resources) {
     this._parent = parent
     this._config3D = config3D
+    this._formBoundary = formBoundary
     this._resources = resources
     this._meshes = undefined
     this._meshHelpers = undefined
     this._visibleHelpers = false
+    this._formBoundaryClippingPlanes = undefined
   }
 
   _createMesh() {
@@ -92,12 +95,6 @@ export class ProjectionEffect {
     }
   }
 
-  _tiltClippingPlanes(clippingPlanes, oldClippingPlanes) {
-    clippingPlanes.forEach((clippingPlane, index) => {
-      this._tiltClippingPlane(clippingPlane, oldClippingPlanes[index])
-    })
-  }
-
   update(lines) {
     const lineCount = lines.length
     const meshCount = this._meshes?.length ?? 0
@@ -116,11 +113,24 @@ export class ProjectionEffect {
       mesh.geometry.computeVertexNormals()
       mesh.material.uniforms.opacity.value = line.opacity
 
+      const clippingPlanes = []
+
+      if (line.clipToFormBoundary) {
+        this._ensureFormBoundaryClippingPlanes()
+        clippingPlanes.push(...this._formBoundaryClippingPlanes)
+      }
+
       if (line.clippingPlanes) {
-        mesh.material.clippingPlanes = line.clippingPlanes.map(clippingPlane =>
-          clippingPlane.clone().applyMatrix4(this._config3D.transform))
+        line.clippingPlanes.forEach(oldClippingPlane => {
+          const newClippingPlane = oldClippingPlane.clone().applyMatrix4(this._config3D.transform)
+          this._tiltClippingPlane(newClippingPlane, oldClippingPlane)
+          clippingPlanes.push(newClippingPlane)
+        })
+      }
+
+      if (clippingPlanes.length) {
+        mesh.material.clippingPlanes = clippingPlanes
         mesh.material.clipping = true
-        this._tiltClippingPlanes(mesh.material.clippingPlanes, line.clippingPlanes)
       } else {
         mesh.material.clippingPlanes = null
         mesh.material.clipping = false
@@ -131,7 +141,12 @@ export class ProjectionEffect {
       if (!this._meshHelpers) {
         this._createMeshHelpers()
       }
-      this._meshHelpers.forEach(meshHelper => meshHelper.update())
+      this._meshHelpers.forEach((meshHelper, index) => {
+        const mesh = this._meshes[index]
+        meshHelper.material.clippingPlanes = mesh.material.clippingPlanes
+        meshHelper.material.clipping = mesh.material.clipping
+        meshHelper.update()
+      })
     } else {
       if (this._meshHelpers) {
         this._destroyMeshHelpers()
@@ -141,5 +156,29 @@ export class ProjectionEffect {
 
   set showVertexNormals(value) {
     this._visibleHelpers = value
+  }
+
+  _ensureFormBoundaryClippingPlanes() {
+    if (!this._formBoundaryClippingPlanes) {
+      const makeClippingPlane = (x, y, z, constant) => {
+        const normal = new THREE.Vector3(x, y, z)
+        const adjustedConstant = constant + C.LINE_THICKNESS / 2
+        const oldClippingPlane = new THREE.Plane(normal, adjustedConstant)
+        const newClippingPlane = oldClippingPlane.clone().applyMatrix4(this._config3D.transform)
+        this._tiltClippingPlane(newClippingPlane, oldClippingPlane)
+        return newClippingPlane
+      }
+      const { width, height } = this._formBoundary
+      const topClippingPlane = makeClippingPlane(0, -1, 0, height / 2)
+      const bottomClippingPlane = makeClippingPlane(0, 1, 0, height / 2)
+      const leftClippingPlane = makeClippingPlane(1, 0, 0, width / 2)
+      const rightClippingPlane = makeClippingPlane(-1, 0, 0, width / 2)
+      this._formBoundaryClippingPlanes = [
+        topClippingPlane,
+        bottomClippingPlane,
+        leftClippingPlane,
+        rightClippingPlane
+      ]
+    }
   }
 }

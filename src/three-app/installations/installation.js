@@ -68,10 +68,20 @@ export class Installation {
     this._createRenderables3D(resources)
   }
 
+  _getFormBoundary(form) {
+    return {
+      width: form.width,
+      height: form.height
+    }
+  }
+
   _createRenderables2D() {
     for (const work of this.config.works) {
       work.renderables2D = {
-        screenImages: work.formConfigs.map(formConfig => new ScreenImage(this.group2d, formConfig.config2D))
+        screenImages: work.formConfigs.map(formConfig => {
+          const formBoundary = this._getFormBoundary(formConfig.form)
+          return new ScreenImage(this.group2d, formConfig.config2D, formBoundary)
+        })
       }
     }
   }
@@ -81,9 +91,14 @@ export class Installation {
 
     for (const work of this.config.works) {
       work.renderables3D = {
-        // TODO: change shape of this
-        screenImages: work.formConfigs.map(formConfig => new ScreenImage(this.group3d, formConfig.config3D)),
-        projectionEffects: work.formConfigs.map(formConfig => new ProjectionEffect(this.group3d, formConfig.config3D, resources))
+        screenImages: work.formConfigs.map(formConfig => {
+          const formBoundary = this._getFormBoundary(formConfig.form)
+          return new ScreenImage(this.group3d, formConfig.config3D, formBoundary)
+        }),
+        projectionEffects: work.formConfigs.map(formConfig => {
+          const formBoundary = this._getFormBoundary(formConfig.form)
+          return new ProjectionEffect(this.group3d, formConfig.config3D, formBoundary, resources)
+        })
       }
     }
   }

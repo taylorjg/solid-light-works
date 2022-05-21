@@ -7,16 +7,18 @@ import * as U from './utils'
 
 export class ScreenImage {
 
-  constructor(parent, config2D) {
+  constructor(parent, config2D, formBoundary) {
     this._config2D = config2D
-    this._group = this._createGroup(parent, config2D)
+    this._formBoundary = formBoundary
+    this._group = this._createGroup(parent)
     this._meshes = undefined
     this._intersectionPoints = new IntersectionPoints(this._group)
+    this._formBoundaryClippingPlanes = undefined
   }
 
-  _createGroup(parent, config2D) {
+  _createGroup(parent) {
     const group = new THREE.Group()
-    group.applyMatrix4(config2D.transform)
+    group.applyMatrix4(this._config2D.transform)
     parent.add(group)
     return group
   }
@@ -27,7 +29,7 @@ export class ScreenImage {
       Line2DBasicShader({
         side: THREE.DoubleSide,
         diffuse: 0xffffff,
-        thickness: line.lineThickness ?? C.SCREEN_IMAGE_LINE_THICKNESS
+        thickness: line.lineThickness ?? C.LINE_THICKNESS
       }))
     const mesh = new THREE.Mesh(geometry, material)
     this._group.add(mesh)
@@ -86,9 +88,21 @@ export class ScreenImage {
         mesh.geometry.update(path)
       }
 
+      const clippingPlanes = []
+
+      if (line.clipToFormBoundary) {
+        this._ensureFormBoundaryClippingPlanes()
+        clippingPlanes.push(...this._formBoundaryClippingPlanes)
+      }
+
       if (line.clippingPlanes) {
-        mesh.material.clippingPlanes = line.clippingPlanes.map(clippingPlane =>
-          clippingPlane.clone().applyMatrix4(this._config2D.transform))
+        line.clippingPlanes.forEach(clippingPlane =>
+          clippingPlanes.push(clippingPlane.clone().applyMatrix4(this._config2D.transform))
+        )
+      }
+
+      if (clippingPlanes.length) {
+        mesh.material.clippingPlanes = clippingPlanes
         mesh.material.clipping = true
       } else {
         mesh.material.clippingPlanes = null
@@ -110,5 +124,26 @@ export class ScreenImage {
 
   set intersectionPointsVisible(value) {
     this._intersectionPoints.visible = value
+  }
+
+  _ensureFormBoundaryClippingPlanes() {
+    if (!this._formBoundaryClippingPlanes) {
+      const makeClippingPlane = (x, y, z, constant) => {
+        const normal = new THREE.Vector3(x, y, z)
+        const adjustedConstant = constant + C.LINE_THICKNESS / 2
+        return new THREE.Plane(normal, adjustedConstant).applyMatrix4(this._config2D.transform)
+      }
+      const { width, height } = this._formBoundary
+      const topClippingPlane = makeClippingPlane(0, -1, 0, height / 2)
+      const bottomClippingPlane = makeClippingPlane(0, 1, 0, height / 2)
+      const leftClippingPlane = makeClippingPlane(1, 0, 0, width / 2)
+      const rightClippingPlane = makeClippingPlane(-1, 0, 0, width / 2)
+      this._formBoundaryClippingPlanes = [
+        topClippingPlane,
+        bottomClippingPlane,
+        leftClippingPlane,
+        rightClippingPlane
+      ]
+    }
   }
 }

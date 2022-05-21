@@ -6,6 +6,7 @@ export class Line {
     this._closed = options.closed ?? false
     this._clippingPlanes = options.clippingPlanes
     this._lineThickness = options.lineThickness
+    this._clipToFormBoundary = options.clipToFormBoundary
   }
 
   get points() {
@@ -26,5 +27,9 @@ export class Line {
 
   get lineThickness() {
     return this._lineThickness
+  }
+
+  get clipToFormBoundary() {
+    return this._clipToFormBoundary
   }
 }

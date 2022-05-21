@@ -21,7 +21,7 @@ export class IntersectionPoints {
 
   _createMeshes(parent) {
     return COLOURS.map(color => {
-      const geometry = new THREE.CircleBufferGeometry(C.SCREEN_IMAGE_LINE_THICKNESS, 16)
+      const geometry = new THREE.CircleBufferGeometry(C.LINE_THICKNESS, 16)
       const material = new THREE.MeshBasicMaterial({ color, side: THREE.DoubleSide })
       const mesh = new THREE.Mesh(geometry, material)
       mesh.visible = false

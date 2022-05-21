@@ -38,7 +38,7 @@ export class BreathIIIForm {
     const parametricEllipseXDerivativeFn = parametricEllipseXDerivative(rx)
     const parametricEllipseYDerivativeFn = parametricEllipseYDerivative(this.ry)
 
-    const xoffset = -this.width / 2
+    const xoffset = -this.width / 2 - C.LINE_THICKNESS
     const A = this.height / 2
     const k = C.TWO_PI / this.waveLength
     const f = 1
@@ -113,6 +113,12 @@ export class BreathIIIForm {
 
     const getTravellingWaveSegmentPoints = (x1, x2) => {
       const pointCount = TRAVELLING_WAVE_POINT_COUNT
+      if (x1 === 0) {
+        x1 -= C.LINE_THICKNESS * 2
+      }
+      if (x2 === this.width) {
+        x2 += C.LINE_THICKNESS * 2
+      }
       const Δx = (x2 - x1) / pointCount
       return U.range(pointCount + 1).map(n => {
         const t = x1 + n * Δx
@@ -194,10 +200,12 @@ export class BreathIIIForm {
       const travellingWavePoints1 = getTravellingWaveSegmentPoints(0, intersection1.t2)
       const travellingWavePoints2 = getTravellingWaveSegmentPoints(intersection2.t2, this.width)
 
-      const line1 = U.combinePoints(travellingWavePoints1, ellipsePoints, travellingWavePoints2)
-      const lines = [line1].map(points => new Line(points))
-      this.tick++
+      const linePoints = U.combinePoints(travellingWavePoints1, ellipsePoints, travellingWavePoints2)
+      const line = new Line(linePoints, { clipToFormBoundary: true })
+      const lines = [line]
       lines.intersectionPoints = intersectionPoints
+
+      this.tick++
       return lines
     }
 
@@ -222,15 +230,14 @@ export class BreathIIIForm {
         const ellipsePointsTop = ccwCurve(intersection1.t1, intersection4.t1)
         const ellipsePointsBottom = ccwCurve(intersection2.t1, intersection3.t1)
 
-        const line1Points = U.combinePoints(travellingWavePointsStart, ellipsePointsTop, travellingWavePointsEnd)
-        const line1 = new Line(line1Points)
-
-        const line2Points = U.combinePoints(travellingWavePointsMiddle, ellipsePointsBottom)
-        const line2 = new Line(line2Points, { closed: true })
-
+        const linePoints1 = U.combinePoints(travellingWavePointsStart, ellipsePointsTop, travellingWavePointsEnd)
+        const line1 = new Line(linePoints1, { clipToFormBoundary: true })
+        const linePoints2 = U.combinePoints(travellingWavePointsMiddle, ellipsePointsBottom)
+        const line2 = new Line(linePoints2, { closed: true })
         const lines = [line1, line2]
-        this.tick++
         lines.intersectionPoints = intersectionPoints
+
+        this.tick++
         return lines
       } else {
         const ellipsePointsLeft = smallCurve(intersection1.t1, intersection2.t1)
@@ -243,11 +250,11 @@ export class BreathIIIForm {
           ellipsePointsRight,
           travellingWavePointsEnd,
         )
-
-        const line = new Line(linePoints)
+        const line = new Line(linePoints, { clipToFormBoundary: true })
         const lines = [line]
-        this.tick++
         lines.intersectionPoints = intersectionPoints
+
+        this.tick++
         return lines
       }
     }
@@ -255,9 +262,12 @@ export class BreathIIIForm {
     const ellipsePoints = getEllipseSegmentPoints(0, C.TWO_PI)
     const travellingWavePoints = getTravellingWaveSegmentPoints(0, this.width)
 
-    const lines = [ellipsePoints, travellingWavePoints].map(points => new Line(points))
-    this.tick++
+    const line1 = new Line(ellipsePoints)
+    const line2 = new Line(travellingWavePoints, { clipToFormBoundary: true })
+    const lines = [line1, line2]
     lines.intersectionPoints = intersectionPoints
+
+    this.tick++
     return lines
   }
 }
