@@ -1,4 +1,6 @@
 export * from './floor'
+export * from './screen'
+export * from './floating-screen'
 export * from './left-wall'
 export * from './right-wall'
-export * from './screen'
+export * from './pillar'

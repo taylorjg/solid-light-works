@@ -7,8 +7,8 @@ import * as U from './utils'
 
 export class ScreenImage {
 
-  constructor(parent, config2D, formBoundary) {
-    this._config2D = config2D
+  constructor(parent, config, formBoundary) {
+    this._config = config
     this._formBoundary = formBoundary
     this._group = this._createGroup(parent)
     this._meshes = undefined
@@ -18,7 +18,7 @@ export class ScreenImage {
 
   _createGroup(parent) {
     const group = new THREE.Group()
-    group.applyMatrix4(this._config2D.transform)
+    group.applyMatrix4(this._config.transform)
     parent.add(group)
     return group
   }
@@ -97,7 +97,7 @@ export class ScreenImage {
 
       if (line.clippingPlanes) {
         line.clippingPlanes.forEach(clippingPlane =>
-          clippingPlanes.push(clippingPlane.clone().applyMatrix4(this._config2D.transform))
+          clippingPlanes.push(clippingPlane.clone().applyMatrix4(this._config.transform))
         )
       }
 
@@ -131,7 +131,7 @@ export class ScreenImage {
       const makeClippingPlane = (x, y, z, constant) => {
         const normal = new THREE.Vector3(x, y, z)
         const adjustedConstant = constant + C.LINE_THICKNESS / 2
-        return new THREE.Plane(normal, adjustedConstant).applyMatrix4(this._config2D.transform)
+        return new THREE.Plane(normal, adjustedConstant).applyMatrix4(this._config.transform)
       }
       const { width, height } = this._formBoundary
       const topClippingPlane = makeClippingPlane(0, -1, 0, height / 2)

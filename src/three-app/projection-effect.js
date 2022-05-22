@@ -8,9 +8,9 @@ import * as U from './utils'
 
 export class ProjectionEffect {
 
-  constructor(parent, config3D, formBoundary, resources) {
+  constructor(parent, config, formBoundary, resources) {
     this._parent = parent
-    this._config3D = config3D
+    this._config = config
     this._formBoundary = formBoundary
     this._resources = resources
     this._meshes = undefined
@@ -27,7 +27,7 @@ export class ProjectionEffect {
           value: this._resources.hazeTexture
         },
         projectorPosition: {
-          value: this._config3D.projectorPosition
+          value: this._config.projectorPosition
         },
         opacity: {
           value: 1
@@ -36,12 +36,12 @@ export class ProjectionEffect {
       vertexShader,
       fragmentShader,
       side: THREE.DoubleSide,
-      blending: THREE.AdditiveBlending,
+      // blending: THREE.AdditiveBlending,
       transparent: true,
       depthTest: false
     })
     const mesh = new THREE.Mesh(geometry, material)
-    mesh.applyMatrix4(this._config3D.transform)
+    mesh.applyMatrix4(this._config.transform)
     this._parent.add(mesh)
     return mesh
   }
@@ -79,10 +79,10 @@ export class ProjectionEffect {
     const oldClippingPlaneTangent = zaxis.cross(oldClippingPlaneNormal).normalize()
     const pointInOldClippingPlane1 = oldClippingPlane.coplanarPoint(new THREE.Vector3())
     const pointInOldClippingPlane2 = pointInOldClippingPlane1.clone().add(oldClippingPlaneTangent)
-    const transformedPointInOldClippingPlane1 = pointInOldClippingPlane1.applyMatrix4(this._config3D.transform)
-    const transformedPointInOldClippingPlane2 = pointInOldClippingPlane2.applyMatrix4(this._config3D.transform)
-    const translation = new THREE.Matrix4().makeTranslation(...this._config3D.projectorPosition.toArray())
-    const transform = translation.premultiply(this._config3D.transform)
+    const transformedPointInOldClippingPlane1 = pointInOldClippingPlane1.applyMatrix4(this._config.transform)
+    const transformedPointInOldClippingPlane2 = pointInOldClippingPlane2.applyMatrix4(this._config.transform)
+    const translation = new THREE.Matrix4().makeTranslation(...this._config.projectorPosition.toArray())
+    const transform = translation.premultiply(this._config.transform)
     const transformedProjectorPosition = new THREE.Vector3().applyMatrix4(transform)
     const newClippingPlaneSavedNormal = newClippingPlane.normal.clone()
     newClippingPlane.setFromCoplanarPoints(
@@ -106,7 +106,7 @@ export class ProjectionEffect {
     this._meshes.forEach((mesh, index) => {
       const line = lines[index]
       const numPoints = line.points.length
-      const projectorPoints = Array(numPoints).fill(this._config3D.projectorPosition)
+      const projectorPoints = Array(numPoints).fill(this._config.projectorPosition)
       const screenPoints = U.vec2sToVec3sHorizontal(line.points)
       mesh.geometry.dispose()
       mesh.geometry = new MembraneGeometry(projectorPoints, screenPoints)
@@ -122,7 +122,7 @@ export class ProjectionEffect {
 
       if (line.clippingPlanes) {
         line.clippingPlanes.forEach(oldClippingPlane => {
-          const newClippingPlane = oldClippingPlane.clone().applyMatrix4(this._config3D.transform)
+          const newClippingPlane = oldClippingPlane.clone().applyMatrix4(this._config.transform)
           this._tiltClippingPlane(newClippingPlane, oldClippingPlane)
           clippingPlanes.push(newClippingPlane)
         })
@@ -164,7 +164,7 @@ export class ProjectionEffect {
         const normal = new THREE.Vector3(x, y, z)
         const adjustedConstant = constant + C.LINE_THICKNESS / 2
         const oldClippingPlane = new THREE.Plane(normal, adjustedConstant)
-        const newClippingPlane = oldClippingPlane.clone().applyMatrix4(this._config3D.transform)
+        const newClippingPlane = oldClippingPlane.clone().applyMatrix4(this._config.transform)
         this._tiltClippingPlane(newClippingPlane, oldClippingPlane)
         return newClippingPlane
       }
