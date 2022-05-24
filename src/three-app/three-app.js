@@ -1,5 +1,6 @@
 import EventEmitter from 'events'
 import * as THREE from 'three'
+import Stats from 'stats.js'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import { Installation } from './installations/installation'
 import { config as DoublingBackInstallationConfig } from './installations/doubling-back'
@@ -31,6 +32,7 @@ let axesEnabled = false
 let axesHelper = undefined
 let vertexNormalsEnabled = false
 let intersectionPointsEnabled = false
+let stats = null
 
 const addSettingsChangedListener = listener =>
   eventEmitter.on(SETTINGS_CHANGED_EVENT_NAME, listener)
@@ -187,6 +189,23 @@ const setBehindOnly = value => {
   emitSettingsChanged()
 }
 
+const showRendererInfo = () => {
+  console.log("renderer.info:", renderer.info)
+}
+
+const toggleStats = () => {
+  if (stats) {
+    document.body.removeChild(stats.dom)
+    stats = null
+  } else {
+    stats = new Stats()
+    stats.dom.style.left = 'unset'
+    stats.dom.style.top = '.5rem'
+    stats.dom.style.right = '.5rem'
+    document.body.appendChild(stats.dom)
+  }
+}
+
 export const threeAppInit = async () => {
 
   const container = document.getElementById('visualisation-container')
@@ -237,11 +256,13 @@ export const threeAppInit = async () => {
       case 'a': return toggleAxes()
       case 'b': return toggleBehindOnly()
       case 'c': return reportCameraPosition()
+      case 'd': return showRendererInfo()
       case 'f': return switchInstallation()
       case 'i': return toggleIntersectionPoints()
       case 'm': return toggleMode()
       case 'p': return switchCameraPose()
       case 'r': return toggleAutoRotate()
+      case 's': return toggleStats()
       case 'v': return toggleVertexNormals()
       default: return
     }
@@ -260,10 +281,12 @@ export const threeAppInit = async () => {
   switchInstallation(true)
 
   renderer.setAnimationLoop(() => {
+    stats && stats.begin()
     const currentInstallation = installations[currentInstallationIndex]
     currentInstallation.updateRenderables(mode)
     controls.update()
     renderer.render(scene, camera)
+    stats && stats.end()
   })
 
   const ready = () => {
