@@ -1,6 +1,5 @@
 import * as THREE from 'three'
-import { LineGeometry as Line2D } from '../three-line-2d'
-import { basicShader as Line2DBasicShader } from '../three-line-2d'
+import { LineGeometry } from './line-geometry'
 import { IntersectionPoints } from './intersection-points'
 import * as C from './constants'
 import * as U from './utils'
@@ -24,14 +23,15 @@ export class ScreenImage {
   }
 
   _createMesh(line) {
-    const geometry = new Line2D()
-    const material = new THREE.ShaderMaterial(
-      Line2DBasicShader({
-        side: THREE.DoubleSide,
-        diffuse: 0xffffff,
-        thickness: line.lineThickness ?? C.LINE_THICKNESS
-      }))
+    const geometry = new LineGeometry()
+    const material = new THREE.LineBasicMaterial({
+      color: 0xffffff,
+      side: THREE.DoubleSide,
+      transparent: true,
+      opacity: 1.0
+    })
     const mesh = new THREE.Mesh(geometry, material)
+    mesh.renderOrder = -1
     this._group.add(mesh)
     return mesh
   }
@@ -109,12 +109,14 @@ export class ScreenImage {
         mesh.material.clipping = false
       }
 
-      // I can't get opacity to work unless transparent is set to true
-      // which looks awful. So I am doing this instead.
-      const r = line.opacity
-      const g = line.opacity
-      const b = line.opacity
-      mesh.material.uniforms.diffuse.value = new THREE.Color(r, g, b)
+      // If we set 'mesh.material.transparent` to true, we can do the following:
+      mesh.material.opacity = line.opacity
+      // However, in 3D mode, this results in a horrid flickering effect.
+      // Hence, doing this as a workaround:
+      // const r = line.opacity
+      // const g = line.opacity
+      // const b = line.opacity
+      // mesh.material.color = new THREE.Color(r, g, b)
     })
 
     if (this._intersectionPoints.visible && lines.intersectionPoints) {
