@@ -24,14 +24,14 @@ export class ScreenImage {
 
   _createMesh(line) {
     const geometry = new LineGeometry()
-    const material = new THREE.LineBasicMaterial({
+    const material = new THREE.MeshBasicMaterial({
       color: 0xffffff,
       side: THREE.DoubleSide,
       transparent: true,
       opacity: 1.0
     })
     const mesh = new THREE.Mesh(geometry, material)
-    mesh.renderOrder = -1
+    mesh.renderOrder = -1 // to fix z-fighting with projection effect
     this._group.add(mesh)
     return mesh
   }
