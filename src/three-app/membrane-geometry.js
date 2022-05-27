@@ -1,7 +1,7 @@
 import { BufferGeometry, Float32BufferAttribute } from 'three'
 
-// ps: array of Vector3 representing the small shape at the projector end of the membrane
-// qs: array of Vector3 representing the large shape at the screen end of the membrane
+// ps (projectorPoints): array of Vector3 representing the small shape at the projector end of the membrane
+// qs (screenPoints): array of Vector3 representing the large shape at the screen end of the membrane
 // This class is heavily inspired by THREE.CylinderGeometry
 export class MembraneGeometry extends BufferGeometry {
 
@@ -10,8 +10,6 @@ export class MembraneGeometry extends BufferGeometry {
     super()
 
     this.type = 'MembraneGeometry'
-
-    const scope = this
 
     numSegments = Math.floor(numSegments) || 1
 
@@ -24,7 +22,6 @@ export class MembraneGeometry extends BufferGeometry {
     // helper variables
     const indexArray = []
     let index = 0
-    let groupStart = 0
 
     // generate geometry
     generateTorso()
@@ -45,7 +42,6 @@ export class MembraneGeometry extends BufferGeometry {
       }
 
       const numPoints = ps.length
-      let groupCount = 0
 
       // generate vertices, normals and uvs
       for (let y = 0; y <= numSegments; y++) {
@@ -88,17 +84,8 @@ export class MembraneGeometry extends BufferGeometry {
           // faces
           indices.push(a, b, d)
           indices.push(b, c, d)
-
-          // update group counter
-          groupCount += 6
         }
       }
-
-      // add a group to the geometry. this will ensure multi material support
-      scope.addGroup(groupStart, groupCount, 0)
-
-      // calculate new start value for groups
-      groupStart += groupCount
     }
   }
 }
