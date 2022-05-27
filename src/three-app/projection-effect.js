@@ -81,9 +81,7 @@ export class ProjectionEffect {
     const pointInOldClippingPlane2 = pointInOldClippingPlane1.clone().add(oldClippingPlaneTangent)
     const transformedPointInOldClippingPlane1 = pointInOldClippingPlane1.applyMatrix4(this._config.transform)
     const transformedPointInOldClippingPlane2 = pointInOldClippingPlane2.applyMatrix4(this._config.transform)
-    const translation = new THREE.Matrix4().makeTranslation(...this._config.projectorPosition.toArray())
-    const transform = translation.premultiply(this._config.transform)
-    const transformedProjectorPosition = new THREE.Vector3().applyMatrix4(transform)
+    const transformedProjectorPosition = this._config.projectorPosition.clone().applyMatrix4(this._config.transform)
     const newClippingPlaneSavedNormal = newClippingPlane.normal.clone()
     newClippingPlane.setFromCoplanarPoints(
       transformedPointInOldClippingPlane1,
