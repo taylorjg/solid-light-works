@@ -3,6 +3,7 @@ import * as THREE from 'three'
 import Stats from 'stats.js'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import { Installation } from './installations/installation'
+import { config as TestInstallationConfig } from './installations/test'
 import { config as DoublingBackInstallationConfig } from './installations/doubling-back'
 import { config as LeavingInstallationConfig } from './installations/leaving'
 import { config as CouplingInstallationConfig } from './installations/coupling'
@@ -237,7 +238,12 @@ export const threeAppInit = async () => {
     hazeTexture
   }
 
+  const maybeTestInstallationConfig = window.location.search.includes('test')
+    ? [TestInstallationConfig]
+    : []
+
   const configs = [
+    ...maybeTestInstallationConfig,
     DoublingBackInstallationConfig,
     LeavingInstallationConfig,
     CouplingInstallationConfig,

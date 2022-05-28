@@ -23,7 +23,7 @@ export class ScreenImage {
   }
 
   _createMesh(line) {
-    const geometry = new LineGeometry()
+    const geometry = new LineGeometry(line.lineThickness)
     const material = new THREE.MeshBasicMaterial({
       color: 0xffffff,
       side: THREE.DoubleSide,

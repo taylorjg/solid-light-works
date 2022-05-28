@@ -1,5 +1,6 @@
 import * as THREE from 'three'
 import { TestForm } from '../forms/test'
+import { Floor } from '../scenery'
 import * as C from '../constants'
 
 const makeWork1 = () => {
@@ -34,10 +35,9 @@ export const config = {
   },
   config3D: {
     cameraPoses: [
-      { position: new THREE.Vector3(0, 2, 12), target: new THREE.Vector3(0, 0, 3) },
-      { position: new THREE.Vector3(-2.10, 5.85, 20.04), target: new THREE.Vector3(0.43, 4.16, 4.94) },
-      { position: new THREE.Vector3(0, -6.3, 3.7), target: new THREE.Vector3(0, 2, 4), isBehind: true }
-    ],
-    scenery: []
+      { position: new THREE.Vector3(15.75, 5.44, 6.00), target: new THREE.Vector3(0.22, 2.82, 2.18) }],
+    scenery: [
+      new Floor(12, 8)
+    ]
   }
 }

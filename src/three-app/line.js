@@ -1,3 +1,5 @@
+import * as C from './constants'
+
 export class Line {
 
   constructor(points, options = {}) {
@@ -5,8 +7,8 @@ export class Line {
     this._opacity = options.opacity ?? 1.0
     this._closed = options.closed ?? false
     this._clippingPlanes = options.clippingPlanes
-    this._lineThickness = options.lineThickness
-    this._clipToFormBoundary = options.clipToFormBoundary
+    this._lineThickness = options.lineThickness ?? C.LINE_THICKNESS
+    this._clipToFormBoundary = options.clipToFormBoundary ?? false
   }
 
   get points() {

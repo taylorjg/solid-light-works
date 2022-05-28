@@ -1,14 +1,14 @@
 import { BufferGeometry, Float32BufferAttribute, Uint16BufferAttribute, Vector2 } from 'three'
 import getNormals from 'polyline-normals'
-import * as C from './constants'
 
 const VERTS_PER_POINT = 2
-const HALF_LINE_THICKNESS = C.LINE_THICKNESS / 2
 
 export class LineGeometry extends BufferGeometry {
 
-  constructor() {
+  constructor(lineThickness) {
     super()
+    this._lineThickness = lineThickness
+    this._halfLineThickness = lineThickness / 2
     this.setAttribute('position', new Float32BufferAttribute([], 3))
     this.setIndex(new Uint16BufferAttribute([], 1))
     this.update()
@@ -48,7 +48,7 @@ export class LineGeometry extends BufferGeometry {
     let attrPositionIndex = 0
     let attrIndexIndex = 0
 
-    path.forEach(function (point, pointIndex) {
+    path.forEach((point, pointIndex) => {
       attrIndex.array[attrIndexIndex++] = attrPositionIndex + 0
       attrIndex.array[attrIndexIndex++] = attrPositionIndex + 1
       attrIndex.array[attrIndexIndex++] = attrPositionIndex + 2
@@ -60,8 +60,8 @@ export class LineGeometry extends BufferGeometry {
       const [[nx, ny], miter] = normals[pointIndex]
       const p1 = new Vector2(px, py)
       const p2 = new Vector2(px, py)
-      p1.add(new Vector2(nx, ny).multiplyScalar(HALF_LINE_THICKNESS * -miter))
-      p2.add(new Vector2(nx, ny).multiplyScalar(HALF_LINE_THICKNESS * miter))
+      p1.add(new Vector2(nx, ny).multiplyScalar(this._halfLineThickness * -miter))
+      p2.add(new Vector2(nx, ny).multiplyScalar(this._halfLineThickness * miter))
       attrPosition.setXYZ(attrPositionIndex++, p1.x, p1.y, 0)
       attrPosition.setXYZ(attrPositionIndex++, p2.x, p2.y, 0)
     })
