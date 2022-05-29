@@ -1,4 +1,5 @@
 import * as THREE from 'three'
+import { makeLinePointPairs } from './line-point-pairs'
 import { MembraneGeometry } from './membrane-geometry'
 import { VertexNormalsHelper } from 'three/examples/jsm/helpers/VertexNormalsHelper.js'
 import vertexShader from './shaders/vertex-shader.glsl'
@@ -36,9 +37,9 @@ export class ProjectionEffect {
       vertexShader,
       fragmentShader,
       side: THREE.DoubleSide,
-      // blending: THREE.AdditiveBlending,
+      blending: THREE.AdditiveBlending,
       transparent: true,
-      // depthTest: false
+      depthTest: false
     })
     const mesh = new THREE.Mesh(geometry, material)
     mesh.applyMatrix4(this._config.transform)
@@ -103,9 +104,19 @@ export class ProjectionEffect {
 
     this._meshes.forEach((mesh, index) => {
       const line = lines[index]
-      const numPoints = line.points.length
-      const projectorPoints = Array(numPoints).fill(this._config.projectorPosition)
-      const screenPoints = U.vec2sToVec3sHorizontal(line.points)
+
+      // const numPoints = line.points.length
+      // const projectorPoints = Array(numPoints).fill(this._config.projectorPosition)
+      // const screenPoints = U.vec2sToVec3sHorizontal(line.points)
+
+      const path = line.points.map(point => point.toArray())
+      const linePointPairs = makeLinePointPairs(path, line.closed, line.lineThickness)
+      const upperPoints = linePointPairs.map(linePointPair => linePointPair.upperPoint)
+      const lowerPoints = linePointPairs.map(linePointPair => linePointPair.lowerPoint)
+      const points = [...upperPoints, ...lowerPoints.reverse()]
+      const screenPoints = points.map(point => new THREE.Vector3(point.x, point.y, 0))
+      const projectorPoints = Array(screenPoints.length).fill(this._config.projectorPosition)
+
       mesh.geometry.dispose()
       mesh.geometry = new MembraneGeometry(projectorPoints, screenPoints)
       mesh.geometry.computeVertexNormals()

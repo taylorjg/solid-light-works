@@ -3,7 +3,7 @@ import { Line } from '../line'
 import * as C from '../constants'
 import * as U from '../utils'
 
-const NUM_POINTS = 1
+const NUM_POINTS = 10
 const TEST_LINE_THICKNESS = C.LINE_THICKNESS * 5
 
 export class TestForm {
@@ -11,10 +11,16 @@ export class TestForm {
   constructor(width, height) {
     this.width = width
     this.height = height
-    const xoffset = -this.width / 2 - TEST_LINE_THICKNESS
-    const yoffset = -this.height / 2 - TEST_LINE_THICKNESS
-    const Δx = (this.width + 2 * TEST_LINE_THICKNESS) / NUM_POINTS
-    const Δy = (this.height + 2 * TEST_LINE_THICKNESS) / NUM_POINTS
+
+    const divisor = window.location.search.includes('test2') ? 2 : 1
+    const lineWidth = this.width / divisor
+    const lineHeight = this.height / divisor
+
+    const xoffset = -lineWidth / 2 - TEST_LINE_THICKNESS
+    const yoffset = -lineHeight / 2 - TEST_LINE_THICKNESS
+    const Δx = (lineWidth + 2 * TEST_LINE_THICKNESS) / NUM_POINTS
+    const Δy = (lineHeight + 2 * TEST_LINE_THICKNESS) / NUM_POINTS
+
     this.points = U.range(NUM_POINTS + 1).map(n => {
       const x = xoffset + n * Δx
       const y = yoffset + n * Δy
