@@ -115,7 +115,8 @@ export class ProjectionEffect {
       const lowerPoints = linePointPairs.map(linePointPair => linePointPair.lowerPoint)
       const points = [...upperPoints, ...lowerPoints.reverse()]
       const screenPoints = points.map(point => new THREE.Vector3(point.x, point.y, 0))
-      const projectorPoints = Array(screenPoints.length).fill(this._config.projectorPosition)
+      // const projectorPoints = Array(screenPoints.length).fill(this._config.projectorPosition)
+      const projectorPoints = screenPoints.map(pt => pt.clone().divideScalar(40).add(this._config.projectorPosition))
 
       mesh.geometry.dispose()
       mesh.geometry = new MembraneGeometry(projectorPoints, screenPoints)
