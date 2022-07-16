@@ -38,7 +38,7 @@ export class ProjectionEffect {
       side: THREE.DoubleSide,
       // blending: THREE.AdditiveBlending,
       transparent: true,
-      // depthTest: false
+      depthTest: false
     })
     const mesh = new THREE.Mesh(geometry, material)
     mesh.applyMatrix4(this._config.transform)

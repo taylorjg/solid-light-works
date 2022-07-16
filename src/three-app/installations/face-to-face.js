@@ -1,17 +1,19 @@
 import * as THREE from 'three'
 import { BetweenYouAndIForm } from '../forms/between-you-and-i'
-import { Floor, Pillar } from '../scenery'
+import { FloatingScreen, Floor, Pillar } from '../scenery'
 import * as C from '../constants'
+
+const FRAME_THICKNESS = 0.1
 
 const makeWork1 = () => {
 
   const transformForm1 = new THREE.Matrix4()
     .premultiply(new THREE.Matrix4().makeRotationY(C.HALF_PI))
-    .premultiply(new THREE.Matrix4().makeTranslation(-4.8, 1.3, 3.25))
+    .premultiply(new THREE.Matrix4().makeTranslation(-4.8, 1.3 + FRAME_THICKNESS, 3.25))
 
   const transformForm2 = new THREE.Matrix4()
     .premultiply(new THREE.Matrix4().makeRotationY(-C.HALF_PI))
-    .premultiply(new THREE.Matrix4().makeTranslation(0.8, 1.3, 6.95))
+    .premultiply(new THREE.Matrix4().makeTranslation(0.8, 1.3 + FRAME_THICKNESS, 6.95))
 
   return {
     formConfigs: [
@@ -27,7 +29,7 @@ const makeWork1 = () => {
         }
       },
       {
-        form: new BetweenYouAndIForm(4, 3, true),
+        form: new BetweenYouAndIForm(4.5, 2.6, true),
         config2D: {
           transform: new THREE.Matrix4()
             .multiply(new THREE.Matrix4().makeTranslation(2.5, 0, 0))
@@ -54,6 +56,8 @@ export const config = {
       { position: new THREE.Vector3(-10.60, 0.92, 7.55), target: new THREE.Vector3(-3.40, -0.37, 5.91) }
     ],
     scenery: [
+      new FloatingScreen(4.5, 2.6, -4.8, 3.25),
+      new FloatingScreen(4.5, 2.6, 0.8, 6.95),
       new Pillar(0.5, 5, -2.0, 4.8),
       new Pillar(0.5, 5, -6.0, 4.8),
       new Pillar(0.5, 5, 2.0, 4.8),
