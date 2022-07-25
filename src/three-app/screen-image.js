@@ -31,7 +31,10 @@ export class ScreenImage {
       opacity: 1.0
     })
     const mesh = new THREE.Mesh(geometry, material)
-    mesh.renderOrder = -1 // to fix z-fighting with projection effect
+
+    // To prevent z-fighting
+    mesh.translateZ(0.01)
+
     this._group.add(mesh)
     return mesh
   }
@@ -109,14 +112,7 @@ export class ScreenImage {
         mesh.material.clipping = false
       }
 
-      // If we set 'mesh.material.transparent` to true, we can do the following:
       mesh.material.opacity = line.opacity
-      // However, in 3D mode, this results in a horrid flickering effect.
-      // Hence, doing this as a workaround:
-      // const r = line.opacity
-      // const g = line.opacity
-      // const b = line.opacity
-      // mesh.material.color = new THREE.Color(r, g, b)
     })
 
     if (this._intersectionPoints.visible && lines.intersectionPoints) {

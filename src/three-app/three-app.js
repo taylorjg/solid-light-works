@@ -209,14 +209,19 @@ const toggleStats = () => {
 
 export const threeAppInit = async () => {
 
+  const DPR = window.devicePixelRatio
+
   const container = document.getElementById('visualisation-container')
   const w = container.offsetWidth
   const h = container.offsetHeight
   renderer = new THREE.WebGLRenderer({ antialias: true })
-  renderer.setPixelRatio(window.devicePixelRatio)
+  renderer.setPixelRatio(DPR)
   renderer.localClippingEnabled = true
   renderer.setSize(w, h)
   container.appendChild(renderer.domElement)
+
+  const renderTarget = new THREE.WebGLRenderTarget(w * DPR, h * DPR)
+  renderTarget.depthTexture = new THREE.DepthTexture()
 
   scene = new THREE.Scene()
   scene.visible = false
@@ -235,7 +240,9 @@ export const threeAppInit = async () => {
   const hazeTexture = await U.loadTexture('/solid-light-works/haze.jpg')
 
   const resources = {
-    hazeTexture
+    hazeTexture,
+    depthTexture: renderTarget.depthTexture,
+    resolution: new THREE.Vector2(w * DPR, h * DPR)
   }
 
   const maybeTestInstallationConfig = window.location.search.includes('test')
@@ -280,6 +287,12 @@ export const threeAppInit = async () => {
     renderer.setSize(container.offsetWidth, container.offsetHeight)
     camera.aspect = container.offsetWidth / container.offsetHeight
     camera.updateProjectionMatrix()
+
+    // TODO:
+    // - recreate renderTarget
+    // - update resources.depthTexture
+    // - update resources.resolution
+    // - trigger update of depthTexture and resolution uniforms in all ProjectionEffect instances
   }
 
   window.addEventListener('resize', onWindowResizeHandler)
@@ -291,7 +304,18 @@ export const threeAppInit = async () => {
     const currentInstallation = installations[currentInstallationIndex]
     currentInstallation.updateRenderables(mode)
     controls.update()
+
+    // Render everything except the membranes to an offscreen render target
+    // with a depth buffer (we actually only care about the depth buffer)
+    renderer.setRenderTarget(renderTarget)
+    camera.layers.set(0)
     renderer.render(scene, camera)
+
+    // Render everything to the canvas
+    renderer.setRenderTarget(null)
+    camera.layers.enableAll()
+    renderer.render(scene, camera)
+
     stats && stats.end()
   })
 

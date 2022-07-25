@@ -19,7 +19,7 @@ export class FloatingScreen {
     group.translateX(this._x)
     group.translateY(this._height / 2 + FRAME_THICKNESS)
     group.translateZ(this._z)
-    group.rotateY(C.HALF_PI)
+    group.rotateY(this._x < 0 ? C.HALF_PI : -C.HALF_PI)
 
     const frameMaterial = new THREE.MeshBasicMaterial({
       color: 0x101010,
@@ -51,10 +51,8 @@ export class FloatingScreen {
 
     const screenGeometry = new THREE.PlaneGeometry(this._width, this._height)
     const screenMaterial = new THREE.MeshBasicMaterial({
-      color: 0xC0C0C0,
-      side: THREE.DoubleSide,
-      transparent: true,
-      opacity: 0.2,
+      color: 0x404040,
+      side: THREE.DoubleSide
     })
     const screenMesh = new THREE.Mesh(screenGeometry, screenMaterial)
     group.add(screenMesh)

@@ -26,6 +26,12 @@ export class ProjectionEffect {
         hazeTexture: {
           value: this._resources.hazeTexture
         },
+        depthTexture: {
+          value: this._resources.depthTexture
+        },
+        resolution: {
+          value: this._resources.resolution
+        },
         projectorPosition: {
           value: this._config.projectorPosition
         },
@@ -41,6 +47,7 @@ export class ProjectionEffect {
       depthTest: false
     })
     const mesh = new THREE.Mesh(geometry, material)
+    mesh.layers.set(1)
     mesh.applyMatrix4(this._config.transform)
     this._parent.add(mesh)
     return mesh
