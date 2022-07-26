@@ -17,8 +17,10 @@ import * as C from './constants'
 import * as U from './utils'
 
 const SETTINGS_CHANGED_EVENT_NAME = 'settings-changed'
+const RESOURCES_CHANGED_EVENT_NAME = 'resources-changed'
 
 const eventEmitter = new EventEmitter()
+eventEmitter.setMaxListeners(20)
 
 let mode = Mode.Mode2D
 let renderer
@@ -220,7 +222,7 @@ export const threeAppInit = async () => {
   renderer.setSize(w, h)
   container.appendChild(renderer.domElement)
 
-  const renderTarget = new THREE.WebGLRenderTarget(w * DPR, h * DPR)
+  let renderTarget = new THREE.WebGLRenderTarget(w * DPR, h * DPR)
   renderTarget.depthTexture = new THREE.DepthTexture()
 
   scene = new THREE.Scene()
@@ -242,7 +244,14 @@ export const threeAppInit = async () => {
   const resources = {
     hazeTexture,
     depthTexture: renderTarget.depthTexture,
-    resolution: new THREE.Vector2(w * DPR, h * DPR)
+    resolution: new THREE.Vector2(w * DPR, h * DPR),
+    addListener: listener => {
+      eventEmitter.on(RESOURCES_CHANGED_EVENT_NAME, listener)
+    }
+  }
+
+  const emitResourcesChanged = () => {
+    eventEmitter.emit(RESOURCES_CHANGED_EVENT_NAME)
   }
 
   const maybeTestInstallationConfig = window.location.search.includes('test')
@@ -284,15 +293,20 @@ export const threeAppInit = async () => {
   document.addEventListener('keydown', onDocumentKeyDownHandler)
 
   const onWindowResizeHandler = () => {
-    renderer.setSize(container.offsetWidth, container.offsetHeight)
-    camera.aspect = container.offsetWidth / container.offsetHeight
+    const w = container.offsetWidth
+    const h = container.offsetHeight
+
+    renderer.setSize(w, h)
+
+    camera.aspect = w / h
     camera.updateProjectionMatrix()
 
-    // TODO:
-    // - recreate renderTarget
-    // - update resources.depthTexture
-    // - update resources.resolution
-    // - trigger update of depthTexture and resolution uniforms in all ProjectionEffect instances
+    renderTarget = new THREE.WebGLRenderTarget(w * DPR, h * DPR)
+    renderTarget.depthTexture = new THREE.DepthTexture()
+
+    resources.depthTexture = renderTarget.depthTexture
+    resources.resolution = new THREE.Vector2(w * DPR, h * DPR)
+    emitResourcesChanged()
   }
 
   window.addEventListener('resize', onWindowResizeHandler)

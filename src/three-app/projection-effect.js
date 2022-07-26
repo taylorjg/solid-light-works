@@ -17,6 +17,17 @@ export class ProjectionEffect {
     this._meshHelpers = undefined
     this._visibleHelpers = false
     this._formBoundaryClippingPlanes = undefined
+
+    this._resources.addListener(this._onResourcesChanged.bind(this))
+  }
+
+  _onResourcesChanged() {
+    if (this._meshes) {
+      for (const mesh of this._meshes) {
+        mesh.material.uniforms.depthTexture.value = this._resources.depthTexture
+        mesh.material.uniforms.resolution.value = this._resources.resolution
+      }
+    }
   }
 
   _createMesh() {
