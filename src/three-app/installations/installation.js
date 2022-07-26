@@ -76,24 +76,29 @@ export class Installation {
   }
 
   _createRenderables2D() {
+    const mode = this.config.config2D.mode ?? 0
+
     for (const work of this.config.works) {
       work.renderables2D = {
         screenImages: work.formConfigs.map(formConfig => {
+          const config = { ...formConfig.config2D, mode }
           const formBoundary = this._getFormBoundary(formConfig.form)
-          return new ScreenImage(this.group2d, formConfig.config2D, formBoundary)
+          return new ScreenImage(this.group2d, config, formBoundary)
         })
       }
     }
   }
 
   _createRenderables3D(resources) {
+    const mode = this.config.config3D.mode ?? 1
     this.config.config3D.scenery.forEach(sceneryItem => sceneryItem.create(this.sceneryGroup))
 
     for (const work of this.config.works) {
       work.renderables3D = {
         screenImages: work.formConfigs.map(formConfig => {
+          const config = { ...formConfig.config3D, mode }
           const formBoundary = this._getFormBoundary(formConfig.form)
-          return new ScreenImage(this.group3d, formConfig.config3D, formBoundary)
+          return new ScreenImage(this.group3d, config, formBoundary)
         }),
         projectionEffects: work.formConfigs.map(formConfig => {
           const formBoundary = this._getFormBoundary(formConfig.form)

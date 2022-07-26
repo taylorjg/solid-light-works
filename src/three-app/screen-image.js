@@ -4,6 +4,11 @@ import { IntersectionPoints } from './intersection-points'
 import * as C from './constants'
 import * as U from './utils'
 
+// mode:
+// 0: 2D
+// 1: 3D (one side)
+// 2: 3D (two sides)
+
 export class ScreenImage {
 
   constructor(parent, config, formBoundary) {
@@ -11,6 +16,7 @@ export class ScreenImage {
     this._formBoundary = formBoundary
     this._group = this._createGroup(parent)
     this._meshes = undefined
+    this._meshes2 = undefined
     this._intersectionPoints = new IntersectionPoints(this._group)
     this._formBoundaryClippingPlanes = undefined
   }
@@ -32,8 +38,10 @@ export class ScreenImage {
     })
     const mesh = new THREE.Mesh(geometry, material)
 
-    // To prevent z-fighting
-    mesh.translateZ(0.01)
+    if (this._config.mode === 1 || this._config.mode === 2) {
+      // To prevent z-fighting
+      mesh.translateZ(0.01)
+    }
 
     this._group.add(mesh)
     return mesh
@@ -42,6 +50,15 @@ export class ScreenImage {
   _createMeshes(lines) {
     this._destroyMeshes()
     this._meshes = lines.map(line => this._createMesh(line))
+    if (this._config.mode === 2) {
+      this._meshes2 = this._meshes.map(mesh => {
+        const { geometry, material } = mesh
+        const mesh2 = new THREE.Mesh(geometry, material)
+        mesh2.translateZ(-0.01)
+        this._group.add(mesh2)
+        return mesh2
+      })
+    }
   }
 
   _destroyMeshes() {
@@ -50,6 +67,13 @@ export class ScreenImage {
         U.disposeMesh(mesh)
       }
       this._meshes = undefined
+    }
+
+    if (this._meshes2) {
+      for (const mesh of this._meshes2) {
+        U.disposeMesh(mesh)
+      }
+      this._meshes2 = undefined
     }
   }
 
@@ -74,6 +98,14 @@ export class ScreenImage {
         if (arrayLength < minRequiredArrayLength) {
           U.disposeMesh(mesh)
           this._meshes[index] = this._createMesh(line)
+          if (this._config.mode === 2 && this._meshes2) {
+            U.disposeMesh(this._meshes2[index])
+            const { geometry, material } = mesh
+            const mesh2 = new THREE.Mesh(geometry, material)
+            mesh2.translateZ(-0.01)
+            this._group.add(mesh2)
+            this._meshes2[index] = mesh2
+          }
         }
       })
     }

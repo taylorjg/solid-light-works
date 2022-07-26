@@ -51,6 +51,7 @@ export const config = {
     cameraPose: { position: new THREE.Vector3(0, 0, 8), target: new THREE.Vector3() }
   },
   config3D: {
+    mode: 2,
     cameraPoses: [
       { position: new THREE.Vector3(3.03, 1.79, 10.03), target: new THREE.Vector3(-2.25, 0.78, 5.36) },
       { position: new THREE.Vector3(-10.60, 0.92, 7.55), target: new THREE.Vector3(-3.40, -0.37, 5.91) }
