@@ -17,7 +17,6 @@ import * as C from './constants'
 import * as U from './utils'
 
 const SETTINGS_CHANGED_EVENT_NAME = 'settings-changed'
-const RESOURCES_CHANGED_EVENT_NAME = 'resources-changed'
 
 const eventEmitter = new EventEmitter()
 eventEmitter.setMaxListeners(20)
@@ -222,9 +221,6 @@ export const threeAppInit = async () => {
   renderer.setSize(w, h)
   container.appendChild(renderer.domElement)
 
-  let renderTarget = new THREE.WebGLRenderTarget(w * DPR, h * DPR)
-  renderTarget.depthTexture = new THREE.DepthTexture()
-
   scene = new THREE.Scene()
   scene.visible = false
   camera = new THREE.PerspectiveCamera(45, w / h, 0.1, 50)
@@ -243,15 +239,6 @@ export const threeAppInit = async () => {
 
   const resources = {
     hazeTexture,
-    depthTexture: renderTarget.depthTexture,
-    resolution: new THREE.Vector2(w * DPR, h * DPR),
-    addListener: listener => {
-      eventEmitter.on(RESOURCES_CHANGED_EVENT_NAME, listener)
-    }
-  }
-
-  const emitResourcesChanged = () => {
-    eventEmitter.emit(RESOURCES_CHANGED_EVENT_NAME)
   }
 
   const maybeTestInstallationConfig = window.location.search.includes('test')
@@ -295,18 +282,9 @@ export const threeAppInit = async () => {
   const onWindowResizeHandler = () => {
     const w = container.offsetWidth
     const h = container.offsetHeight
-
     renderer.setSize(w, h)
-
     camera.aspect = w / h
     camera.updateProjectionMatrix()
-
-    renderTarget = new THREE.WebGLRenderTarget(w * DPR, h * DPR)
-    renderTarget.depthTexture = new THREE.DepthTexture()
-
-    resources.depthTexture = renderTarget.depthTexture
-    resources.resolution = new THREE.Vector2(w * DPR, h * DPR)
-    emitResourcesChanged()
   }
 
   window.addEventListener('resize', onWindowResizeHandler)
@@ -318,18 +296,7 @@ export const threeAppInit = async () => {
     const currentInstallation = installations[currentInstallationIndex]
     currentInstallation.updateRenderables(mode)
     controls.update()
-
-    // Render everything except the membranes to an offscreen render target
-    // with a depth buffer (we actually only care about the depth buffer)
-    renderer.setRenderTarget(renderTarget)
-    camera.layers.set(0)
     renderer.render(scene, camera)
-
-    // Render everything to the canvas
-    renderer.setRenderTarget(null)
-    camera.layers.enableAll()
-    renderer.render(scene, camera)
-
     stats && stats.end()
   })
 

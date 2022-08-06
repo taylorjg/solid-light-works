@@ -17,17 +17,6 @@ export class ProjectionEffect {
     this._meshHelpers = undefined
     this._visibleHelpers = false
     this._formBoundaryClippingPlanes = undefined
-
-    this._resources.addListener(this._onResourcesChanged.bind(this))
-  }
-
-  _onResourcesChanged() {
-    if (this._meshes) {
-      for (const mesh of this._meshes) {
-        mesh.material.uniforms.depthTexture.value = this._resources.depthTexture
-        mesh.material.uniforms.resolution.value = this._resources.resolution
-      }
-    }
   }
 
   _createMesh() {
@@ -36,12 +25,6 @@ export class ProjectionEffect {
       uniforms: {
         hazeTexture: {
           value: this._resources.hazeTexture
-        },
-        depthTexture: {
-          value: this._resources.depthTexture
-        },
-        resolution: {
-          value: this._resources.resolution
         },
         projectorPosition: {
           value: this._config.projectorPosition
@@ -53,12 +36,11 @@ export class ProjectionEffect {
       vertexShader,
       fragmentShader,
       side: THREE.DoubleSide,
-      // blending: THREE.AdditiveBlending,
+      blending: THREE.AdditiveBlending,
       transparent: true,
-      depthTest: false
+      depthWrite: false
     })
     const mesh = new THREE.Mesh(geometry, material)
-    mesh.layers.set(1)
     mesh.applyMatrix4(this._config.transform)
     this._parent.add(mesh)
     return mesh

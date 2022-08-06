@@ -1,6 +1,4 @@
 uniform sampler2D hazeTexture;
-uniform sampler2D depthTexture;
-uniform vec2 resolution;
 uniform float opacity;
 
 varying vec3 vPosition;
@@ -8,15 +6,11 @@ varying vec3 vNormal;
 varying vec2 vUv;
 varying vec3 vProjectorPosition;
 
+// https://stackoverflow.com/questions/42532545/add-clipping-to-three-shadermaterial
 #include <clipping_planes_pars_fragment>
 
 void main() {
   #include <clipping_planes_fragment>
-
-  float thisFragDepth = gl_FragCoord.z;
-  vec2 depthTexCoords = gl_FragCoord.xy / resolution;
-  float depthBufferDepth = texture2D(depthTexture, depthTexCoords).x;
-  if (thisFragDepth > depthBufferDepth) discard;
 
   float d = distance(vPosition, vProjectorPosition);
   float a = 1.0 - (d / 12.0);

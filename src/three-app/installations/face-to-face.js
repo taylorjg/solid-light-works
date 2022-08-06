@@ -53,17 +53,17 @@ export const config = {
   config3D: {
     mode: 2,
     cameraPoses: [
-      { position: new THREE.Vector3(3.03, 1.79, 10.03), target: new THREE.Vector3(-2.25, 0.78, 5.36) },
-      { position: new THREE.Vector3(-10.60, 0.92, 7.55), target: new THREE.Vector3(-3.40, -0.37, 5.91) }
+      { position: new THREE.Vector3(-2.82, 2.26, 13.96), target: new THREE.Vector3(-2.25, 0.78, 5.36) },
+      { position: new THREE.Vector3(-9.72, 2.13, 8.70), target: new THREE.Vector3(-2.91, 1.21, 5.71) }
     ],
     scenery: [
+      new Floor(22.4, 12.6),
       new FloatingScreen(4.5, 2.6, -4.8, 3.25),
       new FloatingScreen(4.5, 2.6, 0.8, 6.95),
       new Pillar(0.5, 5, -2.0, 4.8),
       new Pillar(0.5, 5, -6.0, 4.8),
       new Pillar(0.5, 5, 2.0, 4.8),
-      new Pillar(0.5, 5, 6.0, 4.8),
-      new Floor(22.4, 12.6)
+      new Pillar(0.5, 5, 6.0, 4.8)
     ]
   }
 }
