@@ -83,31 +83,6 @@ export class ScreenImage {
 
     if (meshCount !== lineCount) {
       this._createMeshes(lines)
-    } else {
-      const meshes = this._meshes ?? []
-      meshes.forEach((mesh, index) => {
-        const line = lines[index]
-        const pointCount = line.points.length
-        const positionAttribute = mesh.geometry.getAttribute("position")
-
-        // For each point in the path, the line geometry adds
-        // 2 lots of X, Y and Z values to the position attribute,
-        const minRequiredArrayLength = pointCount * 6
-
-        const arrayLength = positionAttribute.array.length
-        if (arrayLength < minRequiredArrayLength) {
-          U.disposeMesh(mesh)
-          this._meshes[index] = this._createMesh(line)
-          if (this._config.mode === 2 && this._meshes2) {
-            U.disposeMesh(this._meshes2[index])
-            const { geometry, material } = mesh
-            const mesh2 = new THREE.Mesh(geometry, material)
-            mesh2.translateZ(-0.01)
-            this._group.add(mesh2)
-            this._meshes2[index] = mesh2
-          }
-        }
-      })
     }
 
     this._meshes.forEach((mesh, index) => {

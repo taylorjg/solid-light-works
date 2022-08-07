@@ -1,8 +1,6 @@
 import { BufferGeometry, Float32BufferAttribute, Uint16BufferAttribute, Vector2 } from 'three'
 import getNormals from 'polyline-normals'
 
-const VERTS_PER_POINT = 2
-
 export class LineGeometry extends BufferGeometry {
 
   constructor(lineThickness, extendEnds) {
@@ -10,9 +8,6 @@ export class LineGeometry extends BufferGeometry {
     this._lineThickness = lineThickness
     this._halfLineThickness = lineThickness / 2
     this._extendEnds = extendEnds
-    this.setAttribute('position', new Float32BufferAttribute([], 3))
-    this.setIndex(new Uint16BufferAttribute([], 1))
-    this.update()
   }
 
   update(path, closed) {
@@ -41,26 +36,20 @@ export class LineGeometry extends BufferGeometry {
       normals.push(normals[0])
     }
 
+    if (!this.getAttribute('position')) {
+      const verticesPerPoint = 2
+      const attrPositionCount = path.length * verticesPerPoint
+      const attrPositionItemSize = 3
+      const attrPositionLength = attrPositionCount * attrPositionItemSize
+      this.setAttribute('position', new Float32BufferAttribute(attrPositionLength, attrPositionItemSize))
+      const attrIndexCount = (path.length - 1) * 6
+      const attrIndexItemSize = 1
+      const attrIndexLength = attrIndexCount * attrIndexItemSize
+      this.setIndex(new Uint16BufferAttribute(attrIndexLength, attrIndexItemSize))
+    }
+
     const attrPosition = this.getAttribute('position')
     const attrIndex = this.getIndex()
-
-    const attrPositionCount = path.length * VERTS_PER_POINT
-    const attrIndexCount = Math.max(0, (path.length - 1) * 6)
-
-    if (!attrPosition.array || (path.length !== attrPosition.array.length / 3 / VERTS_PER_POINT)) {
-      attrPosition.array = new Float32Array(attrPositionCount * 3)
-      attrIndex.array = new Uint16Array(attrIndexCount)
-    }
-
-    if (attrPosition.count !== undefined) {
-      attrPosition.count = attrPositionCount
-    }
-    attrPosition.needsUpdate = true
-
-    if (attrIndex.count !== undefined) {
-      attrIndex.count = attrIndexCount
-    }
-    attrIndex.needsUpdate = true
 
     let attrPositionIndex = 0
     let attrIndexIndex = 0
@@ -82,5 +71,8 @@ export class LineGeometry extends BufferGeometry {
       attrPosition.setXYZ(attrPositionIndex++, p1.x, p1.y, 0)
       attrPosition.setXYZ(attrPositionIndex++, p2.x, p2.y, 0)
     })
+
+    attrPosition.needsUpdate = true
+    attrIndex.needsUpdate = true
   }
 }
