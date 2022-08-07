@@ -38,8 +38,8 @@ export class BreathIIIForm {
     const parametricEllipseXDerivativeFn = parametricEllipseXDerivative(rx)
     const parametricEllipseYDerivativeFn = parametricEllipseYDerivative(this.ry)
 
-    const xoffset = -this.width / 2 - C.LINE_THICKNESS
-    const A = this.height / 2
+    const xoffset = -this.width / 2
+    const A = this.height / 2 - C.LINE_THICKNESS / 2
     const k = C.TWO_PI / this.waveLength
     const f = 1
     const ω = C.TWO_PI * f
@@ -113,12 +113,6 @@ export class BreathIIIForm {
 
     const getTravellingWaveSegmentPoints = (x1, x2) => {
       const pointCount = TRAVELLING_WAVE_POINT_COUNT
-      if (x1 === 0) {
-        x1 -= C.LINE_THICKNESS * 2
-      }
-      if (x2 === this.width) {
-        x2 += C.LINE_THICKNESS * 2
-      }
       const Δx = (x2 - x1) / pointCount
       return U.range(pointCount + 1).map(n => {
         const t = x1 + n * Δx

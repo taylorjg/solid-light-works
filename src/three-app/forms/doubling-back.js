@@ -18,7 +18,7 @@ export class DoublingBackForm {
     this.delaying = false
     this.delayTick = 0
     this.firstTime = true
-    this.A = this.height / 2
+    this.A = this.height / 2 - C.LINE_THICKNESS / 2
     const λ = this.width * 4 / 3
     this.k = C.TWO_PI / λ
     const f = 1
@@ -30,8 +30,8 @@ export class DoublingBackForm {
     const { A, k, ω, speed } = this
     const ωt = ω * this.tick * speed
     const φ = THREE.MathUtils.degToRad(160)
-    const xoffset = -this.width / 2 - C.LINE_THICKNESS
-    const Δx = (this.width + C.LINE_THICKNESS * 2) / TRAVELLING_WAVE_POINT_COUNT
+    const xoffset = -this.width / 2
+    const Δx = this.width / TRAVELLING_WAVE_POINT_COUNT
     const parametricTravellingWaveXFn = parametricTravellingWaveX(xoffset)
     const parametricTravellingWaveYFn = parametricTravellingWaveY(A, k, ωt, φ)
     return U.range(TRAVELLING_WAVE_POINT_COUNT + 1).map(n => {
@@ -46,8 +46,8 @@ export class DoublingBackForm {
     const { A, k, ω, speed } = this
     const ωt = ω * this.tick * speed
     const φ = THREE.MathUtils.degToRad(70)
-    const xoffset = -this.height / 2 - C.LINE_THICKNESS
-    const Δx = (this.height + C.LINE_THICKNESS * 2) / TRAVELLING_WAVE_POINT_COUNT
+    const xoffset = -this.height / 2
+    const Δx = this.height / TRAVELLING_WAVE_POINT_COUNT
     const midpoint = this.width / 2 - this.height / 2
     const parametricTravellingWaveXFn = parametricTravellingWaveX(xoffset)
     const parametricTravellingWaveYFn = parametricTravellingWaveY(A, k, ωt, φ)

@@ -4,8 +4,8 @@ import * as C from '../constants'
 export class FloatingScreen {
 
   constructor(width, height, x, z) {
-    this._width = width // + C.LINE_THICKNESS
-    this._height = height // + C.LINE_THICKNESS
+    this._width = width
+    this._height = height
     this._x = x
     this._z = z
   }

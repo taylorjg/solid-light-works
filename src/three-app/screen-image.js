@@ -29,7 +29,7 @@ export class ScreenImage {
   }
 
   _createMesh(line) {
-    const geometry = new LineGeometry(line.lineThickness)
+    const geometry = new LineGeometry(line.lineThickness, line.clipToFormBoundary)
     const material = new THREE.MeshBasicMaterial({
       color: 0xffffff,
       side: THREE.DoubleSide,
@@ -160,8 +160,7 @@ export class ScreenImage {
     if (!this._formBoundaryClippingPlanes) {
       const makeClippingPlane = (x, y, z, constant) => {
         const normal = new THREE.Vector3(x, y, z)
-        const adjustedConstant = constant + C.LINE_THICKNESS / 2
-        return new THREE.Plane(normal, adjustedConstant).applyMatrix4(this._config.transform)
+        return new THREE.Plane(normal, constant).applyMatrix4(this._config.transform)
       }
       const { width, height } = this._formBoundary
       const topClippingPlane = makeClippingPlane(0, -1, 0, height / 2)

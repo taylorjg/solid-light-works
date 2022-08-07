@@ -5,10 +5,11 @@ const VERTS_PER_POINT = 2
 
 export class LineGeometry extends BufferGeometry {
 
-  constructor(lineThickness) {
+  constructor(lineThickness, extendEnds) {
     super()
     this._lineThickness = lineThickness
     this._halfLineThickness = lineThickness / 2
+    this._extendEnds = extendEnds
     this.setAttribute('position', new Float32BufferAttribute([], 3))
     this.setIndex(new Uint16BufferAttribute([], 1))
     this.update()
@@ -16,6 +17,22 @@ export class LineGeometry extends BufferGeometry {
 
   update(path, closed) {
     path = path || []
+
+    if (!closed && this._extendEnds && path.length >= 2) {
+      const v1 = new Vector2(...path[0])
+      const v2 = new Vector2(...path[1])
+      const vExtendStartDirection = v1.clone().sub(v2).normalize()
+      const pExtendedStart = v1.clone().addScaledVector(vExtendStartDirection, this._lineThickness).toArray()
+      path.unshift(pExtendedStart)
+
+      const numPoints = path.length
+      const v3 = new Vector2(...path[numPoints - 2])
+      const v4 = new Vector2(...path[numPoints - 1])
+      const vExtendEndDirection = v4.clone().sub(v3).normalize()
+      const pExtendedEnd = v4.clone().addScaledVector(vExtendEndDirection, this._lineThickness).toArray()
+      path.push(pExtendedEnd)
+    }
+
     const normals = getNormals(path, closed)
 
     if (closed) {

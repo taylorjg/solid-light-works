@@ -160,8 +160,7 @@ export class ProjectionEffect {
     if (!this._formBoundaryClippingPlanes) {
       const makeClippingPlane = (x, y, z, constant) => {
         const normal = new THREE.Vector3(x, y, z)
-        const adjustedConstant = constant + C.LINE_THICKNESS / 2
-        const oldClippingPlane = new THREE.Plane(normal, adjustedConstant)
+        const oldClippingPlane = new THREE.Plane(normal, constant)
         const newClippingPlane = oldClippingPlane.clone().applyMatrix4(this._config.transform)
         this._tiltClippingPlane(newClippingPlane, oldClippingPlane)
         return newClippingPlane
