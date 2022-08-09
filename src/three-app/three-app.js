@@ -34,6 +34,7 @@ let axesEnabled = false
 let axesHelper = undefined
 let vertexNormalsEnabled = false
 let intersectionPointsEnabled = false
+let formBoundariesEnabled = false
 let stats = null
 
 const addSettingsChangedListener = listener =>
@@ -50,7 +51,8 @@ const getSettings = () => {
     autoRotateSpeed: controls.autoRotateSpeed,
     axesEnabled,
     vertexNormalsEnabled,
-    intersectionPointsEnabled
+    intersectionPointsEnabled,
+    formBoundariesEnabled
   }
 }
 
@@ -96,6 +98,10 @@ const toggleAxes = () => {
   setAxesEnabled(!axesEnabled)
 }
 
+const toggleFormBoundaries = () => {
+  setFormBoundariesEnabled(!formBoundariesEnabled)
+}
+
 const reportCameraPosition = () => {
   const prec2 = value => value.toFixed(2)
   const newVector3 = vec3 => `new THREE.Vector3(${prec2(vec3.x)}, ${prec2(vec3.y)}, ${prec2(vec3.z)})`
@@ -107,9 +113,12 @@ const updateVisibility = () => {
     const isCurrentInstallation = index === currentInstallationIndex
     installation.updateVisibility(
       mode,
-      vertexNormalsEnabled,
-      intersectionPointsEnabled,
-      isCurrentInstallation)
+      isCurrentInstallation,
+      {
+        vertexNormalsEnabled,
+        intersectionPointsEnabled,
+        formBoundariesEnabled
+      })
   })
 }
 
@@ -170,6 +179,12 @@ const setAutoRotateSpeed = value => {
 const setAxesEnabled = value => {
   axesEnabled = value
   axesEnabled ? showAxesHelper() : hideAxesHelper()
+  emitSettingsChanged()
+}
+
+const setFormBoundariesEnabled = value => {
+  formBoundariesEnabled = value
+  updateVisibility()
   emitSettingsChanged()
 }
 
@@ -266,6 +281,7 @@ export const threeAppInit = async () => {
       case 'b': return toggleBehindOnly()
       case 'c': return reportCameraPosition()
       case 'd': return showRendererInfo()
+      case 'e': return toggleFormBoundaries()
       case 'f': return switchInstallation()
       case 'i': return toggleIntersectionPoints()
       case 'm': return toggleMode()

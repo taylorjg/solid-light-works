@@ -22,6 +22,8 @@ export class CouplingForm {
     this.f = 0
     this.tick = 0
     this.firstTime = true
+    this.width = (outerRadius * 1.1 + this.A) * 2
+    this.height = (outerRadius + this.A) * 2
   }
 
   flipX(pt) {

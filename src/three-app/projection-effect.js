@@ -3,7 +3,6 @@ import { MembraneGeometry } from './membrane-geometry'
 import { VertexNormalsHelper } from 'three/examples/jsm/helpers/VertexNormalsHelper.js'
 import vertexShader from './shaders/vertex-shader.glsl'
 import fragmentShader from './shaders/fragment-shader.glsl'
-import * as C from './constants'
 import * as U from './utils'
 
 export class ProjectionEffect {

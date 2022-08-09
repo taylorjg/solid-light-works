@@ -17,7 +17,6 @@ export class TestForm {
     this.width = width
     this.height = height
 
-    const includeBoundary = 1
     const includeStraightLine = 1
     const includeEllipse = 0
     const includeTravellingWave = 1
@@ -61,21 +60,9 @@ export class TestForm {
       clipToFormBoundary: true
     })
 
-    const boundaryPoints = [
-      new THREE.Vector3(-width / 2, -height / 2),
-      new THREE.Vector3(-width / 2, height / 2),
-      new THREE.Vector3(width / 2, height / 2),
-      new THREE.Vector3(width / 2, -height / 2),
-    ]
-    const boundaryLine = new Line(boundaryPoints, {
-      lineThickness: 0.01,
-      closed: true
-    })
-
     const maybeLine = (flag, line) => flag ? [line] : []
 
     this.lines = [
-      ...maybeLine(includeBoundary, boundaryLine),
       ...maybeLine(includeStraightLine, straightLine),
       ...maybeLine(includeEllipse, ellipseLine),
       ...maybeLine(includeTravellingWave, travellingWaveLine),

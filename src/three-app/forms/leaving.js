@@ -26,6 +26,8 @@ const TRAVELLING_WAVE_POINT_COUNT = 50
 export class LeavingForm {
 
   constructor(rx, ry, initiallyGrowing) {
+    this.width = 2 * rx
+    this.height = 2 * ry
     this.rx = rx
     this.ry = ry
     this.growing = initiallyGrowing

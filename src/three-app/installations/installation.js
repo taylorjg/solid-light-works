@@ -11,19 +11,28 @@ export class Installation {
     this._createRenderables(resources)
   }
 
-  updateVisibility(mode, showVertexNormals, showIntersectionPoints, isCurrentInstallation) {
+  updateVisibility(mode, isCurrentInstallation, options) {
+    this.group2d.visible = isCurrentInstallation && mode === Mode.Mode2D
+    this.group3d.visible = isCurrentInstallation && mode === Mode.Mode3D
 
-    const visible2D = isCurrentInstallation && mode === Mode.Mode2D
-    this.group2d.visible = visible2D
-    for (const work of this.config.works) {
-      work.renderables2D.screenImages.forEach(screenImage => screenImage.intersectionPointsVisible = showIntersectionPoints)
-    }
+    const {
+      vertexNormalsEnabled,
+      intersectionPointsEnabled,
+      formBoundariesEnabled
+    } = options
 
-    const visible3D = isCurrentInstallation && mode === Mode.Mode3D
-    this.group3d.visible = visible3D
     for (const work of this.config.works) {
-      work.renderables3D.screenImages.forEach(screenImage => screenImage.intersectionPointsVisible = showIntersectionPoints)
-      work.renderables3D.projectionEffects.forEach(projectionEffect => projectionEffect.showVertexNormals = showVertexNormals)
+      work.renderables2D.screenImages.forEach(screenImage => {
+        screenImage.intersectionPointsVisible = intersectionPointsEnabled
+        screenImage.formBoundaryVisible = formBoundariesEnabled
+      })
+      work.renderables3D.screenImages.forEach(screenImage => {
+        screenImage.intersectionPointsVisible = intersectionPointsEnabled
+        screenImage.formBoundaryVisible = formBoundariesEnabled
+      })
+      work.renderables3D.projectionEffects.forEach(projectionEffect => {
+        projectionEffect.showVertexNormals = vertexNormalsEnabled
+      })
     }
   }
 

@@ -1,7 +1,6 @@
 import * as THREE from 'three'
 import { LineGeometry } from './line-geometry'
 import { IntersectionPoints } from './intersection-points'
-import * as C from './constants'
 import * as U from './utils'
 
 // mode:
@@ -19,6 +18,7 @@ export class ScreenImage {
     this._meshes2 = undefined
     this._intersectionPoints = new IntersectionPoints(this._group)
     this._formBoundaryClippingPlanes = undefined
+    this._formBoundaryLine = undefined
   }
 
   _createGroup(parent) {
@@ -129,6 +129,30 @@ export class ScreenImage {
 
   set intersectionPointsVisible(value) {
     this._intersectionPoints.visible = value
+  }
+
+  set formBoundaryVisible(value) {
+    if (value) {
+      if (!this._formBoundaryLine) {
+        const { width, height } = this._formBoundary
+        const path = [
+          [-width / 2, -height / 2],
+          [-width / 2, height / 2],
+          [width / 2, height / 2],
+          [width / 2, -height / 2]
+        ]
+        const geometry = new LineGeometry(0.01, false)
+        geometry.update(path, true)
+        const material = new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide })
+        this._formBoundaryLine = new THREE.Mesh(geometry, material)
+        this._group.add(this._formBoundaryLine)
+      }
+    } else {
+      if (this._formBoundaryLine) {
+        U.disposeMesh(this._formBoundaryLine)
+        this._formBoundaryLine = undefined
+      }
+    }
   }
 
   _ensureFormBoundaryClippingPlanes() {
