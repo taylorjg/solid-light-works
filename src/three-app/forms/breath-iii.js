@@ -31,7 +31,7 @@ export class BreathIIIForm {
     this.tick = 8500
   }
 
-  getLines() {
+  getFootprintData() {
     const BREATH_CYCLE_TICKS = 2000
     const rx = this.ry + 0.25 * Math.sin(C.PI / BREATH_CYCLE_TICKS * (this.tick % BREATH_CYCLE_TICKS))
 
@@ -213,10 +213,11 @@ export class BreathIIIForm {
       const linePoints = U.combinePoints(travellingWavePoints1, ellipsePoints, travellingWavePoints2)
       const line = new Line(linePoints, { ...commonLineOptions, clipToFormBoundary: true })
       const lines = [line]
-      lines.intersectionPoints = intersectionPoints
 
       this.tick++
-      return lines
+
+      const footprintData = { lines, intersectionPoints }
+      return footprintData
     }
 
     if (intersections.length === 4) {
@@ -235,10 +236,11 @@ export class BreathIIIForm {
         const linePoints2 = U.combinePoints(travellingWavePointsMiddle, ellipsePointsBottom)
         const line2 = new Line(linePoints2, { ...commonLineOptions, closed: true })
         const lines = [line1, line2]
-        lines.intersectionPoints = intersectionPoints
 
         this.tick++
-        return lines
+
+        const footprintData = { lines, intersectionPoints }
+        return footprintData
       } else {
         const ellipsePointsLeft = smallCurve(intersection1.t1, intersection2.t1)
         const ellipsePointsRight = smallCurve(intersection3.t1, intersection4.t1)
@@ -252,10 +254,11 @@ export class BreathIIIForm {
         )
         const line = new Line(linePoints, { ...commonLineOptions, clipToFormBoundary: true })
         const lines = [line]
-        lines.intersectionPoints = intersectionPoints
 
         this.tick++
-        return lines
+
+        const footprintData = { lines, intersectionPoints }
+        return footprintData
       }
     }
 
@@ -265,9 +268,10 @@ export class BreathIIIForm {
     const line1 = new Line(ellipsePoints, commonLineOptions)
     const line2 = new Line(travellingWavePoints, { ...commonLineOptions, clipToFormBoundary: true })
     const lines = [line1, line2]
-    lines.intersectionPoints = intersectionPoints
 
     this.tick++
-    return lines
+
+    const footprintData = { lines, intersectionPoints }
+    return footprintData
   }
 }

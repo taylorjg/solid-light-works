@@ -33,7 +33,7 @@ export class SkirtIIIForm {
     this.eyeWaveOffsetX = this.eyeWaveInitialOffsetX
   }
 
-  getLines() {
+  getFootprintData() {
     const TOP = 0
     const BOTTOM = 1
     const PRIMARY = 0
@@ -217,8 +217,8 @@ export class SkirtIIIForm {
       this.eyeWaveOffsetX = (this.eyeWaveOffsetX + 0.001) % (this.width)
 
       const lines = [line1, line2]
-      lines.intersectionPoints = intersectionPoints
-      return lines
+      const footprintData = { lines, intersectionPoints }
+      return footprintData
     }
 
     const eyeWavePointsPrimary = getEyeWavePointsPrimary(this.eyeWaveWidth, this.eyeWaveWidth)
@@ -233,7 +233,7 @@ export class SkirtIIIForm {
     this.eyeWaveOffsetX = (this.eyeWaveOffsetX + 0.001) % (this.width)
 
     const lines = [line1, line2, line3]
-    lines.intersectionPoints = intersectionPoints
-    return lines
+    const footprintData = { lines, intersectionPoints }
+    return footprintData
   }
 }

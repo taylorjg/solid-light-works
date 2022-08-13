@@ -125,7 +125,7 @@ export class CouplingForm {
     return this.getCircleWavePoints(rx, ry, Φ, φ).map(this.flipX)
   }
 
-  getLines() {
+  getFootprintData() {
     const tickRatio = this.tick / MAX_TICKS
     const radiusA = this.calcRadiusA(tickRatio)
     const radiusB = this.calcRadiusB(tickRatio)
@@ -141,6 +141,7 @@ export class CouplingForm {
       this.firstTime = false
       this.tick = 0
     }
-    return lines
+    const footprintData = { lines }
+    return footprintData
   }
 }

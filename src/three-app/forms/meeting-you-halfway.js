@@ -56,7 +56,7 @@ export class MeetingYouHalfwayForm {
     ]
   }
 
-  getLines() {
+  getFootprintData() {
     const wipeOffset = linearRamps(this.WIPE_OFFSET_BLOCKS, this.tick)
     const wipeRotationDegrees = linearRamps(this.WIPE_ROTATION_BLOCKS, this.tick)
     const wipeRotationRadians = THREE.MathUtils.degToRad(wipeRotationDegrees)
@@ -89,6 +89,7 @@ export class MeetingYouHalfwayForm {
 
     this.tick++
 
-    return lines
+    const footprintData = { lines }
+    return footprintData
   }
 }

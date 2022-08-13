@@ -81,7 +81,8 @@ export class ScreenImage {
     }
   }
 
-  update(lines) {
+  update(footprintData) {
+    const { lines, intersectionPoints } = footprintData
     const lineCount = lines.length
     const meshCount = this._meshes?.length ?? 0
 
@@ -127,8 +128,8 @@ export class ScreenImage {
       mesh.material.opacity = line.opacity
     })
 
-    if (this._intersectionPoints.visible && lines.intersectionPoints) {
-      this._intersectionPoints.update(lines.intersectionPoints)
+    if (this._intersectionPoints.visible && intersectionPoints) {
+      this._intersectionPoints.update(intersectionPoints)
     }
   }
 

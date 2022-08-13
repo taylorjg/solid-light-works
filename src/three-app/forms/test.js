@@ -62,14 +62,16 @@ export class TestForm {
 
     const maybeLine = (flag, line) => flag ? [line] : []
 
-    this.lines = [
+    const lines = [
       ...maybeLine(includeStraightLine, straightLine),
       ...maybeLine(includeEllipse, ellipseLine),
       ...maybeLine(includeTravellingWave, travellingWaveLine),
     ]
+
+    this._footprintData = {lines}
   }
 
-  getLines() {
-    return this.lines
+  getFootprintData() {
+    return this._footprintData
   }
 }

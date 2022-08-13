@@ -86,7 +86,7 @@ export class LeavingForm {
     return maxAmplitude * easeInOutQuint(t)
   }
 
-  getLines() {
+  getFootprintData() {
 
     const tickRatio = this.tick / MAX_TICKS
     const A = this.travellingWaveAmplitude(tickRatio)
@@ -161,8 +161,9 @@ export class LeavingForm {
       this.toggleGrowing()
     }
 
-    lines.intersectionPoints = [p]
-    return lines
+    const intersectionPoints = [p]
+    const footprintData = { lines, intersectionPoints }
+    return footprintData
   }
 
   toggleGrowing() {

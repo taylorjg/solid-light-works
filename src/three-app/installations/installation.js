@@ -39,14 +39,14 @@ export class Installation {
   updateRenderables(mode) {
     for (const work of this.config.works) {
       work.formConfigs.forEach((formConfig, index) => {
-        const lines = formConfig.form.getLines()
+        const footprintData = formConfig.form.getFootprintData()
         switch (mode) {
           case Mode.Mode2D:
-            work.renderables2D.screenImages[index].update(lines)
+            work.renderables2D.screenImages[index].update(footprintData)
             break
           case Mode.Mode3D:
-            work.renderables3D.screenImages[index].update(lines)
-            work.renderables3D.projectionEffects[index].update(lines)
+            work.renderables3D.screenImages[index].update(footprintData)
+            work.renderables3D.projectionEffects[index].update(footprintData)
             break
           default:
             break

@@ -57,7 +57,7 @@ export class BetweenYouAndIForm {
     ]
   }
 
-  getLines() {
+  getFootprintData() {
     const tickRatio = this.tick / MAX_TICKS
     const normal = new THREE.Vector3(1, 0, 0)
     const constant = this.width / 2 - tickRatio * this.width
@@ -86,7 +86,9 @@ export class BetweenYouAndIForm {
       this.toggleWipeMode()
     }
     const lines = [ellipseLine, travellingWaveLine, straightLine]
-    return lines
+
+    const footprintData = { lines }
+    return footprintData
   }
 
   toggleWipeMode() {

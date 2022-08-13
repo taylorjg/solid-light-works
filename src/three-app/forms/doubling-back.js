@@ -59,7 +59,7 @@ export class DoublingBackForm {
     })
   }
 
-  getLines() {
+  getFootprintData() {
 
     if (this.tick === MAX_TICKS || (this.tick === 0 && !this.firstTime)) {
       if (this.delaying) {
@@ -85,6 +85,7 @@ export class DoublingBackForm {
       this.tick += this.direction
     }
 
-    return lines
+    const footprintData = { lines }
+    return footprintData
   }
 }

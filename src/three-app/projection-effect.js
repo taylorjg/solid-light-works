@@ -92,7 +92,8 @@ export class ProjectionEffect {
     }
   }
 
-  update(lines) {
+  update(footprintData) {
+    const { lines } = footprintData
     const lineCount = lines.length
     const meshCount = this._meshes?.length ?? 0
 
