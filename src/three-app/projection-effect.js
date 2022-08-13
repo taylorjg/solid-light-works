@@ -104,7 +104,7 @@ export class ProjectionEffect {
       const line = lines[index]
       const numPoints = line.points.length
       const projectorPoints = Array(numPoints).fill(this._config.projectorPosition)
-      const screenPoints = U.vec2sToVec3sHorizontal(line.points)
+      const screenPoints = U.vec2sToVec3s(line.points)
       mesh.geometry.dispose()
       mesh.geometry = new MembraneGeometry(projectorPoints, screenPoints)
       mesh.geometry.computeVertexNormals()
@@ -157,18 +157,18 @@ export class ProjectionEffect {
 
   _ensureFormBoundaryClippingPlanes() {
     if (!this._formBoundaryClippingPlanes) {
-      const makeClippingPlane = (x, y, z, constant) => {
-        const normal = new THREE.Vector3(x, y, z)
+      const makeClippingPlane = (x, y, constant) => {
+        const normal = new THREE.Vector3(x, y, 0)
         const oldClippingPlane = new THREE.Plane(normal, constant)
         const newClippingPlane = oldClippingPlane.clone().applyMatrix4(this._config.transform)
         this._tiltClippingPlane(newClippingPlane, oldClippingPlane)
         return newClippingPlane
       }
       const { width, height } = this._formBoundary
-      const topClippingPlane = makeClippingPlane(0, -1, 0, height / 2)
-      const bottomClippingPlane = makeClippingPlane(0, 1, 0, height / 2)
-      const leftClippingPlane = makeClippingPlane(1, 0, 0, width / 2)
-      const rightClippingPlane = makeClippingPlane(-1, 0, 0, width / 2)
+      const topClippingPlane = makeClippingPlane(0, -1, height / 2)
+      const bottomClippingPlane = makeClippingPlane(0, 1, height / 2)
+      const leftClippingPlane = makeClippingPlane(1, 0, width / 2)
+      const rightClippingPlane = makeClippingPlane(-1, 0, width / 2)
       this._formBoundaryClippingPlanes = [
         topClippingPlane,
         bottomClippingPlane,

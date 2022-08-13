@@ -1,13 +1,41 @@
-import { BufferGeometry, Float32BufferAttribute, Uint16BufferAttribute, Vector2 } from 'three'
+import { BufferGeometry, Float32BufferAttribute, MathUtils, Uint16BufferAttribute, Vector2 } from 'three'
 import getNormals from 'polyline-normals'
+import * as C from './constants'
+
+const VERTICES_PER_POINT = 2
 
 export class LineGeometry extends BufferGeometry {
 
-  constructor(lineThickness, extendEnds) {
+  constructor(options = {}) {
     super()
+
+    const lineThickness = options.lineThickness ?? C.LINE_THICKNESS
+    const extendEnds = options.extendEnds ?? false
+    const maxNumPoints = options.maxNumPoints
+
     this._lineThickness = lineThickness
     this._halfLineThickness = lineThickness / 2
     this._extendEnds = extendEnds
+
+    if (maxNumPoints) {
+      this._createBufferAttributes(maxNumPoints)
+    }
+  }
+
+  _calculateIndexCount = numPoints => (numPoints - 1) * 6
+
+  _createBufferAttributes(numPoints) {
+    if (numPoints < 2) return
+
+    const attrPositionCount = numPoints * VERTICES_PER_POINT
+    const attrPositionItemSize = 3
+    const attrPositionLength = attrPositionCount * attrPositionItemSize
+    this.setAttribute('position', new Float32BufferAttribute(attrPositionLength, attrPositionItemSize))
+
+    const attrIndexCount = this._calculateIndexCount(numPoints)
+    const attrIndexItemSize = 1
+    const attrIndexLength = attrIndexCount * attrIndexItemSize
+    this.setIndex(new Uint16BufferAttribute(attrIndexLength, attrIndexItemSize))
   }
 
   update(path, closed) {
@@ -37,15 +65,7 @@ export class LineGeometry extends BufferGeometry {
     }
 
     if (!this.getAttribute('position')) {
-      const verticesPerPoint = 2
-      const attrPositionCount = path.length * verticesPerPoint
-      const attrPositionItemSize = 3
-      const attrPositionLength = attrPositionCount * attrPositionItemSize
-      this.setAttribute('position', new Float32BufferAttribute(attrPositionLength, attrPositionItemSize))
-      const attrIndexCount = (path.length - 1) * 6
-      const attrIndexItemSize = 1
-      const attrIndexLength = attrIndexCount * attrIndexItemSize
-      this.setIndex(new Uint16BufferAttribute(attrIndexLength, attrIndexItemSize))
+      this._createBufferAttributes(path.length)
     }
 
     const attrPosition = this.getAttribute('position')
@@ -63,16 +83,20 @@ export class LineGeometry extends BufferGeometry {
       attrIndex.array[attrIndexIndex++] = attrPositionIndex + 3
 
       const [px, py] = point
-      const [[nx, ny], miter] = normals[pointIndex]
+      const [[nx, ny], mitre] = normals[pointIndex]
+      const mitreClamped = MathUtils.clamp(mitre, -2.0, 2.0)
       const p1 = new Vector2(px, py)
       const p2 = new Vector2(px, py)
-      p1.add(new Vector2(nx, ny).multiplyScalar(this._halfLineThickness * -miter))
-      p2.add(new Vector2(nx, ny).multiplyScalar(this._halfLineThickness * miter))
+      p1.add(new Vector2(nx, ny).multiplyScalar(this._halfLineThickness * -mitreClamped))
+      p2.add(new Vector2(nx, ny).multiplyScalar(this._halfLineThickness * +mitreClamped))
       attrPosition.setXYZ(attrPositionIndex++, p1.x, p1.y, 0)
       attrPosition.setXYZ(attrPositionIndex++, p2.x, p2.y, 0)
     })
 
     attrPosition.needsUpdate = true
     attrIndex.needsUpdate = true
+
+    const indexCount = this._calculateIndexCount(path.length)
+    this.setDrawRange(0, indexCount)
   }
 }

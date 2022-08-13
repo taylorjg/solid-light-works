@@ -17,7 +17,7 @@ export class MeetingYouHalfwayForm {
 
     const wipeOffsetMax = width * 0.4
     const wipeOffsetMin = -wipeOffsetMax
-    const ryMax = height / 2
+    const ryMax = height / 2 - C.LINE_THICKNESS / 2
     const ryMin = height / 4
 
     this.WIPE_OFFSET_BLOCKS = [
@@ -61,7 +61,7 @@ export class MeetingYouHalfwayForm {
     const wipeRotationDegrees = linearRamps(this.WIPE_ROTATION_BLOCKS, this.tick)
     const wipeRotationRadians = THREE.MathUtils.degToRad(wipeRotationDegrees)
 
-    const rx = this.width / 2
+    const rx = this.width / 2 - C.LINE_THICKNESS / 2
     const ry1 = linearRamps(this.RY1_BLOCKS, this.tick)
     const ry2 = linearRamps(this.RY2_BLOCKS, this.tick)
 

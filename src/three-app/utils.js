@@ -41,11 +41,8 @@ export const maxBy = (xs, valueFn) =>
 export const vectorsAsArrays = vectors =>
   vectors.map(vector => vector.toArray())
 
-export const vec2sToVec3sHorizontal = (vec2s, distance = 0) =>
-  vec2s.map(({ x, y }) => new THREE.Vector3(x, y, distance))
-
-export const vec2sToVec3sVertical = (vec2s, height = 0) =>
-  vec2s.map(({ x, y }) => new THREE.Vector3(x, height, y))
+export const vec2sToVec3s = (vec2s, z = 0) =>
+  vec2s.map(({ x, y }) => new THREE.Vector3(x, y, z))
 
 export const loadTexture = url => {
   const textureLoader = new THREE.TextureLoader()
@@ -58,9 +55,9 @@ export const disposeMesh = mesh => {
   mesh.material.dispose()
 }
 
-const last = xs => xs[xs.length - 1]
+export const last = xs => xs[xs.length - 1]
 
-const concatAll = xss => [].concat(...xss)
+export const concatAll = xss => [].concat(...xss)
 
 export const combinePoints = (...setsOfPoints) => {
   const [firstSetOfPoints, ...remainingSetsOfPoints] = setsOfPoints
@@ -83,7 +80,7 @@ export const combinePoints = (...setsOfPoints) => {
 export const isClose = (a, b, tolerance = 0.01) =>
   Math.abs(a - b) <= tolerance
 
-export const isCloseVec = (a, b, tolerance = 0.01) => {
+export const isCloseVec = (a, b, tolerance) => {
   const componentsA = a.toArray()
   const componentsB = b.toArray()
   const length = Math.min(componentsA.length, componentsB.length)

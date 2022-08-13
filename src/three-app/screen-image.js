@@ -29,7 +29,11 @@ export class ScreenImage {
   }
 
   _createMesh(line) {
-    const geometry = new LineGeometry(line.lineThickness, line.clipToFormBoundary)
+    const geometry = new LineGeometry({
+      lineThickness: line.lineThickness,
+      extendEnds: line.clipToFormBoundary,
+      maxNumPoints: line.maxNumPoints
+    })
     const material = new THREE.MeshBasicMaterial({
       color: 0xffffff,
       side: THREE.DoubleSide,
@@ -87,10 +91,11 @@ export class ScreenImage {
 
     this._meshes.forEach((mesh, index) => {
       const line = lines[index]
+
       const path = U.vectorsAsArrays(line.points)
       if (line.closed) {
         const [x1, y1] = path[0]
-        const [x2, y2] = path[path.length - 1]
+        const [x2, y2] = U.last(path)
         const firstSameAsLast = U.isClose(x1, x2) && U.isClose(y1, y2)
         const adjustedPath = firstSameAsLast ? path.slice(0, -1) : path
         mesh.geometry.update(adjustedPath, true)
@@ -141,7 +146,7 @@ export class ScreenImage {
           [width / 2, height / 2],
           [width / 2, -height / 2]
         ]
-        const geometry = new LineGeometry(0.01, false)
+        const geometry = new LineGeometry({ lineThickness: 0.01 })
         geometry.update(path, true)
         const material = new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide })
         this._formBoundaryLine = new THREE.Mesh(geometry, material)
@@ -157,15 +162,15 @@ export class ScreenImage {
 
   _ensureFormBoundaryClippingPlanes() {
     if (!this._formBoundaryClippingPlanes) {
-      const makeClippingPlane = (x, y, z, constant) => {
-        const normal = new THREE.Vector3(x, y, z)
+      const makeClippingPlane = (x, y, constant) => {
+        const normal = new THREE.Vector3(x, y, 0)
         return new THREE.Plane(normal, constant).applyMatrix4(this._config.transform)
       }
       const { width, height } = this._formBoundary
-      const topClippingPlane = makeClippingPlane(0, -1, 0, height / 2)
-      const bottomClippingPlane = makeClippingPlane(0, 1, 0, height / 2)
-      const leftClippingPlane = makeClippingPlane(1, 0, 0, width / 2)
-      const rightClippingPlane = makeClippingPlane(-1, 0, 0, width / 2)
+      const topClippingPlane = makeClippingPlane(0, -1, height / 2)
+      const bottomClippingPlane = makeClippingPlane(0, 1, height / 2)
+      const leftClippingPlane = makeClippingPlane(1, 0, width / 2)
+      const rightClippingPlane = makeClippingPlane(-1, 0, width / 2)
       this._formBoundaryClippingPlanes = [
         topClippingPlane,
         bottomClippingPlane,

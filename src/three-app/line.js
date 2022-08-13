@@ -9,6 +9,7 @@ export class Line {
     this._clippingPlanes = options.clippingPlanes
     this._lineThickness = options.lineThickness ?? C.LINE_THICKNESS
     this._clipToFormBoundary = options.clipToFormBoundary ?? false
+    this._maxNumPoints = options.maxNumPoints
   }
 
   get points() {
@@ -33,5 +34,9 @@ export class Line {
 
   get clipToFormBoundary() {
     return this._clipToFormBoundary
+  }
+
+  get maxNumPoints() {
+    return this._maxNumPoints
   }
 }

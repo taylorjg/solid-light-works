@@ -19,6 +19,8 @@ import * as U from '../utils'
 const ELLIPSE_POINT_COUNT = 100
 const TRAVELLING_WAVE_POINT_COUNT = 100
 
+const MAX_NUM_POINTS = 3 * TRAVELLING_WAVE_POINT_COUNT + 2 * ELLIPSE_POINT_COUNT + 1 + 2
+
 export class BreathIIIForm {
 
   constructor(width, height) {
@@ -157,6 +159,20 @@ export class BreathIIIForm {
       return getEllipseSegmentPoints(normalisedAngle1, normalisedAngle2)
     }
 
+    const isTroughBelowEllipse = () => {
+      const leftBound = -rx - xoffset
+      const rightBound = +rx - xoffset
+      const points = getTravellingWaveSegmentPoints(leftBound, rightBound)
+      const minPoint = U.minBy(points, pt => pt.y)
+      const maxPoint = U.maxBy(points, pt => pt.y)
+      const absMinY = Math.abs(minPoint.y)
+      const absMaxY = Math.abs(maxPoint.y)
+      const troughBelowEllipse = absMinY > absMaxY
+      return troughBelowEllipse
+    }
+
+    const commonLineOptions = { maxNumPoints: MAX_NUM_POINTS }
+
     if (intersections.length === 2 || intersections.length === 3) {
 
       let intersection1
@@ -195,7 +211,7 @@ export class BreathIIIForm {
       const travellingWavePoints2 = getTravellingWaveSegmentPoints(intersection2.t2, this.width)
 
       const linePoints = U.combinePoints(travellingWavePoints1, ellipsePoints, travellingWavePoints2)
-      const line = new Line(linePoints, { clipToFormBoundary: true })
+      const line = new Line(linePoints, { ...commonLineOptions, clipToFormBoundary: true })
       const lines = [line]
       lines.intersectionPoints = intersectionPoints
 
@@ -204,30 +220,20 @@ export class BreathIIIForm {
     }
 
     if (intersections.length === 4) {
-
-      const leftBound = -rx - xoffset
-      const rightBound = rx - xoffset
-      const points = getTravellingWaveSegmentPoints(leftBound, rightBound)
-      const minPoint = U.minBy(points, pt => pt.y)
-      const maxPoint = U.maxBy(points, pt => pt.y)
-      const absMinY = Math.abs(minPoint.y)
-      const absMaxY = Math.abs(maxPoint.y)
-      const troughBelowEllipse = absMinY > absMaxY
-
       const [intersection1, intersection2, intersection3, intersection4] = intersections
 
       const travellingWavePointsStart = getTravellingWaveSegmentPoints(0, intersection1.t2)
       const travellingWavePointsMiddle = getTravellingWaveSegmentPoints(intersection2.t2, intersection3.t2)
       const travellingWavePointsEnd = getTravellingWaveSegmentPoints(intersection4.t2, this.width)
 
-      if (troughBelowEllipse) {
+      if (isTroughBelowEllipse()) {
         const ellipsePointsTop = ccwCurve(intersection1.t1, intersection4.t1)
         const ellipsePointsBottom = ccwCurve(intersection2.t1, intersection3.t1)
 
         const linePoints1 = U.combinePoints(travellingWavePointsStart, ellipsePointsTop, travellingWavePointsEnd)
-        const line1 = new Line(linePoints1, { clipToFormBoundary: true })
+        const line1 = new Line(linePoints1, { ...commonLineOptions, clipToFormBoundary: true })
         const linePoints2 = U.combinePoints(travellingWavePointsMiddle, ellipsePointsBottom)
-        const line2 = new Line(linePoints2, { closed: true })
+        const line2 = new Line(linePoints2, { ...commonLineOptions, closed: true })
         const lines = [line1, line2]
         lines.intersectionPoints = intersectionPoints
 
@@ -244,7 +250,7 @@ export class BreathIIIForm {
           ellipsePointsRight,
           travellingWavePointsEnd,
         )
-        const line = new Line(linePoints, { clipToFormBoundary: true })
+        const line = new Line(linePoints, { ...commonLineOptions, clipToFormBoundary: true })
         const lines = [line]
         lines.intersectionPoints = intersectionPoints
 
@@ -256,8 +262,8 @@ export class BreathIIIForm {
     const ellipsePoints = getEllipseSegmentPoints(0, C.TWO_PI)
     const travellingWavePoints = getTravellingWaveSegmentPoints(0, this.width)
 
-    const line1 = new Line(ellipsePoints)
-    const line2 = new Line(travellingWavePoints, { clipToFormBoundary: true })
+    const line1 = new Line(ellipsePoints, commonLineOptions)
+    const line2 = new Line(travellingWavePoints, { ...commonLineOptions, clipToFormBoundary: true })
     const lines = [line1, line2]
     lines.intersectionPoints = intersectionPoints
 

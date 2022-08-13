@@ -28,8 +28,8 @@ export class LeavingForm {
   constructor(rx, ry, initiallyGrowing) {
     this.width = 2 * rx
     this.height = 2 * ry
-    this.rx = rx
-    this.ry = ry
+    this.rx = rx - C.LINE_THICKNESS / 2
+    this.ry = ry - C.LINE_THICKNESS / 2
     this.growing = initiallyGrowing
     this.tick = 0
   }
