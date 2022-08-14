@@ -37,7 +37,8 @@ let axesHelper = undefined
 let vertexNormalsEnabled = false
 let intersectionPointsEnabled = false
 let formBoundariesEnabled = false
-let stats = null
+let statsEnabled = false
+let stats = undefined
 
 const addSettingsChangedListener = listener =>
   eventEmitter.on(SETTINGS_CHANGED_EVENT_NAME, listener)
@@ -54,7 +55,8 @@ const getSettings = () => {
     axesEnabled,
     vertexNormalsEnabled,
     intersectionPointsEnabled,
-    formBoundariesEnabled
+    formBoundariesEnabled,
+    statsEnabled
   }
 }
 
@@ -213,15 +215,29 @@ const showRendererInfo = () => {
 }
 
 const toggleStats = () => {
-  if (stats) {
-    document.body.removeChild(stats.dom)
-    stats = null
-  } else {
+  setStatsEnabled(!statsEnabled)
+}
+
+const setStatsEnabled = value => {
+  statsEnabled = value
+  statsEnabled ? showStats() : hideStats()
+  emitSettingsChanged()
+}
+
+const showStats = () => {
+  if (!stats) {
     stats = new Stats()
     stats.dom.style.left = 'unset'
     stats.dom.style.top = '.5rem'
     stats.dom.style.right = '.5rem'
     document.body.appendChild(stats.dom)
+  }
+}
+
+const hideStats = () => {
+  if (stats) {
+    document.body.removeChild(stats.dom)
+    stats = undefined
   }
 }
 
@@ -337,6 +353,7 @@ export const threeAppInit = async () => {
     setAxesEnabled,
     setVertexNormalsEnabled,
     setIntersectionPointsEnabled,
-    setFormBoundariesEnabled
+    setFormBoundariesEnabled,
+    setStatsEnabled
   }
 }

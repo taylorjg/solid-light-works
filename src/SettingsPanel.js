@@ -253,6 +253,33 @@ const FormBoundariesEnabledSetting = ({ value, setValue }) => {
   )
 }
 
+const StatsEnabledSetting = ({ value, setValue }) => {
+
+  const handleChange = event => {
+    setValue(event.target.checked)
+  }
+
+  return (
+    <div>
+      <FormControl>
+        <FormLabel id="stats-enabled-label">Show FPS Stats</FormLabel>
+        <FormControlLabel
+          sx={{ mt: ".25rem" }}
+          control={
+            <Switch
+              aria-labelledby="stats-enabled-label"
+              size="small"
+              checked={value}
+              onClick={handleChange}
+            />
+          }
+          label={value ? "On" : "Off"}
+        />
+      </FormControl>
+    </div>
+  )
+}
+
 const SettingsPanel = ({ threeAppActions }) => {
 
   const [settings, setSettings] = useState(threeAppActions.getSettings)
@@ -291,6 +318,7 @@ const SettingsPanel = ({ threeAppActions }) => {
           <IntersectionPointsEnabledSetting value={settings.intersectionPointsEnabled} setValue={threeAppActions.setIntersectionPointsEnabled} />
           <VertexNormalsEnabledSetting value={settings.vertexNormalsEnabled} setValue={threeAppActions.setVertexNormalsEnabled} />
           <FormBoundariesEnabledSetting value={settings.formBoundariesEnabled} setValue={threeAppActions.setFormBoundariesEnabled} />
+          <StatsEnabledSetting value={settings.statsEnabled} setValue={threeAppActions.setStatsEnabled} />
         </StyledSettingsTabPanelBody>
       </TabPanel>
     </StyledSettingsPanel>

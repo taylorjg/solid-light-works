@@ -141,8 +141,14 @@ export class ProjectionEffect {
       }
       this._meshHelpers.forEach((meshHelper, index) => {
         const mesh = this._meshes[index]
-        meshHelper.material.clippingPlanes = mesh.material.clippingPlanes
-        meshHelper.material.clipping = mesh.material.clipping
+        const clippingPlanes = mesh.material.clippingPlanes ?? []
+        const formBoundaryClippingPlanes = this._formBoundaryClippingPlanes ?? []
+        for (const clippingPlane of clippingPlanes) {
+          if (formBoundaryClippingPlanes.indexOf(clippingPlane) < 0) {
+            meshHelper.material.clippingPlanes = mesh.material.clippingPlanes
+          }
+          meshHelper.material.clipping = mesh.material.clipping
+        }
         meshHelper.update()
       })
     } else {
