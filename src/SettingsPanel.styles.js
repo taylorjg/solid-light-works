@@ -9,5 +9,7 @@ export const StyledSettingsPanel = styled.div`
 export const StyledSettingsTabPanelBody = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 3rem;
+  > * {
+    margin-bottom: 2rem;
+  }
 `
