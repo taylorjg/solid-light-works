@@ -1,8 +1,44 @@
 import { useEffect, useState } from 'react'
-import { Divider, FormControl, FormControlLabel, FormLabel, Slider, Switch, ToggleButtonGroup, ToggleButton, Typography } from '@mui/material'
-import CloseIcon from '@mui/icons-material/Close'
-import { StyledSettingsPanel, StyledSettingsPanelHeader, StyledSettingsPanelBody } from './SettingsPanel.styles'
+import {
+  Box,
+  FormControl,
+  FormControlLabel,
+  FormLabel,
+  Slider,
+  Switch,
+  Tab,
+  Tabs,
+  ToggleButtonGroup,
+  ToggleButton,
+  Typography
+} from '@mui/material'
+import { StyledSettingsPanel, StyledSettingsTabPanelBody } from './SettingsPanel.styles'
 import { Mode } from './three-app'
+
+const a11yProps = index => {
+  return {
+    id: `simple-tab-${index}`,
+    'aria-controls': `simple-tabpanel-${index}`,
+  }
+}
+
+const TabPanel = ({ children, value, index, ...other }) => {
+  return (
+    <div
+      role="tabpanel"
+      hidden={value !== index}
+      id={`simple-tabpanel-${index}`}
+      aria-labelledby={`simple-tab-${index}`}
+      {...other}
+    >
+      {value === index && (
+        <Box sx={{ p: 3 }}>
+          <Typography component="div">{children}</Typography>
+        </Box>
+      )}
+    </div>
+  )
+}
 
 const ModeSetting = ({ value, setValue }) => {
 
@@ -190,31 +226,73 @@ const VertexNormalsEnabledSetting = ({ value, setValue }) => {
   )
 }
 
-const SettingsPanel = ({ threeAppActions, onClose }) => {
+const FormBoundariesEnabledSetting = ({ value, setValue }) => {
+
+  const handleChange = event => {
+    setValue(event.target.checked)
+  }
+
+  return (
+    <div>
+      <FormControl>
+        <FormLabel id="form-boundaries-enabled-label">Show Form Boundaries</FormLabel>
+        <FormControlLabel
+          sx={{ mt: ".25rem" }}
+          control={
+            <Switch
+              aria-labelledby="form-boundaries-enabled-label"
+              size="small"
+              checked={value}
+              onClick={handleChange}
+            />
+          }
+          label={value ? "On" : "Off"}
+        />
+      </FormControl>
+    </div>
+  )
+}
+
+const SettingsPanel = ({ threeAppActions }) => {
 
   const [settings, setSettings] = useState(threeAppActions.getSettings)
+  const [currentTabIndex, setCurrentTabIndex] = useState(0)
 
   useEffect(() => {
     threeAppActions.addSettingsChangedListener(setSettings)
     return () => threeAppActions.removeSettingsChangedListener(setSettings)
   }, [threeAppActions])
 
+  const onChangeTab = (_event, newTabIndex) => {
+    setCurrentTabIndex(newTabIndex)
+  }
+
   return (
     <StyledSettingsPanel>
-      <StyledSettingsPanelHeader>
-        <Typography variant="subtitle1" gutterBottom>Settings</Typography>
-        <CloseIcon onClick={onClose} />
-      </StyledSettingsPanelHeader>
-      <Divider />
-      <StyledSettingsPanelBody>
-        <ModeSetting value={settings.mode} setValue={threeAppActions.setMode} />
-        <BehindOnlySetting value={settings.behindOnly} setValue={threeAppActions.setBehindOnly} />
-        <AutoRotateSetting value={settings.autoRotate} setValue={threeAppActions.setAutoRotate} />
-        <AutoRotateSpeedSetting value={settings.autoRotateSpeed} setValue={threeAppActions.setAutoRotateSpeed} />
-        <AxesEnabledSetting value={settings.axesEnabled} setValue={threeAppActions.setAxesEnabled} />
-        <IntersectionPointsEnabledSetting value={settings.intersectionPointsEnabled} setValue={threeAppActions.setIntersectionPointsEnabled} />
-        <VertexNormalsEnabledSetting value={settings.vertexNormalsEnabled} setValue={threeAppActions.setVertexNormalsEnabled} />
-      </StyledSettingsPanelBody>
+      <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+        <Tabs value={currentTabIndex} onChange={onChangeTab} aria-label="settings-panel">
+          <Tab label="Settings" {...a11yProps(0)} />
+          <Tab label="Debug" {...a11yProps(1)} />
+        </Tabs>
+      </Box>
+
+      <TabPanel value={currentTabIndex} index={0}>
+        <StyledSettingsTabPanelBody>
+          <ModeSetting value={settings.mode} setValue={threeAppActions.setMode} />
+          <BehindOnlySetting value={settings.behindOnly} setValue={threeAppActions.setBehindOnly} />
+          <AutoRotateSetting value={settings.autoRotate} setValue={threeAppActions.setAutoRotate} />
+          <AutoRotateSpeedSetting value={settings.autoRotateSpeed} setValue={threeAppActions.setAutoRotateSpeed} />
+        </StyledSettingsTabPanelBody>
+      </TabPanel>
+
+      <TabPanel value={currentTabIndex} index={1}>
+        <StyledSettingsTabPanelBody>
+          <AxesEnabledSetting value={settings.axesEnabled} setValue={threeAppActions.setAxesEnabled} />
+          <IntersectionPointsEnabledSetting value={settings.intersectionPointsEnabled} setValue={threeAppActions.setIntersectionPointsEnabled} />
+          <VertexNormalsEnabledSetting value={settings.vertexNormalsEnabled} setValue={threeAppActions.setVertexNormalsEnabled} />
+          <FormBoundariesEnabledSetting value={settings.formBoundariesEnabled} setValue={threeAppActions.setFormBoundariesEnabled} />
+        </StyledSettingsTabPanelBody>
+      </TabPanel>
     </StyledSettingsPanel>
   )
 }

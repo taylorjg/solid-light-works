@@ -336,6 +336,7 @@ export const threeAppInit = async () => {
     setAutoRotateSpeed,
     setAxesEnabled,
     setVertexNormalsEnabled,
-    setIntersectionPointsEnabled
+    setIntersectionPointsEnabled,
+    setFormBoundariesEnabled
   }
 }

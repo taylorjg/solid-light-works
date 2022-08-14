@@ -30,6 +30,9 @@ const App = ({ threeAppActions }) => {
     if (queryParams.has('vertexNormalsEnabled')) {
       threeAppActions.setVertexNormalsEnabled(queryParams.getBool('vertexNormalsEnabled'))
     }
+    if (queryParams.has('formBoundariesEnabled')) {
+      threeAppActions.setFormBoundariesEnabled(queryParams.getBool('formBoundariesEnabled'))
+    }
   }, [threeAppActions, queryParams])
 
   return (

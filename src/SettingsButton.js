@@ -19,7 +19,7 @@ const SettingsButton = ({ threeAppActions }) => {
     <>
       <StyledSettingsIcon onClick={openDrawer} />
       <Drawer anchor="left" open={isDrawerOpen} onClose={closeDrawer}>
-        <SettingsPanel threeAppActions={threeAppActions} onClose={closeDrawer} />
+        <SettingsPanel threeAppActions={threeAppActions} />
       </Drawer>
     </>
   )

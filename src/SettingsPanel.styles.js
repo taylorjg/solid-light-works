@@ -3,26 +3,11 @@ import styled from '@emotion/styled'
 export const StyledSettingsPanel = styled.div`
   margin: 0;
   padding: 0;
-  min-width: 15rem;
-  width: 100%;
-  height: 100%;
+  min-width: 20rem;
 `
 
-export const StyledSettingsPanelHeader = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin: .5rem .5rem .5rem 1rem;
-  svg {
-    cursor: pointer;
-  }
-`
-
-export const StyledSettingsPanelBody = styled.div`
-  margin: 0rem 1rem;
+export const StyledSettingsTabPanelBody = styled.div`
   display: flex;
   flex-direction: column;
-  > * {
-    margin-bottom: 2rem;
-  }
+  gap: 3rem;
 `
