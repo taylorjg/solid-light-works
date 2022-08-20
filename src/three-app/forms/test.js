@@ -71,7 +71,7 @@ export class TestForm {
     this._footprintData = {lines}
   }
 
-  getFootprintData() {
+  getFootprintData(/* deltaMs */) {
     return this._footprintData
   }
 }

@@ -13,3 +13,5 @@ export const PI = Math.PI
 export const TWO_PI = PI * 2
 export const HALF_PI = PI / 2
 export const QUARTER_PI = PI / 4
+
+export const TICK_DURATION_MS = 1000 / 60;

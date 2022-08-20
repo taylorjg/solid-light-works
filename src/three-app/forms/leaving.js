@@ -20,6 +20,7 @@ const easeInOutQuint = x =>
   x < 0.5 ? 16 * x * x * x * x * x : 1 - Math.pow(-2 * x + 2, 5) / 2
 
 const MAX_TICKS = 10000
+const CYCLE_DURATION_MS = C.TICK_DURATION_MS * MAX_TICKS
 const ELLIPSE_POINT_COUNT = 100
 const TRAVELLING_WAVE_POINT_COUNT = 50
 
@@ -31,19 +32,19 @@ export class LeavingForm {
     this.rx = rx - C.LINE_THICKNESS / 2
     this.ry = ry - C.LINE_THICKNESS / 2
     this.growing = initiallyGrowing
-    this.tick = 0
+    this.accumulatedDurationMs = 0
   }
 
   // 0.00 => 0.25: 0.00 => 1.00
   // 0.25 => 0.75: 1.00
   // 0.75 => 1.00: 1.00 => 0.00
-  travellingWaveRadiusRatio(tickRatio) {
-    if (tickRatio <= 0.25) {
-      const t = tickRatio * 4
+  travellingWaveRadiusRatio(cycleRatio) {
+    if (cycleRatio <= 0.25) {
+      const t = cycleRatio * 4
       return t
     }
-    if (tickRatio >= 0.75) {
-      const t = (1 - tickRatio) * 4
+    if (cycleRatio >= 0.75) {
+      const t = (1 - cycleRatio) * 4
       return t
     }
     return 1
@@ -52,13 +53,13 @@ export class LeavingForm {
   // 0.00 => 0.25: -PI/4 => 0
   // 0.25 => 0.75: 0
   // 0.75 => 1.00: 0 => PI/4
-  travellingWaveAdditionalRotation(tickRatio) {
-    if (tickRatio <= 0.25) {
-      const t = 1 - (tickRatio * 4)
+  travellingWaveAdditionalRotation(cycleRatio) {
+    if (cycleRatio <= 0.25) {
+      const t = 1 - (cycleRatio * 4)
       return -(t * C.QUARTER_PI)
     }
-    if (tickRatio >= 0.75) {
-      const t = (tickRatio - 0.75) * 4
+    if (cycleRatio >= 0.75) {
+      const t = (cycleRatio - 0.75) * 4
       return t * C.QUARTER_PI
     }
     return 0
@@ -68,35 +69,36 @@ export class LeavingForm {
   // 0.25 => 0.50: max => 0
   // 0.50 => 0.75: 0 => max
   // 0.75 => 1.00: max => 0
-  travellingWaveAmplitude(tickRatio) {
+  travellingWaveAmplitude(cycleRatio) {
     const maxAmplitude = 0.15
-    if (tickRatio < 0.25) {
-      const t = tickRatio * 4
+    if (cycleRatio < 0.25) {
+      const t = cycleRatio * 4
       return maxAmplitude * easeInOutQuint(t)
     }
-    if (tickRatio < 0.5) {
-      const t = (0.5 - tickRatio) * 4
+    if (cycleRatio < 0.5) {
+      const t = (0.5 - cycleRatio) * 4
       return maxAmplitude * t
     }
-    if (tickRatio < 0.75) {
-      const t = (tickRatio - 0.5) * 4
+    if (cycleRatio < 0.75) {
+      const t = (cycleRatio - 0.5) * 4
       return maxAmplitude * t
     }
-    const t = (1 - tickRatio) * 4
+    const t = (1 - cycleRatio) * 4
     return maxAmplitude * easeInOutQuint(t)
   }
 
-  getFootprintData() {
+  getFootprintData(deltaMs) {
+    this.accumulatedDurationMs += deltaMs
+    const cycleRatio = this.accumulatedDurationMs / CYCLE_DURATION_MS
 
-    const tickRatio = this.tick / MAX_TICKS
-    const A = this.travellingWaveAmplitude(tickRatio)
+    const A = this.travellingWaveAmplitude(cycleRatio)
     const f = 25
     const waveLength = Math.min(this.rx, this.ry)
     const k = C.TWO_PI / waveLength
     const ω = C.TWO_PI * f
-    const ωt = ω * tickRatio
+    const ωt = ω * cycleRatio
 
-    const desiredAngle = C.TWO_PI * tickRatio
+    const desiredAngle = C.TWO_PI * cycleRatio
     const convertedAngle = -C.HALF_PI - desiredAngle
     const θ = convertedAngle - C.PI
 
@@ -138,9 +140,9 @@ export class LeavingForm {
 
     const p = new THREE.Vector2(parametricEllipseXFn(t1), parametricEllipseYFn(t1))
     const radius = p.length()
-    const radiusRatio = this.travellingWaveRadiusRatio(tickRatio)
+    const radiusRatio = this.travellingWaveRadiusRatio(cycleRatio)
     const Δr = radius * radiusRatio / TRAVELLING_WAVE_POINT_COUNT
-    const additionalRotation = this.travellingWaveAdditionalRotation(tickRatio)
+    const additionalRotation = this.travellingWaveAdditionalRotation(cycleRatio)
     const travellingWavePoints = U.range(TRAVELLING_WAVE_POINT_COUNT + 1).map(n => {
       const t = t2 + n * Δr
       const x = parametricRotatingTravellingWaveXFn(t)
@@ -156,18 +158,19 @@ export class LeavingForm {
     const line = new Line(combinedPoints)
     const lines = [line]
 
-    this.tick += 1
-    if (this.tick > MAX_TICKS) {
+    const intersectionPoints = [p]
+
+    const footprintData = { lines, intersectionPoints }
+
+    if (this.accumulatedDurationMs > CYCLE_DURATION_MS) {
       this.toggleGrowing()
     }
 
-    const intersectionPoints = [p]
-    const footprintData = { lines, intersectionPoints }
     return footprintData
   }
 
   toggleGrowing() {
     this.growing = !this.growing
-    this.tick = 0
+    this.accumulatedDurationMs = 0
   }
 }

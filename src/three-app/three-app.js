@@ -24,6 +24,7 @@ const eventEmitter = new EventEmitter()
 eventEmitter.setMaxListeners(20)
 
 let mode = Mode.Mode2D
+let clock
 let renderer
 let scene
 let camera
@@ -38,6 +39,7 @@ let vertexNormalsEnabled = false
 let intersectionPointsEnabled = false
 let formBoundariesEnabled = false
 let statsEnabled = false
+let animationSpeed = 1
 let stats = undefined
 
 const addSettingsChangedListener = listener =>
@@ -245,6 +247,8 @@ export const threeAppInit = async () => {
 
   const DPR = window.devicePixelRatio
 
+  clock = new THREE.Clock()
+
   const container = document.getElementById('visualisation-container')
   const w = container.offsetWidth
   const h = container.offsetHeight
@@ -327,8 +331,9 @@ export const threeAppInit = async () => {
 
   renderer.setAnimationLoop(() => {
     stats && stats.begin()
+    const deltaMs = clock.getDelta() * 1000
     const currentInstallation = installations[currentInstallationIndex]
-    currentInstallation.updateRenderables(mode)
+    currentInstallation.updateRenderables(mode, deltaMs * animationSpeed)
     controls.update()
     renderer.render(scene, camera)
     stats && stats.end()

@@ -36,10 +36,10 @@ export class Installation {
     }
   }
 
-  updateRenderables(mode) {
+  updateRenderables(mode, delta) {
     for (const work of this.config.works) {
       work.formConfigs.forEach((formConfig, index) => {
-        const footprintData = formConfig.form.getFootprintData()
+        const footprintData = formConfig.form.getFootprintData(delta)
         switch (mode) {
           case Mode.Mode2D:
             work.renderables2D.screenImages[index].update(footprintData)

@@ -9,6 +9,7 @@ import * as U from '../utils'
 // https://www.ericforman.com/blog/making-of-solid-light-for-anthony-mccall
 
 const MAX_TICKS = 10000
+const CYCLE_DURATION_MS = C.TICK_DURATION_MS * MAX_TICKS
 const CIRCLE_WAVE_POINT_COUNT = 200
 
 export class CouplingForm {
@@ -20,7 +21,7 @@ export class CouplingForm {
     this.F = 3.5
     this.S = C.TWO_PI / (MAX_TICKS / 4)
     this.f = 0
-    this.tick = 0
+    this.accumulatedDurationMs = 0
     this.firstTime = true
     this.width = (outerRadius * 1.1 + this.A) * 2
     this.height = (outerRadius + this.A) * 2
@@ -34,17 +35,17 @@ export class CouplingForm {
   // 0.25 => 0.50: not visible (shrinking: outerRadius => innerRadius)
   // 0.50 => 0.75: innerRadius
   // 0.75 => 1.00: growing: innerRadius => outerRadius
-  calcRadiusA(tickRatio) {
-    if (tickRatio < 0.25) {
+  calcRadiusA(cycleRatio) {
+    if (cycleRatio < 0.25) {
       return this.outerRadius
     }
-    if (tickRatio < 0.5) {
+    if (cycleRatio < 0.5) {
       return undefined
     }
-    if (tickRatio < 0.75) {
+    if (cycleRatio < 0.75) {
       return this.innerRadius
     }
-    const t = (tickRatio - 0.75) * 4
+    const t = (cycleRatio - 0.75) * 4
     return this.innerRadius + (this.outerRadius - this.innerRadius) * t
   }
 
@@ -52,52 +53,53 @@ export class CouplingForm {
   // 0.25 => 0.50: growing: innerRadius => outerRadius
   // 0.50 => 0.75: outerRadius
   // 0.75 => 1.00: not visible (shrinking: outerRadius => innerRadius)
-  calcRadiusB(tickRatio) {
-    if (tickRatio < 0.25) {
+  calcRadiusB(cycleRatio) {
+    if (cycleRatio < 0.25) {
       return this.innerRadius
     }
-    if (tickRatio < 0.5) {
-      const t = (tickRatio - 0.25) * 4
+    if (cycleRatio < 0.5) {
+      const t = (cycleRatio - 0.25) * 4
       return this.innerRadius + (this.outerRadius - this.innerRadius) * t
     }
-    if (tickRatio < 0.75) {
+    if (cycleRatio < 0.75) {
       return this.outerRadius
     }
     return undefined
   }
 
-  calcOpacityA(tickRatio) {
+  calcOpacityA(cycleRatio) {
     const duration = 0.01
     const scale = 1 / duration
-    if (tickRatio < (0.25 - duration)) {
+    if (cycleRatio < (0.25 - duration)) {
       return 1
     }
-    if (tickRatio < 0.25) {
-      return (0.25 - tickRatio) * scale
+    if (cycleRatio < 0.25) {
+      return (0.25 - cycleRatio) * scale
     }
-    if (tickRatio < (0.5 + duration)) {
-      return (tickRatio - 0.5) * scale
+    if (cycleRatio < (0.5 + duration)) {
+      return (cycleRatio - 0.5) * scale
     }
     return 1
   }
 
-  calcOpacityB(tickRatio) {
+  calcOpacityB(cycleRatio) {
     const duration = 0.01
     const scale = 1 / duration
-    if (tickRatio < duration) {
-      return this.firstTime ? 1 : tickRatio * scale
+    if (cycleRatio < duration) {
+      return this.firstTime ? 1 : cycleRatio * scale
     }
-    if (tickRatio < (0.75 - duration)) {
+    if (cycleRatio < (0.75 - duration)) {
       return 1
     }
-    if (tickRatio < 0.75) {
-      return (0.75 - tickRatio) * scale
+    if (cycleRatio < 0.75) {
+      return (0.75 - cycleRatio) * scale
     }
     return 1
   }
 
   getCircleWavePoints(rx, ry, Φ, φ) {
-    const { A, F, S, f, tick } = this
+    const { A, F, S, f } = this
+    const tick = this.accumulatedDurationMs / C.TICK_DURATION_MS
     const Δθ = C.TWO_PI / CIRCLE_WAVE_POINT_COUNT
     return U.range(CIRCLE_WAVE_POINT_COUNT + 1).map(n => {
       const t = Δθ * n
@@ -125,23 +127,30 @@ export class CouplingForm {
     return this.getCircleWavePoints(rx, ry, Φ, φ).map(this.flipX)
   }
 
-  getFootprintData() {
-    const tickRatio = this.tick / MAX_TICKS
-    const radiusA = this.calcRadiusA(tickRatio)
-    const radiusB = this.calcRadiusB(tickRatio)
-    const opacityA = this.calcOpacityA(tickRatio)
-    const opacityB = this.calcOpacityB(tickRatio)
+  getFootprintData(deltaMs) {
+    this.accumulatedDurationMs += deltaMs
+    const cycleRatio = this.accumulatedDurationMs / CYCLE_DURATION_MS
+
+    const radiusA = this.calcRadiusA(cycleRatio)
+    const radiusB = this.calcRadiusB(cycleRatio)
+
+    const opacityA = this.calcOpacityA(cycleRatio)
+    const opacityB = this.calcOpacityB(cycleRatio)
+
     const circleWavePointsA = this.getCircleWavePointsA(radiusA)
     const circleWavePointsB = this.getCircleWavePointsB(radiusB)
+
     const line1 = new Line(circleWavePointsA, { opacity: opacityA })
     const line2 = new Line(circleWavePointsB, { opacity: opacityB })
     const lines = [line1, line2]
-    this.tick += 1
-    if (this.tick > MAX_TICKS) {
-      this.firstTime = false
-      this.tick = 0
-    }
+
     const footprintData = { lines }
+
+    if (this.accumulatedDurationMs > CYCLE_DURATION_MS) {
+      this.firstTime = false
+      this.accumulatedDurationMs = 0
+    }
+
     return footprintData
   }
 }
