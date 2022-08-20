@@ -66,6 +66,31 @@ const ModeSetting = ({ value, setValue }) => {
   )
 }
 
+const AnimationSpeedSetting = ({ value, setValue }) => {
+
+  const handleChange = event => {
+    setValue(event.target.value)
+  }
+
+  return (
+    <div>
+      <FormControl sx={{ width: "100%" }}>
+        <FormLabel id="animation-speed-label">Animation Speed</FormLabel>
+        <Slider
+          aria-labelledby="animation-speed-label"
+          size="small"
+          min={0.0}
+          max={5.0}
+          step={0.05}
+          valueLabelDisplay="auto"
+          value={value}
+          onChange={handleChange}
+        />
+      </FormControl>
+    </div>
+  )
+}
+
 const BehindOnlySetting = ({ value, setValue }) => {
 
   const handleChange = event => {
@@ -306,6 +331,7 @@ const SettingsPanel = ({ threeAppActions }) => {
       <TabPanel value={currentTabIndex} index={0}>
         <StyledSettingsTabPanelBody>
           <ModeSetting value={settings.mode} setValue={threeAppActions.setMode} />
+          <AnimationSpeedSetting value={settings.animationSpeed} setValue={threeAppActions.setAnimationSpeed} />
           <BehindOnlySetting value={settings.behindOnly} setValue={threeAppActions.setBehindOnly} />
           <AutoRotateSetting value={settings.autoRotate} setValue={threeAppActions.setAutoRotate} />
           <AutoRotateSpeedSetting value={settings.autoRotateSpeed} setValue={threeAppActions.setAutoRotateSpeed} />

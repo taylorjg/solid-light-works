@@ -58,7 +58,8 @@ const getSettings = () => {
     vertexNormalsEnabled,
     intersectionPointsEnabled,
     formBoundariesEnabled,
-    statsEnabled
+    statsEnabled,
+    animationSpeed
   }
 }
 
@@ -226,6 +227,11 @@ const setStatsEnabled = value => {
   emitSettingsChanged()
 }
 
+const setAnimationSpeed = value => {
+  animationSpeed = value
+  emitSettingsChanged()
+}
+
 const showStats = () => {
   if (!stats) {
     stats = new Stats()
@@ -359,6 +365,7 @@ export const threeAppInit = async () => {
     setVertexNormalsEnabled,
     setIntersectionPointsEnabled,
     setFormBoundariesEnabled,
-    setStatsEnabled
+    setStatsEnabled,
+    setAnimationSpeed
   }
 }
