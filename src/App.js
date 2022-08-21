@@ -1,4 +1,5 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
+import { Drawer, Slider } from '@mui/material'
 import { useQueryParams } from './useQueryParams'
 import SettingsButton from './SettingsButton'
 import OverlayButtons from './OverlayButtons'
@@ -35,10 +36,57 @@ const App = ({ threeAppActions }) => {
     }
   }, [threeAppActions, queryParams])
 
+  const [isTimelineScrubberOpen, setIsTimelineScrubberOpen] = useState(false)
+  const [timelineScrubberValue, setTimelineScrubberValue] = useState()
+
+  const openTimelineScrubber = () => {
+    setIsTimelineScrubberOpen(true)
+  }
+
+  const closeTimelineScrubber = () => {
+    setIsTimelineScrubberOpen(false)
+    threeAppActions.leaveTimelineScrubberMode()
+  }
+
+  const onTimelineScrubberChange = event => {
+    const value = event.target.value
+    setTimelineScrubberValue(value)
+    threeAppActions.setTimelineScrubberValue(value)
+  }
+
+  useEffect(() => {
+    const onEnterTimelineScrubberMode = (value) => {
+      setTimelineScrubberValue(value)
+      openTimelineScrubber()
+    }
+
+    threeAppActions.addEnterTimelineScrubberModeListener(onEnterTimelineScrubberMode)
+    return () => threeAppActions.removeEnterTimelineScrubberModeListener(onEnterTimelineScrubberMode)
+  }, [threeAppActions])
+
+  const tempHardCodedMax = 10000 * 1000 / 60
+
   return (
     <>
       <SettingsButton threeAppActions={threeAppActions} />
       <OverlayButtons threeAppActions={threeAppActions} />
+      <Drawer anchor="bottom" hideBackdrop open={isTimelineScrubberOpen} onClose={closeTimelineScrubber}>
+        <div style={{ display: "flex" }}>
+          {/* TODO: add a close button */}
+          <Slider
+            style={{ margin: "2rem 2rem 0 2rem" }}
+            min={0}
+            max={tempHardCodedMax}
+            step={100}
+            valueLabelDisplay="auto"
+            valueLabelFormat={value => {
+              return `${value.toLocaleString()}ms (${(value / tempHardCodedMax * 100).toFixed(2)}%)`
+            }}
+            value={timelineScrubberValue}
+            onChange={onTimelineScrubberChange}
+          />
+        </div>
+      </Drawer>
       <Version />
     </>
   )

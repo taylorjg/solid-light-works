@@ -19,6 +19,8 @@ import * as C from './constants'
 import * as U from './utils'
 
 const SETTINGS_CHANGED_EVENT_NAME = 'settings-changed'
+const ENTER_TIMELINE_SCRUBBER_MODE_EVENT_NAME = 'enter-timeline-scrubber-mode'
+const LEAVE_TIMELINE_SCRUBBER_MODE_EVENT_NAME = 'leave-timeline-scrubber-mode'
 
 const eventEmitter = new EventEmitter()
 eventEmitter.setMaxListeners(20)
@@ -40,6 +42,8 @@ let intersectionPointsEnabled = false
 let formBoundariesEnabled = false
 let statsEnabled = false
 let animationSpeed = 1
+let inTimelineScrubberMode = false
+let timelineScrubberValue
 let stats = undefined
 
 const addSettingsChangedListener = listener =>
@@ -47,6 +51,18 @@ const addSettingsChangedListener = listener =>
 
 const removeSettingsChangedListener = listener =>
   eventEmitter.off(SETTINGS_CHANGED_EVENT_NAME, listener)
+
+const addEnterTimelineScrubberModeListener = listener =>
+  eventEmitter.on(ENTER_TIMELINE_SCRUBBER_MODE_EVENT_NAME, listener)
+
+const removeEnterTimelineScrubberModeListener = listener =>
+  eventEmitter.off(ENTER_TIMELINE_SCRUBBER_MODE_EVENT_NAME, listener)
+
+const addLeaveTimelineScrubberModeListener = listener =>
+  eventEmitter.on(LEAVE_TIMELINE_SCRUBBER_MODE_EVENT_NAME, listener)
+
+const removeLeaveTimelineScrubberModeListener = listener =>
+  eventEmitter.off(LEAVE_TIMELINE_SCRUBBER_MODE_EVENT_NAME, listener)
 
 const getSettings = () => {
   return {
@@ -65,6 +81,14 @@ const getSettings = () => {
 
 const emitSettingsChanged = () => {
   eventEmitter.emit(SETTINGS_CHANGED_EVENT_NAME, getSettings())
+}
+
+const emitEnterTimelineScrubberMode = (value) => {
+  eventEmitter.emit(ENTER_TIMELINE_SCRUBBER_MODE_EVENT_NAME, value)
+}
+
+const emitLeaveTimelineScrubberMode = () => {
+  eventEmitter.emit(LEAVE_TIMELINE_SCRUBBER_MODE_EVENT_NAME)
 }
 
 const toggleMode = () => {
@@ -232,6 +256,28 @@ const setAnimationSpeed = value => {
   emitSettingsChanged()
 }
 
+const enterTimelineScrubberMode = () => {
+  const currentInstallation = installations[currentInstallationIndex]
+  const firstWork = currentInstallation.config.works[0]
+  const firstForm = firstWork.formConfigs[0].form
+  const value = firstForm.accumulatedDurationMs ?? 0
+  setTimelineScrubberValue(value)
+
+  emitEnterTimelineScrubberMode(timelineScrubberValue)
+  inTimelineScrubberMode = true
+}
+
+const leaveTimelineScrubberMode = () => {
+  emitLeaveTimelineScrubberMode()
+  inTimelineScrubberMode = false
+}
+
+const setTimelineScrubberValue = (value) => {
+  timelineScrubberValue = value
+  const currentInstallation = installations[currentInstallationIndex]
+  currentInstallation.updateRenderables(mode, undefined, timelineScrubberValue)
+}
+
 const showStats = () => {
   if (!stats) {
     stats = new Stats()
@@ -316,6 +362,7 @@ export const threeAppInit = async () => {
       case 'p': return switchCameraPose()
       case 'r': return toggleAutoRotate()
       case 's': return toggleStats()
+      case 't': return enterTimelineScrubberMode()
       case 'v': return toggleVertexNormals()
       default: return
     }
@@ -339,7 +386,9 @@ export const threeAppInit = async () => {
     stats && stats.begin()
     const deltaMs = clock.getDelta() * 1000
     const currentInstallation = installations[currentInstallationIndex]
-    currentInstallation.updateRenderables(mode, deltaMs * animationSpeed)
+    if (!inTimelineScrubberMode) {
+      currentInstallation.updateRenderables(mode, deltaMs * animationSpeed)
+    }
     controls.update()
     renderer.render(scene, camera)
     stats && stats.end()
@@ -353,7 +402,11 @@ export const threeAppInit = async () => {
     ready,
     getSettings,
     addSettingsChangedListener,
+    addEnterTimelineScrubberModeListener,
+    addLeaveTimelineScrubberModeListener,
     removeSettingsChangedListener,
+    removeEnterTimelineScrubberModeListener,
+    removeLeaveTimelineScrubberModeListener,
     toggleMode,
     switchInstallation,
     switchCameraPose,
@@ -366,6 +419,9 @@ export const threeAppInit = async () => {
     setIntersectionPointsEnabled,
     setFormBoundariesEnabled,
     setStatsEnabled,
-    setAnimationSpeed
+    setAnimationSpeed,
+    enterTimelineScrubberMode,
+    leaveTimelineScrubberMode,
+    setTimelineScrubberValue
   }
 }

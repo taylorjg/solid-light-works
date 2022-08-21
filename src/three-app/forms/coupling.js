@@ -1,6 +1,7 @@
 import * as THREE from 'three'
 import { Line } from '../line'
 import { parametricCircleWaveX, parametricCircleWaveY } from '../syntax/parametric-circle-wave'
+import { CycleTiming } from '../cycle-timing'
 import * as C from '../constants'
 import * as U from '../utils'
 
@@ -9,20 +10,18 @@ import * as U from '../utils'
 // https://www.ericforman.com/blog/making-of-solid-light-for-anthony-mccall
 
 const MAX_TICKS = 10000
-const CYCLE_DURATION_MS = C.TICK_DURATION_MS * MAX_TICKS
 const CIRCLE_WAVE_POINT_COUNT = 200
 
 export class CouplingForm {
 
   constructor(outerRadius, innerRadius) {
+    this.cycleTiming = new CycleTiming(MAX_TICKS)
     this.outerRadius = outerRadius
     this.innerRadius = innerRadius
     this.A = (outerRadius - innerRadius) * 0.2
     this.F = 3.5
     this.S = C.TWO_PI / (MAX_TICKS / 4)
     this.f = 0
-    this.accumulatedDurationMs = 0
-    this.firstTime = true
     this.width = (outerRadius * 1.1 + this.A) * 2
     this.height = (outerRadius + this.A) * 2
   }
@@ -82,11 +81,11 @@ export class CouplingForm {
     return 1
   }
 
-  calcOpacityB(cycleRatio) {
+  calcOpacityB(cycleRatio, firstTime) {
     const duration = 0.01
     const scale = 1 / duration
     if (cycleRatio < duration) {
-      return this.firstTime ? 1 : cycleRatio * scale
+      return firstTime ? 1 : cycleRatio * scale
     }
     if (cycleRatio < (0.75 - duration)) {
       return 1
@@ -97,9 +96,8 @@ export class CouplingForm {
     return 1
   }
 
-  getCircleWavePoints(rx, ry, Φ, φ) {
+  getCircleWavePoints(rx, ry, Φ, φ, tick) {
     const { A, F, S, f } = this
-    const tick = this.accumulatedDurationMs / C.TICK_DURATION_MS
     const Δθ = C.TWO_PI / CIRCLE_WAVE_POINT_COUNT
     return U.range(CIRCLE_WAVE_POINT_COUNT + 1).map(n => {
       const t = Δθ * n
@@ -109,47 +107,41 @@ export class CouplingForm {
     })
   }
 
-  getCircleWavePointsA = r => {
+  getCircleWavePointsA = (r, tick) => {
     if (!r) return []
     const rx = r * 1.1
     const ry = r
     const Φ = C.PI
     const φ = C.PI
-    return this.getCircleWavePoints(rx, ry, Φ, φ)
+    return this.getCircleWavePoints(rx, ry, Φ, φ, tick)
   }
 
-  getCircleWavePointsB = r => {
+  getCircleWavePointsB = (r, tick) => {
     if (!r) return []
     const rx = r * 1.1
     const ry = r
     const Φ = -C.HALF_PI
     const φ = C.PI
-    return this.getCircleWavePoints(rx, ry, Φ, φ).map(this.flipX)
+    return this.getCircleWavePoints(rx, ry, Φ, φ, tick).map(this.flipX)
   }
 
-  getFootprintData(deltaMs) {
-    this.accumulatedDurationMs += deltaMs
-    const cycleRatio = this.accumulatedDurationMs / CYCLE_DURATION_MS
+  getFootprintData(deltaMs, absoluteMs) {
+    const { cycleRatio, tick, firstTime } = this.cycleTiming.update(deltaMs, absoluteMs)
 
     const radiusA = this.calcRadiusA(cycleRatio)
     const radiusB = this.calcRadiusB(cycleRatio)
 
     const opacityA = this.calcOpacityA(cycleRatio)
-    const opacityB = this.calcOpacityB(cycleRatio)
+    const opacityB = this.calcOpacityB(cycleRatio, firstTime)
 
-    const circleWavePointsA = this.getCircleWavePointsA(radiusA)
-    const circleWavePointsB = this.getCircleWavePointsB(radiusB)
+    const circleWavePointsA = this.getCircleWavePointsA(radiusA, tick)
+    const circleWavePointsB = this.getCircleWavePointsB(radiusB, tick)
 
     const line1 = new Line(circleWavePointsA, { opacity: opacityA })
     const line2 = new Line(circleWavePointsB, { opacity: opacityB })
     const lines = [line1, line2]
 
     const footprintData = { lines }
-
-    if (this.accumulatedDurationMs > CYCLE_DURATION_MS) {
-      this.firstTime = false
-      this.accumulatedDurationMs = 0
-    }
 
     return footprintData
   }
