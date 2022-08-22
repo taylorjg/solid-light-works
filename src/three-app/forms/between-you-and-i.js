@@ -2,22 +2,22 @@ import * as THREE from 'three'
 import { Line } from '../line'
 import { parametricEllipseX, parametricEllipseY } from '../syntax/parametric-ellipse'
 import { parametricTravellingWaveX, parametricTravellingWaveY } from '../syntax/parametric-travelling-wave'
+import { CycleTiming } from '../cycle-timing'
 import * as C from '../constants'
 import * as U from '../utils'
 
 const MAX_TICKS = 20000
-const CYCLE_DURATION_MS = C.TICK_DURATION_MS * MAX_TICKS
 const ELLIPSE_POINT_COUNT = 200
 const TRAVELLING_WAVE_POINT_COUNT = 200
 
 export class BetweenYouAndIForm {
 
   constructor(width, height, initiallyWipingInEllipse) {
+    this.cycleTiming = new CycleTiming(MAX_TICKS, this.toggleWipeMode.bind(this))
     this.width = width
     this.height = height
     this.rx = width / 2 - C.LINE_THICKNESS / 2
     this.ry = height / 2 - C.LINE_THICKNESS / 2
-    this.accumulatedDurationMs = 0
     this.wipingInEllipse = initiallyWipingInEllipse
   }
 
@@ -58,9 +58,8 @@ export class BetweenYouAndIForm {
     ]
   }
 
-  getFootprintData(deltaMs) {
-    this.accumulatedDurationMs += deltaMs
-    const cycleRatio = this.accumulatedDurationMs / CYCLE_DURATION_MS
+  getFootprintData(deltaMs, absoluteMs) {
+    const { cycleRatio } = this.cycleTiming.update(deltaMs, absoluteMs)
 
     const normal = new THREE.Vector3(1, 0, 0)
     const constant = this.width / 2 - cycleRatio * this.width
@@ -88,15 +87,10 @@ export class BetweenYouAndIForm {
 
     const footprintData = { lines }
 
-    if (this.accumulatedDurationMs > CYCLE_DURATION_MS) {
-      this.toggleWipeMode()
-    }
-
     return footprintData
   }
 
   toggleWipeMode() {
-    this.accumulatedDurationMs = 0
     this.wipingInEllipse = !this.wipingInEllipse
   }
 }

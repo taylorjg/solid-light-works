@@ -75,7 +75,8 @@ const getSettings = () => {
     intersectionPointsEnabled,
     formBoundariesEnabled,
     statsEnabled,
-    animationSpeed
+    animationSpeed,
+    inTimelineScrubberMode
   }
 }
 
@@ -83,8 +84,12 @@ const emitSettingsChanged = () => {
   eventEmitter.emit(SETTINGS_CHANGED_EVENT_NAME, getSettings())
 }
 
-const emitEnterTimelineScrubberMode = (value) => {
-  eventEmitter.emit(ENTER_TIMELINE_SCRUBBER_MODE_EVENT_NAME, value)
+const emitEnterTimelineScrubberMode = (timelineScrubberValue, cycleDurationMs) => {
+  const args = {
+    timelineScrubberValue,
+    cycleDurationMs
+  }
+  eventEmitter.emit(ENTER_TIMELINE_SCRUBBER_MODE_EVENT_NAME, args)
 }
 
 const emitLeaveTimelineScrubberMode = () => {
@@ -256,14 +261,25 @@ const setAnimationSpeed = value => {
   emitSettingsChanged()
 }
 
+const toggleTimelineScrubberMode = value => {
+  setTimelineScrubberMode(!inTimelineScrubberMode)
+}
+
+const setTimelineScrubberMode = value => {
+  inTimelineScrubberMode = value
+  inTimelineScrubberMode ? enterTimelineScrubberMode() : leaveTimelineScrubberMode()
+  emitSettingsChanged()
+}
+
 const enterTimelineScrubberMode = () => {
   const currentInstallation = installations[currentInstallationIndex]
   const firstWork = currentInstallation.config.works[0]
   const firstForm = firstWork.formConfigs[0].form
-  const value = firstForm.cycleTiming.accumulatedDurationMs ?? 0
+  const value = firstForm.cycleTiming?.accumulatedDurationMs ?? 0
+  const cycleDurationMs = firstForm.cycleTiming?.cycleDurationMs ?? 0
   setTimelineScrubberValue(value)
 
-  emitEnterTimelineScrubberMode(timelineScrubberValue)
+  emitEnterTimelineScrubberMode(timelineScrubberValue, cycleDurationMs)
   inTimelineScrubberMode = true
 }
 
@@ -362,7 +378,7 @@ export const threeAppInit = async () => {
       case 'p': return switchCameraPose()
       case 'r': return toggleAutoRotate()
       case 's': return toggleStats()
-      case 't': return enterTimelineScrubberMode()
+      case 't': return toggleTimelineScrubberMode()
       case 'v': return toggleVertexNormals()
       default: return
     }
@@ -420,8 +436,7 @@ export const threeAppInit = async () => {
     setFormBoundariesEnabled,
     setStatsEnabled,
     setAnimationSpeed,
-    enterTimelineScrubberMode,
-    leaveTimelineScrubberMode,
+    setTimelineScrubberMode,
     setTimelineScrubberValue
   }
 }

@@ -1,20 +1,20 @@
 import * as THREE from 'three'
 import { Line } from '../line'
 import { parametricEllipseX, parametricEllipseY } from '../syntax/parametric-ellipse'
+import { CycleTiming } from '../cycle-timing'
 import { linearRamps } from "../ramps"
 import * as C from '../constants'
 import * as U from '../utils'
 
 const MAX_TICKS = 25000
-const CYCLE_DURATION_MS = C.TICK_DURATION_MS * MAX_TICKS
 const ELLIPSE_POINT_COUNT = 100
 
 export class MeetingYouHalfwayForm {
 
   constructor(width, height) {
+    this.cycleTiming = new CycleTiming(MAX_TICKS)
     this.width = width
     this.height = height
-    this.accumulatedDurationMs = 0
 
     const wipeOffsetMax = width * 0.4
     const wipeOffsetMin = -wipeOffsetMax
@@ -57,9 +57,8 @@ export class MeetingYouHalfwayForm {
     ]
   }
 
-  getFootprintData(deltaMs) {
-    this.accumulatedDurationMs += deltaMs
-    const tick = this.accumulatedDurationMs / C.TICK_DURATION_MS
+  getFootprintData(deltaMs, absoluteMs) {
+    const { tick } = this.cycleTiming.update(deltaMs, absoluteMs)
 
     const wipeOffset = linearRamps(this.WIPE_OFFSET_BLOCKS, tick)
     const wipeRotationDegrees = linearRamps(this.WIPE_ROTATION_BLOCKS, tick)
@@ -93,10 +92,6 @@ export class MeetingYouHalfwayForm {
     const lines = [line1, line2]
 
     const footprintData = { lines }
-
-    if (this.accumulatedDurationMs > CYCLE_DURATION_MS) {
-      this.accumulatedDurationMs = 0
-    }
 
     return footprintData
   }
