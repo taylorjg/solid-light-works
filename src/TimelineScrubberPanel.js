@@ -22,10 +22,9 @@ const TimelineScrubberPanel = ({ threeAppActions }) => {
   }
 
   useEffect(() => {
-    const onEnterTimelineScrubberMode = (args) => {
-      const { timelineScrubberValue, cycleDurationMs } = args
-      setTimelineScrubberValue(timelineScrubberValue)
-      setCycleDurationMs(cycleDurationMs)
+    const onEnterTimelineScrubberMode = args => {
+      setTimelineScrubberValue(args.timelineScrubberValue)
+      setCycleDurationMs(args.cycleDurationMs)
       openTimelineScrubber()
     }
 
@@ -40,6 +39,16 @@ const TimelineScrubberPanel = ({ threeAppActions }) => {
 
     threeAppActions.addLeaveTimelineScrubberModeListener(onLeaveTimelineScrubberMode)
     return () => threeAppActions.removeLeaveTimelineScrubberModeListener(onLeaveTimelineScrubberMode)
+  }, [threeAppActions])
+
+  useEffect(() => {
+    const onSyncTimelineScrubber = args => {
+      setTimelineScrubberValue(args.timelineScrubberValue)
+      setCycleDurationMs(args.cycleDurationMs)
+    }
+
+    threeAppActions.addSyncTimelineScrubberListener(onSyncTimelineScrubber)
+    return () => threeAppActions.removeSyncTimelineScrubberListener(onSyncTimelineScrubber)
   }, [threeAppActions])
 
   useEffect(() => {

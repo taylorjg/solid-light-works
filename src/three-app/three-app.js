@@ -21,6 +21,7 @@ import * as U from './utils'
 const SETTINGS_CHANGED_EVENT_NAME = 'settings-changed'
 const ENTER_TIMELINE_SCRUBBER_MODE_EVENT_NAME = 'enter-timeline-scrubber-mode'
 const LEAVE_TIMELINE_SCRUBBER_MODE_EVENT_NAME = 'leave-timeline-scrubber-mode'
+const SYNC_TIMELINE_SCRUBBER_EVENT_NAME = 'sync-timeline-scrubber'
 
 const eventEmitter = new EventEmitter()
 eventEmitter.setMaxListeners(20)
@@ -43,7 +44,6 @@ let formBoundariesEnabled = false
 let statsEnabled = false
 let animationSpeed = 1
 let inTimelineScrubberMode = false
-let timelineScrubberValue
 let stats = undefined
 
 const addSettingsChangedListener = listener =>
@@ -63,6 +63,12 @@ const addLeaveTimelineScrubberModeListener = listener =>
 
 const removeLeaveTimelineScrubberModeListener = listener =>
   eventEmitter.off(LEAVE_TIMELINE_SCRUBBER_MODE_EVENT_NAME, listener)
+
+const addSyncTimelineScrubberListener = listener =>
+  eventEmitter.on(SYNC_TIMELINE_SCRUBBER_EVENT_NAME, listener)
+
+const removeSyncTimelineScrubberListener = listener =>
+  eventEmitter.off(SYNC_TIMELINE_SCRUBBER_EVENT_NAME, listener)
 
 const getSettings = () => {
   return {
@@ -94,6 +100,14 @@ const emitEnterTimelineScrubberMode = (timelineScrubberValue, cycleDurationMs) =
 
 const emitLeaveTimelineScrubberMode = () => {
   eventEmitter.emit(LEAVE_TIMELINE_SCRUBBER_MODE_EVENT_NAME)
+}
+
+const emitSyncTimelineScrubber = (timelineScrubberValue, cycleDurationMs) => {
+  const args = {
+    timelineScrubberValue,
+    cycleDurationMs
+  }
+  eventEmitter.emit(SYNC_TIMELINE_SCRUBBER_EVENT_NAME, args)
 }
 
 const toggleMode = () => {
@@ -275,10 +289,8 @@ const enterTimelineScrubberMode = () => {
   const currentInstallation = installations[currentInstallationIndex]
   const firstWork = currentInstallation.config.works[0]
   const firstForm = firstWork.formConfigs[0].form
-  const value = firstForm.cycleTiming?.accumulatedDurationMs ?? 0
+  const timelineScrubberValue = firstForm.cycleTiming?.accumulatedDurationMs ?? 0
   const cycleDurationMs = firstForm.cycleTiming?.cycleDurationMs ?? 0
-  setTimelineScrubberValue(value)
-
   emitEnterTimelineScrubberMode(timelineScrubberValue, cycleDurationMs)
   inTimelineScrubberMode = true
 }
@@ -288,8 +300,7 @@ const leaveTimelineScrubberMode = () => {
   inTimelineScrubberMode = false
 }
 
-const setTimelineScrubberValue = (value) => {
-  timelineScrubberValue = value
+const setTimelineScrubberValue = timelineScrubberValue => {
   const currentInstallation = installations[currentInstallationIndex]
   currentInstallation.updateRenderables(mode, undefined, timelineScrubberValue)
 }
@@ -402,8 +413,15 @@ export const threeAppInit = async () => {
     stats && stats.begin()
     const deltaMs = clock.getDelta() * 1000
     const currentInstallation = installations[currentInstallationIndex]
-    if (!inTimelineScrubberMode) {
-      currentInstallation.updateRenderables(mode, deltaMs * animationSpeed)
+    currentInstallation.updateRenderables(mode, deltaMs * animationSpeed)
+    if (inTimelineScrubberMode) {
+      const firstWork = currentInstallation.config.works[0]
+      const firstForm = firstWork.formConfigs[0].form
+      if (firstForm.cycleTiming) {
+        emitSyncTimelineScrubber(
+          firstForm.cycleTiming.accumulatedDurationMs,
+          firstForm.cycleTiming.cycleDurationMs)
+      }
     }
     controls.update()
     renderer.render(scene, camera)
@@ -420,9 +438,11 @@ export const threeAppInit = async () => {
     addSettingsChangedListener,
     addEnterTimelineScrubberModeListener,
     addLeaveTimelineScrubberModeListener,
+    addSyncTimelineScrubberListener,
     removeSettingsChangedListener,
     removeEnterTimelineScrubberModeListener,
     removeLeaveTimelineScrubberModeListener,
+    removeSyncTimelineScrubberListener,
     toggleMode,
     switchInstallation,
     switchCameraPose,
