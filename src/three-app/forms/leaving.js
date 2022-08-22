@@ -12,6 +12,7 @@ import {
   parametricRotatingTravellingWaveXDerivative,
   parametricRotatingTravellingWaveYDerivative
 } from '../syntax/parametric-rotating-travelling-wave'
+import { CycleTiming } from '../cycle-timing'
 import { newtonsMethod } from '../newtons-method'
 import * as C from '../constants'
 import * as U from '../utils'
@@ -20,13 +21,13 @@ const easeInOutQuint = x =>
   x < 0.5 ? 16 * x * x * x * x * x : 1 - Math.pow(-2 * x + 2, 5) / 2
 
 const MAX_TICKS = 10000
-const CYCLE_DURATION_MS = C.TICK_DURATION_MS * MAX_TICKS
 const ELLIPSE_POINT_COUNT = 100
 const TRAVELLING_WAVE_POINT_COUNT = 50
 
 export class LeavingForm {
 
   constructor(rx, ry, initiallyGrowing) {
+    this.cycleTiming = new CycleTiming(MAX_TICKS, this.toggleGrowing.bind(this))
     this.width = 2 * rx
     this.height = 2 * ry
     this.rx = rx - C.LINE_THICKNESS / 2
@@ -87,9 +88,8 @@ export class LeavingForm {
     return maxAmplitude * easeInOutQuint(t)
   }
 
-  getFootprintData(deltaMs) {
-    this.accumulatedDurationMs += deltaMs
-    const cycleRatio = this.accumulatedDurationMs / CYCLE_DURATION_MS
+  getFootprintData(deltaMs, absoluteMs) {
+    const { cycleRatio } = this.cycleTiming.update(deltaMs, absoluteMs)
 
     const A = this.travellingWaveAmplitude(cycleRatio)
     const f = 25
@@ -161,10 +161,6 @@ export class LeavingForm {
     const intersectionPoints = [p]
 
     const footprintData = { lines, intersectionPoints }
-
-    if (this.accumulatedDurationMs > CYCLE_DURATION_MS) {
-      this.toggleGrowing()
-    }
 
     return footprintData
   }

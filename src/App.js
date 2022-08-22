@@ -80,7 +80,7 @@ const App = ({ threeAppActions }) => {
             step={100}
             valueLabelDisplay="auto"
             valueLabelFormat={value => {
-              return `${value.toLocaleString()}ms (${(value / tempHardCodedMax * 100).toFixed(2)}%)`
+              return `${(value / 1000).toFixed(1)}s (${(value / tempHardCodedMax * 100).toFixed(1)}%)`
             }}
             value={timelineScrubberValue}
             onChange={onTimelineScrubberChange}

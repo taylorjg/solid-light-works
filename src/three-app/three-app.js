@@ -260,7 +260,7 @@ const enterTimelineScrubberMode = () => {
   const currentInstallation = installations[currentInstallationIndex]
   const firstWork = currentInstallation.config.works[0]
   const firstForm = firstWork.formConfigs[0].form
-  const value = firstForm.accumulatedDurationMs ?? 0
+  const value = firstForm.cycleTiming.accumulatedDurationMs ?? 0
   setTimelineScrubberValue(value)
 
   emitEnterTimelineScrubberMode(timelineScrubberValue)
