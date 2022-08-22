@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Drawer, Slider } from '@mui/material'
+import { StyledContainer, StyledCloseIcon } from './TimelineScrubberPanel.styles'
 
 const TimelineScrubberPanel = ({ threeAppActions }) => {
   const [isTimelineScrubberOpen, setIsTimelineScrubberOpen] = useState(false)
@@ -41,6 +42,12 @@ const TimelineScrubberPanel = ({ threeAppActions }) => {
     return () => threeAppActions.removeLeaveTimelineScrubberModeListener(onLeaveTimelineScrubberMode)
   }, [threeAppActions])
 
+  useEffect(() => {
+    if (!isTimelineScrubberOpen) {
+      threeAppActions.setTimelineScrubberMode(false)
+    }
+  }, [threeAppActions, isTimelineScrubberOpen])
+
   const formatSliderValue = value => {
     const asSecondsValue = (value / 1000).toFixed(1)
     const asPerCentValue = (value / cycleDurationMs * 100).toFixed(1)
@@ -49,8 +56,8 @@ const TimelineScrubberPanel = ({ threeAppActions }) => {
 
   return (
     <Drawer anchor="bottom" hideBackdrop open={isTimelineScrubberOpen} onClose={closeTimelineScrubber}>
-      <div style={{ display: "flex" }}>
-        {/* TODO: add a close button */}
+      <StyledContainer>
+        <StyledCloseIcon onClick={closeTimelineScrubber} />
         <Slider
           style={{ margin: "2rem 2rem 0 2rem" }}
           size="small"
@@ -62,7 +69,7 @@ const TimelineScrubberPanel = ({ threeAppActions }) => {
           value={timelineScrubberValue}
           onChange={onTimelineScrubberChange}
         />
-      </div>
+      </StyledContainer>
     </Drawer>
   );
 }

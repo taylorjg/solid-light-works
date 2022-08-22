@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import {
   Box,
+  Button,
   FormControl,
   FormControlLabel,
   FormLabel,
@@ -305,7 +306,7 @@ const StatsEnabledSetting = ({ value, setValue }) => {
   )
 }
 
-const SettingsPanel = ({ threeAppActions }) => {
+const SettingsPanel = ({ threeAppActions, closeSettingsPanel }) => {
 
   const [settings, setSettings] = useState(threeAppActions.getSettings)
   const [currentTabIndex, setCurrentTabIndex] = useState(0)
@@ -317,6 +318,21 @@ const SettingsPanel = ({ threeAppActions }) => {
 
   const onChangeTab = (_event, newTabIndex) => {
     setCurrentTabIndex(newTabIndex)
+  }
+
+  const EnterTimelineScrubberModeButton = () => {
+    const onClick = () => {
+      threeAppActions.setTimelineScrubberMode(true)
+      closeSettingsPanel()
+    }
+
+    return (
+      <Button
+        variant="outlined"
+        onClick={onClick}>
+        Enter Timeline Scrubber Mode
+      </Button>
+    )
   }
 
   return (
@@ -345,6 +361,7 @@ const SettingsPanel = ({ threeAppActions }) => {
           <VertexNormalsEnabledSetting value={settings.vertexNormalsEnabled} setValue={threeAppActions.setVertexNormalsEnabled} />
           <FormBoundariesEnabledSetting value={settings.formBoundariesEnabled} setValue={threeAppActions.setFormBoundariesEnabled} />
           <StatsEnabledSetting value={settings.statsEnabled} setValue={threeAppActions.setStatsEnabled} />
+          <EnterTimelineScrubberModeButton />
         </StyledSettingsTabPanelBody>
       </TabPanel>
     </StyledSettingsPanel>
