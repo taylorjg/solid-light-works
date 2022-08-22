@@ -181,6 +181,19 @@ const switchInstallation = reset => {
   }
   updateVisibility()
   switchCameraPose(true)
+  if (inTimelineScrubberMode) {
+    const currentInstallation = installations[currentInstallationIndex]
+    const numWorks = currentInstallation.config.works.length
+    const firstWork = currentInstallation.config.works[0]
+    const firstForm = firstWork.formConfigs[0].form
+    if (numWorks === 1 && firstForm.cycleTiming) {
+      emitSyncTimelineScrubber(
+        firstForm.cycleTiming.accumulatedDurationMs,
+        firstForm.cycleTiming.cycleDurationMs)
+    } else {
+      setTimelineScrubberMode(false)
+    }
+  }
 }
 
 const switchCameraPose = reset => {
@@ -287,12 +300,15 @@ const setTimelineScrubberMode = value => {
 
 const enterTimelineScrubberMode = () => {
   const currentInstallation = installations[currentInstallationIndex]
+  const numWorks = currentInstallation.config.works.length
   const firstWork = currentInstallation.config.works[0]
   const firstForm = firstWork.formConfigs[0].form
-  const timelineScrubberValue = firstForm.cycleTiming?.accumulatedDurationMs ?? 0
-  const cycleDurationMs = firstForm.cycleTiming?.cycleDurationMs ?? 0
-  emitEnterTimelineScrubberMode(timelineScrubberValue, cycleDurationMs)
-  inTimelineScrubberMode = true
+  if (numWorks === 1 && firstForm.cycleTiming) {
+    emitEnterTimelineScrubberMode(
+      firstForm.cycleTiming.accumulatedDurationMs,
+      firstForm.cycleTiming.cycleDurationMs)
+    inTimelineScrubberMode = true
+  }
 }
 
 const leaveTimelineScrubberMode = () => {

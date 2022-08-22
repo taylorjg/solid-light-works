@@ -9,6 +9,10 @@ import { threeAppInit } from './three-app'
 const darkTheme = createTheme({
   palette: {
     mode: 'dark'
+  },
+  transitions: {
+    // So we have `transition: none;` everywhere
+    create: () => 'none',
   }
 })
 
