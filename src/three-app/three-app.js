@@ -44,6 +44,7 @@ let formBoundariesEnabled = false
 let statsEnabled = false
 let animationSpeed = 1
 let inTimelineScrubberMode = false
+let playing = false
 let stats = undefined
 
 const addSettingsChangedListener = listener =>
@@ -90,10 +91,11 @@ const emitSettingsChanged = () => {
   eventEmitter.emit(SETTINGS_CHANGED_EVENT_NAME, getSettings())
 }
 
-const emitEnterTimelineScrubberMode = (timelineScrubberValue, cycleDurationMs) => {
+const emitEnterTimelineScrubberMode = (timelineScrubberValue, cycleDurationMs, playing) => {
   const args = {
     timelineScrubberValue,
-    cycleDurationMs
+    cycleDurationMs,
+    playing
   }
   eventEmitter.emit(ENTER_TIMELINE_SCRUBBER_MODE_EVENT_NAME, args)
 }
@@ -209,13 +211,15 @@ const switchCameraPose = reset => {
     currentCameraPoseIndex %= cameraPoses.length
   }
   const cameraPose = cameraPoses[currentCameraPoseIndex]
-  camera.position.copy(cameraPose.position)
-  controls.target.copy(cameraPose.target)
-  if (mode === Mode.Mode3D) {
-    if (cameraPose.isBehind) {
-      currentInstallation.hideScenery()
-    } else {
-      currentInstallation.showScenery()
+  if (cameraPose) {
+    camera.position.copy(cameraPose.position)
+    controls.target.copy(cameraPose.target)
+    if (mode === Mode.Mode3D) {
+      if (cameraPose.isBehind) {
+        currentInstallation.hideScenery()
+      } else {
+        currentInstallation.showScenery()
+      }
     }
   }
 }
@@ -304,10 +308,12 @@ const enterTimelineScrubberMode = () => {
   const firstWork = currentInstallation.config.works[0]
   const firstForm = firstWork.formConfigs[0].form
   if (numWorks === 1 && firstForm.cycleTiming) {
+    inTimelineScrubberMode = true
+    playing = false
     emitEnterTimelineScrubberMode(
       firstForm.cycleTiming.accumulatedDurationMs,
-      firstForm.cycleTiming.cycleDurationMs)
-    inTimelineScrubberMode = true
+      firstForm.cycleTiming.cycleDurationMs,
+      playing)
   }
 }
 
@@ -319,6 +325,10 @@ const leaveTimelineScrubberMode = () => {
 const setTimelineScrubberValue = timelineScrubberValue => {
   const currentInstallation = installations[currentInstallationIndex]
   currentInstallation.updateRenderables(mode, undefined, timelineScrubberValue)
+}
+
+const setPlaying = value => {
+  playing = value
 }
 
 const showStats = () => {
@@ -429,14 +439,16 @@ export const threeAppInit = async () => {
     stats && stats.begin()
     const deltaMs = clock.getDelta() * 1000
     const currentInstallation = installations[currentInstallationIndex]
-    currentInstallation.updateRenderables(mode, deltaMs * animationSpeed)
-    if (inTimelineScrubberMode) {
-      const firstWork = currentInstallation.config.works[0]
-      const firstForm = firstWork.formConfigs[0].form
-      if (firstForm.cycleTiming) {
-        emitSyncTimelineScrubber(
-          firstForm.cycleTiming.accumulatedDurationMs,
-          firstForm.cycleTiming.cycleDurationMs)
+    if (!inTimelineScrubberMode || playing) {
+      currentInstallation.updateRenderables(mode, deltaMs * animationSpeed)
+      if (inTimelineScrubberMode) {
+        const firstWork = currentInstallation.config.works[0]
+        const firstForm = firstWork.formConfigs[0].form
+        if (firstForm.cycleTiming) {
+          emitSyncTimelineScrubber(
+            firstForm.cycleTiming.accumulatedDurationMs,
+            firstForm.cycleTiming.cycleDurationMs)
+        }
       }
     }
     controls.update()
@@ -473,6 +485,7 @@ export const threeAppInit = async () => {
     setStatsEnabled,
     setAnimationSpeed,
     setTimelineScrubberMode,
-    setTimelineScrubberValue
+    setTimelineScrubberValue,
+    setPlaying
   }
 }

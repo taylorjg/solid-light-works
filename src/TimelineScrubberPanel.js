@@ -1,11 +1,15 @@
 import { useEffect, useState } from 'react'
-import { Drawer, Slider } from '@mui/material'
-import { StyledContainer, StyledCloseIcon } from './TimelineScrubberPanel.styles'
+import { Drawer, IconButton, Slider } from '@mui/material'
+import CloseIcon from '@mui/icons-material/Close'
+import PlayArrowIcon from '@mui/icons-material/PlayArrow'
+import PauseIcon from '@mui/icons-material/Pause'
+import { StyledContainer } from './TimelineScrubberPanel.styles'
 
 const TimelineScrubberPanel = ({ threeAppActions }) => {
   const [isTimelineScrubberOpen, setIsTimelineScrubberOpen] = useState(false)
   const [timelineScrubberValue, setTimelineScrubberValue] = useState()
   const [cycleDurationMs, setCycleDurationMs] = useState()
+  const [isPlaying, setIsPlaying] = useState(false)
 
   const openTimelineScrubber = () => {
     setIsTimelineScrubberOpen(true)
@@ -25,6 +29,7 @@ const TimelineScrubberPanel = ({ threeAppActions }) => {
     const onEnterTimelineScrubberMode = args => {
       setTimelineScrubberValue(args.timelineScrubberValue)
       setCycleDurationMs(args.cycleDurationMs)
+      setIsPlaying(args.playing)
       openTimelineScrubber()
     }
 
@@ -57,27 +62,33 @@ const TimelineScrubberPanel = ({ threeAppActions }) => {
     }
   }, [threeAppActions, isTimelineScrubberOpen])
 
-  const formatSliderValue = value => {
-    const asSecondsValue = (value / 1000).toFixed(1)
-    const asPerCentValue = (value / cycleDurationMs * 100).toFixed(1)
-    return `${asSecondsValue}s (${asPerCentValue}%)`
+  const onClickPlayPause = () => {
+    setIsPlaying(currentValue => !currentValue)
   }
+
+  useEffect(() => {
+    threeAppActions.setPlaying(isPlaying)
+  }, [threeAppActions, isPlaying])
 
   return (
     <Drawer anchor="bottom" hideBackdrop open={isTimelineScrubberOpen} onClose={closeTimelineScrubber}>
       <StyledContainer>
-        <StyledCloseIcon onClick={closeTimelineScrubber} />
+        <IconButton onClick={onClickPlayPause}>
+          {isPlaying ? <PauseIcon /> : <PlayArrowIcon />}
+        </IconButton>
         <Slider
-          style={{ margin: "2rem 2rem 0 2rem" }}
+          sx={{ mx: 0.5 }}
           size="small"
           min={0}
           max={cycleDurationMs}
           step={100}
-          valueLabelDisplay="auto"
-          valueLabelFormat={formatSliderValue}
+          valueLabelDisplay="off"
           value={timelineScrubberValue}
           onChange={onTimelineScrubberChange}
         />
+        <IconButton onClick={closeTimelineScrubber}>
+          <CloseIcon />
+        </IconButton>
       </StyledContainer>
     </Drawer>
   );
