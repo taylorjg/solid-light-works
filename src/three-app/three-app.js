@@ -185,6 +185,7 @@ const switchInstallation = reset => {
   switchCameraPose(true)
   if (inTimelineScrubbingMode) {
     const currentInstallation = installations[currentInstallationIndex]
+    currentInstallation.updateRenderables(mode, 0)
     const numWorks = currentInstallation.config.works.length
     const firstWork = currentInstallation.config.works[0]
     const firstForm = firstWork.formConfigs[0].form
@@ -230,6 +231,10 @@ const setMode = value => {
   controls.enabled = mode === Mode.Mode3D
   updateVisibility()
   switchCameraPose(true)
+  if (inTimelineScrubbingMode) {
+    const currentInstallation = installations[currentInstallationIndex]
+    currentInstallation.updateRenderables(mode, 0)
+  }
   emitSettingsChanged()
 }
 
