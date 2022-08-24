@@ -19,9 +19,9 @@ import * as C from './constants'
 import * as U from './utils'
 
 const SETTINGS_CHANGED_EVENT_NAME = 'settings-changed'
-const ENTER_TIMELINE_SCRUBBER_MODE_EVENT_NAME = 'enter-timeline-scrubber-mode'
-const LEAVE_TIMELINE_SCRUBBER_MODE_EVENT_NAME = 'leave-timeline-scrubber-mode'
-const SYNC_TIMELINE_SCRUBBER_EVENT_NAME = 'sync-timeline-scrubber'
+const ENTER_TIMELINE_SCRUBBING_MODE_EVENT_NAME = 'enter-timeline-scrubbing-mode'
+const LEAVE_TIMELINE_SCRUBBING_MODE_EVENT_NAME = 'leave-timeline-scrubbing-mode'
+const SYNC_TIMELINE_SCRUBBING_EVENT_NAME = 'sync-timeline-scrubbing'
 
 const eventEmitter = new EventEmitter()
 eventEmitter.setMaxListeners(20)
@@ -43,7 +43,7 @@ let intersectionPointsEnabled = false
 let formBoundariesEnabled = false
 let statsEnabled = false
 let animationSpeed = 1
-let inTimelineScrubberMode = false
+let inTimelineScrubbingMode = false
 let playing = false
 let stats = undefined
 
@@ -53,23 +53,23 @@ const addSettingsChangedListener = listener =>
 const removeSettingsChangedListener = listener =>
   eventEmitter.off(SETTINGS_CHANGED_EVENT_NAME, listener)
 
-const addEnterTimelineScrubberModeListener = listener =>
-  eventEmitter.on(ENTER_TIMELINE_SCRUBBER_MODE_EVENT_NAME, listener)
+const addEnterTimelineScrubbingModeListener = listener =>
+  eventEmitter.on(ENTER_TIMELINE_SCRUBBING_MODE_EVENT_NAME, listener)
 
-const removeEnterTimelineScrubberModeListener = listener =>
-  eventEmitter.off(ENTER_TIMELINE_SCRUBBER_MODE_EVENT_NAME, listener)
+const removeEnterTimelineScrubbingModeListener = listener =>
+  eventEmitter.off(ENTER_TIMELINE_SCRUBBING_MODE_EVENT_NAME, listener)
 
-const addLeaveTimelineScrubberModeListener = listener =>
-  eventEmitter.on(LEAVE_TIMELINE_SCRUBBER_MODE_EVENT_NAME, listener)
+const addLeaveTimelineScrubbingModeListener = listener =>
+  eventEmitter.on(LEAVE_TIMELINE_SCRUBBING_MODE_EVENT_NAME, listener)
 
-const removeLeaveTimelineScrubberModeListener = listener =>
-  eventEmitter.off(LEAVE_TIMELINE_SCRUBBER_MODE_EVENT_NAME, listener)
+const removeLeaveTimelineScrubbingModeListener = listener =>
+  eventEmitter.off(LEAVE_TIMELINE_SCRUBBING_MODE_EVENT_NAME, listener)
 
-const addSyncTimelineScrubberListener = listener =>
-  eventEmitter.on(SYNC_TIMELINE_SCRUBBER_EVENT_NAME, listener)
+const addSyncTimelineScrubbingListener = listener =>
+  eventEmitter.on(SYNC_TIMELINE_SCRUBBING_EVENT_NAME, listener)
 
-const removeSyncTimelineScrubberListener = listener =>
-  eventEmitter.off(SYNC_TIMELINE_SCRUBBER_EVENT_NAME, listener)
+const removeSyncTimelineScrubbingListener = listener =>
+  eventEmitter.off(SYNC_TIMELINE_SCRUBBING_EVENT_NAME, listener)
 
 const getSettings = () => {
   return {
@@ -83,7 +83,7 @@ const getSettings = () => {
     formBoundariesEnabled,
     statsEnabled,
     animationSpeed,
-    inTimelineScrubberMode
+    inTimelineScrubbingMode
   }
 }
 
@@ -91,25 +91,25 @@ const emitSettingsChanged = () => {
   eventEmitter.emit(SETTINGS_CHANGED_EVENT_NAME, getSettings())
 }
 
-const emitEnterTimelineScrubberMode = (timelineScrubberValue, cycleDurationMs, playing) => {
+const emitEnterTimelineScrubbingMode = (timelineScrubbingValue, cycleDurationMs, playing) => {
   const args = {
-    timelineScrubberValue,
+    timelineScrubbingValue,
     cycleDurationMs,
     playing
   }
-  eventEmitter.emit(ENTER_TIMELINE_SCRUBBER_MODE_EVENT_NAME, args)
+  eventEmitter.emit(ENTER_TIMELINE_SCRUBBING_MODE_EVENT_NAME, args)
 }
 
-const emitLeaveTimelineScrubberMode = () => {
-  eventEmitter.emit(LEAVE_TIMELINE_SCRUBBER_MODE_EVENT_NAME)
+const emitLeaveTimelineScrubbingMode = () => {
+  eventEmitter.emit(LEAVE_TIMELINE_SCRUBBING_MODE_EVENT_NAME)
 }
 
-const emitSyncTimelineScrubber = (timelineScrubberValue, cycleDurationMs) => {
+const emitSyncTimelineScrubbing = (timelineScrubbingValue, cycleDurationMs) => {
   const args = {
-    timelineScrubberValue,
+    timelineScrubbingValue,
     cycleDurationMs
   }
-  eventEmitter.emit(SYNC_TIMELINE_SCRUBBER_EVENT_NAME, args)
+  eventEmitter.emit(SYNC_TIMELINE_SCRUBBING_EVENT_NAME, args)
 }
 
 const toggleMode = () => {
@@ -183,17 +183,17 @@ const switchInstallation = reset => {
   }
   updateVisibility()
   switchCameraPose(true)
-  if (inTimelineScrubberMode) {
+  if (inTimelineScrubbingMode) {
     const currentInstallation = installations[currentInstallationIndex]
     const numWorks = currentInstallation.config.works.length
     const firstWork = currentInstallation.config.works[0]
     const firstForm = firstWork.formConfigs[0].form
     if (numWorks === 1 && firstForm.cycleTiming) {
-      emitSyncTimelineScrubber(
+      emitSyncTimelineScrubbing(
         firstForm.cycleTiming.accumulatedDurationMs,
         firstForm.cycleTiming.cycleDurationMs)
     } else {
-      setTimelineScrubberMode(false)
+      setTimelineScrubbingMode(false)
     }
   }
 }
@@ -292,39 +292,39 @@ const setAnimationSpeed = value => {
   emitSettingsChanged()
 }
 
-const toggleTimelineScrubberMode = value => {
-  setTimelineScrubberMode(!inTimelineScrubberMode)
+const toggleTimelineScrubbingMode = value => {
+  setTimelineScrubbingMode(!inTimelineScrubbingMode)
 }
 
-const setTimelineScrubberMode = value => {
-  inTimelineScrubberMode = value
-  inTimelineScrubberMode ? enterTimelineScrubberMode() : leaveTimelineScrubberMode()
+const setTimelineScrubbingMode = value => {
+  inTimelineScrubbingMode = value
+  inTimelineScrubbingMode ? enterTimelineScrubbingMode() : leaveTimelineScrubbingMode()
   emitSettingsChanged()
 }
 
-const enterTimelineScrubberMode = () => {
+const enterTimelineScrubbingMode = () => {
   const currentInstallation = installations[currentInstallationIndex]
   const numWorks = currentInstallation.config.works.length
   const firstWork = currentInstallation.config.works[0]
   const firstForm = firstWork.formConfigs[0].form
   if (numWorks === 1 && firstForm.cycleTiming) {
-    inTimelineScrubberMode = true
+    inTimelineScrubbingMode = true
     playing = false
-    emitEnterTimelineScrubberMode(
+    emitEnterTimelineScrubbingMode(
       firstForm.cycleTiming.accumulatedDurationMs,
       firstForm.cycleTiming.cycleDurationMs,
       playing)
   }
 }
 
-const leaveTimelineScrubberMode = () => {
-  emitLeaveTimelineScrubberMode()
-  inTimelineScrubberMode = false
+const leaveTimelineScrubbingMode = () => {
+  emitLeaveTimelineScrubbingMode()
+  inTimelineScrubbingMode = false
 }
 
-const setTimelineScrubberValue = timelineScrubberValue => {
+const setTimelineScrubbingValue = timelineScrubbingValue => {
   const currentInstallation = installations[currentInstallationIndex]
-  currentInstallation.updateRenderables(mode, undefined, timelineScrubberValue)
+  currentInstallation.updateRenderables(mode, undefined, timelineScrubbingValue)
 }
 
 const setPlaying = value => {
@@ -415,7 +415,7 @@ export const threeAppInit = async () => {
       case 'p': return switchCameraPose()
       case 'r': return toggleAutoRotate()
       case 's': return toggleStats()
-      case 't': return toggleTimelineScrubberMode()
+      case 't': return toggleTimelineScrubbingMode()
       case 'v': return toggleVertexNormals()
       default: return
     }
@@ -439,13 +439,13 @@ export const threeAppInit = async () => {
     stats && stats.begin()
     const deltaMs = clock.getDelta() * 1000
     const currentInstallation = installations[currentInstallationIndex]
-    if (!inTimelineScrubberMode || playing) {
+    if (!inTimelineScrubbingMode || playing) {
       currentInstallation.updateRenderables(mode, deltaMs * animationSpeed)
-      if (inTimelineScrubberMode) {
+      if (inTimelineScrubbingMode) {
         const firstWork = currentInstallation.config.works[0]
         const firstForm = firstWork.formConfigs[0].form
         if (firstForm.cycleTiming) {
-          emitSyncTimelineScrubber(
+          emitSyncTimelineScrubbing(
             firstForm.cycleTiming.accumulatedDurationMs,
             firstForm.cycleTiming.cycleDurationMs)
         }
@@ -464,13 +464,13 @@ export const threeAppInit = async () => {
     ready,
     getSettings,
     addSettingsChangedListener,
-    addEnterTimelineScrubberModeListener,
-    addLeaveTimelineScrubberModeListener,
-    addSyncTimelineScrubberListener,
+    addEnterTimelineScrubbingModeListener,
+    addLeaveTimelineScrubbingModeListener,
+    addSyncTimelineScrubbingListener,
     removeSettingsChangedListener,
-    removeEnterTimelineScrubberModeListener,
-    removeLeaveTimelineScrubberModeListener,
-    removeSyncTimelineScrubberListener,
+    removeEnterTimelineScrubbingModeListener,
+    removeLeaveTimelineScrubbingModeListener,
+    removeSyncTimelineScrubbingListener,
     toggleMode,
     switchInstallation,
     switchCameraPose,
@@ -484,8 +484,8 @@ export const threeAppInit = async () => {
     setFormBoundariesEnabled,
     setStatsEnabled,
     setAnimationSpeed,
-    setTimelineScrubberMode,
-    setTimelineScrubberValue,
+    setTimelineScrubbingMode,
+    setTimelineScrubbingValue,
     setPlaying
   }
 }

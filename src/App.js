@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import { useQueryParams } from './useQueryParams'
 import SettingsButton from './SettingsButton'
 import OverlayButtons from './OverlayButtons'
-import TimelineScrubberPanel from './TimelineScrubberPanel'
+import TimelineScrubbingPanel from './TimelineScrubbingPanel'
 import Version from './Version'
 
 const App = ({ threeAppActions }) => {
@@ -40,7 +40,7 @@ const App = ({ threeAppActions }) => {
     <>
       <SettingsButton threeAppActions={threeAppActions} />
       <OverlayButtons threeAppActions={threeAppActions} />
-      <TimelineScrubberPanel threeAppActions={threeAppActions} />
+      <TimelineScrubbingPanel threeAppActions={threeAppActions} />
       <Version />
     </>
   )

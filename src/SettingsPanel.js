@@ -320,9 +320,9 @@ const SettingsPanel = ({ threeAppActions, closeSettingsPanel }) => {
     setCurrentTabIndex(newTabIndex)
   }
 
-  const EnterTimelineScrubberModeButton = () => {
+  const EnterTimelineScrubbingModeButton = () => {
     const onClick = () => {
-      threeAppActions.setTimelineScrubberMode(true)
+      threeAppActions.setTimelineScrubbingMode(true)
       closeSettingsPanel()
     }
 
@@ -330,7 +330,7 @@ const SettingsPanel = ({ threeAppActions, closeSettingsPanel }) => {
       <Button
         variant="outlined"
         onClick={onClick}>
-        Enter Timeline Scrubber Mode
+        Enter Timeline Scrubbing Mode
       </Button>
     )
   }
@@ -361,7 +361,7 @@ const SettingsPanel = ({ threeAppActions, closeSettingsPanel }) => {
           <VertexNormalsEnabledSetting value={settings.vertexNormalsEnabled} setValue={threeAppActions.setVertexNormalsEnabled} />
           <FormBoundariesEnabledSetting value={settings.formBoundariesEnabled} setValue={threeAppActions.setFormBoundariesEnabled} />
           <StatsEnabledSetting value={settings.statsEnabled} setValue={threeAppActions.setStatsEnabled} />
-          <EnterTimelineScrubberModeButton />
+          <EnterTimelineScrubbingModeButton />
         </StyledSettingsTabPanelBody>
       </TabPanel>
     </StyledSettingsPanel>
