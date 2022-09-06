@@ -5,7 +5,7 @@ import { CycleTiming } from '../cycle-timing'
 import * as C from '../constants'
 import * as U from '../utils'
 
-const MAX_TICKS = 8900
+const MAX_TICKS = 9300
 const DELAY_TICKS = 120
 const TRAVELLING_WAVE_POINT_COUNT = 200
 
@@ -16,7 +16,7 @@ export class DoublingBackForm {
     this.width = width
     this.height = height
     this.direction = 1
-    this.A = this.height / 2 - C.LINE_THICKNESS / 2
+    this.A = this.height / 2 * 0.9
     const λ = this.width * 4 / 3
     this.k = C.TWO_PI / λ
     const f = 1
@@ -27,7 +27,7 @@ export class DoublingBackForm {
   getLeftToRightTravellingWavePoints(tick) {
     const { A, k, ω, speed } = this
     const ωt = ω * tick * speed
-    const φ = THREE.MathUtils.degToRad(160)
+    const φ = THREE.MathUtils.degToRad(165)
     const xoffset = -this.width / 2
     const Δx = this.width / TRAVELLING_WAVE_POINT_COUNT
     const parametricTravellingWaveXFn = parametricTravellingWaveX(xoffset)
@@ -43,7 +43,7 @@ export class DoublingBackForm {
   getBottomToTopTravellingWavePoints(tick) {
     const { A, k, ω, speed } = this
     const ωt = ω * tick * speed
-    const φ = THREE.MathUtils.degToRad(70)
+    const φ = THREE.MathUtils.degToRad(80)
     const xoffset = -this.height / 2
     const Δx = this.height / TRAVELLING_WAVE_POINT_COUNT
     const midpoint = this.width / 2 - this.height / 2
