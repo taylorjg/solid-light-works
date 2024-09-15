@@ -22,6 +22,7 @@ const makeWork1 = () => {
 }
 
 export const config = {
+  name: "Doubling Back",
   works: [
     makeWork1()
   ],

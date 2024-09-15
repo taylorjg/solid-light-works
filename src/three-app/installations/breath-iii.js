@@ -27,6 +27,7 @@ const makeWork1 = () => {
 }
 
 export const config = {
+  name: "Breath III",
   works: [
     makeWork1()
   ],

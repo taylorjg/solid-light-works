@@ -38,6 +38,7 @@ const makeWork1 = () => {
 }
 
 export const config = {
+  name: "Leaving",
   works: [
     makeWork1()
   ],

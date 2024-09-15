@@ -46,6 +46,7 @@ const makeWork1 = () => {
 }
 
 export const config = {
+  name: "Between You and I",
   works: [
     makeWork1()
   ],

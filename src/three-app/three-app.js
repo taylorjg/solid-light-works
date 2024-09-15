@@ -10,7 +10,7 @@ import {
   FaceToFaceInstallationConfig,
   LeavingInstallationConfig,
   MeetingYouHalfwayInstallationConfig,
-  SkirtIIIInstallationConfig,
+  // SkirtIIIInstallationConfig,
   TestInstallationConfig,
   Installation
 } from './installations'
@@ -26,6 +26,7 @@ const SYNC_TIMELINE_SCRUBBING_EVENT_NAME = 'sync-timeline-scrubbing'
 const eventEmitter = new EventEmitter()
 eventEmitter.setMaxListeners(20)
 
+let showName = false
 let mode = Mode.Mode2D
 let clock
 let renderer
@@ -72,7 +73,11 @@ const removeSyncTimelineScrubbingListener = listener =>
   eventEmitter.off(SYNC_TIMELINE_SCRUBBING_EVENT_NAME, listener)
 
 const getSettings = () => {
+  const currentInstallation = installations[currentInstallationIndex]
+
   return {
+    currentInstallation,
+    showName,
     mode,
     behindOnly,
     autoRotate: controls.autoRotate,
@@ -114,6 +119,10 @@ const emitSyncTimelineScrubbing = (timelineScrubbingValue, cycleDurationMs) => {
 
 const toggleMode = () => {
   setMode(mode === Mode.Mode2D ? Mode.Mode3D : Mode.Mode2D)
+}
+
+const toggleShowName = () => {
+  setShowName(!showName)  
 }
 
 const toggleAutoRotate = () => {
@@ -181,8 +190,10 @@ const switchInstallation = reset => {
     currentInstallationIndex += 1
     currentInstallationIndex %= installations.length
   }
+
   updateVisibility()
   switchCameraPose(true)
+
   if (inTimelineScrubbingMode) {
     const currentInstallation = installations[currentInstallationIndex]
     currentInstallation.updateRenderables(mode, 0)
@@ -197,6 +208,8 @@ const switchInstallation = reset => {
       setTimelineScrubbingMode(false)
     }
   }
+
+  emitSettingsChanged()
 }
 
 const switchCameraPose = reset => {
@@ -235,6 +248,11 @@ const setMode = value => {
     const currentInstallation = installations[currentInstallationIndex]
     currentInstallation.updateRenderables(mode, 0)
   }
+  emitSettingsChanged()
+}
+
+const setShowName = value => {
+  showName = value
   emitSettingsChanged()
 }
 
@@ -399,7 +417,7 @@ export const threeAppInit = async () => {
     CouplingInstallationConfig,
     BetweenYouAndIInstallationConfig,
     BreathIIIInstallationConfig,
-    SkirtIIIInstallationConfig,
+    // SkirtIIIInstallationConfig,
     MeetingYouHalfwayInstallationConfig,
     FaceToFaceInstallationConfig
   ]
@@ -417,6 +435,7 @@ export const threeAppInit = async () => {
       case 'f': return switchInstallation()
       case 'i': return toggleIntersectionPoints()
       case 'm': return toggleMode()
+      case 'n': return toggleShowName()
       case 'p': return switchCameraPose()
       case 'r': return toggleAutoRotate()
       case 's': return toggleStats()
@@ -477,8 +496,10 @@ export const threeAppInit = async () => {
     removeLeaveTimelineScrubbingModeListener,
     removeSyncTimelineScrubbingListener,
     toggleMode,
+    toggleShowName,
     switchInstallation,
     switchCameraPose,
+    setShowName,
     setMode,
     setBehindOnly,
     setAutoRotate,
@@ -491,6 +512,6 @@ export const threeAppInit = async () => {
     setAnimationSpeed,
     setTimelineScrubbingMode,
     setTimelineScrubbingValue,
-    setPlaying
+    setPlaying,
   }
 }

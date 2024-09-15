@@ -41,6 +41,33 @@ const TabPanel = ({ children, value, index, ...other }) => {
   )
 }
 
+const ShowNameSetting = ({ value, setValue }) => {
+
+  const handleChange = event => {
+    setValue(event.target.checked)
+  }
+
+  return (
+    <div>
+      <FormControl>
+        <FormLabel id="show-name-label">Show Name of Work</FormLabel>
+        <FormControlLabel
+          sx={{ mt: ".25rem" }}
+          control={
+            <Switch
+              aria-labelledby="show-name-label"
+              size="small"
+              checked={value}
+              onClick={handleChange}
+            />
+          }
+          label={value ? "On" : "Off"}
+        />
+      </FormControl>
+    </div>
+  )
+}
+
 const ModeSetting = ({ value, setValue }) => {
 
   const handleChange = event => {
@@ -346,6 +373,7 @@ const SettingsPanel = ({ threeAppActions, closeSettingsPanel }) => {
 
       <TabPanel value={currentTabIndex} index={0}>
         <StyledSettingsTabPanelBody>
+          <ShowNameSetting value={settings.showName} setValue={threeAppActions.setShowName} />
           <ModeSetting value={settings.mode} setValue={threeAppActions.setMode} />
           <AnimationSpeedSetting value={settings.animationSpeed} setValue={threeAppActions.setAnimationSpeed} />
           <BehindOnlySetting value={settings.behindOnly} setValue={threeAppActions.setBehindOnly} />

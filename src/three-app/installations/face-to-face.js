@@ -44,6 +44,7 @@ const makeWork1 = () => {
 }
 
 export const config = {
+  name: "Face to Face",
   works: [
     makeWork1()
   ],

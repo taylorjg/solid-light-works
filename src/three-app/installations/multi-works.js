@@ -49,6 +49,7 @@ const makeWork2 = () => {
 }
 
 export const config = {
+  name: "Multi Works",
   works: [
     makeWork1(),
     makeWork2()

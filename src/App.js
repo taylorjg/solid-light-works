@@ -1,9 +1,10 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useQueryParams } from './useQueryParams'
 import SettingsButton from './SettingsButton'
 import OverlayButtons from './OverlayButtons'
 import TimelineScrubbingPanel from './TimelineScrubbingPanel'
-import Version from './Version'
+import { Name } from './Name'
+import { Version } from './Version'
 
 const App = ({ threeAppActions }) => {
 
@@ -36,11 +37,21 @@ const App = ({ threeAppActions }) => {
     }
   }, [threeAppActions, queryParams])
 
+  const [settings, setSettings] = useState(threeAppActions.getSettings)
+
+  useEffect(() => {
+    threeAppActions.addSettingsChangedListener(setSettings)
+    return () => threeAppActions.removeSettingsChangedListener(setSettings)
+  }, [threeAppActions])
+
+  console.log(settings)
+
   return (
     <>
       <SettingsButton threeAppActions={threeAppActions} />
       <OverlayButtons threeAppActions={threeAppActions} />
       <TimelineScrubbingPanel threeAppActions={threeAppActions} />
+      {settings.showName && <Name currentInstallation={settings.currentInstallation} />}
       <Version />
     </>
   )
