@@ -1,4 +1,5 @@
 export { config as BetweenYouAndIInstallationConfig } from "./between-you-and-i" 
+export { config as BreathInstallationConfig } from "./breath" 
 export { config as BreathIIIInstallationConfig } from "./breath-iii" 
 export { config as CouplingInstallationConfig } from "./coupling" 
 export { config as DoublingBackInstallationConfig } from "./doubling-back" 

@@ -4,6 +4,7 @@ import Stats from 'stats.js'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import {
   BetweenYouAndIInstallationConfig,
+  BreathInstallationConfig,
   BreathIIIInstallationConfig,
   CouplingInstallationConfig,
   DoublingBackInstallationConfig,
@@ -416,6 +417,7 @@ export const threeAppInit = async () => {
     LeavingInstallationConfig,
     CouplingInstallationConfig,
     BetweenYouAndIInstallationConfig,
+    BreathInstallationConfig,
     BreathIIIInstallationConfig,
     // SkirtIIIInstallationConfig,
     MeetingYouHalfwayInstallationConfig,
