@@ -61,9 +61,7 @@ export class BreathForm {
     const ω = C.TWO_PI * f
     const ωt = ω * cycleRatio
     const φ = THREE.MathUtils.degToRad(120)
-    const margin = this.width * 0.02
-    const waveWidth = this.width
-    const xoffset = -waveWidth / 2 + margin
+    const xoffset = -this.width / 2
     const parametricTravellingWaveXFn = parametricTravellingWaveX(xoffset)
     const parametricTravellingWaveYFn = parametricTravellingWaveY(A, k, ωt, φ)
     const parametricTravellingWaveXDerivativeFn = parametricTravellingWaveXDerivative(xoffset)
@@ -85,7 +83,7 @@ export class BreathForm {
       t2Guess)
 
     const t3Guess = 0
-    const t4Guess = waveWidth
+    const t4Guess = this.width
 
     const { t1: t3, t2: t4 } = newtonsMethod(
       parametricEllipseXFn,

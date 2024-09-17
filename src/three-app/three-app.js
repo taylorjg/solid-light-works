@@ -5,6 +5,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import {
   BetweenYouAndIInstallationConfig,
   BreathInstallationConfig,
+  TailInstallationConfig,
   BreathIIIInstallationConfig,
   CouplingInstallationConfig,
   DoublingBackInstallationConfig,
@@ -418,6 +419,7 @@ export const threeAppInit = async () => {
     CouplingInstallationConfig,
     BetweenYouAndIInstallationConfig,
     BreathInstallationConfig,
+    TailInstallationConfig,
     BreathIIIInstallationConfig,
     // SkirtIIIInstallationConfig,
     MeetingYouHalfwayInstallationConfig,
