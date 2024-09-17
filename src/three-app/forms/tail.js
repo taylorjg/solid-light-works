@@ -173,14 +173,17 @@ export class TailForm {
     const lowerTravellingWavePoints = this.getTravellingWavePoints(
       parametricTravellingWave2XFn,
       parametricTravellingWave2YFn,
-      0,
-      t4)
+      t4,
+      0)
+
+    const combinedPoints = U.combinePoints(
+      upperTravellingWavePoints,
+      arcPoints,
+      lowerTravellingWavePoints)
 
     const lineOptions = { clipToFormBoundary: true }
-    const arcLine = new Line(arcPoints)
-    const upperTravellingWaveLine = new Line(upperTravellingWavePoints, lineOptions)
-    const lowerTravellingWaveLine = new Line(lowerTravellingWavePoints, lineOptions)
-    const lines = [arcLine, upperTravellingWaveLine, lowerTravellingWaveLine]
+    const combinedLine = new Line(combinedPoints, lineOptions)
+    const lines = [combinedLine]
 
     const intersectionPoints = [intersectionPoint1, intersectionPoint2]
     const footprintData = { lines, intersectionPoints }
