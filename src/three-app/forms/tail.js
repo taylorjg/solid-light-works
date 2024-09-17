@@ -1,5 +1,11 @@
 import * as THREE from 'three'
 import {
+  parametricEllipseX,
+  parametricEllipseY,
+  parametricEllipseXDerivative,
+  parametricEllipseYDerivative,
+} from '../syntax/parametric-ellipse'
+import {
   parametricTravellingWaveX,
   parametricTravellingWaveY,
   parametricTravellingWaveXDerivative,
@@ -7,11 +13,12 @@ import {
 } from '../syntax/parametric-travelling-wave'
 import { CycleTiming } from '../cycle-timing'
 import { Line } from '../line'
+import { newtonsMethod } from '../newtons-method'
 import * as C from '../constants'
 import * as U from '../utils'
 
 const MAX_TICKS = 1000 / 16 * 20
-// const ELLIPSE_POINT_COUNT = 100
+const ELLIPSE_POINT_COUNT = 30
 const TRAVELLING_WAVE_POINT_COUNT = 100
 
 export class TailForm {
@@ -27,6 +34,16 @@ export class TailForm {
     this.travellingWaveRy = this.ry / 2
   }
 
+  getEllipsePoints(parametricEllipseXFn, parametricEllipseYFn, θ1, θ2) {
+    const Δθ = (θ2 - θ1) / ELLIPSE_POINT_COUNT
+    return U.range(ELLIPSE_POINT_COUNT + 1).map(n => {
+      const t = θ1 + n * Δθ
+      const x = parametricEllipseXFn(t)
+      const y = parametricEllipseYFn(t)
+      return new THREE.Vector2(x, y)
+    })
+  }
+
   getTravellingWavePoints(parametricTravellingWaveXFn, parametricTravellingWaveYFn, t1, t2) {
     const Δt = (t2 - t1) / TRAVELLING_WAVE_POINT_COUNT
     return U.range(TRAVELLING_WAVE_POINT_COUNT + 1).map(n => {
@@ -40,7 +57,15 @@ export class TailForm {
   getFootprintData(deltaMs, absoluteMs) {
     const { cycleRatio } = this.cycleTiming.update(deltaMs, absoluteMs)
 
+    const ellipseRx = this.width / 2 * 0.98
+    const ellipseRy = this.height / 2 * 0.98
+
     const waveWidth = this.width
+
+    const parametricEllipseXFn = parametricEllipseX(ellipseRx)
+    const parametricEllipseYFn = parametricEllipseY(ellipseRy)
+    const parametricEllipseXDerivativeFn = parametricEllipseXDerivative(ellipseRx)
+    const parametricEllipseYDerivativeFn = parametricEllipseYDerivative(ellipseRy)
 
     const configureTravellingWave1 = () => {
       const A = this.travellingWaveRy * 0.6
@@ -100,25 +125,64 @@ export class TailForm {
       parametricTravellingWaveYDerivativeFn: parametricTravellingWave2YDerivativeFn,
     } = configureTravellingWave2()
 
+    const t1Guess = 0
+    const t2Guess = waveWidth
+
+    const { t1, t2 } = newtonsMethod(
+      parametricEllipseXFn,
+      parametricEllipseYFn,
+      parametricTravellingWave1XFn,
+      parametricTravellingWave1YFn,
+      parametricEllipseXDerivativeFn,
+      parametricEllipseYDerivativeFn,
+      parametricTravellingWave1XDerivativeFn,
+      parametricTravellingWave1YDerivativeFn,
+      t1Guess,
+      t2Guess)
+
+    const t3Guess = 0
+    const t4Guess = waveWidth
+
+    const { t1: t3, t2: t4 } = newtonsMethod(
+      parametricEllipseXFn,
+      parametricEllipseYFn,
+      parametricTravellingWave2XFn,
+      parametricTravellingWave2YFn,
+      parametricEllipseXDerivativeFn,
+      parametricEllipseYDerivativeFn,
+      parametricTravellingWave2XDerivativeFn,
+      parametricTravellingWave2YDerivativeFn,
+      t3Guess,
+      t4Guess)
+
+    const intersectionPoint1 = new THREE.Vector2(parametricEllipseXFn(t1), parametricEllipseYFn(t1))
+    const intersectionPoint2 = new THREE.Vector2(parametricEllipseXFn(t3), parametricEllipseYFn(t3))
+
+    const arcPoints = this.getEllipsePoints(
+      parametricEllipseXFn,
+      parametricEllipseYFn,
+      t1,
+      t3)
+
     const upperTravellingWavePoints = this.getTravellingWavePoints(
       parametricTravellingWave1XFn,
       parametricTravellingWave1YFn,
       0,
-      waveWidth)
+      t2)
 
     const lowerTravellingWavePoints = this.getTravellingWavePoints(
       parametricTravellingWave2XFn,
       parametricTravellingWave2YFn,
       0,
-      waveWidth)
+      t4)
 
     const lineOptions = { clipToFormBoundary: true }
+    const arcLine = new Line(arcPoints)
     const upperTravellingWaveLine = new Line(upperTravellingWavePoints, lineOptions)
     const lowerTravellingWaveLine = new Line(lowerTravellingWavePoints, lineOptions)
-    const lines = [upperTravellingWaveLine, lowerTravellingWaveLine]
-    // const lines = [upperTravellingWaveLine]
-    // const lines = [lowerTravellingWaveLine]
-    const intersectionPoints = []
+    const lines = [arcLine, upperTravellingWaveLine, lowerTravellingWaveLine]
+
+    const intersectionPoints = [intersectionPoint1, intersectionPoint2]
     const footprintData = { lines, intersectionPoints }
 
     return footprintData
