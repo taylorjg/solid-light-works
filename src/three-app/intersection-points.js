@@ -12,45 +12,40 @@ const COLOURS = [
   new THREE.Color("pink").getHex()
 ]
 
+const MAX_INTERSECTION_POINTS = COLOURS.length
+
 export class IntersectionPoints {
 
   constructor(parent) {
-    this._meshPairs = this._createMeshPairs(parent)
+    this._meshes = this._createMeshes(parent)
     this._visible = false
   }
 
-  _createMeshPairs(parent) {
+  _createMeshes(parent) {
+    const r = C.LINE_THICKNESS * 1.2
     return COLOURS.map(color => {
-      const geometry = new THREE.CircleBufferGeometry(C.LINE_THICKNESS * 1.5, 16)
+      const geometry = new THREE.SphereGeometry(r, 16, 16)
       const material = new THREE.MeshBasicMaterial({ color, side: THREE.DoubleSide })
 
-      const meshAbove = new THREE.Mesh(geometry, material)
-      meshAbove.visible = false
-      meshAbove.translateZ(0.011)
-      parent.add(meshAbove)
+      const mesh = new THREE.Mesh(geometry, material)
+      mesh.visible = false
+      parent.add(mesh)
 
-      const meshBelow = new THREE.Mesh(geometry, material)
-      meshBelow.visible = false
-      meshBelow.translateZ(-0.011)
-      parent.add(meshBelow)
-
-      return [meshAbove, meshBelow]
+      return mesh
     })
   }
 
   update(points) {
-    for (const [meshAbove, meshBelow] of this._meshPairs) {
-      meshAbove.visible = false
-      meshBelow.visible = false
+    for (const mesh of this._meshes) {
+      mesh.visible = false
     }
 
     if (this._visible) {
-      points.slice(0, COLOURS.length).forEach((point, index) => {
-        for (const mesh of this._meshPairs[index]) {
-          mesh.position.x = point.x
-          mesh.position.y = point.y
-          mesh.visible = true
-        }
+      points.slice(0, MAX_INTERSECTION_POINTS).forEach((point, index) => {
+        const mesh = this._meshes[index]
+        mesh.position.x = point.x
+        mesh.position.y = point.y
+        mesh.visible = true
       })
     }
   }
@@ -61,11 +56,5 @@ export class IntersectionPoints {
 
   set visible(value) {
     this._visible = value
-    if (!value) {
-      for (const [meshAbove, meshBelow] of this._meshPairs) {
-        meshAbove.visible = value
-        meshBelow.visible = value
-      }
-    }
   }
 }

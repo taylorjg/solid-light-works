@@ -135,6 +135,7 @@ export class ScreenImage {
 
   set intersectionPointsVisible(value) {
     this._intersectionPoints.visible = value
+    this._intersectionPoints.update([])
   }
 
   set formBoundaryVisible(value) {
