@@ -3,6 +3,7 @@ import * as THREE from 'three'
 import Stats from 'stats.js'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import {
+  // LineDescribingAConeConfig,
   BetweenYouAndIInstallationConfig,
   BreathInstallationConfig,
   // TailInstallationConfig,
@@ -415,6 +416,7 @@ export const threeAppInit = async () => {
 
   const configs = [
     ...maybeTestInstallationConfig,
+    // LineDescribingAConeConfig,
     DoublingBackInstallationConfig,
     LeavingInstallationConfig,
     CouplingInstallationConfig,

@@ -17,7 +17,7 @@ import { newtonsMethod } from '../newtons-method'
 import * as C from '../constants'
 import * as U from '../utils'
 
-const MAX_TICKS = 1000 / 16 * 20
+const MAX_TICKS = 4000
 const ELLIPSE_POINT_COUNT = 100
 const TRAVELLING_WAVE_POINT_COUNT = 100
 
