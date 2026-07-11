@@ -6,17 +6,12 @@
   "homepage": "https://taylorjg.github.io/solid-light-works",
   "type": "module",
   "dependencies": {
-    "@emotion/css": "^11.7.1",
-    "@emotion/react": "^11.8.2",
-    "@emotion/styled": "^11.8.1",
+    "@emotion/css": "^11.13.5",
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
     "@mui/icons-material": "^5.5.0",
     "@mui/material": "^5.5.0",
-    "@testing-library/jest-dom": "^5.16.2",
-    "@testing-library/react": "^11.2.7",
-    "@testing-library/react-hooks": "^7.0.2",
-    "@testing-library/user-event": "^12.8.3",
     "events": "^3.3.0",
-    "lineclip": "^1.1.5",
     "mathjs": "^10.4.0",
     "polyline-normals": "^2.0.2",
     "react": "^17.0.2",
@@ -33,9 +28,12 @@
     "deploy": "gh-pages -d dist"
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^11.2.7",
+    "@testing-library/react-hooks": "^7.0.2",
     "@vitejs/plugin-react": "^6.0.3",
     "gh-pages": "^6.3.0",
-    "jsdom": "^26.1.0",
+    "jsdom": "^29.1.1",
     "vite": "^8.1.4",
     "vitest": "^4.1.10"
   }
