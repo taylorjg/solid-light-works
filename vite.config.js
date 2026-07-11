@@ -13,9 +13,6 @@ export default defineConfig({
   },
   plugins: [react()],
   base: '/solid-light-works/',
-  build: {
-    outDir: 'dist',
-  },
   test: {
     globals: true,
     environment: 'jsdom',
