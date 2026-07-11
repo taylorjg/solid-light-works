@@ -101,4 +101,24 @@ describe("newtonRaphsonMethod", () => {
       })
     ).toThrow("[newtonRaphsonMethod] too many iterations!");
   });
+
+  it("throws when the Jacobian is singular", () => {
+    const offsetCircleX = (t) => Math.cos(t) + 4;
+    const offsetCircleY = (t) => Math.sin(t);
+
+    expect(() =>
+      newtonRaphsonMethod({
+        f1: circleX,
+        g1: circleY,
+        f2: offsetCircleX,
+        g2: offsetCircleY,
+        df1dt1: circleXd,
+        dg1dt1: circleYd,
+        df2dt2: circleXd,
+        dg2dt2: circleYd,
+        t1Guess: 0,
+        t2Guess: 0,
+      })
+    ).toThrow("[newtonRaphsonMethod] singular Jacobian");
+  });
 });
