@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react'
-import { useQueryParams } from './useQueryParams'
-import SettingsButton from './SettingsButton'
-import OverlayButtons from './OverlayButtons'
-import TimelineScrubbingPanel from './TimelineScrubbingPanel'
-import { Name } from './Name'
-import { Version } from './Version'
+import { useQueryParams } from '@app/hooks/useQueryParams'
+import SettingsButton from '@app/components/SettingsButton'
+import OverlayButtons from '@app/components/OverlayButtons'
+import TimelineScrubbingPanel from '@app/components/TimelineScrubbingPanel'
+import { Name } from '@app/components/Name'
+import { Version } from '@app/components/Version'
 
 const App = ({ threeAppActions }) => {
 

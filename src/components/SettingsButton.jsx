@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Drawer } from '@mui/material'
-import SettingsPanel from './SettingsPanel'
+import SettingsPanel from '@app/components/SettingsPanel'
 import { StyledSettingsIcon } from './SettingsButton.styles'
 
 const SettingsButton = ({ threeAppActions }) => {
