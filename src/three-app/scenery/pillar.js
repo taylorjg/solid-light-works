@@ -10,7 +10,7 @@ export class Pillar {
   }
 
   create(parent) {
-    const geometry = new THREE.BoxBufferGeometry(this._size, this._height, this._size)
+    const geometry = new THREE.BoxGeometry(this._size, this._height, this._size)
     geometry.translate(this._x, this._height / 2, this._z)
     const material = new THREE.MeshBasicMaterial({ color: 0x303030 })
     const mesh = new THREE.Mesh(geometry, material)
