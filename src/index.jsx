@@ -1,5 +1,5 @@
 import React from 'react'
-import ReactDOM from 'react-dom'
+import { createRoot } from 'react-dom/client'
 import { injectGlobal } from '@emotion/css'
 import { createTheme, ThemeProvider } from '@mui/material'
 import App from './App'
@@ -28,13 +28,13 @@ injectGlobal`
 const main = async () => {
   const threeAppActions = await threeAppInit()
 
-  ReactDOM.render(
+  const root = createRoot(document.getElementById('react-container'))
+  root.render(
     <React.StrictMode>
       <ThemeProvider theme={darkTheme}>
         <App threeAppActions={threeAppActions} />
       </ThemeProvider>
-    </React.StrictMode>,
-    document.getElementById('react-container')
+    </React.StrictMode>
   )
 
   threeAppActions.ready()
