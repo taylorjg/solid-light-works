@@ -1,20 +1,20 @@
 import * as THREE from 'three'
-import { Line } from '../line'
+import { Line } from '@app/three-app/line'
 import {
   parametricEllipseX,
   parametricEllipseY,
   parametricEllipseXDerivative,
   parametricEllipseYDerivative
-} from '../syntax/parametric-ellipse'
+} from '@app/three-app/syntax/parametric-ellipse'
 import {
   parametricTravellingWaveX,
   parametricTravellingWaveY,
   parametricTravellingWaveXDerivative,
   parametricTravellingWaveYDerivative
-} from '../syntax/parametric-travelling-wave'
-import { newtonsMethod } from '../newtons-method'
-import * as C from '../constants'
-import * as U from '../utils'
+} from '@app/three-app/syntax/parametric-travelling-wave'
+import { newtonsMethod } from '@app/three-app/newtons-method'
+import * as C from '@app/three-app/constants'
+import * as U from '@app/three-app/utils'
 
 const ELLIPSE_POINT_COUNT = 100
 const TRAVELLING_WAVE_POINT_COUNT = 100

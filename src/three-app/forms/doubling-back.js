@@ -1,9 +1,9 @@
 import * as THREE from 'three'
-import { Line } from '../line'
-import { parametricTravellingWaveX, parametricTravellingWaveY } from '../syntax/parametric-travelling-wave'
-import { CycleTiming } from '../cycle-timing'
-import * as C from '../constants'
-import * as U from '../utils'
+import { Line } from '@app/three-app/line'
+import { parametricTravellingWaveX, parametricTravellingWaveY } from '@app/three-app/syntax/parametric-travelling-wave'
+import { CycleTiming } from '@app/three-app/cycle-timing'
+import * as C from '@app/three-app/constants'
+import * as U from '@app/three-app/utils'
 
 const MAX_TICKS = 9300
 const DELAY_TICKS = 120

@@ -1,6 +1,6 @@
 import * as THREE from 'three'
-import { LeavingForm } from '../forms/leaving'
-import { Screen } from '../scenery'
+import { LeavingForm } from '@app/three-app/forms/leaving'
+import { Screen } from '@app/three-app/scenery'
 
 const makeWork1 = () => {
   const ELLIPSE_CX_LEFT = -2.2

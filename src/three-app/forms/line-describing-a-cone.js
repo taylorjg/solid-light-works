@@ -1,8 +1,8 @@
 import * as THREE from 'three'
-import { parametricEllipseX, parametricEllipseY } from '../syntax/parametric-ellipse'
-import { CycleTiming } from '../cycle-timing'
-import { Line } from '../line'
-import * as U from '../utils'
+import { parametricEllipseX, parametricEllipseY } from '@app/three-app/syntax/parametric-ellipse'
+import { CycleTiming } from '@app/three-app/cycle-timing'
+import { Line } from '@app/three-app/line'
+import * as U from '@app/three-app/utils'
 
 const MAX_TICKS = 1000 / 16 * 20
 const ELLIPSE_POINT_COUNT = 100

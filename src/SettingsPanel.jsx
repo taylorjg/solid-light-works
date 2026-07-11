@@ -14,7 +14,7 @@ import {
   Typography
 } from '@mui/material'
 import { StyledSettingsPanel, StyledSettingsTabPanelBody } from './SettingsPanel.styles'
-import { Mode } from './three-app'
+import { Mode } from '@app/three-app'
 
 const a11yProps = index => {
   return {

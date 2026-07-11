@@ -1,7 +1,7 @@
 import * as THREE from 'three'
-import { CouplingForm } from '../forms/coupling'
-import { Floor } from '../scenery'
-import * as C from '../constants'
+import { CouplingForm } from '@app/three-app/forms/coupling'
+import { Floor } from '@app/three-app/scenery'
+import * as C from '@app/three-app/constants'
 
 const makeWork1 = () => {
   const translation3D = new THREE.Matrix4().makeTranslation(0, 0, 4)

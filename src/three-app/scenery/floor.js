@@ -1,5 +1,5 @@
 import * as THREE from 'three'
-import * as C from '../constants'
+import * as C from '@app/three-app/constants'
 
 export class Floor {
 

@@ -1,7 +1,7 @@
 import * as THREE from 'three'
-import { BetweenYouAndIForm } from '../forms/between-you-and-i'
-import { Floor } from '../scenery'
-import * as C from '../constants'
+import { BetweenYouAndIForm } from '@app/three-app/forms/between-you-and-i'
+import { Floor } from '@app/three-app/scenery'
+import * as C from '@app/three-app/constants'
 
 const makeWork1 = () => {
   const rotationX = new THREE.Matrix4().makeRotationX(-C.HALF_PI)

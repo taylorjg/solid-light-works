@@ -1,7 +1,7 @@
 import * as THREE from 'three'
-import { BreathIIIForm } from '../forms/breath-iii'
-import { Floor } from '../scenery'
-import * as C from '../constants'
+import { BreathIIIForm } from '@app/three-app/forms/breath-iii'
+import { Floor } from '@app/three-app/scenery'
+import * as C from '@app/three-app/constants'
 
 const makeWork1 = () => {
   const translation3D = new THREE.Matrix4().makeTranslation(0, 0, 4)

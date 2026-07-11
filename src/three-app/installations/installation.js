@@ -1,7 +1,7 @@
 import { Group } from 'three'
-import { Mode } from '../mode'
-import { ProjectionEffect } from '../projection-effect'
-import { ScreenImage } from '../screen-image'
+import { Mode } from '@app/three-app/mode'
+import { ProjectionEffect } from '@app/three-app/projection-effect'
+import { ScreenImage } from '@app/three-app/screen-image'
 
 export class Installation {
 

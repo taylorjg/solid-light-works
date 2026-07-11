@@ -1,6 +1,6 @@
 import * as THREE from 'three'
-import { LineDescribingAConeForm } from '../forms/line-describing-a-cone'
-import { Screen } from '../scenery'
+import { LineDescribingAConeForm } from '@app/three-app/forms/line-describing-a-cone'
+import { Screen } from '@app/three-app/scenery'
 
 const makeWork1 = () => {
   const ELLIPSE_CX = 0

@@ -1,6 +1,6 @@
 import * as THREE from 'three'
-import { DoublingBackForm } from '../forms/doubling-back'
-import { LeftWall, RightWall, Screen } from '../scenery'
+import { DoublingBackForm } from '@app/three-app/forms/doubling-back'
+import { LeftWall, RightWall, Screen } from '@app/three-app/scenery'
 
 const makeWork1 = () => {
   const transform3D = new THREE.Matrix4().makeTranslation(0, 2, 0)

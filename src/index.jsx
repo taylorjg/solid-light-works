@@ -3,7 +3,7 @@ import { createRoot } from 'react-dom/client'
 import { injectGlobal } from '@emotion/css'
 import { createTheme, ThemeProvider } from '@mui/material'
 import App from './App'
-import { threeAppInit } from './three-app'
+import { threeAppInit } from '@app/three-app'
 
 const darkTheme = createTheme({
   palette: {

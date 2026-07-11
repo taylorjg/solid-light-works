@@ -1,21 +1,21 @@
 import * as THREE from 'three'
-import { Line } from '../line'
+import { Line } from '@app/three-app/line'
 import {
   parametricEllipseX,
   parametricEllipseY,
   parametricEllipseXDerivative,
   parametricEllipseYDerivative
-} from '../syntax/parametric-ellipse'
+} from '@app/three-app/syntax/parametric-ellipse'
 import {
   parametricRotatingTravellingWaveX,
   parametricRotatingTravellingWaveY,
   parametricRotatingTravellingWaveXDerivative,
   parametricRotatingTravellingWaveYDerivative
-} from '../syntax/parametric-rotating-travelling-wave'
-import { CycleTiming } from '../cycle-timing'
-import { newtonsMethod } from '../newtons-method'
-import * as C from '../constants'
-import * as U from '../utils'
+} from '@app/three-app/syntax/parametric-rotating-travelling-wave'
+import { CycleTiming } from '@app/three-app/cycle-timing'
+import { newtonsMethod } from '@app/three-app/newtons-method'
+import * as C from '@app/three-app/constants'
+import * as U from '@app/three-app/utils'
 
 const easeInOutQuint = x =>
   x < 0.5 ? 16 * x * x * x * x * x : 1 - Math.pow(-2 * x + 2, 5) / 2

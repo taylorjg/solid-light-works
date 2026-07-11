@@ -1,9 +1,9 @@
 import * as THREE from 'three'
-import { Line } from '../line'
-import { parametricCircleWaveX, parametricCircleWaveY } from '../syntax/parametric-circle-wave'
-import { CycleTiming } from '../cycle-timing'
-import * as C from '../constants'
-import * as U from '../utils'
+import { Line } from '@app/three-app/line'
+import { parametricCircleWaveX, parametricCircleWaveY } from '@app/three-app/syntax/parametric-circle-wave'
+import { CycleTiming } from '@app/three-app/cycle-timing'
+import * as C from '@app/three-app/constants'
+import * as U from '@app/three-app/utils'
 
 // https://www.ericforman.com/anthony-mccall-solid-light#6
 // https://www.ericforman.com/anthony-mccall-solid-light#7

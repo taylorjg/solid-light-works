@@ -1,7 +1,7 @@
 import * as THREE from 'three'
-import { BetweenYouAndIForm } from '../forms/between-you-and-i'
-import { FloatingScreen, Floor, Pillar } from '../scenery'
-import * as C from '../constants'
+import { BetweenYouAndIForm } from '@app/three-app/forms/between-you-and-i'
+import { FloatingScreen, Floor, Pillar } from '@app/three-app/scenery'
+import * as C from '@app/three-app/constants'
 
 const FRAME_THICKNESS = 0.1
 

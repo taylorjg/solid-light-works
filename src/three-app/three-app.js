@@ -17,7 +17,7 @@ import {
   // SkirtIIIInstallationConfig,
   TestInstallationConfig,
   Installation
-} from './installations'
+} from '@app/three-app/installations'
 import { Mode } from './mode'
 import * as C from './constants'
 import * as U from './utils'
