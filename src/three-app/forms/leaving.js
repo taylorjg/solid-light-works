@@ -126,14 +126,18 @@ export class LeavingForm {
       parametricRotatingTravellingWaveYDerivative(A, k, ωt, θ);
 
     const { t1, t2 } = newtonRaphsonMethod({
-      f1: parametricEllipseXFn,
-      g1: parametricEllipseYFn,
-      f2: parametricRotatingTravellingWaveXFn,
-      g2: parametricRotatingTravellingWaveYFn,
-      df1dt1: parametricEllipseXDerivativeFn,
-      dg1dt1: parametricEllipseYDerivativeFn,
-      df2dt2: parametricRotatingTravellingWaveXDerivativeFn,
-      dg2dt2: parametricRotatingTravellingWaveYDerivativeFn,
+      curve1: {
+        x: parametricEllipseXFn,
+        y: parametricEllipseYFn,
+        dx: parametricEllipseXDerivativeFn,
+        dy: parametricEllipseYDerivativeFn,
+      },
+      curve2: {
+        x: parametricRotatingTravellingWaveXFn,
+        y: parametricRotatingTravellingWaveYFn,
+        dx: parametricRotatingTravellingWaveXDerivativeFn,
+        dy: parametricRotatingTravellingWaveYDerivativeFn,
+      },
       t1Guess,
       t2Guess,
     });

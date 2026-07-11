@@ -75,15 +75,22 @@ export class BreathForm {
     const t1Guess = THREE.MathUtils.degToRad(-180);
     const t2Guess = 0;
 
+    const ellipse = {
+      x: parametricEllipseXFn,
+      y: parametricEllipseYFn,
+      dx: parametricEllipseXDerivativeFn,
+      dy: parametricEllipseYDerivativeFn,
+    };
+    const travellingWave = {
+      x: parametricTravellingWaveXFn,
+      y: parametricTravellingWaveYFn,
+      dx: parametricTravellingWaveXDerivativeFn,
+      dy: parametricTravellingWaveYDerivativeFn,
+    };
+
     const { t1, t2 } = newtonRaphsonMethod({
-      f1: parametricEllipseXFn,
-      g1: parametricEllipseYFn,
-      f2: parametricTravellingWaveXFn,
-      g2: parametricTravellingWaveYFn,
-      df1dt1: parametricEllipseXDerivativeFn,
-      dg1dt1: parametricEllipseYDerivativeFn,
-      df2dt2: parametricTravellingWaveXDerivativeFn,
-      dg2dt2: parametricTravellingWaveYDerivativeFn,
+      curve1: ellipse,
+      curve2: travellingWave,
       t1Guess,
       t2Guess,
     });
@@ -92,14 +99,8 @@ export class BreathForm {
     const t4Guess = this.width;
 
     const { t1: t3, t2: t4 } = newtonRaphsonMethod({
-      f1: parametricEllipseXFn,
-      g1: parametricEllipseYFn,
-      f2: parametricTravellingWaveXFn,
-      g2: parametricTravellingWaveYFn,
-      df1dt1: parametricEllipseXDerivativeFn,
-      dg1dt1: parametricEllipseYDerivativeFn,
-      df2dt2: parametricTravellingWaveXDerivativeFn,
-      dg2dt2: parametricTravellingWaveYDerivativeFn,
+      curve1: ellipse,
+      curve2: travellingWave,
       t1Guess: t3Guess,
       t2Guess: t4Guess,
     });

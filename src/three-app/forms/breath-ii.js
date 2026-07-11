@@ -145,54 +145,49 @@ export class BreathIIForm {
     };
     const intersectionEndYGuesses = { t1: 0, t2: waveWidth };
 
+    const outerSkin = {
+      x: outerSkinXFn,
+      y: outerSkinYFn,
+      dx: outerSkinXDerivativeFn,
+      dy: outerSkinYDerivativeFn,
+    };
+    const waveA = {
+      x: waveAXFn,
+      y: waveAYFn,
+      dx: waveAXDerivativeFn,
+      dy: waveAYDerivativeFn,
+    };
+    const waveB = {
+      x: waveBXFn,
+      y: waveBYFn,
+      dx: waveBXDerivativeFn,
+      dy: waveBYDerivativeFn,
+    };
+
     const intersectionEndXWaveA = newtonRaphsonMethod({
-      f1: outerSkinXFn,
-      g1: outerSkinYFn,
-      f2: waveAXFn,
-      g2: waveAYFn,
-      df1dt1: outerSkinXDerivativeFn,
-      dg1dt1: outerSkinYDerivativeFn,
-      df2dt2: waveAXDerivativeFn,
-      dg2dt2: waveAYDerivativeFn,
+      curve1: outerSkin,
+      curve2: waveA,
       t1Guess: intersectionEndXGuesses.t1,
       t2Guess: intersectionEndXGuesses.t2,
     });
 
     const intersectionEndXWaveB = newtonRaphsonMethod({
-      f1: outerSkinXFn,
-      g1: outerSkinYFn,
-      f2: waveBXFn,
-      g2: waveBYFn,
-      df1dt1: outerSkinXDerivativeFn,
-      dg1dt1: outerSkinYDerivativeFn,
-      df2dt2: waveBXDerivativeFn,
-      dg2dt2: waveBYDerivativeFn,
+      curve1: outerSkin,
+      curve2: waveB,
       t1Guess: intersectionEndXGuesses.t1,
       t2Guess: intersectionEndXGuesses.t2,
     });
 
     const intersectionEndYWaveA = newtonRaphsonMethod({
-      f1: outerSkinXFn,
-      g1: outerSkinYFn,
-      f2: waveAXFn,
-      g2: waveAYFn,
-      df1dt1: outerSkinXDerivativeFn,
-      dg1dt1: outerSkinYDerivativeFn,
-      df2dt2: waveAXDerivativeFn,
-      dg2dt2: waveAYDerivativeFn,
+      curve1: outerSkin,
+      curve2: waveA,
       t1Guess: intersectionEndYGuesses.t1,
       t2Guess: intersectionEndYGuesses.t2,
     });
 
     const intersectionEndYWaveB = newtonRaphsonMethod({
-      f1: outerSkinXFn,
-      g1: outerSkinYFn,
-      f2: waveBXFn,
-      g2: waveBYFn,
-      df1dt1: outerSkinXDerivativeFn,
-      dg1dt1: outerSkinYDerivativeFn,
-      df2dt2: waveBXDerivativeFn,
-      dg2dt2: waveBYDerivativeFn,
+      curve1: outerSkin,
+      curve2: waveB,
       t1Guess: intersectionEndYGuesses.t1,
       t2Guess: intersectionEndYGuesses.t2,
     });

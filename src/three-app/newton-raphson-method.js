@@ -25,6 +25,9 @@ import * as C from "./constants";
 //
 // Background on this approach for parametric curve intersection:
 // https://www.mathworks.com/matlabcentral/answers/318475-how-to-find-the-intersection-of-two-curves
+//
+// Each curve is { x, y, dx, dy } — position and derivative with respect to its
+// parameter. curve1 uses t1; curve2 uses t2.
 
 const DEFAULT_TOLERANCE = 1e-3;
 
@@ -57,18 +60,14 @@ const solve2x2 = (a, b, c, d, bx, by) => {
 };
 
 export const newtonRaphsonMethod = ({
-  f1,
-  g1,
-  f2,
-  g2,
-  df1dt1,
-  dg1dt1,
-  df2dt2,
-  dg2dt2,
+  curve1,
+  curve2,
   t1Guess,
   t2Guess,
   tolerance = DEFAULT_TOLERANCE,
 }) => {
+  const { x: f1, y: g1, dx: df1dt1, dy: dg1dt1 } = curve1;
+  const { x: f2, y: g2, dx: df2dt2, dy: dg2dt2 } = curve2;
   let t1 = t1Guess;
   let t2 = t2Guess;
 

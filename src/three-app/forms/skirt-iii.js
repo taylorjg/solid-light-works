@@ -108,14 +108,18 @@ export class SkirtIIIForm {
 
       try {
         return newtonRaphsonMethod({
-          f1: parametricEllipseXFn,
-          g1: parametricEllipseYFn,
-          f2: parametricEyeWaveXFn,
-          g2: parametricEyeWaveYFn,
-          df1dt1: parametricEllipseXDerivativeFn,
-          dg1dt1: parametricEllipseYDerivativeFn,
-          df2dt2: parametricEyeWaveXDerivativeFn,
-          dg2dt2: parametricEyeWaveYDerivativeFn,
+          curve1: {
+            x: parametricEllipseXFn,
+            y: parametricEllipseYFn,
+            dx: parametricEllipseXDerivativeFn,
+            dy: parametricEllipseYDerivativeFn,
+          },
+          curve2: {
+            x: parametricEyeWaveXFn,
+            y: parametricEyeWaveYFn,
+            dx: parametricEyeWaveXDerivativeFn,
+            dy: parametricEyeWaveYDerivativeFn,
+          },
           t1Guess,
           t2Guess,
         });

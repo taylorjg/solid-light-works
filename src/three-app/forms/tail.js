@@ -142,15 +142,28 @@ export class TailForm {
     const t1Guess = 0;
     const t2Guess = waveWidth;
 
+    const ellipse = {
+      x: parametricEllipseXFn,
+      y: parametricEllipseYFn,
+      dx: parametricEllipseXDerivativeFn,
+      dy: parametricEllipseYDerivativeFn,
+    };
+    const travellingWave1 = {
+      x: parametricTravellingWave1XFn,
+      y: parametricTravellingWave1YFn,
+      dx: parametricTravellingWave1XDerivativeFn,
+      dy: parametricTravellingWave1YDerivativeFn,
+    };
+    const travellingWave2 = {
+      x: parametricTravellingWave2XFn,
+      y: parametricTravellingWave2YFn,
+      dx: parametricTravellingWave2XDerivativeFn,
+      dy: parametricTravellingWave2YDerivativeFn,
+    };
+
     const { t1, t2 } = newtonRaphsonMethod({
-      f1: parametricEllipseXFn,
-      g1: parametricEllipseYFn,
-      f2: parametricTravellingWave1XFn,
-      g2: parametricTravellingWave1YFn,
-      df1dt1: parametricEllipseXDerivativeFn,
-      dg1dt1: parametricEllipseYDerivativeFn,
-      df2dt2: parametricTravellingWave1XDerivativeFn,
-      dg2dt2: parametricTravellingWave1YDerivativeFn,
+      curve1: ellipse,
+      curve2: travellingWave1,
       t1Guess,
       t2Guess,
     });
@@ -159,14 +172,8 @@ export class TailForm {
     const t4Guess = waveWidth;
 
     const { t1: t3, t2: t4 } = newtonRaphsonMethod({
-      f1: parametricEllipseXFn,
-      g1: parametricEllipseYFn,
-      f2: parametricTravellingWave2XFn,
-      g2: parametricTravellingWave2YFn,
-      df1dt1: parametricEllipseXDerivativeFn,
-      dg1dt1: parametricEllipseYDerivativeFn,
-      df2dt2: parametricTravellingWave2XDerivativeFn,
-      dg2dt2: parametricTravellingWave2YDerivativeFn,
+      curve1: ellipse,
+      curve2: travellingWave2,
       t1Guess: t3Guess,
       t2Guess: t4Guess,
     });
