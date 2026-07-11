@@ -12,7 +12,7 @@ import {
   parametricTravellingWaveXDerivative,
   parametricTravellingWaveYDerivative,
 } from "@app/three-app/syntax/parametric-travelling-wave";
-import { newtonsMethod } from "@app/three-app/newtons-method";
+import { newtonRaphsonMethod } from "@app/three-app";
 import * as C from "@app/three-app/constants";
 import * as U from "@app/three-app/utils";
 
@@ -74,7 +74,7 @@ export class BreathIIIForm {
       const t1Guess = ellipseAngle;
       const t2Guess = parametricEllipseXFn(t1Guess) - xoffset;
       try {
-        return newtonsMethod(
+        return newtonRaphsonMethod(
           parametricEllipseXFn,
           parametricEllipseYFn,
           parametricTravellingWaveXFn,

@@ -40,7 +40,7 @@ const MAX_T1_ADJUSTMENT = C.QUARTER_PI;
 const MAX_T2_ADJUSTMENT = 2;
 const MAX_ITERATION_COUNT = 20;
 
-export const newtonsMethod = (
+export const newtonRaphsonMethod = (
   f1,
   g1,
   f2,
@@ -70,7 +70,7 @@ export const newtonsMethod = (
       break;
     }
     if (iterationCount > MAX_ITERATION_COUNT) {
-      throw new Error("[newtonsMethod] too many iterations!");
+      throw new Error("[newtonRaphsonMethod] too many iterations!");
     }
     const A = [
       [df1dt1(t1), -df2dt2(t2)],

@@ -13,7 +13,7 @@ import {
   parametricRotatingTravellingWaveYDerivative,
 } from "@app/three-app/syntax/parametric-rotating-travelling-wave";
 import { CycleTiming } from "@app/three-app/cycle-timing";
-import { newtonsMethod } from "@app/three-app/newtons-method";
+import { newtonRaphsonMethod } from "@app/three-app";
 import * as C from "@app/three-app/constants";
 import * as U from "@app/three-app/utils";
 
@@ -125,7 +125,7 @@ export class LeavingForm {
     const parametricRotatingTravellingWaveYDerivativeFn =
       parametricRotatingTravellingWaveYDerivative(A, k, ωt, θ);
 
-    const { t1, t2 } = newtonsMethod(
+    const { t1, t2 } = newtonRaphsonMethod(
       parametricEllipseXFn,
       parametricEllipseYFn,
       parametricRotatingTravellingWaveXFn,

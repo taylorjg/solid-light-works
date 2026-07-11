@@ -12,7 +12,7 @@ import {
   parametricEyeWaveXDerivative,
   parametricEyeWaveYDerivative,
 } from "@app/three-app/syntax/parametric-eye-wave";
-import { newtonsMethod } from "@app/three-app/newtons-method";
+import { newtonRaphsonMethod } from "@app/three-app";
 import * as C from "@app/three-app/constants";
 import * as U from "@app/three-app/utils";
 
@@ -107,7 +107,7 @@ export class SkirtIIIForm {
       const t2Guess = x - xoffsets[primaryOrSecondary];
 
       try {
-        return newtonsMethod(
+        return newtonRaphsonMethod(
           parametricEllipseXFn,
           parametricEllipseYFn,
           parametricEyeWaveXFn,

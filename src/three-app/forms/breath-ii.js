@@ -13,7 +13,7 @@ import {
 } from "@app/three-app/syntax/parametric-travelling-wave";
 import { CycleTiming } from "@app/three-app/cycle-timing";
 import { Line } from "@app/three-app/line";
-import { newtonsMethod } from "@app/three-app/newtons-method";
+import { newtonRaphsonMethod } from "@app/three-app";
 import * as C from "@app/three-app/constants";
 import * as U from "@app/three-app/utils";
 
@@ -145,7 +145,7 @@ export class BreathIIForm {
     };
     const intersectionEndYGuesses = { t1: 0, t2: waveWidth };
 
-    const intersectionEndXWaveA = newtonsMethod(
+    const intersectionEndXWaveA = newtonRaphsonMethod(
       outerSkinXFn,
       outerSkinYFn,
       waveAXFn,
@@ -158,7 +158,7 @@ export class BreathIIForm {
       intersectionEndXGuesses.t2
     );
 
-    const intersectionEndXWaveB = newtonsMethod(
+    const intersectionEndXWaveB = newtonRaphsonMethod(
       outerSkinXFn,
       outerSkinYFn,
       waveBXFn,
@@ -171,7 +171,7 @@ export class BreathIIForm {
       intersectionEndXGuesses.t2
     );
 
-    const intersectionEndYWaveA = newtonsMethod(
+    const intersectionEndYWaveA = newtonRaphsonMethod(
       outerSkinXFn,
       outerSkinYFn,
       waveAXFn,
@@ -184,7 +184,7 @@ export class BreathIIForm {
       intersectionEndYGuesses.t2
     );
 
-    const intersectionEndYWaveB = newtonsMethod(
+    const intersectionEndYWaveB = newtonRaphsonMethod(
       outerSkinXFn,
       outerSkinYFn,
       waveBXFn,

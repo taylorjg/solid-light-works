@@ -13,7 +13,7 @@ import {
 } from "@app/three-app/syntax/parametric-travelling-wave";
 import { CycleTiming } from "@app/three-app/cycle-timing";
 import { Line } from "@app/three-app/line";
-import { newtonsMethod } from "@app/three-app/newtons-method";
+import { newtonRaphsonMethod } from "@app/three-app";
 import * as C from "@app/three-app/constants";
 import * as U from "@app/three-app/utils";
 
@@ -75,7 +75,7 @@ export class BreathForm {
     const t1Guess = THREE.MathUtils.degToRad(-180);
     const t2Guess = 0;
 
-    const { t1, t2 } = newtonsMethod(
+    const { t1, t2 } = newtonRaphsonMethod(
       parametricEllipseXFn,
       parametricEllipseYFn,
       parametricTravellingWaveXFn,
@@ -91,7 +91,7 @@ export class BreathForm {
     const t3Guess = 0;
     const t4Guess = this.width;
 
-    const { t1: t3, t2: t4 } = newtonsMethod(
+    const { t1: t3, t2: t4 } = newtonRaphsonMethod(
       parametricEllipseXFn,
       parametricEllipseYFn,
       parametricTravellingWaveXFn,
