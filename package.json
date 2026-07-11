@@ -14,8 +14,8 @@
     "events": "^3.3.0",
     "mathjs": "^10.4.0",
     "polyline-normals": "^2.0.2",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7",
     "stats.js": "^0.17.0",
     "three": "^0.138.3"
   },
@@ -29,8 +29,7 @@
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.9.1",
-    "@testing-library/react": "^11.2.7",
-    "@testing-library/react-hooks": "^7.0.2",
+    "@testing-library/react": "^16.3.2",
     "@vitejs/plugin-react": "^6.0.3",
     "gh-pages": "^6.3.0",
     "jsdom": "^29.1.1",
