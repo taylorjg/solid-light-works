@@ -1,25 +1,24 @@
-import { defineConfig, transformWithEsbuild } from 'vite'
+import { defineConfig, transformWithOxc } from 'vite'
 import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [
     {
-      name: 'treat-js-files-as-jsx',
+      name: 'transform-jsx-in-js',
       enforce: 'pre',
       async transform(code, id) {
         if (!id.match(/src\/.*\.js$/)) return null
 
-        return transformWithEsbuild(code, id, {
-          loader: 'jsx',
-          jsx: 'automatic',
-        })
+        return transformWithOxc(code, id, { lang: 'jsx' })
       },
     },
-    react(),
+    react({
+      include: /\.(jsx|tsx|js)$/,
+    }),
   ],
   optimizeDeps: {
-    esbuildOptions: {
-      loader: {
+    rolldownOptions: {
+      moduleTypes: {
         '.js': 'jsx',
       },
     },
@@ -27,6 +26,11 @@ export default defineConfig({
   base: '/solid-light-works/',
   build: {
     outDir: 'dist',
+    rolldownOptions: {
+      moduleTypes: {
+        '.js': 'jsx',
+      },
+    },
   },
   test: {
     globals: true,

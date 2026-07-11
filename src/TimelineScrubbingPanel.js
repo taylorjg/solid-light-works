@@ -1,8 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Drawer, IconButton, Slider } from '@mui/material'
-import CloseIcon from '@mui/icons-material/Close'
-import PlayArrowIcon from '@mui/icons-material/PlayArrow'
-import PauseIcon from '@mui/icons-material/Pause'
+import { Close as CloseIcon, PlayArrow as PlayArrowIcon, Pause as PauseIcon } from '@mui/icons-material'
 import { StyledContainer } from './TimelineScrubbingPanel.styles'
 
 const TimelineScrubbingPanel = ({ threeAppActions }) => {

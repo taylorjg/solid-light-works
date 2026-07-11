@@ -1,4 +1,4 @@
-import SettingsIcon from '@mui/icons-material/Settings'
+import { Settings as SettingsIcon } from '@mui/icons-material'
 import styled from '@emotion/styled'
 
 export const StyledSettingsIcon = styled(SettingsIcon)`
