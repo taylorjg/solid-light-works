@@ -13,7 +13,7 @@ import {
 } from "@app/three-app/syntax/parametric-travelling-wave";
 import { CycleTiming } from "@app/three-app/cycle-timing";
 import { Line } from "@app/three-app/line";
-import { newtonRaphsonMethod } from "@app/three-app";
+import { newtonRaphsonMethod } from "../newton-raphson-method";
 import * as C from "@app/three-app/constants";
 import * as U from "@app/three-app/utils";
 

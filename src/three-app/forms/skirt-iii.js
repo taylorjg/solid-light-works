@@ -12,7 +12,7 @@ import {
   parametricEyeWaveXDerivative,
   parametricEyeWaveYDerivative,
 } from "@app/three-app/syntax/parametric-eye-wave";
-import { newtonRaphsonMethod } from "@app/three-app";
+import { newtonRaphsonMethod } from "../newton-raphson-method";
 import * as C from "@app/three-app/constants";
 import * as U from "@app/three-app/utils";
 
