@@ -1,10 +1,10 @@
 import * as THREE from 'three'
-import * as math from 'mathjs'
+import { inv, multiply } from 'mathjs'
 import * as C from './constants'
 
 // https://uk.mathworks.com/help/matlab/ref/mldivide.html
 const mldivide = (A, b) => {
-  return math.multiply(math.inv(A), b)
+  return multiply(inv(A), b)
 }
 
 // https://en.wikipedia.org/wiki/Newton%27s_method
