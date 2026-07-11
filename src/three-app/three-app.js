@@ -404,7 +404,7 @@ export const threeAppInit = async () => {
   controls.autoRotateSpeed = 0.5
   controls.enabled = mode === Mode.Mode3D
 
-  const hazeTexture = await U.loadTexture('/solid-light-works/haze.jpg')
+  const hazeTexture = await U.loadTexture(`${import.meta.env.BASE_URL}haze.jpg`)
 
   const resources = {
     hazeTexture,

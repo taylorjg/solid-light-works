@@ -1,8 +1,8 @@
 import * as THREE from 'three'
 import { MembraneGeometry } from './membrane-geometry'
 import { VertexNormalsHelper } from 'three/examples/jsm/helpers/VertexNormalsHelper.js'
-import vertexShader from './shaders/vertex-shader.glsl'
-import fragmentShader from './shaders/fragment-shader.glsl'
+import vertexShader from './shaders/vertex-shader.glsl?raw'
+import fragmentShader from './shaders/fragment-shader.glsl?raw'
 import * as U from './utils'
 
 export class ProjectionEffect {
