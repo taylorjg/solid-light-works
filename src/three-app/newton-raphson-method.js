@@ -40,7 +40,7 @@ const MAX_T1_ADJUSTMENT = C.QUARTER_PI;
 const MAX_T2_ADJUSTMENT = 2;
 const MAX_ITERATION_COUNT = 20;
 
-export const newtonRaphsonMethod = (
+export const newtonRaphsonMethod = ({
   f1,
   g1,
   f2,
@@ -49,12 +49,12 @@ export const newtonRaphsonMethod = (
   dg1dt1,
   df2dt2,
   dg2dt2,
-  t1e,
-  t2e,
-  tolerance = DEFAULT_TOLERANCE
-) => {
-  let t1 = t1e;
-  let t2 = t2e;
+  t1Guess,
+  t2Guess,
+  tolerance = DEFAULT_TOLERANCE,
+}) => {
+  let t1 = t1Guess;
+  let t2 = t2Guess;
   let iterationCount = 1;
   for (;;) {
     const x1 = f1(t1);

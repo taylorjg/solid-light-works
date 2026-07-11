@@ -107,18 +107,18 @@ export class SkirtIIIForm {
       const t2Guess = x - xoffsets[primaryOrSecondary];
 
       try {
-        return newtonRaphsonMethod(
-          parametricEllipseXFn,
-          parametricEllipseYFn,
-          parametricEyeWaveXFn,
-          parametricEyeWaveYFn,
-          parametricEllipseXDerivativeFn,
-          parametricEllipseYDerivativeFn,
-          parametricEyeWaveXDerivativeFn,
-          parametricEyeWaveYDerivativeFn,
+        return newtonRaphsonMethod({
+          f1: parametricEllipseXFn,
+          g1: parametricEllipseYFn,
+          f2: parametricEyeWaveXFn,
+          g2: parametricEyeWaveYFn,
+          df1dt1: parametricEllipseXDerivativeFn,
+          dg1dt1: parametricEllipseYDerivativeFn,
+          df2dt2: parametricEyeWaveXDerivativeFn,
+          dg2dt2: parametricEyeWaveYDerivativeFn,
           t1Guess,
-          t2Guess
-        );
+          t2Guess,
+        });
       } catch {
         return undefined;
       }

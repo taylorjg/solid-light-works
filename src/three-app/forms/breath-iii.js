@@ -74,18 +74,18 @@ export class BreathIIIForm {
       const t1Guess = ellipseAngle;
       const t2Guess = parametricEllipseXFn(t1Guess) - xoffset;
       try {
-        return newtonRaphsonMethod(
-          parametricEllipseXFn,
-          parametricEllipseYFn,
-          parametricTravellingWaveXFn,
-          parametricTravellingWaveYFn,
-          parametricEllipseXDerivativeFn,
-          parametricEllipseYDerivativeFn,
-          parametricTravellingWaveXDerivativeFn,
-          parametricTravellingWaveYDerivativeFn,
+        return newtonRaphsonMethod({
+          f1: parametricEllipseXFn,
+          g1: parametricEllipseYFn,
+          f2: parametricTravellingWaveXFn,
+          g2: parametricTravellingWaveYFn,
+          df1dt1: parametricEllipseXDerivativeFn,
+          dg1dt1: parametricEllipseYDerivativeFn,
+          df2dt2: parametricTravellingWaveXDerivativeFn,
+          dg2dt2: parametricTravellingWaveYDerivativeFn,
           t1Guess,
-          t2Guess
-        );
+          t2Guess,
+        });
       } catch {
         return undefined;
       }

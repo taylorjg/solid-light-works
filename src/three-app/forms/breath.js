@@ -75,34 +75,34 @@ export class BreathForm {
     const t1Guess = THREE.MathUtils.degToRad(-180);
     const t2Guess = 0;
 
-    const { t1, t2 } = newtonRaphsonMethod(
-      parametricEllipseXFn,
-      parametricEllipseYFn,
-      parametricTravellingWaveXFn,
-      parametricTravellingWaveYFn,
-      parametricEllipseXDerivativeFn,
-      parametricEllipseYDerivativeFn,
-      parametricTravellingWaveXDerivativeFn,
-      parametricTravellingWaveYDerivativeFn,
+    const { t1, t2 } = newtonRaphsonMethod({
+      f1: parametricEllipseXFn,
+      g1: parametricEllipseYFn,
+      f2: parametricTravellingWaveXFn,
+      g2: parametricTravellingWaveYFn,
+      df1dt1: parametricEllipseXDerivativeFn,
+      dg1dt1: parametricEllipseYDerivativeFn,
+      df2dt2: parametricTravellingWaveXDerivativeFn,
+      dg2dt2: parametricTravellingWaveYDerivativeFn,
       t1Guess,
-      t2Guess
-    );
+      t2Guess,
+    });
 
     const t3Guess = 0;
     const t4Guess = this.width;
 
-    const { t1: t3, t2: t4 } = newtonRaphsonMethod(
-      parametricEllipseXFn,
-      parametricEllipseYFn,
-      parametricTravellingWaveXFn,
-      parametricTravellingWaveYFn,
-      parametricEllipseXDerivativeFn,
-      parametricEllipseYDerivativeFn,
-      parametricTravellingWaveXDerivativeFn,
-      parametricTravellingWaveYDerivativeFn,
-      t3Guess,
-      t4Guess
-    );
+    const { t1: t3, t2: t4 } = newtonRaphsonMethod({
+      f1: parametricEllipseXFn,
+      g1: parametricEllipseYFn,
+      f2: parametricTravellingWaveXFn,
+      g2: parametricTravellingWaveYFn,
+      df1dt1: parametricEllipseXDerivativeFn,
+      dg1dt1: parametricEllipseYDerivativeFn,
+      df2dt2: parametricTravellingWaveXDerivativeFn,
+      dg2dt2: parametricTravellingWaveYDerivativeFn,
+      t1Guess: t3Guess,
+      t2Guess: t4Guess,
+    });
 
     const intersectionPoint1 = new THREE.Vector2(
       parametricEllipseXFn(t1),

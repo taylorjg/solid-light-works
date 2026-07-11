@@ -125,18 +125,18 @@ export class LeavingForm {
     const parametricRotatingTravellingWaveYDerivativeFn =
       parametricRotatingTravellingWaveYDerivative(A, k, ωt, θ);
 
-    const { t1, t2 } = newtonRaphsonMethod(
-      parametricEllipseXFn,
-      parametricEllipseYFn,
-      parametricRotatingTravellingWaveXFn,
-      parametricRotatingTravellingWaveYFn,
-      parametricEllipseXDerivativeFn,
-      parametricEllipseYDerivativeFn,
-      parametricRotatingTravellingWaveXDerivativeFn,
-      parametricRotatingTravellingWaveYDerivativeFn,
+    const { t1, t2 } = newtonRaphsonMethod({
+      f1: parametricEllipseXFn,
+      g1: parametricEllipseYFn,
+      f2: parametricRotatingTravellingWaveXFn,
+      g2: parametricRotatingTravellingWaveYFn,
+      df1dt1: parametricEllipseXDerivativeFn,
+      dg1dt1: parametricEllipseYDerivativeFn,
+      df2dt2: parametricRotatingTravellingWaveXDerivativeFn,
+      dg2dt2: parametricRotatingTravellingWaveYDerivativeFn,
       t1Guess,
-      t2Guess
-    );
+      t2Guess,
+    });
 
     const [θ1, θ2] = this.growing
       ? [-C.HALF_PI, t1]

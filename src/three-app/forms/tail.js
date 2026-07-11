@@ -142,34 +142,34 @@ export class TailForm {
     const t1Guess = 0;
     const t2Guess = waveWidth;
 
-    const { t1, t2 } = newtonRaphsonMethod(
-      parametricEllipseXFn,
-      parametricEllipseYFn,
-      parametricTravellingWave1XFn,
-      parametricTravellingWave1YFn,
-      parametricEllipseXDerivativeFn,
-      parametricEllipseYDerivativeFn,
-      parametricTravellingWave1XDerivativeFn,
-      parametricTravellingWave1YDerivativeFn,
+    const { t1, t2 } = newtonRaphsonMethod({
+      f1: parametricEllipseXFn,
+      g1: parametricEllipseYFn,
+      f2: parametricTravellingWave1XFn,
+      g2: parametricTravellingWave1YFn,
+      df1dt1: parametricEllipseXDerivativeFn,
+      dg1dt1: parametricEllipseYDerivativeFn,
+      df2dt2: parametricTravellingWave1XDerivativeFn,
+      dg2dt2: parametricTravellingWave1YDerivativeFn,
       t1Guess,
-      t2Guess
-    );
+      t2Guess,
+    });
 
     const t3Guess = 0;
     const t4Guess = waveWidth;
 
-    const { t1: t3, t2: t4 } = newtonRaphsonMethod(
-      parametricEllipseXFn,
-      parametricEllipseYFn,
-      parametricTravellingWave2XFn,
-      parametricTravellingWave2YFn,
-      parametricEllipseXDerivativeFn,
-      parametricEllipseYDerivativeFn,
-      parametricTravellingWave2XDerivativeFn,
-      parametricTravellingWave2YDerivativeFn,
-      t3Guess,
-      t4Guess
-    );
+    const { t1: t3, t2: t4 } = newtonRaphsonMethod({
+      f1: parametricEllipseXFn,
+      g1: parametricEllipseYFn,
+      f2: parametricTravellingWave2XFn,
+      g2: parametricTravellingWave2YFn,
+      df1dt1: parametricEllipseXDerivativeFn,
+      dg1dt1: parametricEllipseYDerivativeFn,
+      df2dt2: parametricTravellingWave2XDerivativeFn,
+      dg2dt2: parametricTravellingWave2YDerivativeFn,
+      t1Guess: t3Guess,
+      t2Guess: t4Guess,
+    });
 
     const intersectionPoint1 = new THREE.Vector2(
       parametricEllipseXFn(t1),

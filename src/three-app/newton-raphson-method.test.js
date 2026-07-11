@@ -12,19 +12,23 @@ describe("newtonRaphsonMethod", () => {
   const lineXd = () => 1;
   const lineYd = () => 0;
 
+  const circleAndLine = {
+    f1: circleX,
+    g1: circleY,
+    f2: lineX,
+    g2: lineY,
+    df1dt1: circleXd,
+    dg1dt1: circleYd,
+    df2dt2: lineXd,
+    dg2dt2: lineYd,
+  };
+
   it("finds the intersection of a unit circle and the x-axis", () => {
-    const { t1, t2 } = newtonRaphsonMethod(
-      circleX,
-      circleY,
-      lineX,
-      lineY,
-      circleXd,
-      circleYd,
-      lineXd,
-      lineYd,
-      0.5,
-      0.5
-    );
+    const { t1, t2 } = newtonRaphsonMethod({
+      ...circleAndLine,
+      t1Guess: 0.5,
+      t2Guess: 0.5,
+    });
 
     expect(circleX(t1)).toBeCloseTo(lineX(t2), 5);
     expect(circleY(t1)).toBeCloseTo(lineY(t2), 5);
@@ -33,36 +37,22 @@ describe("newtonRaphsonMethod", () => {
   });
 
   it("returns immediately when the initial guess is already at an intersection", () => {
-    const { t1, t2 } = newtonRaphsonMethod(
-      circleX,
-      circleY,
-      lineX,
-      lineY,
-      circleXd,
-      circleYd,
-      lineXd,
-      lineYd,
-      0,
-      1
-    );
+    const { t1, t2 } = newtonRaphsonMethod({
+      ...circleAndLine,
+      t1Guess: 0,
+      t2Guess: 1,
+    });
 
     expect(t1).toBe(0);
     expect(t2).toBe(1);
   });
 
   it("finds a second intersection on the opposite side of the circle", () => {
-    const { t1, t2 } = newtonRaphsonMethod(
-      circleX,
-      circleY,
-      lineX,
-      lineY,
-      circleXd,
-      circleYd,
-      lineXd,
-      lineYd,
-      Math.PI - 0.5,
-      -0.5
-    );
+    const { t1, t2 } = newtonRaphsonMethod({
+      ...circleAndLine,
+      t1Guess: Math.PI - 0.5,
+      t2Guess: -0.5,
+    });
 
     expect(circleX(t1)).toBeCloseTo(lineX(t2), 5);
     expect(circleY(t1)).toBeCloseTo(lineY(t2), 5);
@@ -71,19 +61,12 @@ describe("newtonRaphsonMethod", () => {
   });
 
   it("respects a custom tolerance", () => {
-    const { t1, t2 } = newtonRaphsonMethod(
-      circleX,
-      circleY,
-      lineX,
-      lineY,
-      circleXd,
-      circleYd,
-      lineXd,
-      lineYd,
-      0.5,
-      0.5,
-      1e-6
-    );
+    const { t1, t2 } = newtonRaphsonMethod({
+      ...circleAndLine,
+      t1Guess: 0.5,
+      t2Guess: 0.5,
+      tolerance: 1e-6,
+    });
 
     const distance = Math.hypot(
       circleX(t1) - lineX(t2),
@@ -104,18 +87,18 @@ describe("newtonRaphsonMethod", () => {
     const belowLineYd = () => 0;
 
     expect(() =>
-      newtonRaphsonMethod(
-        parabolaX,
-        parabolaY,
-        belowLineX,
-        belowLineY,
-        parabolaXd,
-        parabolaYd,
-        belowLineXd,
-        belowLineYd,
-        1,
-        1
-      )
+      newtonRaphsonMethod({
+        f1: parabolaX,
+        g1: parabolaY,
+        f2: belowLineX,
+        g2: belowLineY,
+        df1dt1: parabolaXd,
+        dg1dt1: parabolaYd,
+        df2dt2: belowLineXd,
+        dg2dt2: belowLineYd,
+        t1Guess: 1,
+        t2Guess: 1,
+      })
     ).toThrow("[newtonRaphsonMethod] too many iterations!");
   });
 });

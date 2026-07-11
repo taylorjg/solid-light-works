@@ -145,57 +145,57 @@ export class BreathIIForm {
     };
     const intersectionEndYGuesses = { t1: 0, t2: waveWidth };
 
-    const intersectionEndXWaveA = newtonRaphsonMethod(
-      outerSkinXFn,
-      outerSkinYFn,
-      waveAXFn,
-      waveAYFn,
-      outerSkinXDerivativeFn,
-      outerSkinYDerivativeFn,
-      waveAXDerivativeFn,
-      waveAYDerivativeFn,
-      intersectionEndXGuesses.t1,
-      intersectionEndXGuesses.t2
-    );
+    const intersectionEndXWaveA = newtonRaphsonMethod({
+      f1: outerSkinXFn,
+      g1: outerSkinYFn,
+      f2: waveAXFn,
+      g2: waveAYFn,
+      df1dt1: outerSkinXDerivativeFn,
+      dg1dt1: outerSkinYDerivativeFn,
+      df2dt2: waveAXDerivativeFn,
+      dg2dt2: waveAYDerivativeFn,
+      t1Guess: intersectionEndXGuesses.t1,
+      t2Guess: intersectionEndXGuesses.t2,
+    });
 
-    const intersectionEndXWaveB = newtonRaphsonMethod(
-      outerSkinXFn,
-      outerSkinYFn,
-      waveBXFn,
-      waveBYFn,
-      outerSkinXDerivativeFn,
-      outerSkinYDerivativeFn,
-      waveBXDerivativeFn,
-      waveBYDerivativeFn,
-      intersectionEndXGuesses.t1,
-      intersectionEndXGuesses.t2
-    );
+    const intersectionEndXWaveB = newtonRaphsonMethod({
+      f1: outerSkinXFn,
+      g1: outerSkinYFn,
+      f2: waveBXFn,
+      g2: waveBYFn,
+      df1dt1: outerSkinXDerivativeFn,
+      dg1dt1: outerSkinYDerivativeFn,
+      df2dt2: waveBXDerivativeFn,
+      dg2dt2: waveBYDerivativeFn,
+      t1Guess: intersectionEndXGuesses.t1,
+      t2Guess: intersectionEndXGuesses.t2,
+    });
 
-    const intersectionEndYWaveA = newtonRaphsonMethod(
-      outerSkinXFn,
-      outerSkinYFn,
-      waveAXFn,
-      waveAYFn,
-      outerSkinXDerivativeFn,
-      outerSkinYDerivativeFn,
-      waveAXDerivativeFn,
-      waveAYDerivativeFn,
-      intersectionEndYGuesses.t1,
-      intersectionEndYGuesses.t2
-    );
+    const intersectionEndYWaveA = newtonRaphsonMethod({
+      f1: outerSkinXFn,
+      g1: outerSkinYFn,
+      f2: waveAXFn,
+      g2: waveAYFn,
+      df1dt1: outerSkinXDerivativeFn,
+      dg1dt1: outerSkinYDerivativeFn,
+      df2dt2: waveAXDerivativeFn,
+      dg2dt2: waveAYDerivativeFn,
+      t1Guess: intersectionEndYGuesses.t1,
+      t2Guess: intersectionEndYGuesses.t2,
+    });
 
-    const intersectionEndYWaveB = newtonRaphsonMethod(
-      outerSkinXFn,
-      outerSkinYFn,
-      waveBXFn,
-      waveBYFn,
-      outerSkinXDerivativeFn,
-      outerSkinYDerivativeFn,
-      waveBXDerivativeFn,
-      waveBYDerivativeFn,
-      intersectionEndYGuesses.t1,
-      intersectionEndYGuesses.t2
-    );
+    const intersectionEndYWaveB = newtonRaphsonMethod({
+      f1: outerSkinXFn,
+      g1: outerSkinYFn,
+      f2: waveBXFn,
+      g2: waveBYFn,
+      df1dt1: outerSkinXDerivativeFn,
+      dg1dt1: outerSkinYDerivativeFn,
+      df2dt2: waveBXDerivativeFn,
+      dg2dt2: waveBYDerivativeFn,
+      t1Guess: intersectionEndYGuesses.t1,
+      t2Guess: intersectionEndYGuesses.t2,
+    });
 
     const intersectionPointEndXWaveA = new THREE.Vector2(
       outerSkinXFn(intersectionEndXWaveA.t1),
