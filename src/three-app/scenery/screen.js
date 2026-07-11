@@ -1,21 +1,20 @@
-import * as THREE from 'three'
+import * as THREE from "three";
 
 export class Screen {
-
   constructor(width, height) {
-    this._width = width
-    this._height = height
+    this._width = width;
+    this._height = height;
   }
 
   create(parent) {
-    const geometry = new THREE.PlaneGeometry(this._width, this._height)
-    geometry.translate(0, this._height / 2, 0)
+    const geometry = new THREE.PlaneGeometry(this._width, this._height);
+    geometry.translate(0, this._height / 2, 0);
     const material = new THREE.MeshBasicMaterial({
-      color: 0xC0C0C0,
+      color: 0xc0c0c0,
       transparent: true,
-      opacity: 0.2
-    })
-    const mesh = new THREE.Mesh(geometry, material)
-    parent.add(mesh)
+      opacity: 0.2,
+    });
+    const mesh = new THREE.Mesh(geometry, material);
+    parent.add(mesh);
   }
 }

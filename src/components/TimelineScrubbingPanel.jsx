@@ -1,72 +1,89 @@
-import { useEffect, useState } from 'react'
-import { Drawer, IconButton, Slider } from '@mui/material'
-import { Close as CloseIcon, PlayArrow as PlayArrowIcon, Pause as PauseIcon } from '@mui/icons-material'
-import { StyledContainer } from './TimelineScrubbingPanel.styles'
+import { useEffect, useState } from "react";
+import { Drawer, IconButton, Slider } from "@mui/material";
+import {
+  Close as CloseIcon,
+  PlayArrow as PlayArrowIcon,
+  Pause as PauseIcon,
+} from "@mui/icons-material";
+import { StyledContainer } from "./TimelineScrubbingPanel.styles";
 
 const TimelineScrubbingPanel = ({ threeAppActions }) => {
-  const [isOpen, setIsOpen] = useState(false)
-  const [value, setValue] = useState()
-  const [max, setMax] = useState()
-  const [isPlaying, setIsPlaying] = useState(false)
+  const [isOpen, setIsOpen] = useState(false);
+  const [value, setValue] = useState();
+  const [max, setMax] = useState();
+  const [isPlaying, setIsPlaying] = useState(false);
 
   const open = () => {
-    setIsOpen(true)
-  }
+    setIsOpen(true);
+  };
 
   const close = () => {
-    setIsOpen(false)
-  }
+    setIsOpen(false);
+  };
 
-  const onChange = event => {
-    const value = event.target.value
-    setValue(value)
-    threeAppActions.setTimelineScrubbingValue(value)
-  }
+  const onChange = (event) => {
+    const value = event.target.value;
+    setValue(value);
+    threeAppActions.setTimelineScrubbingValue(value);
+  };
 
   useEffect(() => {
-    const onEnterTimelineScrubbingMode = args => {
-      setValue(args.timelineScrubbingValue)
-      setMax(args.cycleDurationMs)
-      setIsPlaying(args.playing)
-      open()
-    }
+    const onEnterTimelineScrubbingMode = (args) => {
+      setValue(args.timelineScrubbingValue);
+      setMax(args.cycleDurationMs);
+      setIsPlaying(args.playing);
+      open();
+    };
 
-    threeAppActions.addEnterTimelineScrubbingModeListener(onEnterTimelineScrubbingMode)
-    return () => threeAppActions.removeEnterTimelineScrubbingModeListener(onEnterTimelineScrubbingMode)
-  }, [threeAppActions])
+    threeAppActions.addEnterTimelineScrubbingModeListener(
+      onEnterTimelineScrubbingMode
+    );
+    return () =>
+      threeAppActions.removeEnterTimelineScrubbingModeListener(
+        onEnterTimelineScrubbingMode
+      );
+  }, [threeAppActions]);
 
   useEffect(() => {
     const onLeaveTimelineScrubbingMode = () => {
-      close()
-    }
+      close();
+    };
 
-    threeAppActions.addLeaveTimelineScrubbingModeListener(onLeaveTimelineScrubbingMode)
-    return () => threeAppActions.removeLeaveTimelineScrubbingModeListener(onLeaveTimelineScrubbingMode)
-  }, [threeAppActions])
+    threeAppActions.addLeaveTimelineScrubbingModeListener(
+      onLeaveTimelineScrubbingMode
+    );
+    return () =>
+      threeAppActions.removeLeaveTimelineScrubbingModeListener(
+        onLeaveTimelineScrubbingMode
+      );
+  }, [threeAppActions]);
 
   useEffect(() => {
-    const onSyncTimelineScrubbing = args => {
-      setValue(args.timelineScrubbingValue)
-      setMax(args.cycleDurationMs)
-    }
+    const onSyncTimelineScrubbing = (args) => {
+      setValue(args.timelineScrubbingValue);
+      setMax(args.cycleDurationMs);
+    };
 
-    threeAppActions.addSyncTimelineScrubbingListener(onSyncTimelineScrubbing)
-    return () => threeAppActions.removeSyncTimelineScrubbingListener(onSyncTimelineScrubbing)
-  }, [threeAppActions])
+    threeAppActions.addSyncTimelineScrubbingListener(onSyncTimelineScrubbing);
+    return () =>
+      threeAppActions.removeSyncTimelineScrubbingListener(
+        onSyncTimelineScrubbing
+      );
+  }, [threeAppActions]);
 
   useEffect(() => {
     if (!isOpen) {
-      threeAppActions.setTimelineScrubbingMode(false)
+      threeAppActions.setTimelineScrubbingMode(false);
     }
-  }, [threeAppActions, isOpen])
+  }, [threeAppActions, isOpen]);
 
   const onClickPlayPause = () => {
-    setIsPlaying(currentValue => !currentValue)
-  }
+    setIsPlaying((currentValue) => !currentValue);
+  };
 
   useEffect(() => {
-    threeAppActions.setPlaying(isPlaying)
-  }, [threeAppActions, isPlaying])
+    threeAppActions.setPlaying(isPlaying);
+  }, [threeAppActions, isPlaying]);
 
   return (
     <Drawer anchor="bottom" hideBackdrop open={isOpen} onClose={close}>
@@ -90,6 +107,6 @@ const TimelineScrubbingPanel = ({ threeAppActions }) => {
       </StyledContainer>
     </Drawer>
   );
-}
+};
 
 export default TimelineScrubbingPanel;

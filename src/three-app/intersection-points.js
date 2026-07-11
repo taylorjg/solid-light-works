@@ -1,5 +1,5 @@
-import * as THREE from 'three'
-import * as C from './constants'
+import * as THREE from "three";
+import * as C from "./constants";
 
 const COLOURS = [
   new THREE.Color("red").getHex(),
@@ -9,52 +9,54 @@ const COLOURS = [
   new THREE.Color("cyan").getHex(),
   new THREE.Color("purple").getHex(),
   new THREE.Color("orange").getHex(),
-  new THREE.Color("pink").getHex()
-]
+  new THREE.Color("pink").getHex(),
+];
 
-const MAX_INTERSECTION_POINTS = COLOURS.length
+const MAX_INTERSECTION_POINTS = COLOURS.length;
 
 export class IntersectionPoints {
-
   constructor(parent) {
-    this._meshes = this._createMeshes(parent)
-    this._visible = false
+    this._meshes = this._createMeshes(parent);
+    this._visible = false;
   }
 
   _createMeshes(parent) {
-    const r = C.LINE_THICKNESS * 1.2
-    return COLOURS.map(color => {
-      const geometry = new THREE.SphereGeometry(r, 16, 16)
-      const material = new THREE.MeshBasicMaterial({ color, side: THREE.DoubleSide })
+    const r = C.LINE_THICKNESS * 1.2;
+    return COLOURS.map((color) => {
+      const geometry = new THREE.SphereGeometry(r, 16, 16);
+      const material = new THREE.MeshBasicMaterial({
+        color,
+        side: THREE.DoubleSide,
+      });
 
-      const mesh = new THREE.Mesh(geometry, material)
-      mesh.visible = false
-      parent.add(mesh)
+      const mesh = new THREE.Mesh(geometry, material);
+      mesh.visible = false;
+      parent.add(mesh);
 
-      return mesh
-    })
+      return mesh;
+    });
   }
 
   update(points) {
     for (const mesh of this._meshes) {
-      mesh.visible = false
+      mesh.visible = false;
     }
 
     if (this._visible) {
       points.slice(0, MAX_INTERSECTION_POINTS).forEach((point, index) => {
-        const mesh = this._meshes[index]
-        mesh.position.x = point.x
-        mesh.position.y = point.y
-        mesh.visible = true
-      })
+        const mesh = this._meshes[index];
+        mesh.position.x = point.x;
+        mesh.position.y = point.y;
+        mesh.visible = true;
+      });
     }
   }
 
   get visible() {
-    return this._visible
+    return this._visible;
   }
 
   set visible(value) {
-    this._visible = value
+    this._visible = value;
   }
 }

@@ -1,77 +1,84 @@
-import * as THREE from 'three'
-import { Line } from '@app/three-app/line'
-import { parametricEllipseX, parametricEllipseY } from '@app/three-app/syntax/parametric-ellipse'
-import { parametricTravellingWaveX, parametricTravellingWaveY } from '@app/three-app/syntax/parametric-travelling-wave'
-import * as C from '@app/three-app/constants'
-import * as U from '@app/three-app/utils'
+import * as THREE from "three";
+import { Line } from "@app/three-app/line";
+import {
+  parametricEllipseX,
+  parametricEllipseY,
+} from "@app/three-app/syntax/parametric-ellipse";
+import {
+  parametricTravellingWaveX,
+  parametricTravellingWaveY,
+} from "@app/three-app/syntax/parametric-travelling-wave";
+import * as C from "@app/three-app/constants";
+import * as U from "@app/three-app/utils";
 
-const MY_LINE_THICKNESS = 0.2
+const MY_LINE_THICKNESS = 0.2;
 
-const ELLIPSE_POINT_COUNT = 100
-const TRAVELLING_WAVE_POINT_COUNT = 100
+const ELLIPSE_POINT_COUNT = 100;
+const TRAVELLING_WAVE_POINT_COUNT = 100;
 
 export class TestForm {
-
   constructor(width, height) {
     // These are needed by 'clipToFormBoundary'
-    this.width = width
-    this.height = height
+    this.width = width;
+    this.height = height;
 
-    const includeStraightLine = 1
-    const includeEllipse = 0
-    const includeTravellingWave = 1
+    const includeStraightLine = 1;
+    const includeEllipse = 0;
+    const includeTravellingWave = 1;
 
-    const rx = width / 2 - MY_LINE_THICKNESS / 2
-    const ry = height / 2 - MY_LINE_THICKNESS / 2
+    const rx = width / 2 - MY_LINE_THICKNESS / 2;
+    const ry = height / 2 - MY_LINE_THICKNESS / 2;
 
     const straightLinePoints = [
       new THREE.Vector2(-width / 3, -height / 2),
-      new THREE.Vector2(width / 3, height / 2)
-    ]
+      new THREE.Vector2(width / 3, height / 2),
+    ];
     const straightLine = new Line(straightLinePoints, {
       lineThickness: MY_LINE_THICKNESS,
-      clipToFormBoundary: true
-    })
+      clipToFormBoundary: true,
+    });
 
-    const Δθ = C.TWO_PI / ELLIPSE_POINT_COUNT
-    const ellipsePoints = U.range(ELLIPSE_POINT_COUNT + 1).map(n => {
-      const t = n * Δθ
-      const x = parametricEllipseX(rx)(t)
-      const y = parametricEllipseY(ry)(t)
-      return new THREE.Vector2(x, y)
-    })
+    const Δθ = C.TWO_PI / ELLIPSE_POINT_COUNT;
+    const ellipsePoints = U.range(ELLIPSE_POINT_COUNT + 1).map((n) => {
+      const t = n * Δθ;
+      const x = parametricEllipseX(rx)(t);
+      const y = parametricEllipseY(ry)(t);
+      return new THREE.Vector2(x, y);
+    });
     const ellipseLine = new Line(ellipsePoints, {
       lineThickness: MY_LINE_THICKNESS,
-      clipToFormBoundary: true
-    })
+      clipToFormBoundary: true,
+    });
 
-    const λ = width
-    const k = C.TWO_PI / λ
-    const xoffset = -width / 2
-    const Δx = width / TRAVELLING_WAVE_POINT_COUNT
-    const travellingWavePoints = U.range(TRAVELLING_WAVE_POINT_COUNT + 1).map(n => {
-      const t = n * Δx
-      const x = parametricTravellingWaveX(xoffset)(t)
-      const y = parametricTravellingWaveY(ry, k, 0, 0)(t)
-      return new THREE.Vector2(x, y)
-    })
+    const λ = width;
+    const k = C.TWO_PI / λ;
+    const xoffset = -width / 2;
+    const Δx = width / TRAVELLING_WAVE_POINT_COUNT;
+    const travellingWavePoints = U.range(TRAVELLING_WAVE_POINT_COUNT + 1).map(
+      (n) => {
+        const t = n * Δx;
+        const x = parametricTravellingWaveX(xoffset)(t);
+        const y = parametricTravellingWaveY(ry, k, 0, 0)(t);
+        return new THREE.Vector2(x, y);
+      }
+    );
     const travellingWaveLine = new Line(travellingWavePoints, {
       lineThickness: MY_LINE_THICKNESS,
-      clipToFormBoundary: true
-    })
+      clipToFormBoundary: true,
+    });
 
-    const maybeLine = (flag, line) => flag ? [line] : []
+    const maybeLine = (flag, line) => (flag ? [line] : []);
 
     const lines = [
       ...maybeLine(includeStraightLine, straightLine),
       ...maybeLine(includeEllipse, ellipseLine),
       ...maybeLine(includeTravellingWave, travellingWaveLine),
-    ]
+    ];
 
-    this._footprintData = {lines}
+    this._footprintData = { lines };
   }
 
   getFootprintData(/* deltaMs, absoluteMs */) {
-    return this._footprintData
+    return this._footprintData;
   }
 }

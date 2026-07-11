@@ -1,81 +1,93 @@
-import * as THREE from 'three'
-import { Line } from '@app/three-app/line'
-import { parametricTravellingWaveX, parametricTravellingWaveY } from '@app/three-app/syntax/parametric-travelling-wave'
-import { CycleTiming } from '@app/three-app/cycle-timing'
-import * as C from '@app/three-app/constants'
-import * as U from '@app/three-app/utils'
+import * as THREE from "three";
+import { Line } from "@app/three-app/line";
+import {
+  parametricTravellingWaveX,
+  parametricTravellingWaveY,
+} from "@app/three-app/syntax/parametric-travelling-wave";
+import { CycleTiming } from "@app/three-app/cycle-timing";
+import * as C from "@app/three-app/constants";
+import * as U from "@app/three-app/utils";
 
-const MAX_TICKS = 9300
-const DELAY_TICKS = 120
-const TRAVELLING_WAVE_POINT_COUNT = 200
+const MAX_TICKS = 9300;
+const DELAY_TICKS = 120;
+const TRAVELLING_WAVE_POINT_COUNT = 200;
 
 export class DoublingBackForm {
-
   constructor(width, height) {
-    this.cycleTiming = new CycleTiming(MAX_TICKS + DELAY_TICKS, this.onReset.bind(this))
-    this.width = width
-    this.height = height
-    this.direction = 1
-    this.A = this.height / 2 * 0.9
-    const λ = this.width * 4 / 3
-    this.k = C.TWO_PI / λ
-    const f = 1
-    this.ω = C.TWO_PI * f
-    this.speed = 0.0001
+    this.cycleTiming = new CycleTiming(
+      MAX_TICKS + DELAY_TICKS,
+      this.onReset.bind(this)
+    );
+    this.width = width;
+    this.height = height;
+    this.direction = 1;
+    this.A = (this.height / 2) * 0.9;
+    const λ = (this.width * 4) / 3;
+    this.k = C.TWO_PI / λ;
+    const f = 1;
+    this.ω = C.TWO_PI * f;
+    this.speed = 0.0001;
   }
 
   getLeftToRightTravellingWavePoints(tick) {
-    const { A, k, ω, speed } = this
-    const ωt = ω * tick * speed
-    const φ = THREE.MathUtils.degToRad(165)
-    const xoffset = -this.width / 2
-    const Δx = this.width / TRAVELLING_WAVE_POINT_COUNT
-    const parametricTravellingWaveXFn = parametricTravellingWaveX(xoffset)
-    const parametricTravellingWaveYFn = parametricTravellingWaveY(A, k, ωt, φ)
-    return U.range(TRAVELLING_WAVE_POINT_COUNT + 1).map(n => {
-      const t = n * Δx
-      const x = parametricTravellingWaveXFn(t)
-      const y = parametricTravellingWaveYFn(t)
-      return new THREE.Vector2(x, y)
-    })
+    const { A, k, ω, speed } = this;
+    const ωt = ω * tick * speed;
+    const φ = THREE.MathUtils.degToRad(165);
+    const xoffset = -this.width / 2;
+    const Δx = this.width / TRAVELLING_WAVE_POINT_COUNT;
+    const parametricTravellingWaveXFn = parametricTravellingWaveX(xoffset);
+    const parametricTravellingWaveYFn = parametricTravellingWaveY(A, k, ωt, φ);
+    return U.range(TRAVELLING_WAVE_POINT_COUNT + 1).map((n) => {
+      const t = n * Δx;
+      const x = parametricTravellingWaveXFn(t);
+      const y = parametricTravellingWaveYFn(t);
+      return new THREE.Vector2(x, y);
+    });
   }
 
   getBottomToTopTravellingWavePoints(tick) {
-    const { A, k, ω, speed } = this
-    const ωt = ω * tick * speed
-    const φ = THREE.MathUtils.degToRad(80)
-    const xoffset = -this.height / 2
-    const Δx = this.height / TRAVELLING_WAVE_POINT_COUNT
-    const midpoint = this.width / 2 - this.height / 2
-    const parametricTravellingWaveXFn = parametricTravellingWaveX(xoffset)
-    const parametricTravellingWaveYFn = parametricTravellingWaveY(A, k, ωt, φ)
-    return U.range(TRAVELLING_WAVE_POINT_COUNT + 1).map(n => {
-      const t = n * Δx
-      const x = parametricTravellingWaveXFn(t)
-      const y = parametricTravellingWaveYFn(t)
-      return new THREE.Vector2(midpoint - y, x)
-    })
+    const { A, k, ω, speed } = this;
+    const ωt = ω * tick * speed;
+    const φ = THREE.MathUtils.degToRad(80);
+    const xoffset = -this.height / 2;
+    const Δx = this.height / TRAVELLING_WAVE_POINT_COUNT;
+    const midpoint = this.width / 2 - this.height / 2;
+    const parametricTravellingWaveXFn = parametricTravellingWaveX(xoffset);
+    const parametricTravellingWaveYFn = parametricTravellingWaveY(A, k, ωt, φ);
+    return U.range(TRAVELLING_WAVE_POINT_COUNT + 1).map((n) => {
+      const t = n * Δx;
+      const x = parametricTravellingWaveXFn(t);
+      const y = parametricTravellingWaveYFn(t);
+      return new THREE.Vector2(midpoint - y, x);
+    });
   }
 
   getFootprintData(deltaMs, absoluteMs) {
-    const directionBeforeUpdate = this.direction
-    const { tick } = this.cycleTiming.update(deltaMs, absoluteMs)
-    const clampedTick = Math.min(tick, MAX_TICKS)
-    const directionalTick = directionBeforeUpdate > 0 ? clampedTick : MAX_TICKS - clampedTick
+    const directionBeforeUpdate = this.direction;
+    const { tick } = this.cycleTiming.update(deltaMs, absoluteMs);
+    const clampedTick = Math.min(tick, MAX_TICKS);
+    const directionalTick =
+      directionBeforeUpdate > 0 ? clampedTick : MAX_TICKS - clampedTick;
 
-    const leftToRightTravellingWavePoints = this.getLeftToRightTravellingWavePoints(directionalTick)
-    const bottomToTopTravellingWavePoints = this.getBottomToTopTravellingWavePoints(directionalTick)
+    const leftToRightTravellingWavePoints =
+      this.getLeftToRightTravellingWavePoints(directionalTick);
+    const bottomToTopTravellingWavePoints =
+      this.getBottomToTopTravellingWavePoints(directionalTick);
 
-    const line1 = new Line(leftToRightTravellingWavePoints, { clipToFormBoundary: true })
-    const line2 = new Line(bottomToTopTravellingWavePoints, { clipToFormBoundary: true })
-    const lines = [line1, line2]
+    const line1 = new Line(leftToRightTravellingWavePoints, {
+      clipToFormBoundary: true,
+    });
+    const line2 = new Line(bottomToTopTravellingWavePoints, {
+      clipToFormBoundary: true,
+    });
+    const lines = [line1, line2];
 
-    const footprintData = { lines }
+    const footprintData = { lines };
 
-    return footprintData
+    return footprintData;
   }
 
   onReset() {
-    this.direction *= -1
+    this.direction *= -1;
   }
 }

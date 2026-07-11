@@ -1,4 +1,4 @@
-import styled from '@emotion/styled'
+import styled from "@emotion/styled";
 
 export const StyledOverlayButtons = styled.div`
   position: fixed;
@@ -8,7 +8,7 @@ export const StyledOverlayButtons = styled.div`
   height: 95vh;
   display: flex;
   flex-direction: column;
-`
+`;
 
 export const StyledOverlayButton = styled.div`
   flex-grow: 1;
@@ -16,13 +16,13 @@ export const StyledOverlayButton = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  margin: .5rem;
+  margin: 0.5rem;
   color: rgba(0, 0, 0, 0);
-  @media(hover: hover) {
+  @media (hover: hover) {
     &:hover {
       color: white;
-      opacity: .5;
+      opacity: 0.5;
       cursor: pointer;
     }
   }
-`
+`;

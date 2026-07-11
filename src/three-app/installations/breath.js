@@ -1,47 +1,56 @@
-import * as THREE from 'three'
-import { BreathForm } from '@app/three-app/forms/breath'
-import { Floor } from '@app/three-app/scenery'
-import * as C from '@app/three-app/constants'
+import * as THREE from "three";
+import { BreathForm } from "@app/three-app/forms/breath";
+import { Floor } from "@app/three-app/scenery";
+import * as C from "@app/three-app/constants";
 
 const makeWork1 = () => {
-  const translation3D = new THREE.Matrix4().makeTranslation(0, 0, 4)
-  const rotation3D = new THREE.Matrix4().makeRotationX(-C.HALF_PI)
+  const translation3D = new THREE.Matrix4().makeTranslation(0, 0, 4);
+  const rotation3D = new THREE.Matrix4().makeRotationX(-C.HALF_PI);
   const transform3D = new THREE.Matrix4()
     .multiply(translation3D)
-    .multiply(rotation3D)
+    .multiply(rotation3D);
 
   return {
     formConfigs: [
       {
         form: new BreathForm(6, 4),
         config2D: {
-          transform: new THREE.Matrix4()
+          transform: new THREE.Matrix4(),
         },
         config3D: {
           transform: transform3D,
-          projectorPosition: new THREE.Vector3(0, 0, 10)
-        }
-      }
-    ]
-  }
-}
+          projectorPosition: new THREE.Vector3(0, 0, 10),
+        },
+      },
+    ],
+  };
+};
 
 export const config = {
   name: "Breath",
-  works: [
-    makeWork1()
-  ],
+  works: [makeWork1()],
   config2D: {
-    cameraPose: { position: new THREE.Vector3(0, 0, 6), target: new THREE.Vector3() }
+    cameraPose: {
+      position: new THREE.Vector3(0, 0, 6),
+      target: new THREE.Vector3(),
+    },
   },
   config3D: {
     cameraPoses: [
-      { position: new THREE.Vector3(0, 2, 12), target: new THREE.Vector3(0, 0, 3) },
-      { position: new THREE.Vector3(-2.10, 5.85, 20.04), target: new THREE.Vector3(0.43, 4.16, 4.94) },
-      { position: new THREE.Vector3(0, -6.3, 3.7), target: new THREE.Vector3(0, 2, 4), isBehind: true }
+      {
+        position: new THREE.Vector3(0, 2, 12),
+        target: new THREE.Vector3(0, 0, 3),
+      },
+      {
+        position: new THREE.Vector3(-2.1, 5.85, 20.04),
+        target: new THREE.Vector3(0.43, 4.16, 4.94),
+      },
+      {
+        position: new THREE.Vector3(0, -6.3, 3.7),
+        target: new THREE.Vector3(0, 2, 4),
+        isBehind: true,
+      },
     ],
-    scenery: [
-      new Floor(10, 8)
-    ]
-  }
-}
+    scenery: [new Floor(10, 8)],
+  },
+};

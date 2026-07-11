@@ -1,7 +1,7 @@
-import styled from '@emotion/styled'
+import styled from "@emotion/styled";
 
 export const StyledContainer = styled.div`
   display: flex;
   align-items: center;
-  padding: .25rem;
+  padding: 0.25rem;
 `;

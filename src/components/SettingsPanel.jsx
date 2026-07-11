@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState } from "react";
 import {
   Box,
   Button,
@@ -11,17 +11,20 @@ import {
   Tabs,
   ToggleButtonGroup,
   ToggleButton,
-  Typography
-} from '@mui/material'
-import { StyledSettingsPanel, StyledSettingsTabPanelBody } from './SettingsPanel.styles'
-import { Mode } from '@app/three-app'
+  Typography,
+} from "@mui/material";
+import {
+  StyledSettingsPanel,
+  StyledSettingsTabPanelBody,
+} from "./SettingsPanel.styles";
+import { Mode } from "@app/three-app";
 
-const a11yProps = index => {
+const a11yProps = (index) => {
   return {
     id: `simple-tab-${index}`,
-    'aria-controls': `simple-tabpanel-${index}`,
-  }
-}
+    "aria-controls": `simple-tabpanel-${index}`,
+  };
+};
 
 const TabPanel = ({ children, value, index, ...other }) => {
   return (
@@ -38,14 +41,13 @@ const TabPanel = ({ children, value, index, ...other }) => {
         </Box>
       )}
     </div>
-  )
-}
+  );
+};
 
 const ShowNameSetting = ({ value, setValue }) => {
-
-  const handleChange = event => {
-    setValue(event.target.checked)
-  }
+  const handleChange = (event) => {
+    setValue(event.target.checked);
+  };
 
   return (
     <div>
@@ -65,14 +67,13 @@ const ShowNameSetting = ({ value, setValue }) => {
         />
       </FormControl>
     </div>
-  )
-}
+  );
+};
 
 const ModeSetting = ({ value, setValue }) => {
-
-  const handleChange = event => {
-    setValue(event.target.value)
-  }
+  const handleChange = (event) => {
+    setValue(event.target.value);
+  };
 
   return (
     <div>
@@ -91,14 +92,13 @@ const ModeSetting = ({ value, setValue }) => {
         </ToggleButtonGroup>
       </FormControl>
     </div>
-  )
-}
+  );
+};
 
 const AnimationSpeedSetting = ({ value, setValue }) => {
-
-  const handleChange = event => {
-    setValue(event.target.value)
-  }
+  const handleChange = (event) => {
+    setValue(event.target.value);
+  };
 
   return (
     <div>
@@ -116,14 +116,13 @@ const AnimationSpeedSetting = ({ value, setValue }) => {
         />
       </FormControl>
     </div>
-  )
-}
+  );
+};
 
 const BehindOnlySetting = ({ value, setValue }) => {
-
-  const handleChange = event => {
-    setValue(event.target.checked)
-  }
+  const handleChange = (event) => {
+    setValue(event.target.checked);
+  };
 
   return (
     <div>
@@ -143,14 +142,13 @@ const BehindOnlySetting = ({ value, setValue }) => {
         />
       </FormControl>
     </div>
-  )
-}
+  );
+};
 
 const AutoRotateSetting = ({ value, setValue }) => {
-
-  const handleChange = event => {
-    setValue(event.target.checked)
-  }
+  const handleChange = (event) => {
+    setValue(event.target.checked);
+  };
 
   return (
     <div>
@@ -170,14 +168,13 @@ const AutoRotateSetting = ({ value, setValue }) => {
         />
       </FormControl>
     </div>
-  )
-}
+  );
+};
 
 const AutoRotateSpeedSetting = ({ value, setValue }) => {
-
-  const handleChange = event => {
-    setValue(event.target.value)
-  }
+  const handleChange = (event) => {
+    setValue(event.target.value);
+  };
 
   return (
     <div>
@@ -195,14 +192,13 @@ const AutoRotateSpeedSetting = ({ value, setValue }) => {
         />
       </FormControl>
     </div>
-  )
-}
+  );
+};
 
 const AxesEnabledSetting = ({ value, setValue }) => {
-
-  const handleChange = event => {
-    setValue(event.target.checked)
-  }
+  const handleChange = (event) => {
+    setValue(event.target.checked);
+  };
 
   return (
     <div>
@@ -222,19 +218,20 @@ const AxesEnabledSetting = ({ value, setValue }) => {
         />
       </FormControl>
     </div>
-  )
-}
+  );
+};
 
 const IntersectionPointsEnabledSetting = ({ value, setValue }) => {
-
-  const handleChange = event => {
-    setValue(event.target.checked)
-  }
+  const handleChange = (event) => {
+    setValue(event.target.checked);
+  };
 
   return (
     <div>
       <FormControl>
-        <FormLabel id="intersection-points-enabled-label">Show Intersection Points</FormLabel>
+        <FormLabel id="intersection-points-enabled-label">
+          Show Intersection Points
+        </FormLabel>
         <FormControlLabel
           sx={{ mt: ".25rem" }}
           control={
@@ -249,19 +246,20 @@ const IntersectionPointsEnabledSetting = ({ value, setValue }) => {
         />
       </FormControl>
     </div>
-  )
-}
+  );
+};
 
 const VertexNormalsEnabledSetting = ({ value, setValue }) => {
-
-  const handleChange = event => {
-    setValue(event.target.checked)
-  }
+  const handleChange = (event) => {
+    setValue(event.target.checked);
+  };
 
   return (
     <div>
       <FormControl>
-        <FormLabel id="vertex-normals-enabled-label">Show Vertex Normals</FormLabel>
+        <FormLabel id="vertex-normals-enabled-label">
+          Show Vertex Normals
+        </FormLabel>
         <FormControlLabel
           sx={{ mt: ".25rem" }}
           control={
@@ -276,19 +274,20 @@ const VertexNormalsEnabledSetting = ({ value, setValue }) => {
         />
       </FormControl>
     </div>
-  )
-}
+  );
+};
 
 const FormBoundariesEnabledSetting = ({ value, setValue }) => {
-
-  const handleChange = event => {
-    setValue(event.target.checked)
-  }
+  const handleChange = (event) => {
+    setValue(event.target.checked);
+  };
 
   return (
     <div>
       <FormControl>
-        <FormLabel id="form-boundaries-enabled-label">Show Form Boundaries</FormLabel>
+        <FormLabel id="form-boundaries-enabled-label">
+          Show Form Boundaries
+        </FormLabel>
         <FormControlLabel
           sx={{ mt: ".25rem" }}
           control={
@@ -303,14 +302,13 @@ const FormBoundariesEnabledSetting = ({ value, setValue }) => {
         />
       </FormControl>
     </div>
-  )
-}
+  );
+};
 
 const StatsEnabledSetting = ({ value, setValue }) => {
-
-  const handleChange = event => {
-    setValue(event.target.checked)
-  }
+  const handleChange = (event) => {
+    setValue(event.target.checked);
+  };
 
   return (
     <div>
@@ -330,42 +328,35 @@ const StatsEnabledSetting = ({ value, setValue }) => {
         />
       </FormControl>
     </div>
-  )
-}
+  );
+};
 
 const SettingsPanel = ({ threeAppActions, closeSettingsPanel }) => {
-
-  const [settings, setSettings] = useState(threeAppActions.getSettings)
-  const [currentTabIndex, setCurrentTabIndex] = useState(0)
+  const [settings, setSettings] = useState(threeAppActions.getSettings);
+  const [currentTabIndex, setCurrentTabIndex] = useState(0);
 
   useEffect(() => {
-    threeAppActions.addSettingsChangedListener(setSettings)
-    return () => threeAppActions.removeSettingsChangedListener(setSettings)
-  }, [threeAppActions])
+    threeAppActions.addSettingsChangedListener(setSettings);
+    return () => threeAppActions.removeSettingsChangedListener(setSettings);
+  }, [threeAppActions]);
 
   const onChangeTab = (_event, newTabIndex) => {
-    setCurrentTabIndex(newTabIndex)
-  }
+    setCurrentTabIndex(newTabIndex);
+  };
 
-  const EnterTimelineScrubbingModeButton = () => {
-    const onClick = () => {
-      threeAppActions.setTimelineScrubbingMode(true)
-      closeSettingsPanel()
-    }
-
-    return (
-      <Button
-        variant="outlined"
-        onClick={onClick}>
-        Enter Timeline Scrubbing Mode
-      </Button>
-    )
-  }
+  const enterTimelineScrubbingMode = () => {
+    threeAppActions.setTimelineScrubbingMode(true);
+    closeSettingsPanel();
+  };
 
   return (
     <StyledSettingsPanel>
-      <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-        <Tabs value={currentTabIndex} onChange={onChangeTab} aria-label="settings-panel">
+      <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
+        <Tabs
+          value={currentTabIndex}
+          onChange={onChangeTab}
+          aria-label="settings-panel"
+        >
           <Tab label="Settings" {...a11yProps(0)} />
           <Tab label="Debug" {...a11yProps(1)} />
         </Tabs>
@@ -373,27 +364,62 @@ const SettingsPanel = ({ threeAppActions, closeSettingsPanel }) => {
 
       <TabPanel value={currentTabIndex} index={0}>
         <StyledSettingsTabPanelBody>
-          <ShowNameSetting value={settings.showName} setValue={threeAppActions.setShowName} />
-          <ModeSetting value={settings.mode} setValue={threeAppActions.setMode} />
-          <AnimationSpeedSetting value={settings.animationSpeed} setValue={threeAppActions.setAnimationSpeed} />
-          <BehindOnlySetting value={settings.behindOnly} setValue={threeAppActions.setBehindOnly} />
-          <AutoRotateSetting value={settings.autoRotate} setValue={threeAppActions.setAutoRotate} />
-          <AutoRotateSpeedSetting value={settings.autoRotateSpeed} setValue={threeAppActions.setAutoRotateSpeed} />
+          <ShowNameSetting
+            value={settings.showName}
+            setValue={threeAppActions.setShowName}
+          />
+          <ModeSetting
+            value={settings.mode}
+            setValue={threeAppActions.setMode}
+          />
+          <AnimationSpeedSetting
+            value={settings.animationSpeed}
+            setValue={threeAppActions.setAnimationSpeed}
+          />
+          <BehindOnlySetting
+            value={settings.behindOnly}
+            setValue={threeAppActions.setBehindOnly}
+          />
+          <AutoRotateSetting
+            value={settings.autoRotate}
+            setValue={threeAppActions.setAutoRotate}
+          />
+          <AutoRotateSpeedSetting
+            value={settings.autoRotateSpeed}
+            setValue={threeAppActions.setAutoRotateSpeed}
+          />
         </StyledSettingsTabPanelBody>
       </TabPanel>
 
       <TabPanel value={currentTabIndex} index={1}>
         <StyledSettingsTabPanelBody>
-          <AxesEnabledSetting value={settings.axesEnabled} setValue={threeAppActions.setAxesEnabled} />
-          <IntersectionPointsEnabledSetting value={settings.intersectionPointsEnabled} setValue={threeAppActions.setIntersectionPointsEnabled} />
-          <VertexNormalsEnabledSetting value={settings.vertexNormalsEnabled} setValue={threeAppActions.setVertexNormalsEnabled} />
-          <FormBoundariesEnabledSetting value={settings.formBoundariesEnabled} setValue={threeAppActions.setFormBoundariesEnabled} />
-          <StatsEnabledSetting value={settings.statsEnabled} setValue={threeAppActions.setStatsEnabled} />
-          <EnterTimelineScrubbingModeButton />
+          <AxesEnabledSetting
+            value={settings.axesEnabled}
+            setValue={threeAppActions.setAxesEnabled}
+          />
+          <IntersectionPointsEnabledSetting
+            value={settings.intersectionPointsEnabled}
+            setValue={threeAppActions.setIntersectionPointsEnabled}
+          />
+          <VertexNormalsEnabledSetting
+            value={settings.vertexNormalsEnabled}
+            setValue={threeAppActions.setVertexNormalsEnabled}
+          />
+          <FormBoundariesEnabledSetting
+            value={settings.formBoundariesEnabled}
+            setValue={threeAppActions.setFormBoundariesEnabled}
+          />
+          <StatsEnabledSetting
+            value={settings.statsEnabled}
+            setValue={threeAppActions.setStatsEnabled}
+          />
+          <Button variant="outlined" onClick={enterTimelineScrubbingMode}>
+            Enter Timeline Scrubbing Mode
+          </Button>
         </StyledSettingsTabPanelBody>
       </TabPanel>
     </StyledSettingsPanel>
-  )
-}
+  );
+};
 
-export default SettingsPanel
+export default SettingsPanel;

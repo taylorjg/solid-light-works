@@ -12,6 +12,8 @@ jobs:
           node-version-file: ".nvmrc"
       - name: Clean install
         run: npm clean-install
+      - name: Run lint check
+        run: npm run lint
       - name: Run unit tests
         run: npm test
       - name: Build
