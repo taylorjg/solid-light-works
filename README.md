@@ -1,3 +1,5 @@
+[![CI/CD](https://github.com/taylorjg/solid-light-works/actions/workflows/ci-cd.yaml/badge.svg)](https://github.com/taylorjg/solid-light-works/actions/workflows/ci-cd.yaml)
+
 ## Description
 
 I visited the [The Hepworth Wakefield](https://hepworthwakefield.org/) recently and was captivated
