@@ -25,7 +25,8 @@
     "preview": "vite preview",
     "test": "vitest run",
     "predeploy": "npm run build",
-    "deploy": "gh-pages -d dist"
+    "deploy": "gh-pages -d dist",
+    "open": "open https://taylorjg.github.io/solid-light-works"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
