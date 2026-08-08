@@ -5,8 +5,7 @@ on:
   pull_request:
 
 jobs:
-  run-unit-tests:
-    name: Run unit tests and build
+  test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -31,7 +30,7 @@ jobs:
   deploy:
     name: Deploy to gh-pages
     if: github.ref_type == 'tag' && startsWith(github.ref_name, 'v')
-    needs: [run-unit-tests]
+    needs: test
     runs-on: ubuntu-latest
     permissions:
       contents: write
