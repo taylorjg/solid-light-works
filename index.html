@@ -1,35 +1,40 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Attempt to render some of Anthony McCall's solid light works using three.js and WebGL"
+    />
+    <title>Solid Light Works</title>
+    <style>
+      html,
+      body {
+        background-color: #000000;
+      }
+    </style>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script
+      async
+      src="https://www.googletagmanager.com/gtag/js?id=G-2H886ZBLHN"
+    ></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
 
-<head>
-  <meta charset="utf-8" />
-  <link rel="icon" href="/favicon.ico" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description"
-    content="Attempt to render some of Anthony McCall's solid light works using three.js and WebGL" />
-  <title>Solid Light Works</title>
-  <style>
-    html,
-    body {
-      background-color: #000000;
-    }
-  </style>
-  <!-- Global site tag (gtag.js) - Google Analytics -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-2H886ZBLHN"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag() { dataLayer.push(arguments); }
-    gtag('js', new Date());
+      gtag("config", "G-2H886ZBLHN");
+    </script>
+  </head>
 
-    gtag('config', 'G-2H886ZBLHN');
-  </script>
-</head>
-
-<body>
-  <noscript>You need to enable JavaScript to run this app.</noscript>
-  <div id="visualisation-container"></div>
-  <div id="react-container"></div>
-  <script type="module" src="/src/index.jsx"></script>
-</body>
-
+  <body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <div id="visualisation-container"></div>
+    <div id="react-container"></div>
+    <script type="module" src="/src/index.jsx"></script>
+  </body>
 </html>
