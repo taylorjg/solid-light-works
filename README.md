@@ -83,6 +83,30 @@ See also:
 - [OrbitControls.keys](https://threejs.org/docs/index.html#examples/controls/OrbitControls.keys)
 - [OrbitControls.mouseButtons](https://threejs.org/docs/index.html#examples/controls/OrbitControls.mouseButtons)
 
+## Membrane shading (3D mode)
+
+The visible "cone of light" is a thin haze sheet (`MembraneGeometry` +
+`fragment-shader.glsl`), not a solid cone. Brightness comes from two terms
+blended together:
+
+1. **Edge / rim** — grazing-angle highlight on the sheet surface (the original
+   heuristic: `1 - |view · normal|`).
+2. **Henyey–Greenstein phase function** — standard model for how light scatters
+   in particulate media (haze, fog, interstellar dust). The asymmetry parameter
+   `g` controls forward vs isotropic scatter; haze in a projector beam is strongly
+   forward (`g` ≈ 0.7–0.9).
+
+Distance from the projector is attenuated with `exp(-falloffK × t²)` where
+`t = distance / beamLength`.
+
+Further reading:
+
+- [Henyey–Greenstein phase function (Wikipedia)](https://en.wikipedia.org/wiki/Henyey%E2%80%93Greenstein_phase_function)
+- [PBRT: Phase Functions](https://www.pbr-book.org/3ed-2018/Volume_Scattering/Phase_Functions.html)
+
+Tuning uniforms live in `projection-effect.js` (`scatterG`, `edgeMix`,
+`falloffK`, `glareStrength`).
+
 ## TODO
 
 - [x] Create basic project structure

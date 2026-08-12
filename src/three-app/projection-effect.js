@@ -17,6 +17,7 @@ export class ProjectionEffect {
     this._formBoundaryClippingPlanes = undefined;
     this._lineClippingPlanes = undefined;
     this._meshClippingPlaneArrays = undefined;
+    this._worldProjector = new THREE.Vector3();
     this._scratch = {
       zaxis: new THREE.Vector3(0, 0, 1),
       tangent: new THREE.Vector3(),
@@ -30,13 +31,35 @@ export class ProjectionEffect {
   _createMesh(maxNumPoints) {
     const geometryOptions = maxNumPoints >= 2 ? { maxNumPoints } : undefined;
     const geometry = new MembraneGeometry(geometryOptions);
+    const beamLength =
+      this._config.beamLength ?? this._config.projectorPosition.length();
+    // Membrane shading: see fragment-shader.glsl (Henyey–Greenstein + edge term).
     const material = new THREE.ShaderMaterial({
       uniforms: {
         hazeTexture: {
           value: this._resources.hazeTexture,
         },
         projectorPosition: {
-          value: this._config.projectorPosition,
+          value: new THREE.Vector3(),
+        },
+        beamLength: {
+          value: beamLength,
+        },
+        scatterG: {
+          // HG asymmetry g: forward scatter in haze (0 = isotropic, ~0.85 = strong).
+          value: 0.72,
+        },
+        edgeMix: {
+          // 0 = rim/edge only, 1 = phase only.
+          value: 0.35,
+        },
+        falloffK: {
+          // exp(-falloffK * t^2) along beam; t = dist / beamLength.
+          value: 0.5,
+        },
+        glareStrength: {
+          // Suppress white-out when viewing back along beam toward projector.
+          value: 0.55,
         },
         opacity: {
           value: 1,
@@ -157,9 +180,17 @@ export class ProjectionEffect {
       this._createMeshes(lineCount, lines);
     }
 
+    this._worldProjector
+      .copy(this._config.projectorPosition)
+      .applyMatrix4(this._config.transform);
+    const beamLength =
+      this._config.beamLength ?? this._config.projectorPosition.length();
+
     this._meshes.forEach((mesh, index) => {
       const line = lines[index];
       mesh.geometry.update(this._config.projectorPosition, line.points);
+      mesh.material.uniforms.projectorPosition.value.copy(this._worldProjector);
+      mesh.material.uniforms.beamLength.value = beamLength;
       mesh.material.uniforms.opacity.value = line.opacity;
 
       const clippingPlanes = this._getMeshClippingPlaneArray(index);
