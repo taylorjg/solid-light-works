@@ -21,6 +21,7 @@ import {
 import { Mode } from "./mode";
 import * as C from "./constants";
 import * as U from "./utils";
+import { createUpdateProfiler } from "./update-profiler";
 
 const SETTINGS_CHANGED_EVENT_NAME = "settings-changed";
 const ENTER_TIMELINE_SCRUBBING_MODE_EVENT_NAME =
@@ -502,12 +503,18 @@ export const threeAppInit = async () => {
 
   switchInstallation(true);
 
+  const updateProfiler = createUpdateProfiler(
+    window.location.search.includes("profile")
+  );
+
   renderer.setAnimationLoop(() => {
     stats && stats.begin();
     const deltaMs = clock.getDelta() * 1000;
     const currentInstallation = installations[currentInstallationIndex];
     if (!inTimelineScrubbingMode || playing) {
+      updateProfiler.begin();
       currentInstallation.updateRenderables(mode, deltaMs * animationSpeed);
+      updateProfiler.end(currentInstallation.config.name);
       if (inTimelineScrubbingMode) {
         const firstWork = currentInstallation.config.works[0];
         const firstForm = firstWork.formConfigs[0].form;
