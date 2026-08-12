@@ -15,10 +15,21 @@ export class ProjectionEffect {
     this._meshHelpers = undefined;
     this._visibleHelpers = false;
     this._formBoundaryClippingPlanes = undefined;
+    this._lineClippingPlanes = undefined;
+    this._meshClippingPlaneArrays = undefined;
+    this._scratch = {
+      zaxis: new THREE.Vector3(0, 0, 1),
+      tangent: new THREE.Vector3(),
+      point1: new THREE.Vector3(),
+      point2: new THREE.Vector3(),
+      projector: new THREE.Vector3(),
+      savedNormal: new THREE.Vector3(),
+    };
   }
 
-  _createMesh() {
-    const geometry = new MembraneGeometry();
+  _createMesh(maxNumPoints) {
+    const geometryOptions = maxNumPoints >= 2 ? { maxNumPoints } : undefined;
+    const geometry = new MembraneGeometry(geometryOptions);
     const material = new THREE.ShaderMaterial({
       uniforms: {
         hazeTexture: {
@@ -44,10 +55,14 @@ export class ProjectionEffect {
     return mesh;
   }
 
-  _createMeshes(lineCount) {
+  _createMeshes(lineCount, lines) {
     this._destroyMeshHelpers();
     this._destroyMeshes();
-    this._meshes = U.range(lineCount).map(() => this._createMesh());
+    this._lineClippingPlanes = undefined;
+    this._meshClippingPlaneArrays = undefined;
+    this._meshes = U.range(lineCount).map((index) =>
+      this._createMesh(lines[index]?.maxNumPoints)
+    );
   }
 
   _destroyMeshes() {
@@ -74,34 +89,63 @@ export class ProjectionEffect {
   }
 
   _tiltClippingPlane(newClippingPlane, oldClippingPlane) {
-    const zaxis = new THREE.Vector3(0, 0, 1);
-    const oldClippingPlaneNormal = oldClippingPlane.normal;
-    const oldClippingPlaneTangent = zaxis
-      .cross(oldClippingPlaneNormal)
-      .normalize();
-    const pointInOldClippingPlane1 = oldClippingPlane.coplanarPoint(
-      new THREE.Vector3()
-    );
-    const pointInOldClippingPlane2 = pointInOldClippingPlane1
-      .clone()
-      .add(oldClippingPlaneTangent);
-    const transformedPointInOldClippingPlane1 =
-      pointInOldClippingPlane1.applyMatrix4(this._config.transform);
-    const transformedPointInOldClippingPlane2 =
-      pointInOldClippingPlane2.applyMatrix4(this._config.transform);
-    const transformedProjectorPosition = this._config.projectorPosition
-      .clone()
+    const { zaxis, tangent, point1, point2, projector, savedNormal } =
+      this._scratch;
+
+    oldClippingPlane.coplanarPoint(point1);
+    tangent.crossVectors(zaxis, oldClippingPlane.normal).normalize();
+    point2.copy(point1).add(tangent);
+
+    point1.applyMatrix4(this._config.transform);
+    point2.applyMatrix4(this._config.transform);
+    projector
+      .copy(this._config.projectorPosition)
       .applyMatrix4(this._config.transform);
-    const newClippingPlaneSavedNormal = newClippingPlane.normal.clone();
-    newClippingPlane.setFromCoplanarPoints(
-      transformedPointInOldClippingPlane1,
-      transformedPointInOldClippingPlane2,
-      transformedProjectorPosition
-    );
-    const dotProduct = newClippingPlaneSavedNormal.dot(newClippingPlane.normal);
-    if (dotProduct < 0) {
+
+    savedNormal.copy(newClippingPlane.normal);
+    newClippingPlane.setFromCoplanarPoints(point1, point2, projector);
+
+    if (savedNormal.dot(newClippingPlane.normal) < 0) {
       newClippingPlane.negate();
     }
+  }
+
+  _getLineClippingPlanes(meshIndex, line) {
+    const source = line.clippingPlanes;
+    if (!source?.length) {
+      return [];
+    }
+
+    if (!this._lineClippingPlanes) {
+      this._lineClippingPlanes = [];
+    }
+
+    let pool = this._lineClippingPlanes[meshIndex];
+    if (!pool || pool.length < source.length) {
+      pool = Array.from({ length: source.length }, () => new THREE.Plane());
+      this._lineClippingPlanes[meshIndex] = pool;
+    }
+
+    const active = [];
+    for (let i = 0; i < source.length; i++) {
+      pool[i].copy(source[i]).applyMatrix4(this._config.transform);
+      this._tiltClippingPlane(pool[i], source[i]);
+      active.push(pool[i]);
+    }
+
+    return active;
+  }
+
+  _getMeshClippingPlaneArray(meshIndex) {
+    if (!this._meshClippingPlaneArrays) {
+      this._meshClippingPlaneArrays = [];
+    }
+    if (!this._meshClippingPlaneArrays[meshIndex]) {
+      this._meshClippingPlaneArrays[meshIndex] = [];
+    }
+    const clippingPlanes = this._meshClippingPlaneArrays[meshIndex];
+    clippingPlanes.length = 0;
+    return clippingPlanes;
   }
 
   update(footprintData) {
@@ -110,36 +154,24 @@ export class ProjectionEffect {
     const meshCount = this._meshes?.length ?? 0;
 
     if (meshCount !== lineCount) {
-      this._createMeshes(lineCount);
+      this._createMeshes(lineCount, lines);
     }
 
     this._meshes.forEach((mesh, index) => {
       const line = lines[index];
-      const numPoints = line.points.length;
-      const projectorPoints = Array(numPoints).fill(
-        this._config.projectorPosition
-      );
-      const screenPoints = U.vec2sToVec3s(line.points);
-      mesh.geometry.dispose();
-      mesh.geometry = new MembraneGeometry(projectorPoints, screenPoints);
-      mesh.geometry.computeVertexNormals();
+      mesh.geometry.update(this._config.projectorPosition, line.points);
       mesh.material.uniforms.opacity.value = line.opacity;
 
-      const clippingPlanes = [];
+      const clippingPlanes = this._getMeshClippingPlaneArray(index);
 
       if (line.clipToFormBoundary) {
         this._ensureFormBoundaryClippingPlanes();
         clippingPlanes.push(...this._formBoundaryClippingPlanes);
       }
 
-      if (line.clippingPlanes) {
-        line.clippingPlanes.forEach((oldClippingPlane) => {
-          const newClippingPlane = oldClippingPlane
-            .clone()
-            .applyMatrix4(this._config.transform);
-          this._tiltClippingPlane(newClippingPlane, oldClippingPlane);
-          clippingPlanes.push(newClippingPlane);
-        });
+      const lineClippingPlanes = this._getLineClippingPlanes(index, line);
+      if (lineClippingPlanes.length) {
+        clippingPlanes.push(...lineClippingPlanes);
       }
 
       if (clippingPlanes.length) {
@@ -184,8 +216,9 @@ export class ProjectionEffect {
       const makeClippingPlane = (x, y, constant) => {
         const normal = new THREE.Vector3(x, y, 0);
         const oldClippingPlane = new THREE.Plane(normal, constant);
-        const newClippingPlane = oldClippingPlane
-          .clone()
+        const newClippingPlane = new THREE.Plane();
+        newClippingPlane
+          .copy(oldClippingPlane)
           .applyMatrix4(this._config.transform);
         this._tiltClippingPlane(newClippingPlane, oldClippingPlane);
         return newClippingPlane;
